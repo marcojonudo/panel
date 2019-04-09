@@ -2,32 +2,34 @@ micronaut:
     application:
         name: panel
     server:
-        port: 8081
+        port: 8083
         cors:
             enabled: true
 
-hibernate:
-    hbm2ddl:
-        auto: 'update'
+endpoints:
+    beans:
+        enabled: true
+        sensitive: false
+    info:
+        enabled: true
+        sensitive: false
+    health:
+        enabled: true
+        sensitive: false
+    refresh:
+        enabled: true
+        sensitive: false
+    routes:
+        enabled: true
+        sensitive: false
+    loggers:
+        enabled: true
+        sensitive: false
 
-grails:
-    gorm:
-        multiTenancy:
-            mode: DATABASE
-            tenantResolverClass: 'io.micronaut.multitenancy.gorm.HttpHeaderTenantResolver'
-
-dataSources:
-    default:
-        dbCreate: validate
-        driverClassName: com.mysql.jdbc.Driver
-        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-        url: jdbc:mysql://localhost:3306/cubo
-        username: root
-        password: root
-#    cubo2:
-#        dbCreate: validate
-#        driverClassName: com.mysql.jdbc.Driver
-#        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-#        url: jdbc:mysql://localhost:3306/cubo2
-#        username: root
-#        password: root
+#endpoints:
+#    server-database-resolver:
+#        host: http://localhost
+#        port: 8084
+#        url: ${host}:${port}
+#    panel:
+#        url: ${endpoints.server-datbase-resolver.url}/panel
