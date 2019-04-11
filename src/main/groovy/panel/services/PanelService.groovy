@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
+import panel.pogos.UpdateCards
 import panel.utils.Constants
 import utils.pogos.EmployeeSchedule
 import utils.pogos.fviberi.Article
@@ -43,8 +44,9 @@ class PanelService {
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 		List<Card> dayCards = panelDatabaseClient.getCards(day).collect { (Card) it }
 
-		List<Card> cards = syncOrders(orders, dayCards)
-		return [dayMechanics: dayMechanics, cards: cards]
+		UpdateCards updateCards = syncOrders(orders, dayCards)
+		saveCards(updateCards)
+		return [dayMechanics: dayMechanics, cards: updateCards.getAll()]
 	}
 
 	// region Mechanics
@@ -160,7 +162,7 @@ class PanelService {
 	 * @param orders List of Order
 	 * @return List of Card
 	 */
-	List<Card> syncOrders(List<Order> orders, List<Card> dayCards) {
+	UpdateCards syncOrders(List<Order> orders, List<Card> dayCards) {
 		/* Se obtiene una lista de todas las tareas de las distintas órdenes */
 		List<Integer> articlesCodes = ((List<Article>) orders.lines.article.flatten()).findAll { it.labour }.unique().code
 		List<Task> ordersTasks = panelDatabaseClient.getTasks(articlesCodes).collect { (Task) it }
@@ -171,30 +173,19 @@ class PanelService {
 		/* Se construyen las fichas a partir de la información de ordenes y grupos */
 		List<Card> ordersCards = buildOrdersCards(ordersGroups)
 
-		List<Card> handledCards = handleCards(orders, dayCards, ordersCards)
-
-		return handledCards
+		/* A partir de las órdenes, las fichas guardadas y las recién construidas, se obtienen aquellas que deben ser
+		*  actualizadas en DB */
+		UpdateCards updateCards = getCardsToUpdate(orders, dayCards, ordersCards)
+		return updateCards
 	}
 
-	static List<Card> handleCards(List<Order> orders, List<Card> dayCards, List<Card> builtCards) {
+	static UpdateCards getCardsToUpdate(List<Order> orders, List<Card> dayCards, List<Card> builtCards) {
 		/* Se obtienen las órdenes cuyas fichas deben ser creadas (número de orden no existe en las fichas actuales) */
-//		List<Card> newOrdersCards = getNewOrdersCards(dayCards, builtCards)
-		List<Card> updatedCards = getNewOrUpdatedCards(dayCards, builtCards)
-		List<Card> deletedCards = getDeletedCards(orders, dayCards, builtCards)
+		UpdateCards updateCards = getNewOrUpdatedCards(dayCards, builtCards)
+		updateCards.deletedCards = getDeletedCards(orders, dayCards, builtCards)
 
-		return updatedCards + deletedCards
+		return updateCards
 	}
-
-//	/**
-//	 * Get cards to create in database
-//	 * @param dayCards Already created cards
-//	 * @param builtCards Cards built based on orders info
-//	 * @return List of cards to create
-//	 */
-//	static List<Card> getNewOrdersCards(List<Card> dayCards, List<Card> builtCards) {
-//		List<Card> newCards = builtCards.findAll { !(it.orderInfo.number in dayCards.orderInfo.number) }
-//		return newCards
-//	}
 
 	/**
 	 * Get cards to create from existent orders, or cards to update
@@ -202,26 +193,26 @@ class PanelService {
 	 * @param builtCards Cards built based on orders info
 	 * @return UpdateCardsInfo with newCards and cardsToUpdate
 	 */
-	static List<Card> getNewOrUpdatedCards(List<Card> dayCards, List<Card> builtCards) {
-		List<Card> updatedCards = []
+	static UpdateCards getNewOrUpdatedCards(List<Card> dayCards, List<Card> builtCards) {
+		UpdateCards updateCards = new UpdateCards()
 		builtCards.each { Card builtCard ->
 			List<Card> dayOrderCards = dayCards.findAll { it.orderInfo.number == builtCard.orderInfo.number }
 
 			if (dayOrderCards) {
-				boolean handledCards = handleExistentGroupCard(dayOrderCards, builtCard, updatedCards)
+				boolean handledCards = handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
 				if (!handledCards) {
 					/* Si el grupo de builtCard no coincide con ninguno de dayOrderCards, se comprueba si ha reemplazado
 					*  a alguno existente o si es una ficha completamente nueva */
-					handleReplacedGroupCard(dayOrderCards, builtCard, updatedCards)
+					handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
 				}
 			} else {
 				/* Si no se encuentran fichas asociadas al número de orden, significa que builtCard se ha construido
 				 * con la nueva orden */
-				updatedCards << builtCard
+				updateCards.newCards << builtCard
 			}
 		}
 
-		return updatedCards
+		return updateCards
 	}
 
 	/**
@@ -231,12 +222,12 @@ class PanelService {
 	 * @param updatedCards List of updated cards
 	 * @return boolean
 	 */
-	static boolean handleExistentGroupCard(List<Card> dayOrderCards, Card builtCard, List<Card> updatedCards) {
+	static boolean handleExistentGroupCard(List<Card> dayOrderCards, Card builtCard, UpdateCards updateCards) {
 		Card dayGroupOrderCard = dayOrderCards.find { it.group.code == builtCard.group.code }
 		if (dayGroupOrderCard) {
 			/* El grupo sigue siendo el mismo, por lo que se comprueba si ha cambiado alguna propiedad de la orden */
 			if (checkUpdatedOrderInfo(dayGroupOrderCard, builtCard)) {
-				updatedCards << updateCardOrderInfo(dayGroupOrderCard, builtCard)
+				updateCards.updatedCards << updateCardOrderInfo(dayGroupOrderCard, builtCard)
 			}
 			return true
 		}
@@ -249,16 +240,16 @@ class PanelService {
 	 * @param builtCard Built card
 	 * @param updatedCards List of updated cards
 	 */
-	static void handleReplacedGroupCard(List<Card> dayOrderCards, Card builtCard, List<Card> updatedCards) {
+	static void handleReplacedGroupCard(List<Card> dayOrderCards, Card builtCard, UpdateCards updateCards) {
 		Card replacedCard = findReplacedCard(dayOrderCards, builtCard)
 		if (replacedCard) {
 			if (checkUpdatedOrderInfo(replacedCard, builtCard)) {
-				updatedCards << updateCardOrderInfo(updateCardGroupInfo(replacedCard, builtCard), builtCard)
+				updateCards.updatedCards << updateCardOrderInfo(updateCardGroupInfo(replacedCard, builtCard), builtCard)
 			} else {
-				updatedCards << updateCardGroupInfo(replacedCard, builtCard)
+				updateCards.updatedCards << updateCardGroupInfo(replacedCard, builtCard)
 			}
 		} else {
-			updatedCards << builtCard
+			updateCards.newCards << builtCard
 		}
 	}
 
@@ -372,6 +363,16 @@ class PanelService {
 	static Card deleteCard(Card card) {
 		card.dateDeleted = new Date()
 		return card
+	}
+
+	// endregion
+
+	// region Save cards
+
+	void saveCards(UpdateCards updateCards) {
+		panelDatabaseClient.createCards(updateCards.newCards)
+		panelDatabaseClient.updateCards(updateCards.updatedCards)
+		panelDatabaseClient.deleteCards(updateCards.deletedCards.id)
 	}
 
 	// endregion
