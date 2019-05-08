@@ -1,0 +1,26 @@
+.mechanic-info-container {
+  width: 180px;
+  height: 100%;
+  position: sticky;
+  left: -100px;
+  background-color: #1c7430 !important;
+}
+
+.ability-container {
+  padding: 2px;
+}
+
+.ability {
+  /*border-radius: 100%;*/
+  background-color: yellow;
+  font-size: .7em;
+  font-weight: bold;
+  /*margin: 3px;*/
+  /*-webkit-box-sizing: border-box;*/
+  /*-moz-box-sizing: border-box;*/
+  /*box-sizing: border-box;*/
+}
+
+.mechanic-position {
+  font-size: 2.5em;
+}

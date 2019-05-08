@@ -1,5 +1,4 @@
 .unassigned-orders-buttons-container {
-  /*border-bottom: 2px solid #595959;*/
   background: #f9f9f9 url("../../../assets/img/texture.svg");
 }
 
@@ -10,14 +9,9 @@
   -webkit-border-radius: 0 !important;
   -moz-border-radius: 0 !important;
   border-radius: 0 !important;
-  /*border-top: 2px solid #595959;*/
+  line-height: 100%;
 }
 
-/*button:last-child {*/
-  /*border-right: 2px solid #595959;*/
-/*}*/
-
 .unassigned-orders-cards-container {
-  /*-moz-repeating-linear-gradient(45deg, #7B7B7B, #7B7B7B 7px, #FFDB70 7px, #FFCC33 12.5%)*/
   background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
 }
