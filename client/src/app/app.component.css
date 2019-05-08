@@ -1,3 +1,32 @@
+.assigned-orders-container {
+  position: relative;
+}
+
+.left-container {
+  position: absolute;
+  left: 0;
+  width: 180px;
+}
+
+.scrollable-container {
+  position: absolute;
+  left: 0;
+  width: calc(100% - 15%);
+  /*padding-left: 180px;*/
+  overflow-x: scroll;
+  z-index: 3;
+}
+
+.scrollable-container > div {
+  position: relative;
+}
+
+.right-container {
+  position: absolute;
+  right: 0;
+}
+
 .unassigned-orders-container {
-  height: 150px;
+  height: 100px;
+  z-index: 3;
 }

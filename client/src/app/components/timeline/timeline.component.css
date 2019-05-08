@@ -3,14 +3,8 @@
   border-top: 2px solid #595959;
   border-bottom: 2px solid #595959;
   width: 4000px;
-}
-
-.timeline-day {
-  width: 180px;
-  position: sticky;
-  left: 0;
-  background-color: #595959;
-  color: #ffffff;
+  position: relative;
+  left: 180px;
 }
 
 .timeline-appointments-panel-space {

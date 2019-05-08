@@ -1,6 +1,6 @@
 .mechanic-line {
-  height: 80px;
   position: relative;
+  left: 180px;
   background-color: #0c5460;
-  margin-bottom: 10px;
+  width: 4000px;
 }

@@ -1,9 +1,24 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
   <div class="row flex-grow-1">
-
+    <div class="col assigned-orders-container padding-0">
+      <div class="h-100 left-container">
+        <app-day-container></app-day-container>
+      </div>
+      <div class="h-100 scrollable-container">
+        <div class="h-100 d-flex flex-column">
+          <app-timeline></app-timeline>
+          <app-grid class="flex-grow-1"></app-grid>
+        </div>
+      </div>
+      <div class="w-15 h-100 right-container">
+        <app-appointments-panel class="h-100"></app-appointments-panel>
+      </div>
+    </div>
   </div>
-  <div class="row unassigned-orders-container">
-    <app-band class="w-100"></app-band>
+  <div class="row">
+    <div class="col unassigned-orders-container padding-0">
+      <app-band class="w-100"></app-band>
+    </div>
   </div>
 </div>
 <router-outlet></router-outlet>
