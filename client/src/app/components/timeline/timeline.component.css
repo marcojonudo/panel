@@ -1,12 +1,30 @@
-.timeline {
+.timeline-container {
+  width: 4180px;
   height: 30px;
+  /*position: sticky;*/
+  /*top: 0;*/
   border-top: 2px solid #595959;
   border-bottom: 2px solid #595959;
-  width: 4000px;
-  position: relative;
-  left: 180px;
+  z-index: 5;
 }
 
-.timeline-appointments-panel-space {
-  width: 250px;
+.timeline-day {
+  width: 180px;
+  position: sticky;
+  left: 0;
+  background-color: #595959;
+  color: #ffffff;
 }
+
+.timeline {
+  background-color: #9E9E9E;
+  /*position: sticky;*/
+  /*top: 0;*/
+  /*left: 180px;*/
+  /*width: 4000px;*/
+  /*border-top: 2px solid #595959;*/
+  /*border-bottom: 2px solid #595959;*/
+}
+/*.timeline-appointments-panel-space {*/
+  /*width: 250px;*/
+/*}*/

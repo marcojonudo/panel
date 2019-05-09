@@ -1,6 +1,15 @@
 .mechanic-line-container {
+  width: 4180px;
   height: 80px;
-  /*position: relative;*/
   margin-bottom: 10px;
-  /*background-color: #9E9E9E;*/
+  background-color: #9E9E9E;
+
+}
+
+.mechanic-info {
+  width: 180px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: #1c7430 !important;
 }

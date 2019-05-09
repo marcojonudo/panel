@@ -1,32 +1,16 @@
-.assigned-orders-container {
-  position: relative;
-}
-
-.left-container {
-  position: absolute;
-  left: 0;
-  width: 180px;
-}
+/*.assigned-orders-container {*/
+  /*height: calc(100% - 100px);*/
+/*}*/
 
 .scrollable-container {
-  position: absolute;
-  left: 0;
-  width: calc(100% - 15%);
-  /*padding-left: 180px;*/
-  overflow-x: scroll;
+  overflow: scroll;
   z-index: 3;
-}
-
-.scrollable-container > div {
-  position: relative;
-}
-
-.right-container {
-  position: absolute;
-  right: 0;
 }
 
 .unassigned-orders-container {
   height: 100px;
+  min-height: 100px;
+  position: sticky;
+  bottom: 0;
   z-index: 3;
 }
