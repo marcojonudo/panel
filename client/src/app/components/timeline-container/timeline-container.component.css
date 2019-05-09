@@ -1,0 +1,7 @@
+.day {
+  width: 180px;
+  position: sticky;
+  left: 0;
+  background-color: #595959;
+  color: #ffffff;
+}

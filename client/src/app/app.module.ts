@@ -11,6 +11,7 @@ import { AppointmentsPanelComponent } from './components/appointments-panel/appo
 import { MechanicInfoComponent } from './components/mechanic-info/mechanic-info.component';
 import { DayContainerComponent } from './components/day-container/day-container.component';
 import { MechanicLineContainerComponent } from './components/mechanic-line-container/mechanic-line-container.component';
+import { TimelineContainerComponent } from './components/timeline-container/timeline-container.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { MechanicLineContainerComponent } from './components/mechanic-line-conta
     AppointmentsPanelComponent,
     MechanicInfoComponent,
     DayContainerComponent,
-    MechanicLineContainerComponent
+    MechanicLineContainerComponent,
+    TimelineContainerComponent
   ],
   imports: [
     BrowserModule,

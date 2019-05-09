@@ -3,7 +3,7 @@
   z-index: 3;
 }
 
-.timeline {
+.timeline-container {
   width: 4180px;
   height: 30px;
   position: sticky;
