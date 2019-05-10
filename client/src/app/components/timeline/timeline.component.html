@@ -1,1 +1,5 @@
-<div class="timeline">8 9 10 11</div>
+<div class="d-flex">
+  <div *ngFor="let hour of hours" class="flex-grow-1 d-flex border-right-2">
+    <div *ngFor="let quarter of quarters" class="flex-grow-1 pl-1 border-right">{{hour}}:{{quarter}}</div>
+  </div>
+</div>

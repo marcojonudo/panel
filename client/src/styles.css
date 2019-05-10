@@ -36,3 +36,7 @@ html, body {
 .flex-basis-0 {
   flex-basis: 0;
 }
+
+.border-right-2 {
+  border-right: 2px solid #dee2e6 !important;
+}

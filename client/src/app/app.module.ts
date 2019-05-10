@@ -12,6 +12,9 @@ import { MechanicInfoComponent } from './components/mechanic-info/mechanic-info.
 import { DayContainerComponent } from './components/day-container/day-container.component';
 import { MechanicLineContainerComponent } from './components/mechanic-line-container/mechanic-line-container.component';
 import { TimelineContainerComponent } from './components/timeline-container/timeline-container.component';
+import { TimelineService } from "./services/timeline.service";
+
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -28,9 +31,10 @@ import { TimelineContainerComponent } from './components/timeline-container/time
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    DragDropModule
   ],
-  providers: [],
+  providers: [TimelineService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

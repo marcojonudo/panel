@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TimelineService } from '../../services/timeline.service'
 
 @Component({
   selector: 'app-timeline',
@@ -7,9 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TimelineComponent implements OnInit {
 
-  constructor() { }
+  private hours: number[];
+  private quarters: string[];
+
+  constructor(private timelineService:TimelineService) {
+    this.quarters = ['00', '15', '30', '45'];
+  }
 
   ngOnInit() {
+    this.hours = this.timelineService.getHours();
   }
 
 }
