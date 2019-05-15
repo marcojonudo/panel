@@ -1,4 +1,4 @@
-<div class="h-100 d-flex flex-wrap" cdkDrag>
+<div class="h-100 d-flex flex-wrap">
   <div class="w-75 h-25 d-flex align-items-center pl-1">Nombre</div>
   <div class="w-25 h-25">S</div>
   <div class="w-75 h-75 d-flex flex-wrap">
@@ -12,7 +12,8 @@
     <div class="w-25 ability-container"><div class="w-100 h-100 align-center rounded-circle ability">AA</div></div>
   </div>
   <div class="w-25 h-75 d-flex flex-wrap">
-    <div class="w-100 h-65 align-center mechanic-position">A</div>
-    <div class="w-100 h-35 align-center"><i class="far fa-trash-alt"></i></div>
+    <div class="w-100 h-65 align-center mechanic-position">{{mechanic}}</div>
+    <div class="w-50 h-35 align-center"><i class="far fa-trash-alt"></i></div>
+    <div class="w-50 h-35 align-center" cdkDragHandle><i class="fas fa-arrows-alt-v"></i></div>
   </div>
 </div>

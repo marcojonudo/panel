@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-mechanic-info',
@@ -6,6 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./mechanic-info.component.css']
 })
 export class MechanicInfoComponent implements OnInit {
+
+  @Input() mechanic: string;
 
   constructor() { }
 

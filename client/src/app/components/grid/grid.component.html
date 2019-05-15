@@ -1,13 +1,6 @@
-<div class="h-100">
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
-  <app-mechanic-line-container></app-mechanic-line-container>
+<div class="h-100 grid d-flex flex-column" cdkDropList (cdkDropListDropped)="drop($event)">
+  <app-mechanic-line-container
+    *ngFor="let mechanic of mechanics"
+    [mechanic]="mechanic"
+    class="mechanic-line-container" cdkDrag cdkDragLockAxis="y"></app-mechanic-line-container>
 </div>

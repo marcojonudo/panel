@@ -1,5 +1,7 @@
 <div class="d-flex">
   <div *ngFor="let hour of hours" class="flex-grow-1 d-flex border-right-2">
-    <div *ngFor="let quarter of quarters" class="flex-grow-1 pl-1 border-right">{{hour}}:{{quarter}}</div>
+    <div *ngFor="let quarter of quarters; first as isFirst" class="flex-grow-1 flex-basis-0 pl-1 border-right">
+      <span *ngIf="isFirst">{{hour}}:{{quarter}}</span>
+    </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-mechanic-line-container',
@@ -8,6 +8,8 @@ import { Component, OnInit } from '@angular/core';
 export class MechanicLineContainerComponent implements OnInit {
 
   constructor() { }
+
+  @Input() mechanic: string;
 
   ngOnInit() {
   }

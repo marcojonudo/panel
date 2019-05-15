@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 
 @Component({
   selector: 'app-grid',
@@ -7,9 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class GridComponent implements OnInit {
 
-  constructor() { }
+  mechanics: string[];
+
+  constructor() {
+    this.mechanics = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+  }
 
   ngOnInit() {
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    console.log(event);
+    console.log(event.previousIndex);
+    console.log(event.currentIndex);
+    moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);
   }
 
 }
