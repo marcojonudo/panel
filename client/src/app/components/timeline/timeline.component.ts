@@ -11,12 +11,11 @@ export class TimelineComponent implements OnInit {
   private hours: number[];
   private quarters: string[];
 
-  constructor(private timelineService:TimelineService) {
-    this.quarters = ['00', '15', '30', '45'];
-  }
+  constructor(private timelineService:TimelineService) { }
 
   ngOnInit() {
     this.hours = this.timelineService.getHours();
+    this.quarters = this.timelineService.getQuarters()
   }
 
 }

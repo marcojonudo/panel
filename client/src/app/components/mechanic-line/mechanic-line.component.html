@@ -1,1 +1,5 @@
-<div class="mechanic-line h-100"></div>
+<div class="h-100 d-flex mechanic-line">
+  <div *ngFor="let hour of hours" class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">
+    <div *ngFor="let quarter of quarters" class="flex-grow-1 flex-basis-0 border-right border-semi-dark"></div>
+  </div>
+</div>

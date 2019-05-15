@@ -1,7 +1,4 @@
 .mechanic-line {
-  /*width: 4000px;*/
-  /*position: absolute;*/
-  /*left: 180px;*/
-  background: linear-gradient(#B5B5B5, #B5B5B5 1%, transparent 1%, transparent 99%, #B5B5B5 99%, #B5B5B5) center/100% auto no-repeat, #B5B5B5 linear-gradient(90deg, #737373, #737373 1%, transparent 1%, transparent) -1px/10px 33px;
-  position: relative;
+  background-color: #e1e1e1;
+  /*position: relative;*/
 }

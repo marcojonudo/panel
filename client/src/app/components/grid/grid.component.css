@@ -16,7 +16,7 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.mechanic-line-container {
+.mechanic-line-container-wrapper {
   width: 4180px;
   height: 80px;
   margin-bottom: 10px;

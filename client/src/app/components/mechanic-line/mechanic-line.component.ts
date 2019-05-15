@@ -8,9 +8,10 @@ import {TimelineService} from "../../services/timeline.service";
 })
 export class MechanicLineComponent implements OnInit {
 
+  private readonly quartersPerHour: number;
+  private readonly intervalsPerQuarter: number;
   private hours: number[];
-  private quartersPerHour: number;
-  private intervalsPerQuarter: number;
+  private quarters: string[];
   private intervals: number[];
 
   constructor(private timelineService:TimelineService) {
@@ -19,12 +20,10 @@ export class MechanicLineComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this.hours = this.timelineService.getHours();
-    // let intervalsNumber = this.hours.length * this.quartersPerHour * this.intervalsPerQuarter;
-    // for (interval of intervalsNumber) {
-    //   this.intervals.push(interval);
-    // }
-    // console.log(this.intervals);
+    this.hours = this.timelineService.getHours();
+    this.quarters = this.timelineService.getQuarters();
+    let intervalsNumber = this.hours.length * this.quartersPerHour * this.intervalsPerQuarter;
+    this.intervals = Array(intervalsNumber);
   }
 
 }

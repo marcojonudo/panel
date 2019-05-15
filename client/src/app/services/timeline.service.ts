@@ -5,11 +5,22 @@ import { Injectable } from '@angular/core';
 })
 export class TimelineService {
 
-  private hours: number[] = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+  private readonly START_HOUR = 8;
+  private readonly HOURS_NUMBER = 16;
+  private hours: number[];
+  private quarters: string[];
 
-  constructor() { }
+  constructor() {
+    this.hours = Array(this.HOURS_NUMBER).fill(0).map((x, i) => this.START_HOUR + i);
+    this.quarters = ['00', '15', '30', '45'];
+  }
 
   getHours() {
     return this.hours;
   }
+
+  getQuarters() {
+    return this.quarters;
+  }
+
 }

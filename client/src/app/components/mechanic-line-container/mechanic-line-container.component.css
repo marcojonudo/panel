@@ -1,11 +1,9 @@
 .mechanic-line-container {
-  width: 4180px;
-  height: 80px;
-  margin-bottom: 10px;
-  background-color: #9E9E9E;
+  border-top: 2px solid #595959;
+  border-bottom: 2px solid #595959;
 }
 
-.mechanic-info {
+.mechanic-info-container {
   width: 180px;
   position: sticky;
   left: 0;
