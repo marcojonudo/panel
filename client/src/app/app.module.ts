@@ -16,6 +16,7 @@ import { TimelineService } from "./services/timeline.service";
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ToolsPanelComponent } from './components/tools-panel/tools-panel.component';
 import { AppointmentsPanelComponent } from './components/appointments-panel/appointments-panel.component';
+import { ToolsButtonsComponent } from './components/tools-buttons/tools-buttons.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { AppointmentsPanelComponent } from './components/appointments-panel/appo
     MechanicLineContainerComponent,
     TimelineContainerComponent,
     ToolsPanelComponent,
-    AppointmentsPanelComponent
+    AppointmentsPanelComponent,
+    ToolsButtonsComponent
   ],
   imports: [
     BrowserModule,

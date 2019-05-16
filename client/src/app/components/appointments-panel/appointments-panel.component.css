@@ -1,6 +1,7 @@
 .appointments-panel table {
   display: flex;
   flex-direction: column;
+  background-color: #ffffff;
 }
 
 .appointments-panel table thead {
