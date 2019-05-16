@@ -11,7 +11,7 @@ import { MechanicInfoComponent } from './components/mechanic-info/mechanic-info.
 import { DayContainerComponent } from './components/day-container/day-container.component';
 import { MechanicLineContainerComponent } from './components/mechanic-line-container/mechanic-line-container.component';
 import { TimelineContainerComponent } from './components/timeline-container/timeline-container.component';
-import { TimelineService } from "./services/timeline.service";
+import { TimeService } from "./services/time.service";
 
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ToolsPanelComponent } from './components/tools-panel/tools-panel.component';
@@ -38,7 +38,9 @@ import { ToolsButtonsComponent } from './components/tools-buttons/tools-buttons.
     AppRoutingModule,
     DragDropModule
   ],
-  providers: [TimelineService],
+  providers: [
+    TimeService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

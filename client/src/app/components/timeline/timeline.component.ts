@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TimelineService } from '../../services/timeline.service'
+import {TimeService} from "../../services/time.service";
 
 @Component({
   selector: 'app-timeline',
@@ -11,11 +11,15 @@ export class TimelineComponent implements OnInit {
   private hours: number[];
   private quarters: string[];
 
-  constructor(private timelineService:TimelineService) { }
+  constructor(private timeService: TimeService) { }
 
   ngOnInit() {
-    this.hours = this.timelineService.getHours();
-    this.quarters = this.timelineService.getQuarters()
+    this.hours = this.timeService.getHours();
+    this.quarters = this.timeService.getQuarters()
+  }
+
+  fitWidth() {
+    return this.timeService.getFitWidth()
   }
 
 }

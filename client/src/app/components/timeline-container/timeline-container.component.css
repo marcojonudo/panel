@@ -1,3 +1,8 @@
+.timeline-container {
+  border-top: 2px solid #595959;
+  border-bottom: 2px solid #595959;
+}
+
 .day {
   width: 180px;
   position: sticky;

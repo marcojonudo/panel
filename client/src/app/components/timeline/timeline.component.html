@@ -1,7 +1,10 @@
 <div class="d-flex timeline">
   <div *ngFor="let hour of hours" class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">
-    <div *ngFor="let quarter of quarters; first as isFirst" class="flex-grow-1 flex-basis-0 pl-1 border-right border-semi-dark">
-      <span *ngIf="isFirst">{{hour}}:{{quarter}}</span>
+    <div
+      *ngFor="let quarter of quarters; first as isFirst"
+      class="flex-grow-1 flex-basis-0 border-right border-semi-dark"
+      [ngClass]="{'pl-1': !fitWidth(), 'align-center': fitWidth()}">
+      <span *ngIf="isFirst">{{hour}}<span *ngIf="!fitWidth()">:{{quarter}}</span></span>
     </div>
   </div>
 </div>

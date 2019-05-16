@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {TimelineService} from "../../services/timeline.service";
+import {TimeService} from "../../services/time.service";
 
 @Component({
   selector: 'app-mechanic-line',
@@ -14,14 +14,14 @@ export class MechanicLineComponent implements OnInit {
   private quarters: string[];
   private intervals: number[];
 
-  constructor(private timelineService:TimelineService) {
+  constructor(private timeService:TimeService) {
     this.quartersPerHour = 4;
     this.intervalsPerQuarter = 3;
   }
 
   ngOnInit() {
-    this.hours = this.timelineService.getHours();
-    this.quarters = this.timelineService.getQuarters();
+    this.hours = this.timeService.getHours();
+    this.quarters = this.timeService.getQuarters();
     let intervalsNumber = this.hours.length * this.quartersPerHour * this.intervalsPerQuarter;
     this.intervals = Array(intervalsNumber);
   }

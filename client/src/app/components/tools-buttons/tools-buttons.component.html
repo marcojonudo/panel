@@ -1,5 +1,18 @@
 <div class="h-100 d-flex flex-wrap">
-  <div *ngFor="let button of buttons" class="w-20" style="height: 70px" (click)="button.action()">
-    <i [ngClass]="[button.icon, 'w-100', 'h-100']"></i>
+  <!--<div-->
+    <!--*ngFor="let button of buttons"-->
+    <!--class="ml-1 mr-1"-->
+    <!--(click)="toggleView()">-->
+    <!--<i [ngClass]="[button.icon, 'fa-2x']"></i>-->
+  <!--</div>-->
+  <div
+    class="ml-1 mr-1"
+    (click)="fitTime()">
+    <i class="fas fa-arrows-alt-h fa-2x"></i>
+  </div>
+  <div
+    class="ml-1 mr-1"
+    (click)="toggleView()">
+    <i class="fas fa-binoculars fa-2x"></i>
   </div>
 </div>

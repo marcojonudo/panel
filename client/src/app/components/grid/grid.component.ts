@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
+import {TimeService} from "../../services/time.service";
 
 @Component({
   selector: 'app-grid',
@@ -8,14 +9,22 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 })
 export class GridComponent {
 
-  mechanics: string[];
+  private mechanics: string[];
 
-  constructor() {
-    this.mechanics = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+  constructor(private timeService: TimeService) {
+    this.mechanics = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
   }
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);
+  }
+
+  getTotalTimeWidth() {
+    return this.timeService.getTotalTimeWidth()
+  }
+
+  fitWidth() {
+    return this.timeService.getFitWidth()
   }
 
 }

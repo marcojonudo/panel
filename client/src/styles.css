@@ -15,6 +15,10 @@ html, body {
   width: 85% !important;
 }
 
+.w-90 {
+  width: 90% !important;
+}
+
 .h-65 {
   height: 65% !important;
 }

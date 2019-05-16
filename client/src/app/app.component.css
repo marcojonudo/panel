@@ -3,13 +3,10 @@
   z-index: 3;
 }
 
-.timeline-container {
-  width: 4180px;
+.timeline-container-wrapper {
   height: 30px;
   position: sticky;
   top: 0;
-  border-top: 2px solid #595959;
-  border-bottom: 2px solid #595959;
   z-index: 5;
 }
 
