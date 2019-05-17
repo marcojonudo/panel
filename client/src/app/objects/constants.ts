@@ -1,8 +1,8 @@
 export class Constants {
-  public static PROPERTY: object = {
+  public static PROPERTY: any = {
     SCROLL_LEFT: 'scrollLeft'
   };
-  public static ELEMENT: object = {
+  public static ELEMENT: any = {
     SCROLLABLE_CONTAINER: 'scrollableContainer'
   };
 }
