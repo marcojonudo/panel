@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ToolsButtonInterface} from "../../objects/tools-button-interface";
 import {TimeService} from "../../services/time.service";
+import {DaysPanelsService} from "../../services/days-panels.service";
 
 @Component({
   selector: 'app-tools-buttons',
@@ -11,7 +12,7 @@ export class ToolsButtonsComponent {
 
   // private buttons: ToolsButtonInterface[];
 
-  constructor(private timeService: TimeService) {
+  constructor(private timeService: TimeService, private daysPanelsService: DaysPanelsService) {
     // this.buttons = [
     //   { icon: 'fas fa-arrows-alt-h', action: this.fitTime },
     //   { icon: 'fas fa-binoculars', action: this.toggleView }
@@ -25,9 +26,8 @@ export class ToolsButtonsComponent {
     this.timeService.fitTimeToScreen();
   }
 
-  toggleView() {
-    console.log('adsa');
-    console.log(this.timeService);
+  toggleDayMode() {
+    this.daysPanelsService.toggleDayMode();
   }
 
 }

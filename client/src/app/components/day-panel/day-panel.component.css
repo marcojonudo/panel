@@ -1,0 +1,15 @@
+.scrollable-container {
+  overflow: auto;
+  z-index: 3;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+.timeline-container-wrapper {
+  height: 30px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}

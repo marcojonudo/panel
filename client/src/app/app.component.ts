@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {TimeService} from "./services/time.service";
+import {DaysPanelsService} from "./services/days-panels.service";
 
 @Component({
   selector: 'app-root',
@@ -7,16 +7,23 @@ import {TimeService} from "./services/time.service";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'spa';
+  title = 'Panel';
 
-  constructor(private timeService: TimeService) { }
+  //TODO Cambiar tipo
+  private daysPanels: any[];
 
-  getTotalTimeWidth() {
-    return this.timeService.getTotalTimeWidth()
+  private scrollLeft: number;
+
+  constructor(private daysPanelService: DaysPanelsService) {
+    this.daysPanels = this.daysPanelService.getDaysPanels();
   }
 
-  fitWidth() {
-    return this.timeService.getFitWidth()
+  oneDayMode() {
+    return this.daysPanelService.getOneDayMode()
+  }
+
+  setScrollLeft(scrollLeft) {
+    this.scrollLeft = scrollLeft;
   }
 
 }

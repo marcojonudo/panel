@@ -1,17 +1,16 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
-  <div class="row flex-grow-1">
-    <div class="col d-flex h-100 padding-0">
-      <div id="scrollable-container" class="w-90 d-flex flex-column scrollable-container">
-        <app-timeline-container
-          class="timeline-container-wrapper"
-          [style.width.px]="getTotalTimeWidth()"
-          [class.w-100]="fitWidth()"></app-timeline-container>
-        <app-grid class="flex-grow-1"></app-grid>
-      </div>
-      <div class="flex-grow-1 h-100">
-        <app-tools-panel class="h-100"></app-tools-panel>
-      </div>
-    </div>
+  <div
+    class="row flex-grow-1 days-panels-container">
+    <!--<div *ngFor="let dayPanel of daysPanels">-->
+    <app-day-panel
+      *ngFor="let dayPanel of daysPanels; first as isFirst"
+      (scrollLeft)="setScrollLeft($event)"
+      [setScrollLeft]="scrollLeft"
+      class="col d-flex h-100 padding-0"></app-day-panel>
+
+    <!--</div>-->
+    <!--<app-day-panel class="col d-flex h-100 padding-0"></app-day-panel>-->
+    <!--<app-day-panel class="col d-flex h-100 padding-0"></app-day-panel>-->
   </div>
   <div class="row unassigned-orders-container">
     <div class="col padding-0">

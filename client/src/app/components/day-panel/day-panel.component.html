@@ -1,0 +1,14 @@
+<div class="col d-flex h-100 padding-0">
+  <div
+    #scrollableContainer
+    class="w-90 d-flex flex-column scrollable-container"
+    [class.overflow-x-hidden]="!oneDayMode()"
+    (scroll)="emitScrollValue($event)">
+    <app-timeline-container
+      class="timeline-container-wrapper"
+      [style.width.px]="getTotalTimeWidth()"
+      [class.w-100]="fitWidth()"></app-timeline-container>
+    <app-grid class="flex-grow-1"></app-grid>
+  </div>
+  <app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>
+</div>
