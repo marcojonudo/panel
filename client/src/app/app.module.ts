@@ -10,13 +10,18 @@ import { MechanicLineComponent } from './components/mechanic-line/mechanic-line.
 import { MechanicInfoComponent } from './components/mechanic-info/mechanic-info.component';
 import { MechanicLineContainerComponent } from './components/mechanic-line-container/mechanic-line-container.component';
 import { TimelineContainerComponent } from './components/timeline-container/timeline-container.component';
-import { TimeService } from "./services/time.service";
 
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ToolsPanelComponent } from './components/tools-panel/tools-panel.component';
 import { AppointmentsPanelComponent } from './components/appointments-panel/appointments-panel.component';
 import { ToolsButtonsComponent } from './components/tools-buttons/tools-buttons.component';
 import { DayPanelComponent } from './components/day-panel/day-panel.component';
+import { DimensionSlidersComponent } from './components/dimension-sliders/dimension-sliders.component';
+
+import { TimeService } from "./services/time.service";
+import { DaysPanelsService } from "./services/days-panels.service";
+
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatSliderModule } from '@angular/material'
 
 @NgModule({
   declarations: [
@@ -31,15 +36,18 @@ import { DayPanelComponent } from './components/day-panel/day-panel.component';
     ToolsPanelComponent,
     AppointmentsPanelComponent,
     ToolsButtonsComponent,
-    DayPanelComponent
+    DayPanelComponent,
+    DimensionSlidersComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    DragDropModule
+    DragDropModule,
+    MatSliderModule
   ],
   providers: [
-    TimeService
+    TimeService,
+    DaysPanelsService
   ],
   bootstrap: [AppComponent]
 })

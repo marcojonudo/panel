@@ -3,7 +3,6 @@
     *ngFor="let mechanic of mechanics"
     class="mechanic-line-container-wrapper"
     [mechanic]="mechanic"
-    [style.width.px]="getTotalTimeWidth()"
-    [class.w-100]="fitWidth()"
+    [style.width.%]="getTotalTimeWidth()"
     cdkDrag cdkDragLockAxis="y"></app-mechanic-line-container>
 </div>

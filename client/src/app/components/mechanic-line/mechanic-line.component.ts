@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 
 @Component({
   selector: 'app-mechanic-line',
   templateUrl: './mechanic-line.component.html',
-  styleUrls: ['./mechanic-line.component.css']
+  styleUrls: ['./mechanic-line.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MechanicLineComponent implements OnInit {
 

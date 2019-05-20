@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import {ChangeDetectionStrategy, Component, enableProdMode} from '@angular/core';
 import {DaysPanelsService} from "./services/days-panels.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
   title = 'Panel';
@@ -24,6 +25,14 @@ export class AppComponent {
 
   setScrollLeft(scrollLeft) {
     this.scrollLeft = scrollLeft;
+  }
+
+  testS() {
+    console.log('test en app.component');
+  }
+
+  testClick() {
+    console.log('testing click');
   }
 
 }
