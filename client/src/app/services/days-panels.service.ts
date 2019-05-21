@@ -6,9 +6,11 @@ import { Injectable } from '@angular/core';
 export class DaysPanelsService {
 
   private oneDayMode: boolean;
+  private sliceDaysNumber: number;
 
   constructor() {
     this.oneDayMode = true;
+    this.sliceDaysNumber = this.days.length - 1;
   }
 
   toggleDayMode() {
@@ -19,7 +21,7 @@ export class DaysPanelsService {
     return this.oneDayMode;
   }
 
-  getDaysPanels() {
+  get days() {
     return [1, 2, 3];
   }
 

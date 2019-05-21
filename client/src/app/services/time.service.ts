@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs/internal/Subject";
+import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
+import {Observable} from "rxjs/internal/Observable";
 
 @Injectable({
   providedIn: 'root'
@@ -19,22 +21,20 @@ export class TimeService {
   private minuteWidth: number;
   private widthValue: number;
 
-  private fitWidth: boolean;
-
   private hours: number[];
   private quarters: string[];
 
-  widthValueChange: Subject<number> = new Subject<number>();
+  private subject = new BehaviorSubject<number>(this.SCROLLABLE_CONTAINER_WIDTH_MAX);
+  width$: Observable<number>;
+
+  // widthValueChange: Subject<number> = new Subject<number>();
 
   constructor() {
     this.minuteWidth = this.MINUTE_WIDTH_DEFAULT;
     this.widthValue = this.SCROLLABLE_CONTAINER_WIDTH_MAX;
     this.hours = Array(this.HOURS_NUMBER).fill(0).map((x, i) => this.START_HOUR + i);
     this.quarters = ['00', '15', '30', '45'];
-    this.widthValueChange.subscribe((value) => {
-      console.log('widthValueChange in service');
-      this.widthValue = value;
-    })
+    this.width$ = this.subject.asObservable()
   }
 
   getHours() {
@@ -59,15 +59,19 @@ export class TimeService {
 
   setWidthValue(value: number) {
     // this.widthValue = value;
-    this.widthValueChange.next(value);
+    // this.widthValueChange.next(value);
+    // console.log('set width value');
+    this.subject.next(value);
   }
 
-  fitTimeToScreen() {
-    this.fitWidth = !this.fitWidth;
+  get minWidth() {
+    return this.SCROLLABLE_CONTAINER_WIDTH_MIN;
   }
 
-  getFitWidth() {
-    return this.fitWidth;
+  toggleFitWidth() {
+    this.widthValue = this.widthValue == this.SCROLLABLE_CONTAINER_WIDTH_MIN ?
+      this.SCROLLABLE_CONTAINER_WIDTH_MAX : this.SCROLLABLE_CONTAINER_WIDTH_MIN;
+    this.subject.next(this.widthValue);
   }
 
 }

@@ -1,4 +1,6 @@
 import {
+  AfterViewChecked,
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -12,6 +14,7 @@ import {
 import {TimeService} from "../../services/time.service";
 import {DaysPanelsService} from "../../services/days-panels.service";
 import {Constants} from "../../objects/constants";
+import {DaysService} from "../../services/days.service";
 
 @Component({
   selector: 'app-day-panel',
@@ -19,54 +22,54 @@ import {Constants} from "../../objects/constants";
   styleUrls: ['./day-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DayPanelComponent implements OnInit {
+export class DayPanelComponent implements OnInit, AfterViewInit {
 
-  @Output() scrollLeft: EventEmitter<number>;
-  @Input() index: number = 3;
+  @Output() scrollLeftEmitter: EventEmitter<number>;
 
   @ViewChild(Constants.ELEMENT.SCROLLABLE_CONTAINER) scrollableContainer: ElementRef;
 
-  // test: any;
+  private writeDom: boolean;
+  private initialScrollLeft: number;
 
   constructor(
     private timeService: TimeService,
-    private daysPanelsService: DaysPanelsService,
+    private daysService: DaysService,
     private renderer: Renderer2
   ) {
-    this.scrollLeft = new EventEmitter();
-    // this.test = {'width.%': 350};
-    // this.timeService.widthValueChange.subscribe((value) => {
-    //   this.test['width.%'] = value
-    // })
+    this.scrollLeftEmitter = new EventEmitter();
+    this.writeDom = false;
   }
 
   ngOnInit() { }
 
-  testDayPanel() {
-    console.log('Day panel');
+  ngAfterViewInit() {
+    this.writeDom = true;
+    // TODO Asignar valor al cargar el component para evitar el forced reflow
+    // this.setScrollLeft(this.initialScrollLeft);
   }
 
-  getTotalTimeWidth() {
-    // this.test['width.%'] = this.timeService.getTotalTimeWidth();
-    // console.log(this.test);
-    console.log('Width en day panel: ' + this.timeService.getTotalTimeWidth());
-    return this.timeService.getTotalTimeWidth();
+  get width$() {
+    return this.timeService.width$
   }
 
-  fitWidth() {
-    return this.timeService.getFitWidth()
-  }
-
-  oneDayMode() {
-    return this.daysPanelsService.getOneDayMode()
+  get oneDayMode$() {
+    return this.daysService.oneDayMode$;
   }
 
   emitScrollValue(event) {
-    this.scrollLeft.emit(event.target.scrollLeft)
+    this.scrollLeftEmitter.emit(event.target.scrollLeft)
   }
 
   @Input()
-  set setScrollLeft(scrollLeft: number) {
+  set scrollLeft(scrollLeft: number) {
+    if (this.scrollableContainer && this.writeDom) {
+      this.setScrollLeft(scrollLeft);
+    } else {
+      this.initialScrollLeft = scrollLeft;
+    }
+  }
+
+  setScrollLeft(scrollLeft: number) {
     this.renderer.setProperty(
       this.scrollableContainer.nativeElement,
       Constants.PROPERTY.SCROLL_LEFT,

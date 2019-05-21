@@ -13,6 +13,6 @@ export class ToolsPanelComponent implements OnInit {
   }
 
   testTools() {
-    console.log('Tools');
+    // console.log('Tools');
   }
 }

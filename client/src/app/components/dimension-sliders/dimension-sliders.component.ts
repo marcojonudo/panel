@@ -23,18 +23,14 @@ export class DimensionSlidersComponent implements OnInit {
   }
 
   private updateWidthValue(event: any) {
-    console.log(event);
+    // console.log(event);
     // console.log(this.max - (event.value - this.min));
-    console.log('update width value');
+    // console.log('update width value');
     // this.timeService.setWidthValue(this.max - (event.value - this.min));
-    this.timeService.setWidthValue(this.max - (event - this.min));
-  }
-
-  mouseEnterTest() {
-    console.log('HOLA');
+    this.timeService.setWidthValue(this.max - (event.value - this.min));
   }
 
   testDimensionsSliders() {
-    console.log('Dimension sliders');
+    // console.log('Dimension sliders');
   }
 }

@@ -22,12 +22,8 @@ export class GridComponent {
   }
 
   getTotalTimeWidth() {
-    console.log('grid ' + this.timeService.getTotalTimeWidth());
+    // console.log('grid ' + this.timeService.getTotalTimeWidth());
     return this.timeService.getTotalTimeWidth();
-  }
-
-  fitWidth() {
-    return this.timeService.getFitWidth()
   }
 
 }

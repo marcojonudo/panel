@@ -1,8 +1,9 @@
-<div class="h-100 grid d-flex flex-column" cdkDropList (cdkDropListDropped)="drop($event)">
+<div
+  class="h-100 grid d-flex flex-column"
+  cdkDropList (cdkDropListDropped)="drop($event)">
   <app-mechanic-line-container
     *ngFor="let mechanic of mechanics"
     class="mechanic-line-container-wrapper"
     [mechanic]="mechanic"
-    [style.width.%]="getTotalTimeWidth()"
     cdkDrag cdkDragLockAxis="y"></app-mechanic-line-container>
 </div>

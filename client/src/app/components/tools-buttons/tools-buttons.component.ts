@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {ToolsButtonInterface} from "../../objects/tools-button-interface";
 import {TimeService} from "../../services/time.service";
 import {DaysPanelsService} from "../../services/days-panels.service";
+import {DaysService} from "../../services/days.service";
 
 @Component({
   selector: 'app-tools-buttons',
@@ -13,7 +14,9 @@ export class ToolsButtonsComponent {
 
   // private buttons: ToolsButtonInterface[];
 
-  constructor(private timeService: TimeService, private daysPanelsService: DaysPanelsService) {
+  constructor(
+    private timeService: TimeService,
+    private daysService: DaysService) {
     // this.buttons = [
     //   { icon: 'fas fa-arrows-alt-h', action: this.fitTime },
     //   { icon: 'fas fa-binoculars', action: this.toggleView }
@@ -24,11 +27,15 @@ export class ToolsButtonsComponent {
   }
 
   fitTime() {
-    this.timeService.fitTimeToScreen();
+    this.timeService.toggleFitWidth();
   }
 
   toggleDayMode() {
-    this.daysPanelsService.toggleDayMode();
+    this.daysService.toggleDayMode();
+  }
+
+  testButtons() {
+    // console.log('Test buttons');
   }
 
 }

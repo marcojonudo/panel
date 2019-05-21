@@ -20,7 +20,12 @@ export class TimelineComponent implements OnInit {
   }
 
   fitWidth() {
-    return this.timeService.getFitWidth()
+    let a = this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
+    return this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
+  }
+
+  get width$() {
+    return this.timeService.width$
   }
 
 }

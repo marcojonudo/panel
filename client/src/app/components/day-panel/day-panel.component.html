@@ -1,17 +1,14 @@
 <div class="col d-flex h-100 padding-0">
-  <div>{{testDayPanel()}}</div>
   <div
     #scrollableContainer
-    class="w-90 d-flex flex-column scrollable-container"
-    [class.overflow-x-hidden]="!oneDayMode()"
+    class="w-90 scrollable-container"
     (scroll)="emitScrollValue($event)">
-    <app-timeline-container
-      class="timeline-container-wrapper"
-      [style.width.%]="getTotalTimeWidth()"></app-timeline-container>
-    <!--<app-timeline-container-->
-      <!--class="timeline-container-wrapper"-->
-      <!--[ngStyle]="test"></app-timeline-container>-->
-    <app-grid class="flex-grow-1"></app-grid>
+    <div
+      [style.width.%]="width$ | async">
+      <app-timeline-container
+        class="timeline-container-wrapper"></app-timeline-container>
+      <app-grid></app-grid>
+    </div>
   </div>
   <app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>
 </div>

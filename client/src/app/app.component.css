@@ -2,8 +2,8 @@
   overflow-y: auto;
 }
 
-.overflow-x-auto {
-  overflow-x: auto !important;
+app-day-panel:not(:first-child) {
+  margin: 3rem !important;
 }
 
 .unassigned-orders-container {

@@ -21,7 +21,8 @@ import { TimeService } from "./services/time.service";
 import { DaysPanelsService } from "./services/days-panels.service";
 
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatSliderModule } from '@angular/material'
+import { MatSliderModule } from '@angular/material';
+import { DaysPipe } from './pipes/days.pipe'
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { MatSliderModule } from '@angular/material'
     AppointmentsPanelComponent,
     ToolsButtonsComponent,
     DayPanelComponent,
-    DimensionSlidersComponent
+    DimensionSlidersComponent,
+    DaysPipe
   ],
   imports: [
     BrowserModule,

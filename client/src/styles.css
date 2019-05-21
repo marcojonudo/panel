@@ -3,6 +3,10 @@ html, body {
   overflow: hidden;
 }
 
+.display-none {
+  display: none !important;
+}
+
 .padding-0 {
   padding: 0;
 }

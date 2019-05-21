@@ -1,18 +1,13 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
-  <div>{{testS()}}</div>
-  <div (click)="testClick()">aaaaa</div>
   <div
-    class="row flex-grow-1 days-panels-container">
-    <!--<div *ngFor="let dayPanel of daysPanels">-->
-    <app-day-panel
-      *ngFor="let dayPanel of daysPanels; first as isFirst"
-      (scrollLeft)="setScrollLeft($event)"
-      [setScrollLeft]="scrollLeft"
-      class="col d-flex h-100 padding-0"></app-day-panel>
-
-    <!--</div>-->
-    <!--<app-day-panel class="col d-flex h-100 padding-0"></app-day-panel>-->
-    <!--<app-day-panel class="col d-flex h-100 padding-0"></app-day-panel>-->
+    class="row flex-grow-1">
+    <div class="col h-100 padding-0 days-panels-container">
+      <app-day-panel
+        *ngFor="let dayPanel of daysPanels | days: (oneDayMode$ | async)"
+        class="h-100"
+        (scrollLeftEmitter)="setScrollLeft($event)"
+        [scrollLeft]="scrollLeft"></app-day-panel>
+    </div>
   </div>
   <div class="row unassigned-orders-container">
     <div class="col padding-0">
