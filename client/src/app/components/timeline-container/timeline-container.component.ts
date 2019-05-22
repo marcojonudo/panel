@@ -13,8 +13,4 @@ export class TimelineContainerComponent implements OnInit {
   ngOnInit() {
   }
 
-  testTimelineContainer() {
-    // console.log('Timeline container')
-  }
-
 }

@@ -40,7 +40,7 @@ export class DaysService {
   }
 
   get days() {
-    return [{id: 1}, {id: 2}];
+    return [1, 2, 3, 4, 5, 6, 7, 8];
     // return [{id: 1}, {id: 2}, {id: 3}];
   }
 

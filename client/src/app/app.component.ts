@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, enableProdMode} from '@angular/core';
-import {DaysPanelsService} from "./services/days-panels.service";
 import {DaysService} from "./services/days.service";
+import {TimeService} from "./services/time.service";
 
 @Component({
   selector: 'app-root',
@@ -14,18 +14,16 @@ export class AppComponent {
   //TODO Cambiar tipo
   private daysPanels: any[];
 
-  private scrollLeft: number;
-
-  constructor(private daysService: DaysService) {
+  constructor(private daysService: DaysService, private timeService: TimeService) {
     this.daysPanels = this.daysService.days;
-  }
-
-  setScrollLeft(scrollLeft) {
-    this.scrollLeft = scrollLeft;
   }
 
   get oneDayMode$() {
     return this.daysService.oneDayMode$;
+  }
+
+  get width$() {
+    return this.timeService.width$
   }
 
 }

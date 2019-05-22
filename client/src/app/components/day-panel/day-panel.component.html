@@ -1,14 +1,10 @@
-<div class="col d-flex h-100 padding-0">
-  <div
-    #scrollableContainer
-    class="w-90 scrollable-container"
-    (scroll)="emitScrollValue($event)">
-    <div
-      [style.width.%]="width$ | async">
-      <app-timeline-container
-        class="timeline-container-wrapper"></app-timeline-container>
-      <app-grid></app-grid>
-    </div>
+<div
+  #scrollableContainer
+  class="w-100 scrollable-container"
+  [ngClass]="{'h-100': (oneDayMode$ | async)}">
+  <div class="w-100 h-100">
+    <app-timeline-container
+      class="timeline-container-wrapper"></app-timeline-container>
+    <app-grid></app-grid>
   </div>
-  <app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>
 </div>

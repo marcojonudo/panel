@@ -1,7 +1,5 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {TimeService} from "../../services/time.service";
-import 'hammerjs'
-import {MatSliderChange} from "@angular/material";
 
 @Component({
   selector: 'app-dimension-sliders',
@@ -9,7 +7,7 @@ import {MatSliderChange} from "@angular/material";
   styleUrls: ['./dimension-sliders.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DimensionSlidersComponent implements OnInit {
+export class DimensionSlidersComponent {
 
   private min: number;
   private max: number;
@@ -19,18 +17,8 @@ export class DimensionSlidersComponent implements OnInit {
     this.max = this.timeService.getMaxWidthValue();
   }
 
-  ngOnInit() {
+  private updateWidth(value: number) {
+    this.timeService.setWidthValue(this.max - (value - this.min));
   }
 
-  private updateWidthValue(event: any) {
-    // console.log(event);
-    // console.log(this.max - (event.value - this.min));
-    // console.log('update width value');
-    // this.timeService.setWidthValue(this.max - (event.value - this.min));
-    this.timeService.setWidthValue(this.max - (event.value - this.min));
-  }
-
-  testDimensionsSliders() {
-    // console.log('Dimension sliders');
-  }
 }

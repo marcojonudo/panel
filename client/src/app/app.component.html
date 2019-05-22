@@ -1,12 +1,18 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
   <div
     class="row flex-grow-1">
-    <div class="col h-100 padding-0 days-panels-container">
-      <app-day-panel
-        *ngFor="let dayPanel of daysPanels | days: (oneDayMode$ | async)"
-        class="h-100"
-        (scrollLeftEmitter)="setScrollLeft($event)"
-        [scrollLeft]="scrollLeft"></app-day-panel>
+    <div class="col h-100 padding-0 d-flex">
+      <div
+        class="w-90 h-100 padding-0 overflow-y-auto">
+        <div
+          class="h-100"
+          [style.width.%]="width$ | async">
+          <app-day-panel
+            class="h-100"
+            *ngFor="let dayPanel of daysPanels | days: (oneDayMode$ | async)"></app-day-panel>
+        </div>
+      </div>
+      <app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>
     </div>
   </div>
   <div class="row unassigned-orders-container">

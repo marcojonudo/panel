@@ -22,59 +22,16 @@ import {DaysService} from "../../services/days.service";
   styleUrls: ['./day-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DayPanelComponent implements OnInit, AfterViewInit {
-
-  @Output() scrollLeftEmitter: EventEmitter<number>;
-
-  @ViewChild(Constants.ELEMENT.SCROLLABLE_CONTAINER) scrollableContainer: ElementRef;
-
-  private writeDom: boolean;
-  private initialScrollLeft: number;
+export class DayPanelComponent {
 
   constructor(
     private timeService: TimeService,
-    private daysService: DaysService,
-    private renderer: Renderer2
+    private daysService: DaysService
   ) {
-    this.scrollLeftEmitter = new EventEmitter();
-    this.writeDom = false;
-  }
-
-  ngOnInit() { }
-
-  ngAfterViewInit() {
-    this.writeDom = true;
-    // TODO Asignar valor al cargar el component para evitar el forced reflow
-    // this.setScrollLeft(this.initialScrollLeft);
-  }
-
-  get width$() {
-    return this.timeService.width$
   }
 
   get oneDayMode$() {
     return this.daysService.oneDayMode$;
-  }
-
-  emitScrollValue(event) {
-    this.scrollLeftEmitter.emit(event.target.scrollLeft)
-  }
-
-  @Input()
-  set scrollLeft(scrollLeft: number) {
-    if (this.scrollableContainer && this.writeDom) {
-      this.setScrollLeft(scrollLeft);
-    } else {
-      this.initialScrollLeft = scrollLeft;
-    }
-  }
-
-  setScrollLeft(scrollLeft: number) {
-    this.renderer.setProperty(
-      this.scrollableContainer.nativeElement,
-      Constants.PROPERTY.SCROLL_LEFT,
-      scrollLeft
-    );
   }
 
 }
