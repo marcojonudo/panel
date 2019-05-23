@@ -2,8 +2,12 @@
   overflow-y: auto;
 }
 
-app-day-panel:not(:first-child) {
-  margin: 3rem !important;
+.display-none {
+  display: none;
+}
+
+app-day-panel:not(:first-child):not(:last-child) {
+  margin: 3rem;
 }
 
 .unassigned-orders-container {

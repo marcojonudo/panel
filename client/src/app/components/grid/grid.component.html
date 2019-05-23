@@ -1,9 +1,10 @@
 <div
-  class="h-100 d-flex flex-column"
+  class="w-100 d-flex flex-column grid"
   cdkDropList (cdkDropListDropped)="drop($event)">
   <app-mechanic-line-container
     *ngFor="let mechanic of mechanics"
     class="mechanic-line-container-wrapper"
+    [style.height.px]="(oneDayMode$ | async) ? LINE_HEIGHT_DEFAULT : LINE_HEIGHT_NARROW"
     [mechanic]="mechanic"
     cdkDrag cdkDragLockAxis="y"></app-mechanic-line-container>
 </div>

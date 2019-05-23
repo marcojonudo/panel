@@ -9,22 +9,26 @@ import {TimeService} from "../../services/time.service";
 })
 export class MechanicLineComponent implements OnInit {
 
-  private readonly quartersPerHour: number;
-  private readonly intervalsPerQuarter: number;
+  // private readonly quartersPerHour: number;
+  // private readonly intervalsPerQuarter: number;
   private hours: number[];
   private quarters: string[];
-  private intervals: number[];
+  // private intervals: number[];
 
   constructor(private timeService:TimeService) {
-    this.quartersPerHour = 4;
-    this.intervalsPerQuarter = 3;
+    // this.quartersPerHour = 4;
+    // this.intervalsPerQuarter = 3;
+    this.hours = this.timeService.getHours();
+    this.quarters = this.timeService.getQuarters();
   }
 
   ngOnInit() {
-    this.hours = this.timeService.getHours();
-    this.quarters = this.timeService.getQuarters();
-    let intervalsNumber = this.hours.length * this.quartersPerHour * this.intervalsPerQuarter;
-    this.intervals = Array(intervalsNumber);
+    // let intervalsNumber = this.hours.length * this.quartersPerHour * this.intervalsPerQuarter;
+    // this.intervals = Array(intervalsNumber);
+  }
+
+  trackByItem(index, item) {
+    return item;
   }
 
 }

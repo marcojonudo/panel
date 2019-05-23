@@ -26,4 +26,8 @@ export class AppComponent {
     return this.timeService.width$
   }
 
+  trackByDay(index, item) {
+    return item
+  }
+
 }

@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {TimeService} from "../../services/time.service";
+import {DaysService} from "../../services/days.service";
 
 @Component({
   selector: 'app-grid',
@@ -10,9 +11,12 @@ import {TimeService} from "../../services/time.service";
 })
 export class GridComponent {
 
+  LINE_HEIGHT_DEFAULT: number = 80;
+  LINE_HEIGHT_NARROW: number = 50;
+
   private mechanics: string[];
 
-  constructor(private timeService: TimeService) {
+  constructor(private daysService: DaysService) {
     // this.mechanics = ['A', 'B', 'C'];
     this.mechanics = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
   }
@@ -21,9 +25,8 @@ export class GridComponent {
     moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);
   }
 
-  getTotalTimeWidth() {
-    // console.log('grid ' + this.timeService.getTotalTimeWidth());
-    return this.timeService.getTotalTimeWidth();
+  get oneDayMode$() {
+    return this.daysService.oneDayMode$;
   }
 
 }

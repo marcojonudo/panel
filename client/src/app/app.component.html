@@ -9,7 +9,7 @@
           [style.width.%]="width$ | async">
           <app-day-panel
             class="h-100"
-            *ngFor="let dayPanel of daysPanels | days: (oneDayMode$ | async)"></app-day-panel>
+            *ngFor="let dayPanel of daysPanels | days: (oneDayMode$ | async); trackBy: trackByDay"></app-day-panel>
         </div>
       </div>
       <app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>
