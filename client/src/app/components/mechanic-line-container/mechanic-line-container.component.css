@@ -4,7 +4,6 @@
 }
 
 .mechanic-info-container {
-  width: 180px;
   position: sticky;
   left: 0;
   z-index: 2;

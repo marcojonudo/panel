@@ -21,6 +21,8 @@ export class TimeService {
   private minuteWidth: number;
   private widthValue: number;
 
+  private mechanicWidth: number;
+
   private hours: number[];
   private quarters: string[];
 

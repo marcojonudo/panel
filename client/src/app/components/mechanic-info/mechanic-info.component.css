@@ -3,13 +3,23 @@
   border-right: 2px solid #595959;
 }
 
+.default-width {
+  width: 180px;
+}
+
+.min-layout-width {
+  width: 300px;
+}
+
 .ability-container {
   padding: 2px;
 }
 
 .ability {
+  width: 23px;
+  height: 23px;
   background-color: yellow;
-  font-size: .7em;
+  font-size: .6em;
   font-weight: bold;
 }
 

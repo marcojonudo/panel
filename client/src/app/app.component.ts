@@ -30,4 +30,8 @@ export class AppComponent {
     return item
   }
 
+  checkComponent() {
+    console.log('Component')
+  }
+
 }

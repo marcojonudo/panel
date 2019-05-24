@@ -20,9 +20,11 @@ import { DimensionSlidersComponent } from './components/dimension-sliders/dimens
 import { TimeService } from "./services/time.service";
 import { DaysPanelsService } from "./services/days-panels.service";
 
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatSliderModule } from '@angular/material';
 import { DaysPipe } from './pipes/days.pipe'
+
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { GridsterModule } from "angular-gridster2";
 
 @NgModule({
   declarations: [
@@ -45,7 +47,8 @@ import { DaysPipe } from './pipes/days.pipe'
     BrowserModule,
     AppRoutingModule,
     DragDropModule,
-    MatSliderModule
+    ScrollingModule,
+    GridsterModule
   ],
   providers: [
     TimeService,

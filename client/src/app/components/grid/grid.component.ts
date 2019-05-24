@@ -29,4 +29,8 @@ export class GridComponent {
     return this.daysService.oneDayMode$;
   }
 
+  check() {
+    console.log('---- Grid')
+  }
+
 }

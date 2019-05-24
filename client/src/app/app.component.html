@@ -4,13 +4,24 @@
     <div class="col h-100 padding-0 d-flex">
       <div
         class="w-90 h-100 padding-0 overflow-y-auto">
-        <div
+        <cdk-virtual-scroll-viewport
+          itemSize="750"
           class="h-100"
           [style.width.%]="width$ | async">
+        <!--<div-->
+          <!--class="h-100"-->
+          <!--[style.width.%]="width$ | async">-->
+          <!--<app-day-panel-->
+            <!--class="h-100"-->
+            <!--[index]="i"-->
+            <!--*ngFor="let dayPanel of daysPanels; trackBy: trackByDay; first as isFirst; let i = index"-->
+            <!--[ngClass]="{'display-none': !isFirst && (oneDayMode$ | async)}"></app-day-panel>-->
           <app-day-panel
             class="h-100"
-            *ngFor="let dayPanel of daysPanels | days: (oneDayMode$ | async); trackBy: trackByDay"></app-day-panel>
-        </div>
+            [index]="i"
+            *cdkVirtualFor="let dayPanel of daysPanels | days: (oneDayMode$ | async); trackBy: trackByDay; let i = index"></app-day-panel>
+        <!--</div>-->
+        </cdk-virtual-scroll-viewport>
       </div>
       <app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>
     </div>
@@ -21,4 +32,5 @@
     </div>
   </div>
 </div>
+{{checkComponent()}}
 <router-outlet></router-outlet>

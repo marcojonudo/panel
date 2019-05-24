@@ -24,6 +24,8 @@ import {DaysService} from "../../services/days.service";
 })
 export class DayPanelComponent {
 
+  @Input() index: number;
+
   constructor(
     private timeService: TimeService,
     private daysService: DaysService
@@ -32,6 +34,10 @@ export class DayPanelComponent {
 
   get oneDayMode$() {
     return this.daysService.oneDayMode$;
+  }
+
+  checkDayPanel() {
+    console.log('-- Day panel ' + this.index);
   }
 
 }

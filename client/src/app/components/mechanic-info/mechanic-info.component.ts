@@ -1,4 +1,5 @@
-import {Component, OnInit, Input, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
+import {DaysService} from "../../services/days.service";
 
 @Component({
   selector: 'app-mechanic-info',
@@ -6,13 +7,18 @@ import {Component, OnInit, Input, ChangeDetectionStrategy} from '@angular/core';
   styleUrls: ['./mechanic-info.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicInfoComponent implements OnInit {
+export class MechanicInfoComponent {
 
   @Input() mechanic: string;
 
-  constructor() { }
+  constructor(private daysService: DaysService) { }
 
-  ngOnInit() {
+  check() {
+    console.log('-------- Mechanic info')
+  }
+
+  get oneDayMode$() {
+    return this.daysService.oneDayMode$;
   }
 
 }

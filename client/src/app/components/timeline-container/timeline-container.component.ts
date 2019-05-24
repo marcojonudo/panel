@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 
 @Component({
   selector: 'app-timeline-container',
@@ -6,11 +6,14 @@ import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
   styleUrls: ['./timeline-container.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineContainerComponent implements OnInit {
+export class TimelineContainerComponent {
+
+  @Input() index: number;
 
   constructor() { }
 
-  ngOnInit() {
+  check() {
+    console.log('---- Timeline container')
   }
 
 }

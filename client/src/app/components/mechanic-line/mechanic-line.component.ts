@@ -31,4 +31,8 @@ export class MechanicLineComponent implements OnInit {
     return item;
   }
 
+  check() {
+    console.log('-------- Grid')
+  }
+
 }

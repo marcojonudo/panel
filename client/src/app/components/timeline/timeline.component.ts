@@ -9,6 +9,8 @@ import {TimeService} from "../../services/time.service";
 })
 export class TimelineComponent implements OnInit {
 
+  private DISPLAY_MINUTES_THRESHOLD: number = 250;
+
   private hours: number[];
   private quarters: string[];
 
@@ -26,6 +28,14 @@ export class TimelineComponent implements OnInit {
 
   get width$() {
     return this.timeService.width$
+  }
+
+  get displayMinutesThreshold() {
+    return this.DISPLAY_MINUTES_THRESHOLD;
+  }
+
+  check() {
+    console.log('------ Timeline')
   }
 
 }

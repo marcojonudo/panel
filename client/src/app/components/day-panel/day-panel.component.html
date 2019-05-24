@@ -1,10 +1,12 @@
 <div
   #scrollableContainer
-  class="w-100 scrollable-container"
-  [ngClass]="{'h-100': (oneDayMode$ | async)}">
+  class="w-100 scrollable-container animated fadeIn"
+  [ngClass]="{'h-100': oneDayMode$ | async}">
   <div class="w-100 h-100">
     <app-timeline-container
+      [index]="index"
       class="timeline-container-wrapper"></app-timeline-container>
     <app-grid></app-grid>
   </div>
 </div>
+<div>{{checkDayPanel()}}</div>
