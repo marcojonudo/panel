@@ -5,4 +5,8 @@ export class Constants {
   public static ELEMENT: any = {
     SCROLLABLE_CONTAINER: 'scrollableContainer'
   };
+  public static VALUE: any = {
+    LINE_HEIGHT_DEFAULT: 80,
+    LINE_HEIGHT_NARROW: 50
+  };
 }

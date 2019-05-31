@@ -1,6 +1,11 @@
 html, body {
   height: 100%;
-  overflow: hidden;
+  /*overflow: hidden;*/
+  touch-action: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .display-none {
@@ -51,4 +56,20 @@ html, body {
 
 .border-semi-dark {
   border-color: #a2a2a2 !important;
+}
+
+::-webkit-scrollbar {
+  height: 7px;
+  width: 7px;
+  border: 1px solid #d5d5d5;
+  background-color: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

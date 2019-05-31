@@ -14,10 +14,9 @@
 
 .unassigned-orders-cards-container {
   background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
-  overflow-x: auto;
 }
 
-.card {
+.panel-card {
   background-color: blue;
   width: 150px;
   min-width: 150px;

@@ -4,7 +4,7 @@
   <app-mechanic-line-container
     *ngFor="let mechanic of mechanics"
     class="mechanic-line-container-wrapper"
-    [style.height.px]="(oneDayMode$ | async) ? LINE_HEIGHT_DEFAULT : LINE_HEIGHT_NARROW"
+    [style.height.px]="(oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow"
     [mechanic]="mechanic"
     cdkDrag cdkDragLockAxis="y"></app-mechanic-line-container>
 </div>

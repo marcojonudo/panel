@@ -1,5 +1,6 @@
 import {Component, OnInit, Input, ChangeDetectionStrategy} from '@angular/core';
 import {GridsterConfig, GridsterItem} from "angular-gridster2";
+import {AppComponent} from "../../app.component";
 
 @Component({
   selector: 'app-mechanic-line-container',
@@ -19,11 +20,11 @@ export class MechanicLineContainerComponent {
   // options: GridsterConfig;
   // dashboard: Array<GridsterItem>;
   //
-  // static itemChange(item, itemComponent) {
+  // itemChange(item, itemComponent) {
   //   console.info('itemChanged', item, itemComponent);
   // }
   //
-  // static itemResize(item, itemComponent) {
+  // itemResize(item, itemComponent) {
   //   console.info('itemResized', item, itemComponent);
   // }
   //
@@ -33,7 +34,13 @@ export class MechanicLineContainerComponent {
   //     maxCols: 100,
   //     minRows: 2,
   //     maxRows: 2,
-  //     displayGrid: 'always'
+  //     margin: 0,
+  //     displayGrid: 'always',
+  //     itemChangeCallback: this.itemChange,
+  //     itemResizeCallback: this.itemResize,
+  //     draggable: {
+  //       enabled: true,
+  //     }
   //   };
   //
   //   this.dashboard = [
@@ -55,6 +62,6 @@ export class MechanicLineContainerComponent {
   // }
 
   check() {
-    console.log('------ Mechanic line container')
+    // console.log('------ Mechanic line container')
   }
 }

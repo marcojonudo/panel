@@ -1,6 +1,8 @@
 import {ChangeDetectionStrategy, Component, enableProdMode} from '@angular/core';
 import {DaysService} from "./services/days.service";
 import {TimeService} from "./services/time.service";
+import {MechanicsService} from "./services/mechanics.service";
+import {Constants} from "./objects/constants";
 
 @Component({
   selector: 'app-root',
@@ -13,9 +15,15 @@ export class AppComponent {
 
   //TODO Cambiar tipo
   private daysPanels: any[];
+  private itemSize: number;
 
-  constructor(private daysService: DaysService, private timeService: TimeService) {
+  constructor(
+    private daysService: DaysService,
+    private timeService: TimeService,
+    private mechanicsService: MechanicsService
+  ) {
     this.daysPanels = this.daysService.days;
+    this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
   }
 
   get oneDayMode$() {
@@ -31,7 +39,7 @@ export class AppComponent {
   }
 
   checkComponent() {
-    console.log('Component')
+    //console.log('Component')
   }
 
 }

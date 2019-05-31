@@ -3,9 +3,9 @@
     class="row flex-grow-1">
     <div class="col h-100 padding-0 d-flex">
       <div
-        class="w-90 h-100 padding-0 overflow-y-auto">
+        class="w-90 h-100 padding-0 overflow-auto">
         <cdk-virtual-scroll-viewport
-          itemSize="750"
+          [itemSize]="itemSize"
           class="h-100"
           [style.width.%]="width$ | async">
         <!--<div-->
@@ -17,7 +17,7 @@
             <!--*ngFor="let dayPanel of daysPanels; trackBy: trackByDay; first as isFirst; let i = index"-->
             <!--[ngClass]="{'display-none': !isFirst && (oneDayMode$ | async)}"></app-day-panel>-->
           <app-day-panel
-            class="h-100"
+            class="h-100 animated slideInRight"
             [index]="i"
             *cdkVirtualFor="let dayPanel of daysPanels | days: (oneDayMode$ | async); trackBy: trackByDay; let i = index"></app-day-panel>
         <!--</div>-->

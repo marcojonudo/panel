@@ -35,7 +35,7 @@ export class TimelineComponent implements OnInit {
   }
 
   check() {
-    console.log('------ Timeline')
+    //console.log('------ Timeline')
   }
 
 }

@@ -37,7 +37,7 @@ export class DayPanelComponent {
   }
 
   checkDayPanel() {
-    console.log('-- Day panel ' + this.index);
+    //console.log('-- Day panel ' + this.index);
   }
 
 }

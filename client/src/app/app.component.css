@@ -2,6 +2,15 @@
   overflow-y: auto;
 }
 
+.overflow-auto {
+  overflow: auto;
+}
+
+.cdk-virtual-scroll-viewport {
+  overflow: visible;
+  contain: none;
+}
+
 .display-none {
   display: none;
 }
