@@ -25,6 +25,7 @@ import { DaysPipe } from './pipes/days.pipe'
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { GridsterModule } from "angular-gridster2";
+import { CardComponent } from './components/card/card.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { GridsterModule } from "angular-gridster2";
     ToolsButtonsComponent,
     DayPanelComponent,
     DimensionSlidersComponent,
-    DaysPipe
+    DaysPipe,
+    CardComponent
   ],
   imports: [
     BrowserModule,

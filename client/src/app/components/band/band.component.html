@@ -10,9 +10,9 @@
       'overflow-x': (clickedCard$ | async) ? 'visible' : 'scroll',
       'padding-bottom': (clickedCard$ | async) ? 'calc(1rem + 7px)' : '1rem'
     }">
-    <div
-      #draggable
+    <app-card
       *ngFor="let card of cards"
-      class="panel-card draggable"></div>
+      [width]="150"></app-card>
   </div>
 </div>
+<div>{{check()}}</div>

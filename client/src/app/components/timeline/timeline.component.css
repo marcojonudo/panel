@@ -5,37 +5,37 @@
 .timeline > div {
   background: repeating-linear-gradient(
     to right,
-    #e1e1e1,
-    #e1e1e1 25%,
+    #ffffff,
+    #ffffff 25%,
     #a2a2a2 25%,
     #a2a2a2 calc(25% + 1px),
-    #e1e1e1 calc(25% + 1px),
-    #e1e1e1 50%,
+    #ffffff calc(25% + 1px),
+    #ffffff 50%,
     #a2a2a2 50%,
     #a2a2a2 calc(50% + 1px),
-    #e1e1e1 calc(50% + 1px),
-    #e1e1e1 75%,
+    #ffffff calc(50% + 1px),
+    #ffffff 75%,
     #a2a2a2 75%,
     #a2a2a2 calc(75% + 1px),
-    #e1e1e1 calc(75% + 1px),
-    #e1e1e1 100%
+    #ffffff calc(75% + 1px),
+    #ffffff 100%
   );
   /*background: repeating-linear-gradient(*/
     /*to right,*/
-    /*#e1e1e1,*/
-    /*#e1e1e1 90px,*/
+    /*#ffffff,*/
+    /*#ffffff 90px,*/
     /*#a2a2a2 90px,*/
     /*#a2a2a2 91px,*/
-    /*#e1e1e1 91px,*/
-    /*#e1e1e1 181px,*/
+    /*#ffffff 91px,*/
+    /*#ffffff 181px,*/
     /*#a2a2a2 181px,*/
     /*#a2a2a2 182px,*/
-    /*#e1e1e1 182px,*/
-    /*#e1e1e1 272px,*/
+    /*#ffffff 182px,*/
+    /*#ffffff 272px,*/
     /*#a2a2a2 272px,*/
     /*#a2a2a2 273px,*/
-    /*#e1e1e1 273px,*/
-    /*#e1e1e1 363px,*/
+    /*#ffffff 273px,*/
+    /*#ffffff 363px,*/
     /*#a2a2a2 363px,*/
     /*#a2a2a2 366px*/
   /*);*/
