@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
   private startPosition;
 
   private unassignedCards: any[];
+  private assignedCards: any[];
 
   constructor(
     private daysService: DaysService,
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit {
     this.clickedCard$ = this.clickedCardSubject.asObservable();
 
     this.unassignedCards = [{id: 1, width: 350}, {id: 2, width: 150}, {id: 3, width: 150}, {id: 4, width: 150}, {id: 5, width: 150}];
+    this.assignedCards = [{id: 6, width: 150, left: 180, top: 120}];
     // this.unassignedCards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   }
 
@@ -81,8 +83,18 @@ export class AppComponent implements OnInit {
 
         if (event.target.getAttribute('data-dropzone')) {
           const id = event.target.getAttribute('id');
-          // this.unassignedCards.find((card) => card.id == id);
-          this.unassignedCards = this.unassignedCards.filter((card) => card.id != id)
+
+          let index = undefined;
+          const card = this.unassignedCards.find((card, i) => {
+            index = i;
+            return card.id == id
+          });
+
+          card.left = +event.target.getAttribute('data-left');
+          card.top = +event.target.getAttribute('data-dropzone-top');
+          console.log(card.left);
+          this.unassignedCards.splice(index, 1);
+          this.assignedCards.push(card);
         }
       });
   }
@@ -127,6 +139,14 @@ export class AppComponent implements OnInit {
     this.clickedCardSubject.next(false);
     // this.clickedEmitter.emit(false);
     // this.clickedCard = false;
+  }
+
+  get lineHeightDefault() {
+    return Constants.VALUE.LINE_HEIGHT_DEFAULT;
+  }
+
+  get lineHeightNarrow() {
+    return Constants.VALUE.LINE_HEIGHT_NARROW;
   }
 
 }

@@ -3,7 +3,17 @@
     class="row flex-grow-1">
     <div class="col h-100 padding-0 d-flex">
       <div
-        class="w-90 h-100 padding-0 overflow-auto">
+        class="w-90 h-100 padding-0 overflow-auto cards-holder">
+        <div
+          *ngFor="let card of assignedCards; let i = index"
+          class="assigned-card draggable"
+          [ngStyle]="{
+            'height.px': ((oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow)/2,
+            'left.px': card.left,
+            'top.px': card.top,
+            'width.px': card.width
+          }"></div>
+        <!--<div style="width: 100px; height: 50px; top: 200px; left: 180px; position: absolute; z-index: 999; background-color: blue"></div>-->
         <cdk-virtual-scroll-viewport
           [itemSize]="itemSize"
           class="h-100"

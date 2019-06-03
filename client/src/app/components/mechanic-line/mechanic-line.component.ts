@@ -62,6 +62,8 @@ export class MechanicLineComponent implements AfterViewInit {
     const dropzoneRect = interact.getElementRect(event.target);
     const dropzoneTop = draggableRect.top > dropzoneRect.top + dropzoneRect.height/4 ? dropzoneRect.top + dropzoneRect.height/2 : dropzoneRect.top;
 
+    event.relatedTarget.setAttribute('data-left', left);
+    event.relatedTarget.setAttribute('data-dropzone-top', dropzoneTop);
     event.draggable.options.drag.modifiers[0].options.targets[0] = () => {
       return {x: left, y: dropzoneTop}
     };

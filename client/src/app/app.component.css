@@ -1,9 +1,16 @@
-.overflow-y-auto {
-  overflow-y: auto;
+.cards-holder {
+  position: relative;
 }
 
 .overflow-auto {
   overflow: auto;
+}
+
+.assigned-card {
+  position: absolute;
+  width: 100px;
+  z-index: 999;
+  background-color: blue;
 }
 
 .cdk-virtual-scroll-viewport {
