@@ -26,6 +26,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { GridsterModule } from "angular-gridster2";
 import { CardComponent } from './components/card/card.component';
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { CardComponent } from './components/card/card.component';
     AppRoutingModule,
     DragDropModule,
     ScrollingModule,
-    GridsterModule
+    GridsterModule,
+    BrowserAnimationsModule
   ],
   providers: [
     TimeService,

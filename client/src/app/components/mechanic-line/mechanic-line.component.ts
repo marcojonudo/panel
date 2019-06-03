@@ -67,16 +67,16 @@ export class MechanicLineComponent implements AfterViewInit {
     };
   }
 
-  onDropDeactivate(event) {
-    console.log('onDropDeactivate');
-  }
-  // listen for drop related events:
-
-  onDropActive(event) {
-    console.log('onDropActive');
-    // add active dropzone feedback
-    event.target.classList.add('drop-active');
-  }
+  // onDropDeactivate(event) {
+  //   console.log('onDropDeactivate');
+  // }
+  // // listen for drop related events:
+  //
+  // onDropActive(event) {
+  //   console.log('onDropActive');
+  //   // add active dropzone feedback
+  //   event.target.classList.add('drop-active');
+  // }
 
   onDragEnter(event) {
     event.relatedTarget.setAttribute('data-dropzone', event.target.id);
@@ -84,6 +84,7 @@ export class MechanicLineComponent implements AfterViewInit {
   }
 
   onDragLeave(event) {
+    event.relatedTarget.removeAttribute('data-dropzone');
     const draggableElement = event.relatedTarget;
 
     if (JSON.parse(draggableElement.getAttribute('data-record-position'))) {
@@ -95,11 +96,11 @@ export class MechanicLineComponent implements AfterViewInit {
     }
   }
 
-  onDrop(event) {
-    console.log('onDrop');
-    console.log(event);
-    event.relatedTarget.textContent = 'Dropped';
-  }
+  // onDrop(event) {
+  //   console.log('onDrop');
+  //   console.log(event);
+  //   event.relatedTarget.textContent = 'Dropped';
+  // }
 
   trackByItem(index, item) {
     return item;

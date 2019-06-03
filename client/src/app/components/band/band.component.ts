@@ -1,34 +1,48 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ContentChildren,
-  ElementRef, Input,
-  OnInit, Renderer2,
-  ViewChildren
+  Input,
+  OnInit,
 } from '@angular/core';
-import interact from "interactjs"
 import {Observable} from "rxjs/internal/Observable";
-import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {TimeService} from "../../services/time.service";
+import {animate, animateChild, query, stagger, style, transition, trigger} from "@angular/animations";
 
 @Component({
   selector: 'app-band',
   templateUrl: './band.component.html',
   styleUrls: ['./band.component.css'],
+  animations: [
+    trigger('unassigned-cards-container', [
+      transition(':enter', [
+        query('@unassigned-card', stagger(100, animateChild()))
+      ]),
+    ]),
+    trigger('unassigned-card', [
+      transition(':enter', [
+        style({ transform: 'scale(0.5)', opacity: 0 }),  // initial
+        animate(200,
+          style({ transform: 'scale(1)', opacity: 1 }))  // final
+      ]),
+      transition(':leave', [
+        style({ transform: 'scale(1)', opacity: 1, width: '*'}),  // initial
+        animate(200,
+          style({ transform: 'scale(0.5)', opacity: 0, width: 0, margin: 0}))  // final
+      ])
+    ])
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BandComponent implements OnInit {
 
   @Input() clickedCard$: Observable<boolean>;
+  @Input() cards: any[];
 
-  private clickedCardSubscription: any;
-
-  private cards: number[];
+  // private cards: number[];
   private intervalsNumber: number;
 
   constructor(private timeService: TimeService) {
-    this.cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    // this.cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     // this.clickedCardSubject = new BehaviorSubject<boolean>(false);
     // this.clickedCard$ = this.clickedCardSubject.asObservable();
     this.intervalsNumber = this.timeService.intervalsNumber;
@@ -103,6 +117,10 @@ export class BandComponent implements OnInit {
 
   check() {
     // console.log(this.clickedCard2)
+  }
+
+  trackById(index, item) {
+    return item.id;
   }
 
 }

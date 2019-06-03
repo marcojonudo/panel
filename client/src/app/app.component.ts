@@ -22,8 +22,9 @@ export class AppComponent implements OnInit {
 
   private clickedCardSubject;
   private clickedCard$: Observable<boolean>;
-  private clickedCard: boolean;
   private startPosition;
+
+  private unassignedCards: any[];
 
   constructor(
     private daysService: DaysService,
@@ -35,6 +36,9 @@ export class AppComponent implements OnInit {
 
     this.clickedCardSubject = new BehaviorSubject<boolean>(false);
     this.clickedCard$ = this.clickedCardSubject.asObservable();
+
+    this.unassignedCards = [{id: 1, width: 350}, {id: 2, width: 150}, {id: 3, width: 150}, {id: 4, width: 150}, {id: 5, width: 150}];
+    // this.unassignedCards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   }
 
   get oneDayMode$() {
@@ -70,10 +74,16 @@ export class AppComponent implements OnInit {
 
         onstart: (event) => this.onStart(event),
         onmove: this.onMove,
-        onend: () => this.onEnd()
+        onend: (event) => this.onEnd(event)
       })
       .on('mouseup', (event) => {
         event.target.setAttribute('data-record-position', false);
+
+        if (event.target.getAttribute('data-dropzone')) {
+          const id = event.target.getAttribute('id');
+          // this.unassignedCards.find((card) => card.id == id);
+          this.unassignedCards = this.unassignedCards.filter((card) => card.id != id)
+        }
       });
   }
 
@@ -85,6 +95,10 @@ export class AppComponent implements OnInit {
 
     event.target.setAttribute('data-start-x', this.startPosition.x);
     event.target.setAttribute('data-start-y', this.startPosition.y);
+
+    event.interactable.options.drag.modifiers[0].options.targets[0] = () => {
+      return this.startPosition;
+    };
 
     this.clickedCardSubject.next(true)
     // this.clickedEmitter.emit(true);
@@ -109,7 +123,7 @@ export class AppComponent implements OnInit {
     target.setAttribute('data-y', y);
   }
 
-  onEnd() {
+  onEnd(event) {
     this.clickedCardSubject.next(false);
     // this.clickedEmitter.emit(false);
     // this.clickedCard = false;

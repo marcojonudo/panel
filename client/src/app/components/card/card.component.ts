@@ -1,6 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import interact from "interactjs";
-import {Observable} from "rxjs/internal/Observable";
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
   selector: 'app-card',
@@ -9,7 +7,7 @@ import {Observable} from "rxjs/internal/Observable";
 })
 export class CardComponent {
 
-  @Input() width: number;
+  @Input() card: any;
   @Output() clickedEmitter: EventEmitter<boolean>;
 
   constructor() {
