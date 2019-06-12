@@ -7,6 +7,8 @@ import {
 import {Observable} from "rxjs/internal/Observable";
 import {TimeService} from "../../services/time.service";
 import {animate, animateChild, query, stagger, style, transition, trigger} from "@angular/animations";
+import {Draggable, Droppable} from "@shopify/draggable"
+import {CardPositionService} from "../../services/card-position.service";
 
 @Component({
   selector: 'app-band',
@@ -41,14 +43,29 @@ export class BandComponent implements OnInit {
   // private cards: number[];
   private intervalsNumber: number;
 
-  constructor(private timeService: TimeService) {
+  constructor(private timeService: TimeService, private cardPositionService: CardPositionService  ) {
     // this.cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     // this.clickedCardSubject = new BehaviorSubject<boolean>(false);
     // this.clickedCard$ = this.clickedCardSubject.asObservable();
     this.intervalsNumber = this.timeService.intervalsNumber;
   }
 
+  get helperCard$() {
+    return this.cardPositionService.helperCard$;
+  }
+
   ngOnInit() {
+    // const droppable = new Droppable(document.querySelectorAll('.unassigned-orders-container'), {
+    //   draggable: '.draggable',
+    //   dropzone: '.unassigned-orders-cards-container'
+    // });
+    // droppable.on('droppable:dropped', () => console.log('droppppp'));
+    // const draggable = new Draggable(
+    //   document.querySelectorAll('.container'),
+    //   {
+    //     draggable: '.draggable'
+    //   }
+    // )
     // this.clickedCardSubscription = this.clickedCard$.subscribe((value) => {
     //   console.log('value');
     //   console.log(value);

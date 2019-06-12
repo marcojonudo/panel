@@ -1,6 +1,7 @@
 export class Constants {
   public static PROPERTY: any = {
-    SCROLL_LEFT: 'scrollLeft'
+    SCROLL_LEFT: 'scrollLeft',
+    SCROLL_TOP: 'scrollTop'
   };
   public static ELEMENT: any = {
     SCROLLABLE_CONTAINER: 'scrollableContainer'

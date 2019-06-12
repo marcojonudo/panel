@@ -27,6 +27,12 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { GridsterModule } from "angular-gridster2";
 import { CardComponent } from './components/card/card.component';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { AngularDraggableModule } from "angular2-draggable";
+import { DraggableDirective } from './directives/draggable.directive'
+import {OverlayModule} from "@angular/cdk/overlay";
+import { MovableDirective } from './directives/movable.directive';
+import { DraggableHelperDirective } from './directives/draggable-helper.directive';
+import { ScrollableDirective } from './directives/scrollable.directive';
 
 @NgModule({
   declarations: [
@@ -44,7 +50,11 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
     DayPanelComponent,
     DimensionSlidersComponent,
     DaysPipe,
-    CardComponent
+    CardComponent,
+    DraggableDirective,
+    MovableDirective,
+    DraggableHelperDirective,
+    ScrollableDirective
   ],
   imports: [
     BrowserModule,
@@ -52,7 +62,9 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
     DragDropModule,
     ScrollingModule,
     GridsterModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    AngularDraggableModule,
+    OverlayModule
   ],
   providers: [
     TimeService,

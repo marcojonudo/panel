@@ -4,13 +4,16 @@
     <button class="btn btn-danger align-center padding-0">En curso</button>
     <button class="btn btn-primary align-center padding-0">Cita previa</button>
   </div>
+  <!--<div-->
+    <!--@unassigned-cards-container-->
+    <!--class="flex-grow-1 unassigned-orders-cards-container d-flex pt-3 pl-3"-->
+    <!--[ngStyle]="{-->
+      <!--'overflow-x': (clickedCard$ | async) ? 'visible' : 'scroll',-->
+      <!--'padding-bottom': (clickedCard$ | async) ? 'calc(1rem + 7px)' : '1rem'-->
+    <!--}">-->
   <div
     @unassigned-cards-container
-    class="flex-grow-1 unassigned-orders-cards-container d-flex pt-3 pl-3"
-    [ngStyle]="{
-      'overflow-x': (clickedCard$ | async) ? 'visible' : 'scroll',
-      'padding-bottom': (clickedCard$ | async) ? 'calc(1rem + 7px)' : '1rem'
-    }">
+    class="flex-grow-1 unassigned-orders-cards-container d-flex pt-3 pb-3 pl-3">
     <app-card
       @unassigned-card
       *ngFor="let card of cards; trackBy: trackById"

@@ -3,16 +3,46 @@
     class="row flex-grow-1">
     <div class="col h-100 padding-0 d-flex">
       <div
-        class="w-90 h-100 padding-0 overflow-auto cards-holder">
-        <div
-          *ngFor="let card of assignedCards; let i = index"
-          class="assigned-card draggable"
-          [ngStyle]="{
-            'height.px': ((oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow)/2,
-            'left.px': card.left,
-            'top.px': card.top,
-            'width.px': card.width
-          }"></div>
+        #draggableContainer
+        appScrollable
+        [scrollLeft]="scrollLeft"
+        [scrollTop]="scrollTop"
+        id="draggable-container"
+        class="w-90 h-100 padding-0 overflow-auto">
+        <!--<div-->
+          <!--*ngFor="let card of assignedCards; let i = index"-->
+          <!--class="assigned-card"-->
+          <!--(mousedown)="changeLayout()"-->
+          <!--(mouseup)="changeLayout()"-->
+          <!--(started)="onStart2($event)"-->
+          <!--(movingOffset)="onMoving($event)"-->
+          <!--(endOffset)="onMoveEnd($event)"-->
+          <!--[position]="position"-->
+          <!--ngDraggable-->
+          <!--[bounds]="draggableContainer"-->
+          <!--(edge)="checkEdge($event)"-->
+          <!--[ngClass]="{'transition': position, 'display-none': hide}"-->
+          <!--[ngStyle]="{-->
+            <!--'height.px': ((oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow)/2,-->
+            <!--'width.px': card.width-->
+          <!--}"></div>-->
+        <!--<div-->
+          <!--*ngFor="let card of testList; let i = index"-->
+          <!--class="assigned-card"-->
+          <!--(mousedown)="changeLayout()"-->
+          <!--(mouseup)="changeLayout()"-->
+          <!--(started)="onStart2($event)"-->
+          <!--(movingOffset)="onMoving($event)"-->
+          <!--(endOffset)="onMoveEnd($event)"-->
+          <!--[position]="card.position"-->
+          <!--ngDraggable-->
+          <!--[bounds]="draggableContainer"-->
+          <!--(edge)="checkEdge($event)"-->
+          <!--[ngClass]="{'transition': position}"-->
+          <!--[ngStyle]="{-->
+            <!--'height.px': ((oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow)/2,-->
+            <!--'width.px': card.width-->
+          <!--}"></div>-->
         <!--<div style="width: 100px; height: 50px; top: 200px; left: 180px; position: absolute; z-index: 999; background-color: blue"></div>-->
         <cdk-virtual-scroll-viewport
           [itemSize]="itemSize"
@@ -42,5 +72,12 @@
     </div>
   </div>
 </div>
-{{checkComponent()}}
+<div class="w-100 h-100 overlay">
+  <div
+    movable
+    *ngIf="helperCard$ | async"
+    style="cursor: move; pointer-events: none; position: fixed; width: 150px; height: 50px; z-index: 1000; background-color: red !important;">
+  </div>
+</div>
+<div>{{checkComponent()}}</div>
 <router-outlet></router-outlet>

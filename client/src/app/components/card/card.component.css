@@ -4,3 +4,15 @@
   min-width: 150px;
   margin-right: 10px;
 }
+
+.draggable {
+  cursor: move;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.draggable:not(.dragging) {
+  transition: transform .25s ease-in-out;
+}

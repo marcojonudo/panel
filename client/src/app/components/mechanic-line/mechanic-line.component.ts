@@ -9,6 +9,9 @@ import {
 } from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import interact from "interactjs"
+import {CardPositionService} from "../../services/card-position.service";
+import {Observable} from "rxjs/internal/Observable";
+import {Draggable, Droppable} from "@shopify/draggable"
 
 @Component({
   selector: 'app-mechanic-line',
@@ -24,46 +27,60 @@ export class MechanicLineComponent implements AfterViewInit {
   private quarters: string[];
   private intervalWidth: number;
 
+  private scrollLeftEvents: Observable<void>;
+  private scrollLeft: number;
+  private scrollLeftSubscription: any;
+
+  private assignedCards: any[];
+
   @Input() mechanic: string;
 
-  @ViewChild('dropzone') dropzone: ElementRef;
+  @ViewChild('dropzone', {static: true}) dropzone: ElementRef;
 
-  constructor(private timeService: TimeService) {
+  constructor(private timeService: TimeService, private cardPositionService: CardPositionService) {
     this.hours = this.timeService.getHours();
     this.quarters = this.timeService.getQuarters();
+    this.scrollLeftSubscription = cardPositionService.scrollLeft$.subscribe((value) => this.scrollLeft = value);
+    this.assignedCards = [{id: 6, width: 150, left: 180, top: 120}];
   }
 
   ngAfterViewInit() {
-    console.log(this.dropzone.nativeElement.offsetWidth);
-    this.timeService.calculateIntervalWidth(5840);
+    this.timeService.calculateIntervalWidth(this.dropzone.nativeElement.offsetWidth);
+
+    // const droppable = new Droppable(document.querySelectorAll('.mechanic-line'), {
+    //   draggable: '.draggable',
+    //   dropzone: '.mechanic-line-dropzone'
+    // });
+    // droppable.on('droppable:dropped', () => console.log('droppppp'));
     // this.timeService.calculateIntervalWidth(this.dropzone.nativeElement.offsetWidth);
-    interact('.dropzone-' + this.mechanic)
-      .dropzone({
-        accept: '.draggable',
-        // Require a 75% element overlap for a drop to be possible
-        overlap: 0.5,
-
-        // listen for drop related events:
-
-        // ondropactivate: this.onDropActive,
-        ondragenter: (event) => this.onDragEnter(event),
-        ondragleave: this.onDragLeave,
-        ondropmove: (event) => this.onDropMove(event)
-        // ondrop: this.onDrop,
-        // ondropdeactivate: this.onDropDeactivate
-      });
+    // interact('.dropzone-' + this.mechanic)
+    //   .dropzone({
+    //     accept: '.draggable',
+    //     // Require a 75% element overlap for a drop to be possible
+    //     overlap: 0.5,
+    //
+    //     // listen for drop related events:
+    //
+    //     // ondropactivate: this.onDropActive,
+    //     ondragenter: (event) => this.onDragEnter(event),
+    //     ondragleave: this.onDragLeave,
+    //     ondropmove: (event) => this.onDropMove(event)
+    //     // ondrop: this.onDrop,
+    //     // ondropdeactivate: this.onDropDeactivate
+    //   });
   }
 
   onDropMove(event) {
     const draggableRect = interact.getElementRect(event.relatedTarget);
-    const leftIntervals = Math.floor((draggableRect.left - 180) / this.timeService.intervalWidth);
-    const left = 180 + leftIntervals * this.timeService.intervalWidth;
+    const leftIntervals = Math.floor((draggableRect.left - (180 - this.scrollLeft)) / this.timeService.intervalWidth);
+    const left = (180 - this.scrollLeft) + leftIntervals * this.timeService.intervalWidth;
 
     const dropzoneRect = interact.getElementRect(event.target);
     const dropzoneTop = draggableRect.top > dropzoneRect.top + dropzoneRect.height/4 ? dropzoneRect.top + dropzoneRect.height/2 : dropzoneRect.top;
 
     event.relatedTarget.setAttribute('data-left', left);
     event.relatedTarget.setAttribute('data-dropzone-top', dropzoneTop);
+    console.log({x: left, y: dropzoneTop});
     event.draggable.options.drag.modifiers[0].options.targets[0] = () => {
       return {x: left, y: dropzoneTop}
     };

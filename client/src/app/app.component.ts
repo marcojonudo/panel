@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, enableProdMode, OnInit} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  enableProdMode,
+  OnInit,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
 import {DaysService} from "./services/days.service";
 import {TimeService} from "./services/time.service";
 import {MechanicsService} from "./services/mechanics.service";
@@ -6,19 +15,27 @@ import {Constants} from "./objects/constants";
 import interact from "interactjs";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
+import {ScrollDispatchModule} from '@angular/cdk/scrolling';
+import {CardPositionService} from "./services/card-position.service";
+import {Draggable, Droppable} from "@shopify/draggable"
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   title = 'Panel';
 
   //TODO Cambiar tipo
   private daysPanels: any[];
   private itemSize: number;
+
+  private relativeContainer: boolean;
+  private scrollLeft: number;
+  private scrollTop: number;
+  private _scrollLeft: number;
 
   private clickedCardSubject;
   private clickedCard$: Observable<boolean>;
@@ -26,21 +43,39 @@ export class AppComponent implements OnInit {
 
   private unassignedCards: any[];
   private assignedCards: any[];
+  private testList: any[];
+
+  private position: any;
+
+  private hide: boolean;
+
+  @ViewChild('draggableContainer', {static: true}) draggableContainer: ElementRef;
 
   constructor(
     private daysService: DaysService,
     private timeService: TimeService,
-    private mechanicsService: MechanicsService
+    private mechanicsService: MechanicsService,
+    private cardPositionService: CardPositionService,
+    private renderer: Renderer2
   ) {
     this.daysPanels = this.daysService.days;
     this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
+
+    this.relativeContainer = true;
+    this.scrollLeft = 0;
+    this.scrollTop = 0;
 
     this.clickedCardSubject = new BehaviorSubject<boolean>(false);
     this.clickedCard$ = this.clickedCardSubject.asObservable();
 
     this.unassignedCards = [{id: 1, width: 350}, {id: 2, width: 150}, {id: 3, width: 150}, {id: 4, width: 150}, {id: 5, width: 150}];
     this.assignedCards = [{id: 6, width: 150, left: 180, top: 120}];
+    this.testList = [];
     // this.unassignedCards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  }
+
+  get helperCard$() {
+    return this.cardPositionService.helperCard$;
   }
 
   get oneDayMode$() {
@@ -59,44 +94,60 @@ export class AppComponent implements OnInit {
     //console.log('Component')
   }
 
+  ngAfterViewInit() {
+    // const droppable = new Droppable(document.querySelectorAll('.dropzone-container'), {
+    //   draggable: '.draggable',
+    //   dropzone: '.dropzone'
+    // });
+    // droppable.on('droppable:dropped', () => console.log('droppppp'));
+    // const draggable = new Draggable(
+    //   document.querySelectorAll('#unassigned-cards-container'),
+    //   {
+    //     draggable: '.draggable'
+    //   }
+    // );
+  }
+
   ngOnInit() {
-    interact('.draggable')
-      .draggable({
-        inertia: true,
-        modifiers: [
-          interact.modifiers.snap({
-            targets: [() => {
-              return this.startPosition;
-            }],
-            endOnly: true,
-            relativePoints: [ { x: 0, y: 0 } ]
-          })
-        ],
-        autoScroll: true,
+    // interact('.draggable')
+    //   .draggable({
+    //     inertia: true,
+    //     modifiers: [
+    //       interact.modifiers.snap({
+    //         targets: [() => {
+    //           return this.startPosition;
+    //         }],
+    //         endOnly: true,
+    //         relativePoints: [ { x: 0, y: 0 } ]
+    //       })
+    //     ],
+    //     autoScroll: {
+    //       container: document.getElementById('draggable-container')
+    //     },
+    //
+    //     onstart: (event) => this.onStart(event),
+    //     onmove: this.onMove,
+    //     onend: (event) => this.onEnd(event)
+    //   })
+    //   .on('mouseup', (event) => {
+    //     event.target.setAttribute('data-record-position', false);
+    //
+    //     if (event.target.getAttribute('data-dropzone')) {
+    //       const id = event.target.getAttribute('id');
+    //
+    //       let index = undefined;
+    //       const card = this.assignedCards.find((card, i) => {
+    //         index = i;
+    //         return card.id == id
+    //       });
+    //
+    //       card.left = +event.target.getAttribute('data-left');
+    //       card.top = +event.target.getAttribute('data-dropzone-top');
+    //       this.unassignedCards.splice(index, 1);
+    //       this.assignedCards.push(card);
+    //     }
+    //   });
 
-        onstart: (event) => this.onStart(event),
-        onmove: this.onMove,
-        onend: (event) => this.onEnd(event)
-      })
-      .on('mouseup', (event) => {
-        event.target.setAttribute('data-record-position', false);
-
-        if (event.target.getAttribute('data-dropzone')) {
-          const id = event.target.getAttribute('id');
-
-          let index = undefined;
-          const card = this.unassignedCards.find((card, i) => {
-            index = i;
-            return card.id == id
-          });
-
-          card.left = +event.target.getAttribute('data-left');
-          card.top = +event.target.getAttribute('data-dropzone-top');
-          console.log(card.left);
-          this.unassignedCards.splice(index, 1);
-          this.assignedCards.push(card);
-        }
-      });
   }
 
   onStart(event) {
@@ -141,12 +192,70 @@ export class AppComponent implements OnInit {
     // this.clickedCard = false;
   }
 
-  get lineHeightDefault() {
-    return Constants.VALUE.LINE_HEIGHT_DEFAULT;
+  checkEdge(event) {
+    if (!event.right) {
+      this.scrollLeft += 10;
+      this.setScrollLeft(this.scrollLeft)
+    } else if (!event.left) {
+      this.scrollLeft -= 10;
+      this.setScrollLeft(this.scrollLeft)
+    }
+
+    if (!event.top) {
+      this.scrollTop -= 10;
+      this.setScrollTop(this.scrollTop)
+    } else if (!event.bottom) {
+      this.scrollTop += 10;
+      this.setScrollTop(this.scrollTop)
+    }
   }
 
-  get lineHeightNarrow() {
-    return Constants.VALUE.LINE_HEIGHT_NARROW;
+  setScrollLeft(value: number): void {
+    this.renderer.setProperty(
+      this.draggableContainer.nativeElement,
+      Constants.PROPERTY.SCROLL_LEFT,
+      value
+    );
+  }
+
+  setScrollTop(value: number): void {
+    this.renderer.setProperty(
+      this.draggableContainer.nativeElement,
+      Constants.PROPERTY.SCROLL_TOP,
+      value
+    );
+  }
+
+  changeLayout() {
+    this.relativeContainer = !this.relativeContainer;
+    this.hide = true;
+    this.testList.push({id: 1, width: 350, position: {x: 0, y: 0}});
+
+  }
+
+  onStart2(event) {
+    console.log(event.clientX)
+  }
+
+  onMoving(event) {
+    console.log(event)
+  }
+
+  onMoveEnd(event) {
+    console.log('onMoveEnd');
+    console.log(event);
+    // this.position = {x: 100, y: 100};
+    this.testList.push({id: 1, width: 350, position: {x: 500, y: 200}});
+  }
+
+  getScrollLeft(event) {
+    this.cardPositionService.scrollLeft = event.target.scrollLeft;
+    // this._scrollLeft = event.target.scrollLeft;
+  }
+
+  test(event) {
+    // console.log('testing');
+    // console.log(event);
   }
 
 }

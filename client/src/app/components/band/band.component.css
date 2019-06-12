@@ -14,4 +14,17 @@
 
 .unassigned-orders-cards-container {
   background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
+  overflow-x: auto;
+}
+
+.tes {
+  width: 150px;
+  min-width: 150px;
+  margin-right: 10px;
+  height: 50px;
+  background-color: blue;
+}
+
+.tes:nth-child(odd) {
+  background-color: red;
 }
