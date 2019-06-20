@@ -35,7 +35,7 @@ export class ToolsButtonsComponent {
   }
 
   testButtons() {
-    // console.log('Test buttons');
+    console.log('checking test buttons');
   }
 
 }

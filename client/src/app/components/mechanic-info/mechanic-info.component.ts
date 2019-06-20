@@ -14,7 +14,7 @@ export class MechanicInfoComponent {
   constructor(private daysService: DaysService) { }
 
   check() {
-    //console.log('-------- Mechanic info')
+    console.log('checking mechanic info')
   }
 
   get oneDayMode$() {

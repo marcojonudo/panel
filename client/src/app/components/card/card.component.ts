@@ -9,14 +9,18 @@ import {CardPositionService} from "../../services/card-position.service";
 export class CardComponent {
 
   @Input() card: any;
-  @Output() clickedEmitter: EventEmitter<boolean>;
+  // @Output() clickedEmitter: EventEmitter<boolean>;
 
   constructor(private cardPositionService: CardPositionService) {
-    this.clickedEmitter = new EventEmitter()
+    // this.clickedEmitter = new EventEmitter()
   }
 
   get helperCard$() {
     return this.cardPositionService.helperCard$;
+  }
+
+  check() {
+    console.log('checking card');
   }
 
 }

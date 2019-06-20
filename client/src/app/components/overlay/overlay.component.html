@@ -1,0 +1,19 @@
+<div class="w-100 h-100 overlay">
+  <!--<div-->
+    <!--*ngFor="let card of helperCards"-->
+    <!--movable-->
+    <!--style="pointer-events: none; position: fixed; width: 150px; height: 50px; z-index: 1000; background-color: red !important;">-->
+  <!--</div>-->
+  <div
+    *ngIf="helperCard$ | async"
+    movable
+    #helperCard
+    style="pointer-events: none; position: fixed; width: 150px; height: 50px; z-index: 1000; background-color: red !important;">
+  </div>
+  <!--<div-->
+    <!--*ngIf="helperCard$ | async"-->
+    <!--movable-->
+    <!--style="pointer-events: none; position: fixed; width: 150px; height: 50px; z-index: 1000; background-color: red !important;">-->
+  <!--</div>-->
+</div>
+<div>{{check()}}</div>

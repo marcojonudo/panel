@@ -8,20 +8,20 @@ import {Coordinates} from "../objects/coordinates";
 })
 export class CardPositionService {
 
-  private scrollLeftSubject;
-  scrollLeft$: Observable<number>;
+  // private scrollLeftSubject;
+  // scrollLeft$: Observable<number>;
 
   private coordinatesSubject: BehaviorSubject<Coordinates>;
   private _coordinates$: Observable<Coordinates>;
 
   private helperCardSubject: BehaviorSubject<any>;
-  helperCard$: Observable<any>;
+  private _helperCard$: Observable<any>;
 
-  private _scrollLeft: number;
+  // private _scrollLeft: number;
 
   constructor() {
-    this.scrollLeftSubject = new BehaviorSubject<number>(0);
-    this.scrollLeft$ = this.scrollLeftSubject.asObservable();
+    // this.scrollLeftSubject = new BehaviorSubject<number>(0);
+    // this.scrollLeft$ = this.scrollLeftSubject.asObservable();
 
     this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
     this.coordinates$ = this.coordinatesSubject.asObservable();
@@ -38,22 +38,30 @@ export class CardPositionService {
     this._coordinates$ = value;
   }
 
+  get helperCard$(): Observable<any> {
+    return this._helperCard$;
+  }
+
+  set helperCard$(value: Observable<any>) {
+    this._helperCard$ = value;
+  }
+
   emitPosition(coordinates: Coordinates) {
     this.coordinatesSubject.next(coordinates);
   }
 
-  emitHelperCard() {
-    this.helperCardSubject.next({id: 1, width: 150})
+  emitHelperCard(card: any) {
+    this.helperCardSubject.next(card)
   }
 
-  get scrollLeft() {
-    return this._scrollLeft;
-  }
+  // get scrollLeft() {
+  //   return this._scrollLeft;
+  // }
 
-  set scrollLeft(value: number) {
-    this._scrollLeft = value;
-    console.log('scrolling');
-    this.scrollLeftSubject.next(this.scrollLeft);
-  }
+  // set scrollLeft(value: number) {
+  //   this._scrollLeft = value;
+  //   console.log('scrolling');
+  //   this.scrollLeftSubject.next(this.scrollLeft);
+  // }
 
 }

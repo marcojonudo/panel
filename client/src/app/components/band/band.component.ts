@@ -37,7 +37,7 @@ import {CardPositionService} from "../../services/card-position.service";
 })
 export class BandComponent implements OnInit {
 
-  @Input() clickedCard$: Observable<boolean>;
+  // @Input() clickedCard$: Observable<boolean>;
   @Input() cards: any[];
 
   // private cards: number[];
@@ -55,52 +55,6 @@ export class BandComponent implements OnInit {
   }
 
   ngOnInit() {
-    // const droppable = new Droppable(document.querySelectorAll('.unassigned-orders-container'), {
-    //   draggable: '.draggable',
-    //   dropzone: '.unassigned-orders-cards-container'
-    // });
-    // droppable.on('droppable:dropped', () => console.log('droppppp'));
-    // const draggable = new Draggable(
-    //   document.querySelectorAll('.container'),
-    //   {
-    //     draggable: '.draggable'
-    //   }
-    // )
-    // this.clickedCardSubscription = this.clickedCard$.subscribe((value) => {
-    //   console.log('value');
-    //   console.log(value);
-    // })
-    // interact('.draggable')
-    //   .draggable({
-    //     inertia: true,
-    //     modifiers: [
-    //       interact.modifiers.snap({
-    //         targets: [() => {
-    //           return this.startPosition;
-    //         }],
-    //         endOnly: true,
-    //         relativePoints: [ { x: 0, y: 0 } ]
-    //       })
-    //     ],
-    //     autoScroll: true,
-    //
-    //     onstart: (event) => {
-    //       event.target.setAttribute('data-record-position', true);
-    //
-    //       const rect = interact.getElementRect(event.target);
-    //       this.startPosition = {x: rect.left, y: rect.top};
-    //
-    //       event.target.setAttribute('data-start-x', this.startPosition.x);
-    //       event.target.setAttribute('data-start-y', this.startPosition.y);
-    //
-    //       this.clickedCardSubject.next(true)
-    //     },
-    //     onmove: this.dragMoveListener,
-    //     onend: () => this.onEnd()
-    //   })
-    //   .on('mouseup', (event) => {
-    //     event.target.setAttribute('data-record-position', false);
-    //   });
   }
 
   // ngOnDestroy() {
@@ -133,7 +87,7 @@ export class BandComponent implements OnInit {
   // }
 
   check() {
-    // console.log(this.clickedCard2)
+    console.log('checking band')
   }
 
   trackById(index, item) {

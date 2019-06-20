@@ -62,6 +62,6 @@ export class MechanicLineContainerComponent {
   // }
 
   check() {
-    // console.log('------ Mechanic line container')
+    console.log('checking mechanic line container')
   }
 }

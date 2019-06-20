@@ -26,8 +26,7 @@ export class DaysService {
   }
 
   get days() {
-    // return [1, 2, 3];
-    return [1, 2, 3, 4, 5, 6, 7, 8];
+    return ['2019-06-12', '2019-06-13', '2019-06-14', '2019-06-15'];
     // return [{id: 1}, {id: 2}, {id: 3}];
   }
 

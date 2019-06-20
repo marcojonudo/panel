@@ -13,7 +13,7 @@ export class TimelineContainerComponent {
   constructor() { }
 
   check() {
-    //console.log('---- Timeline container')
+    console.log('checking timeline container')
   }
 
 }

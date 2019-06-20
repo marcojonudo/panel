@@ -1,62 +1,70 @@
-import {Directive, HostBinding, HostListener, OnInit, TemplateRef, ViewContainerRef} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Directive,
+  ElementRef,
+  HostBinding,
+  HostListener, OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewContainerRef
+} from '@angular/core';
 import {DomSanitizer, SafeStyle} from "@angular/platform-browser";
 import {GlobalPositionStrategy, Overlay, OverlayRef} from "@angular/cdk/overlay";
 import {Coordinates} from "../objects/coordinates";
 import {DraggableDirective} from "./draggable.directive";
 import {CardPositionService} from "../services/card-position.service";
+import {Subscription} from "rxjs/internal/Subscription";
 
 @Directive({
   selector: '[movable]',
   exportAs: 'movable'
 })
-export class MovableDirective implements OnInit {
+export class MovableDirective implements OnInit, OnDestroy {
 
   @HostBinding('class.dragging') dragging: boolean;
 
-  private overlayRef: OverlayRef;
-
-  private startPosition: Coordinates;
   private position: Coordinates;
+  private subscription: Subscription;
 
   // @HostBinding('class.draggable') draggable: boolean;
   // @HostBinding('class.dragging') dragging: boolean;
 
   @HostBinding('style.transform') get transform(): SafeStyle {
     return this.sanitizer.bypassSecurityTrustStyle(
-      `translate3d(${this.position.x}px, ${this.position.y}px, 0)`
+      `translateX(${this.position.x}px) translateY(${this.position.y}px)`
     );
-    // return this.sanitizer.bypassSecurityTrustStyle(
-    //   `translateX(${this.position.x}px) translateY(${this.position.y}px`
-    // );
   }
 
   constructor(
     private cardPositionService: CardPositionService,
-    private sanitizer: DomSanitizer
-    // private overlay: Overlay,
-    // private templateRef: TemplateRef<any>,
-    // private viewContainerRef: ViewContainerRef
+    private sanitizer: DomSanitizer,
+    private element: ElementRef,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.dragging = true;
-    // this.position = new Coordinates(0, 0);
+    // this.changeDetectorRef.detach();
+    // this.changeDetectorRef.detectChanges();
   }
 
   ngOnInit() {
-    this.cardPositionService.coordinates$.subscribe(coordinates => {
-      // console.log(this.position);
-      this.position = coordinates
+    this.subscription = this.cardPositionService.coordinates$.subscribe(coordinates => {
+      // console.log('new position', coordinates);
+      // console.log(this.element.nativeElement.getBoundingClientRect().left);
+      this.position = coordinates;
+      this.changeDetectorRef.detectChanges()
     })
-    // this.draggable.dragStart.subscribe(event => this.onDragStart(event))
-    // this.overlayRef = this.overlay.create({positionStrategy: new GlobalPositionStrategy()})
-  }
-
-  onDragStart(event: PointerEvent) {
-    console.log('hola');
   }
 
   ngOnDestroy() {
-    // this.overlayRef.dispose();
+    console.log('on destroy');
+    // this.element.nativeElement.remove();
+    this.subscription.unsubscribe();
   }
+  //
+  // onDragStart(event: PointerEvent) {
+  //   console.log('hola');
+  // }
+
 
   // @HostListener('pointerdown', ['$event'])
   // onPointerDown(event: PointerEvent): void {

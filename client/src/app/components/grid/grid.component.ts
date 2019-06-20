@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
@@ -13,8 +13,7 @@ import {Constants} from "../../objects/constants";
 })
 export class GridComponent {
 
-  LINE_HEIGHT_DEFAULT: number = 80;
-  LINE_HEIGHT_NARROW: number = 50;
+  // @Input() cards: any[];
 
   private mechanics: string[];
 
@@ -39,7 +38,7 @@ export class GridComponent {
   }
 
   check() {
-    // console.log('---- Grid')
+    console.log('checking grid')
   }
 
 }

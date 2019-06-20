@@ -1,30 +1,18 @@
 import {
-  Directive, ElementRef, EventEmitter,
+  ChangeDetectorRef,
+  Directive, ElementRef,
   HostBinding,
-  HostListener,
-  OnDestroy,
-  OnInit,
-  Output,
-  TemplateRef,
-  ViewContainerRef
+  HostListener, NgZone,
+  OnInit, Renderer2,
 } from '@angular/core';
 import {Coordinates} from "../objects/coordinates";
-import {DomSanitizer, SafeStyle} from "@angular/platform-browser";
-import {GlobalPositionStrategy, Overlay, OverlayRef} from "@angular/cdk/overlay";
-import {TemplatePortal} from "@angular/cdk/portal";
 import {CardPositionService} from "../services/card-position.service";
 
 @Directive({
-  selector: '[draggable]',
-  exportAs: 'draggable'
+  selector: '[appDraggable]',
+  exportAs: 'appDraggable'
 })
 export class DraggableDirective implements OnInit {
-
-  @Output() dragStart: EventEmitter<PointerEvent>;
-  @Output() dragMove: EventEmitter<PointerEvent>;
-  @Output() dragEnd: EventEmitter<PointerEvent>;
-
-  private overlayRef: OverlayRef;
 
   private cardRect;
 
@@ -32,34 +20,39 @@ export class DraggableDirective implements OnInit {
   private startEventCoordinates: Coordinates;
   private position: Coordinates;
 
+  private pointerDownListener;
+  private pointerMoveListener;
+  private pointerUpListener;
+
   @HostBinding('class.draggable') draggable: boolean;
   @HostBinding('class.dragging') dragging: boolean;
 
   constructor(
     private element: ElementRef,
-    private cardPositionService: CardPositionService
+    private cardPositionService: CardPositionService,
+    private renderer: Renderer2,
+    private ngZone: NgZone,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
-    this.dragStart = new EventEmitter<PointerEvent>();
-    this.dragMove = new EventEmitter<PointerEvent>();
-    this.dragEnd = new EventEmitter<PointerEvent>();
-
     this.draggable = true;
     this.dragging = false;
 
     this.position = new Coordinates(0, 0);
+    // this.changeDetectorRef.detach()
+    // this.pointerDownListener = this.renderer.listen(this.element, 'pointerdown', this.onPointerDown.bind(this));
   }
 
   ngOnInit() {
-    console.log('a');
-    console.log(this.element.nativeElement.getBoundingClientRect());
     this.cardRect = this.element.nativeElement.getBoundingClientRect();
+    console.log(this.element.nativeElement);
+    this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
   }
 
-  @HostListener('pointerdown', ['$event'])
+  // @HostListener('pointerdown', ['$event'])
   onPointerDown(event: PointerEvent): void {
+    // event.preventDefault();
+    // event.stopPropagation();
     this.dragging = true;
-
-    // const clientRect = this.element.nativeElement.getBoundingClientRect();
 
     this.startPosition = new Coordinates(
       this.cardRect.left,
@@ -68,38 +61,39 @@ export class DraggableDirective implements OnInit {
 
     this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 
-    this.dragStart.emit(event);
     this.cardPositionService.emitPosition(this.startPosition);
+    this.cardPositionService.emitHelperCard({id: 1, width: 150});
 
-    this.cardPositionService.emitHelperCard();
+    // this.ngZone.runOutsideAngular(() => {
+    this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
+    this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
 
-    // this.overlayRef.attach(new TemplatePortal(this.templateRef, this.viewContainerRef))
+    // document.addEventListener('pointermove', this.onPointerMove.bind(this));
+    // });
   }
 
-  @HostListener('document:pointermove', ['$event'])
+  // @HostListener('document:pointermove', ['$event'])
   onPointerMove(event: PointerEvent): void {
     if (this.dragging) {
-      // const clientRect = this.element.nativeElement.getBoundingClientRect();
-
-
-      // this.position.x = event.clientX - clientRect.left;
-      // this.position.y = event.clientY - clientRect.top;
       this.position.x = this.startPosition.x + event.clientX - this.startEventCoordinates.x;
       this.position.y = this.startPosition.y + event.clientY - this.startEventCoordinates.y;
-      this.dragMove.emit(event);
-      console.log('dragg');
-      console.log(event.clientX);
-      // console.log(this.position);
       this.cardPositionService.emitPosition(this.position);
     }
   }
 
-  @HostListener('document:pointerup', ['$event'])
+  // @HostListener('document:pointerup', ['$event'])
   onPointerUp(event: PointerEvent): void {
     if (this.dragging) {
       this.dragging = false;
-      // this.position = new Coordinates(0, 0);
-      this.dragEnd.emit(event);
+      this.cardPositionService.emitHelperCard(undefined);
+      this.pointerMoveListener();
+      this.pointerUpListener();
+
+      // // TODO Revisar
+      // this.ngZone.runOutsideAngular(() => {
+      //   console.log(this.dragging);
+      //   document.removeEventListener('pointermove', this.onPointerMove.bind(this));
+      // });
     }
   }
 

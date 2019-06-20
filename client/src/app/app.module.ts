@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import {BrowserModule, EventManager} from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -33,6 +33,9 @@ import {OverlayModule} from "@angular/cdk/overlay";
 import { MovableDirective } from './directives/movable.directive';
 import { DraggableHelperDirective } from './directives/draggable-helper.directive';
 import { ScrollableDirective } from './directives/scrollable.directive';
+import { DropzoneDirective } from './directives/dropzone.directive';
+import {CustomEventManager} from "./events/custom-event-manager";
+import { OverlayComponent } from './components/overlay/overlay.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +57,9 @@ import { ScrollableDirective } from './directives/scrollable.directive';
     DraggableDirective,
     MovableDirective,
     DraggableHelperDirective,
-    ScrollableDirective
+    ScrollableDirective,
+    DropzoneDirective,
+    OverlayComponent
   ],
   imports: [
     BrowserModule,
@@ -68,7 +73,8 @@ import { ScrollableDirective } from './directives/scrollable.directive';
   ],
   providers: [
     TimeService,
-    DaysPanelsService
+    DaysPanelsService,
+    { provide: EventManager, useClass: CustomEventManager}
   ],
   bootstrap: [AppComponent]
 })

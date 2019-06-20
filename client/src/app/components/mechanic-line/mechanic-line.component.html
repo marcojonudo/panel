@@ -1,21 +1,8 @@
-<div #dropzone [id]="mechanic" class="h-100 d-flex mechanic-line dropzone-container dropzone-{{mechanic}}">
-  <div class="h-100 w-100 dropzone d-flex">
-    <!--<div style="width: 150px; min-width: 150px; margin-right: 10px; height: 50px; background-color: blue" class="draggable"></div>-->
-    <!--<div *ngFor="let hour of hours; trackBy: trackByItem" class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">-->
-      <!--<div style="width: 100px; height: 50%; margin-left: 100px; background-color: blue"></div>-->
-      <!--<div *ngFor="let quarter of quarters; trackBy: trackByItem" class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>-->
-    <!--</div>-->
+<div #dropzone appDropzone [id]="mechanic" class="h-100 d-flex mechanic-line">
+  <div class="h-100 w-100 d-flex">
+    <div *ngFor="let hour of hours; trackBy: trackByItem" class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">
+      <div *ngFor="let quarter of quarters; trackBy: trackByItem" class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>
+    </div>
   </div>
-  <!--<app-card-->
-    <!--style="position: absolute; width: 150px; height: 50px; z-index: 999"-->
-    <!--*ngFor="let card of assignedCards; trackBy: trackById"-->
-    <!--[card]="card"></app-card>-->
-  <!--<app-card-->
-    <!--*ngFor="let card of assignedCards; trackBy: trackById"-->
-    <!--class="assigned-card"-->
-    <!--ngDraggable-->
-    <!--[bounds]="draggableContainer"-->
-    <!--[card]="card"-->
-    <!--(edge)="checkEdge($event)"></app-card>-->
 </div>
 <div>{{check()}}</div>
