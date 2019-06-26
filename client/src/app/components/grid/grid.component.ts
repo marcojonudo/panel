@@ -4,6 +4,7 @@ import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {Constants} from "../../objects/constants";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
   selector: 'app-grid',
@@ -13,11 +14,16 @@ import {Constants} from "../../objects/constants";
 })
 export class GridComponent {
 
-  // @Input() cards: any[];
+  // @Input() dayCards: any[];
+  // @Input() day: string;
 
   private mechanics: string[];
 
-  constructor(private daysService: DaysService, private mechanicsService: MechanicsService) {
+  constructor(
+    private daysService: DaysService,
+    private mechanicsService: MechanicsService,
+    private cardsService: CardsService
+  ) {
     this.mechanics = this.mechanicsService.mechanics;
   }
 
@@ -37,8 +43,12 @@ export class GridComponent {
     return Constants.VALUE.LINE_HEIGHT_NARROW;
   }
 
+  // get unassignedCardsDay$() {
+  //   return this.cardsService.unassignedCardsDays$;
+  // }
+
   check() {
-    console.log('checking grid')
+    console.log('checking grid');
   }
 
 }

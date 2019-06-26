@@ -4,3 +4,7 @@
   left: 0;
   pointer-events: none;
 }
+
+.transform-transition {
+  transition: transform .4s;
+}

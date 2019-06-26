@@ -1,12 +1,11 @@
 <div
-  class="w-100 scrollable-container animated fadeIn"
-  [ngClass]="{'h-100': true}">
+  class="w-100 h-100 scrollable-container animated fadeIn">
   <div class="w-100 h-100">
     <app-timeline-container
       [index]="index"
       class="timeline-container-wrapper"></app-timeline-container>
     <app-grid></app-grid>
-    <!--<app-grid [cards]="cards"></app-grid>-->
+    <!--<app-grid [dayCards]="dayCards"></app-grid>-->
   </div>
 </div>
 <div>{{checkDayPanel()}}</div>

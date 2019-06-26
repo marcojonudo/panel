@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {ChangeDetectorRef, Injectable} from '@angular/core';
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
 import {Coordinates} from "../objects/coordinates";
@@ -17,6 +17,12 @@ export class CardPositionService {
   private helperCardSubject: BehaviorSubject<any>;
   private _helperCard$: Observable<any>;
 
+  private draggingSubject: BehaviorSubject<boolean>;
+  private _dragging$: Observable<boolean>;
+
+  private dropzonePositionSubject: BehaviorSubject<any>;
+  private _dropzonePosition$: Observable<any>;
+
   // private _scrollLeft: number;
 
   constructor() {
@@ -28,6 +34,12 @@ export class CardPositionService {
 
     this.helperCardSubject = new BehaviorSubject<Coordinates>(undefined);
     this.helperCard$ = this.helperCardSubject.asObservable();
+
+    this.draggingSubject = new BehaviorSubject<boolean>(false);
+    this.dragging$ = this.draggingSubject.asObservable();
+
+    this.dropzonePositionSubject = new BehaviorSubject<any>(undefined);
+    this.dropzonePosition$ = this.dropzonePositionSubject.asObservable();
   }
 
   get coordinates$(): Observable<Coordinates> {
@@ -46,12 +58,37 @@ export class CardPositionService {
     this._helperCard$ = value;
   }
 
+  get dragging$(): Observable<any> {
+    return this._dragging$;
+  }
+
+  set dragging$(value: Observable<any>) {
+    this._dragging$ = value;
+  }
+
+  get dropzonePosition$(): Observable<any> {
+    return this._dropzonePosition$;
+  }
+
+  set dropzonePosition$(value: Observable<any>) {
+    this._dropzonePosition$ = value;
+  }
+
   emitPosition(coordinates: Coordinates) {
+    // console.log('emitting coordinates', coordinates);
     this.coordinatesSubject.next(coordinates);
   }
 
   emitHelperCard(card: any) {
     this.helperCardSubject.next(card)
+  }
+
+  emitDragging(value: boolean) {
+    this.draggingSubject.next(value);
+  }
+
+  emitDropzonePosition(clientRect: any) {
+    this.dropzonePositionSubject.next(clientRect);
   }
 
   // get scrollLeft() {

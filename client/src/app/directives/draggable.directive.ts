@@ -2,23 +2,27 @@ import {
   ChangeDetectorRef,
   Directive, ElementRef,
   HostBinding,
-  HostListener, NgZone,
+  HostListener, NgZone, OnDestroy,
   OnInit, Renderer2,
 } from '@angular/core';
 import {Coordinates} from "../objects/coordinates";
 import {CardPositionService} from "../services/card-position.service";
+import {TimeService} from "../services/time.service";
 
 @Directive({
   selector: '[appDraggable]',
   exportAs: 'appDraggable'
 })
-export class DraggableDirective implements OnInit {
+export class DraggableDirective implements OnInit, OnDestroy {
 
   private cardRect;
 
   private startPosition: Coordinates;
   private startEventCoordinates: Coordinates;
   private position: Coordinates;
+
+  private dropzonePositionListener: any;
+  private dropzonePosition: any;
 
   private pointerDownListener;
   private pointerMoveListener;
@@ -29,29 +33,32 @@ export class DraggableDirective implements OnInit {
 
   constructor(
     private element: ElementRef,
-    private cardPositionService: CardPositionService,
     private renderer: Renderer2,
-    private ngZone: NgZone,
-    private changeDetectorRef: ChangeDetectorRef
+    private cardPositionService: CardPositionService,
+    private timeService: TimeService,
+    private cdRef: ChangeDetectorRef
   ) {
     this.draggable = true;
     this.dragging = false;
 
     this.position = new Coordinates(0, 0);
-    // this.changeDetectorRef.detach()
-    // this.pointerDownListener = this.renderer.listen(this.element, 'pointerdown', this.onPointerDown.bind(this));
   }
 
   ngOnInit() {
     this.cardRect = this.element.nativeElement.getBoundingClientRect();
-    console.log(this.element.nativeElement);
     this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
+
+    this.dropzonePositionListener = this.cardPositionService.dropzonePosition$.subscribe(position => {
+      this.dropzonePosition = position
+    });
   }
 
-  // @HostListener('pointerdown', ['$event'])
+  ngOnDestroy() {
+    this.dropzonePositionListener.unsubscribe()
+  }
+
   onPointerDown(event: PointerEvent): void {
-    // event.preventDefault();
-    // event.stopPropagation();
+    // console.log('onPointerDown');
     this.dragging = true;
 
     this.startPosition = new Coordinates(
@@ -61,40 +68,62 @@ export class DraggableDirective implements OnInit {
 
     this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 
-    this.cardPositionService.emitPosition(this.startPosition);
     this.cardPositionService.emitHelperCard({id: 1, width: 150});
+    this.cardPositionService.emitDragging(true);
+    this.cardPositionService.emitPosition(this.startPosition);
 
-    // this.ngZone.runOutsideAngular(() => {
     this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
     this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
-
-    // document.addEventListener('pointermove', this.onPointerMove.bind(this));
-    // });
   }
 
-  // @HostListener('document:pointermove', ['$event'])
   onPointerMove(event: PointerEvent): void {
     if (this.dragging) {
+      // console.log('dragging');
       this.position.x = this.startPosition.x + event.clientX - this.startEventCoordinates.x;
       this.position.y = this.startPosition.y + event.clientY - this.startEventCoordinates.y;
       this.cardPositionService.emitPosition(this.position);
     }
   }
 
-  // @HostListener('document:pointerup', ['$event'])
-  onPointerUp(event: PointerEvent): void {
+  onPointerUp(): void {
     if (this.dragging) {
       this.dragging = false;
-      this.cardPositionService.emitHelperCard(undefined);
+      // Evento emitido para asignar la clase que posibilita la transicion CSS a su posición
+      this.cardPositionService.emitDragging(this.dragging);
+
+      if (this.dropzonePosition) {
+        const leftIntervals = Math.floor((this.position.x - 180) / this.timeService.intervalWidth);
+        const x = 180 + leftIntervals * this.timeService.intervalWidth;
+        const y = this.position.y > this.dropzonePosition.top + this.dropzonePosition.height/4 ? this.dropzonePosition.y + this.dropzonePosition.height/2 : this.dropzonePosition.y;
+        this.position = new Coordinates(x, y);
+      } else {
+        this.position = this.startPosition;
+      }
+
+      this.cardPositionService.emitPosition(this.position);
+      // this.cardPositionService.emitHelperCard(undefined);
       this.pointerMoveListener();
       this.pointerUpListener();
 
-      // // TODO Revisar
-      // this.ngZone.runOutsideAngular(() => {
-      //   console.log(this.dragging);
-      //   document.removeEventListener('pointermove', this.onPointerMove.bind(this));
-      // });
+      // Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición
+      this.cardPositionService.emitDragging(this.dragging);
     }
   }
+
+  // onDropMove(event) {
+  //   const draggableRect = interact.getElementRect(event.relatedTarget);
+  //   const leftIntervals = Math.floor((draggableRect.left - (180 - this.scrollLeft)) / this.timeService.intervalWidth);
+  //   const left = (180 - this.scrollLeft) + leftIntervals * this.timeService.intervalWidth;
+  //
+  //   const dropzoneRect = interact.getElementRect(event.target);
+  //   const dropzoneTop = draggableRect.top > dropzoneRect.top + dropzoneRect.height/4 ? dropzoneRect.top + dropzoneRect.height/2 : dropzoneRect.top;
+  //
+  //   event.relatedTarget.setAttribute('data-left', left);
+  //   event.relatedTarget.setAttribute('data-dropzone-top', dropzoneTop);
+  //   console.log({x: left, y: dropzoneTop});
+  //   event.draggable.options.drag.modifiers[0].options.targets[0] = () => {
+  //     return {x: left, y: dropzoneTop}
+  //   };
+  // }
 
 }

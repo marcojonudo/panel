@@ -1,5 +1,6 @@
 import {
-  ChangeDetectionStrategy,
+  AfterViewInit,
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   Input,
 } from '@angular/core';
@@ -12,15 +13,21 @@ import {DaysService} from "../../services/days.service";
   styleUrls: ['./day-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DayPanelComponent {
+export class DayPanelComponent implements AfterViewInit {
 
   @Input() index: number;
-  // @Input() cards: any[];
+  // @Input() dayCards: any[];
+  // @Input() day: string;
 
   constructor(
     private timeService: TimeService,
-    private daysService: DaysService
+    private daysService: DaysService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
+
+  ngAfterViewInit() {
+    // this.changeDetectorRef.detach();
+  }
 
   get oneDayMode$() {
     return this.daysService.oneDayMode$;

@@ -3,15 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef, Input,
-  OnInit,
   ViewChild,
-  ViewChildren
 } from '@angular/core';
 import {TimeService} from "../../services/time.service";
-import interact from "interactjs"
-import {CardPositionService} from "../../services/card-position.service";
-import {Observable} from "rxjs/internal/Observable";
 import {Draggable, Droppable} from "@shopify/draggable"
+import {CardsService} from "../../services/cards.service";
 
 @Component({
   selector: 'app-mechanic-line',
@@ -30,7 +26,10 @@ export class MechanicLineComponent implements AfterViewInit {
 
   @ViewChild('dropzone', {static: true}) dropzone: ElementRef;
 
-  constructor(private timeService: TimeService) {
+  constructor(
+    private timeService: TimeService,
+    private cardsService: CardsService
+  ) {
     this.hours = this.timeService.getHours();
     this.quarters = this.timeService.getQuarters();
     this.assignedCards = [{id: 6, width: 150, left: 180, top: 120}];
@@ -42,6 +41,10 @@ export class MechanicLineComponent implements AfterViewInit {
 
   trackByItem(index, item) {
     return item;
+  }
+
+  get unassignedCardsDay$() {
+    return this.cardsService.unassignedCardsDays$;
   }
 
   check() {

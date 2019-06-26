@@ -1,5 +1,6 @@
-import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, AfterViewInit} from '@angular/core';
 import {DaysService} from "../../services/days.service";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
   selector: 'app-mechanic-info',
@@ -7,11 +8,24 @@ import {DaysService} from "../../services/days.service";
   styleUrls: ['./mechanic-info.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicInfoComponent {
+export class MechanicInfoComponent implements AfterViewInit {
 
   @Input() mechanic: string;
 
-  constructor(private daysService: DaysService) { }
+  constructor(
+    private daysService: DaysService,
+    private cardsService: CardsService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) { }
+
+  ngAfterViewInit() {
+  }
+
+  test(): void {
+    console.log('clicked in mechanic info container');
+    this.cardsService.addCard();
+    // this.changeDetectorRef.detectChanges();
+  }
 
   check() {
     console.log('checking mechanic info')

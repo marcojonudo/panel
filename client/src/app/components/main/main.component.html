@@ -1,0 +1,26 @@
+<div class="container-fluid d-flex flex-column w-100 h-100">
+  <div
+    class="row flex-grow-1">
+    <div class="col h-100 padding-0 d-flex">
+      <div
+        #draggableContainer
+        class="w-90 h-100 padding-0 overflow-auto">
+        <div
+          class="h-100"
+          [style.width.%]="width$ | async">
+          <app-day-panel
+            class="h-100 animated slideInRight"
+            [index]="i"
+            *ngFor="let day of daysPanels | days: (oneDayMode$ | async); trackBy: trackByDay; let i = index"></app-day-panel>
+        </div>
+      </div>
+      <app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>
+    </div>
+  </div>
+  <div class="row unassigned-orders-container">
+    <div class="col padding-0">
+      <app-band [cards]="unassignedCards" class="w-100"></app-band>
+    </div>
+  </div>
+</div>
+<div>{{check()}}</div>

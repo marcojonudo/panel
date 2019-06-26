@@ -5,4 +5,7 @@
     </div>
   </div>
 </div>
+<div>
+  <div *ngFor="let card of (unassignedCardsDay$ | async)['2019-06-25'][mechanic]"></div>
+</div>
 <div>{{check()}}</div>

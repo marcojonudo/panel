@@ -51,12 +51,13 @@ export class MovableDirective implements OnInit, OnDestroy {
       // console.log('new position', coordinates);
       // console.log(this.element.nativeElement.getBoundingClientRect().left);
       this.position = coordinates;
-      this.changeDetectorRef.detectChanges()
+      // console.log('movable', this.position);
+      // this.changeDetectorRef.detectChanges()
     })
   }
 
   ngOnDestroy() {
-    console.log('on destroy');
+    // console.log('on destroy');
     // this.element.nativeElement.remove();
     this.subscription.unsubscribe();
   }

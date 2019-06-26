@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
 
 @Injectable({
   providedIn: 'root'
 })
-export class TimeService {
+export class TimeService implements OnDestroy {
 
 
   private readonly MINUTE_WIDTH_DEFAULT: number = 6;
@@ -27,12 +27,18 @@ export class TimeService {
   private subject = new BehaviorSubject<number>(this.SCROLLABLE_CONTAINER_WIDTH_MAX);
   width$: Observable<number>;
 
+  private widthSubscription: any;
+
   constructor() {
     this.minuteWidth = this.MINUTE_WIDTH_DEFAULT;
     this.widthValue = this.SCROLLABLE_CONTAINER_WIDTH_MAX;
     this.hours = Array(this.HOURS_NUMBER).fill(0).map((x, i) => this.START_HOUR + i);
     this.quarters = ['00', '15', '30', '45'];
     this.width$ = this.subject.asObservable()
+  }
+
+  ngOnDestroy(): void {
+    this.widthSubscription.unsubscribe();
   }
 
   getHours() {
@@ -74,7 +80,12 @@ export class TimeService {
   }
 
   calculateIntervalWidth(dropzoneWidth: number) {
-    this._intervalWidth = dropzoneWidth / this.intervalsNumber;
+    this.widthSubscription = this.width$.subscribe( percentageWidth => {
+      const width = (dropzoneWidth + 180) * (percentageWidth/100) - 180;
+      this._intervalWidth = width / this.intervalsNumber;
+    });
+    // console.log('calculate', dropzoneWidth, this.intervalsNumber);
+    // this._intervalWidth = dropzoneWidth / this.intervalsNumber;
   }
 
   get intervalWidth(): number {
