@@ -1,8 +1,8 @@
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
-  ElementRef, Input,
+  ElementRef, Input, OnDestroy, OnInit,
   ViewChild,
 } from '@angular/core';
 import {TimeService} from "../../services/time.service";
@@ -15,40 +15,55 @@ import {CardsService} from "../../services/cards.service";
   styleUrls: ['./mechanic-line.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicLineComponent implements AfterViewInit {
+export class MechanicLineComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private hours: number[];
   private quarters: string[];
 
   private assignedCards: any[];
 
+  private cardsSubscription: any;
+
   @Input() mechanic: string;
+  @Input() day: string;
+
+  private cards: any[];
 
   @ViewChild('dropzone', {static: true}) dropzone: ElementRef;
 
   constructor(
     private timeService: TimeService,
-    private cardsService: CardsService
+    private cardsService: CardsService,
+    private cdRef: ChangeDetectorRef
   ) {
     this.hours = this.timeService.getHours();
     this.quarters = this.timeService.getQuarters();
     this.assignedCards = [{id: 6, width: 150, left: 180, top: 120}];
   }
 
+  ngOnInit(): void {
+    if (this.cardsService.assignedDaysCards$[this.day][this.mechanic]) {
+      this.cardsSubscription = this.cardsService.assignedDaysCards$[this.day][this.mechanic].subscribe(cards => {
+        this.cards = cards;
+        this.cdRef.detectChanges();
+      });
+    }
+  }
+
   ngAfterViewInit() {
     this.timeService.calculateIntervalWidth(this.dropzone.nativeElement.offsetWidth);
+  }
+
+  ngOnDestroy() {
+    this.cardsSubscription.unsubscribe();
   }
 
   trackByItem(index, item) {
     return item;
   }
 
-  get unassignedCardsDay$() {
-    return this.cardsService.unassignedCardsDays$;
-  }
-
   check() {
-    console.log('checking mechanic line');
+    console.log('checking mechanic line', this.day, this.mechanic, this.cards);
   }
 
 }

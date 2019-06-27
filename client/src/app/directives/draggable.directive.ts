@@ -1,8 +1,7 @@
 import {
-  ChangeDetectorRef,
   Directive, ElementRef,
   HostBinding,
-  HostListener, NgZone, OnDestroy,
+  OnDestroy,
   OnInit, Renderer2,
 } from '@angular/core';
 import {Coordinates} from "../objects/coordinates";
@@ -35,8 +34,7 @@ export class DraggableDirective implements OnInit, OnDestroy {
     private element: ElementRef,
     private renderer: Renderer2,
     private cardPositionService: CardPositionService,
-    private timeService: TimeService,
-    private cdRef: ChangeDetectorRef
+    private timeService: TimeService
   ) {
     this.draggable = true;
     this.dragging = false;
@@ -58,7 +56,6 @@ export class DraggableDirective implements OnInit, OnDestroy {
   }
 
   onPointerDown(event: PointerEvent): void {
-    // console.log('onPointerDown');
     this.dragging = true;
 
     this.startPosition = new Coordinates(
@@ -78,7 +75,6 @@ export class DraggableDirective implements OnInit, OnDestroy {
 
   onPointerMove(event: PointerEvent): void {
     if (this.dragging) {
-      // console.log('dragging');
       this.position.x = this.startPosition.x + event.clientX - this.startEventCoordinates.x;
       this.position.y = this.startPosition.y + event.clientY - this.startEventCoordinates.y;
       this.cardPositionService.emitPosition(this.position);

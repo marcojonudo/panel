@@ -1,24 +1,9 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy, ChangeDetectorRef,
-  Component,
-  ElementRef,
-  enableProdMode,
-  OnInit,
-  Renderer2,
-  ViewChild
+  Component
 } from '@angular/core';
-import {DaysService} from "./services/days.service";
-import {TimeService} from "./services/time.service";
-import {MechanicsService} from "./services/mechanics.service";
-import {Constants} from "./objects/constants";
-import interact from "interactjs";
-import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
-import {Observable} from "rxjs/internal/Observable";
-import {ScrollDispatchModule} from '@angular/cdk/scrolling';
-import {CardPositionService} from "./services/card-position.service";
 import {Draggable, Droppable} from "@shopify/draggable"
-import {CardsService} from "./services/cards.service";
 
 @Component({
   selector: 'app-root',
@@ -107,8 +92,8 @@ export class AppComponent implements AfterViewInit {
   //   return this.assignedCards.filter((card) => card.day == day);
   // }
   //
-  // // get unassignedCardsDays$() {
-  // //   return this.cardsService.unassignedCardsDays$;
+  // // get assignedDaysCards$() {
+  // //   return this.cardsService.assignedDaysCards$;
   // // }
   //
   // trackByDay(index, item) {

@@ -8,10 +8,16 @@
     <!--[style.height.px]="(oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow"-->
     <!--[mechanic]="mechanic"-->
     <!--cdkDrag cdkDragLockAxis="y"></app-mechanic-line-container>-->
+  <!--<app-mechanic-line-container-->
+    <!--*ngFor="let mechanic of mechanics"-->
+    <!--class="mechanic-line-container-wrapper"-->
+    <!--[style.height.px]="(oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow"-->
+    <!--[mechanic]="mechanic"></app-mechanic-line-container>-->
   <app-mechanic-line-container
     *ngFor="let mechanic of mechanics"
     class="mechanic-line-container-wrapper"
     [style.height.px]="(oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow"
+    [day]="day"
     [mechanic]="mechanic"></app-mechanic-line-container>
 </div>
 <div>{{check()}}</div>

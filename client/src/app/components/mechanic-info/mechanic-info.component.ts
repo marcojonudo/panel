@@ -14,8 +14,7 @@ export class MechanicInfoComponent implements AfterViewInit {
 
   constructor(
     private daysService: DaysService,
-    private cardsService: CardsService,
-    private changeDetectorRef: ChangeDetectorRef
+    private cardsService: CardsService
   ) { }
 
   ngAfterViewInit() {
@@ -23,8 +22,7 @@ export class MechanicInfoComponent implements AfterViewInit {
 
   test(): void {
     console.log('clicked in mechanic info container');
-    this.cardsService.addCard();
-    // this.changeDetectorRef.detectChanges();
+    // this.cardsService.addCard();
   }
 
   check() {

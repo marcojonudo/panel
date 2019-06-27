@@ -52,7 +52,7 @@ export class DropzoneDirective implements OnInit {
       this.entered = true;
       console.log(this.element);
       this.cardPositionService.emitDropzonePosition(this.element.nativeElement.getBoundingClientRect());
-      this.changeDetectorRef.detectChanges();
+      // this.changeDetectorRef.detectChanges();
     }
   }
 
@@ -60,7 +60,9 @@ export class DropzoneDirective implements OnInit {
   onPointerLeave(): void {
     if (this.dragging) {
       this.entered = false;
-      this.changeDetectorRef.detectChanges();
+      this.cardPositionService.emitDropzonePosition(undefined);
+
+      // this.changeDetectorRef.detectChanges();
     }
   }
 

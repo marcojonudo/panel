@@ -11,6 +11,7 @@
           <app-day-panel
             class="h-100 animated slideInRight"
             [index]="i"
+            [day]="day"
             *ngFor="let day of daysPanels | days: (oneDayMode$ | async); trackBy: trackByDay; let i = index"></app-day-panel>
         </div>
       </div>
@@ -19,7 +20,7 @@
   </div>
   <div class="row unassigned-orders-container">
     <div class="col padding-0">
-      <app-band [cards]="unassignedCards" class="w-100"></app-band>
+      <app-band class="w-100"></app-band>
     </div>
   </div>
 </div>

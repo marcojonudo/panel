@@ -1,10 +1,8 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
-import {MechanicsService} from "../../services/mechanics.service";
 import {Constants} from "../../objects/constants";
-import {CardsService} from "../../services/cards.service";
+import {Mechanic} from "../../objects/mechanic";
 
 @Component({
   selector: 'app-grid',
@@ -12,19 +10,34 @@ import {CardsService} from "../../services/cards.service";
   styleUrls: ['./grid.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridComponent {
+export class GridComponent implements OnInit, OnDestroy {
 
-  // @Input() dayCards: any[];
-  // @Input() day: string;
+  @Input() day: string;
 
-  private mechanics: string[];
+  private _mechanics: Mechanic[];
+
+  private mechanicsSubscription: any;
 
   constructor(
-    private daysService: DaysService,
-    private mechanicsService: MechanicsService,
-    private cardsService: CardsService
-  ) {
-    this.mechanics = this.mechanicsService.mechanics;
+    private daysService: DaysService
+  ) { }
+
+  ngOnInit(): void {
+    this.mechanicsSubscription = this.daysService.daysMechanics$[this.day].subscribe(mechanics => {
+      this.mechanics = mechanics;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.mechanicsSubscription.unsubscribe();
+  }
+
+  get mechanics(): Mechanic[] {
+    return this._mechanics;
+  }
+
+  set mechanics(value: Mechanic[]) {
+    this._mechanics = value;
   }
 
   drop(event: CdkDragDrop<string[]>) {
@@ -44,7 +57,7 @@ export class GridComponent {
   }
 
   // get unassignedCardsDay$() {
-  //   return this.cardsService.unassignedCardsDays$;
+  //   return this.cardsService.assignedDaysCards$;
   // }
 
   check() {

@@ -13,21 +13,16 @@ import {DaysService} from "../../services/days.service";
   styleUrls: ['./day-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DayPanelComponent implements AfterViewInit {
+export class DayPanelComponent {
 
   @Input() index: number;
   // @Input() dayCards: any[];
-  // @Input() day: string;
+  @Input() day: string;
 
   constructor(
     private timeService: TimeService,
-    private daysService: DaysService,
-    private changeDetectorRef: ChangeDetectorRef
+    private daysService: DaysService
   ) {}
-
-  ngAfterViewInit() {
-    // this.changeDetectorRef.detach();
-  }
 
   get oneDayMode$() {
     return this.daysService.oneDayMode$;

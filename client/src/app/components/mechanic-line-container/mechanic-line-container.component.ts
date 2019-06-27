@@ -14,8 +14,9 @@ export class MechanicLineContainerComponent {
 
   @Input() mechanic: string;
   // @Input() cards: any[];
+  @Input() day: string;
 
   check() {
-    console.log('checking mechanic line container')
+    console.log('checking mechanic line container', this.mechanic, this.day)
   }
 }
