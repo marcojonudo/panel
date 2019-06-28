@@ -1,18 +1,21 @@
 import {
   Directive, ElementRef,
-  HostBinding,
+  HostBinding, Input,
   OnDestroy,
   OnInit, Renderer2,
 } from '@angular/core';
 import {Coordinates} from "../objects/coordinates";
 import {CardPositionService} from "../services/card-position.service";
 import {TimeService} from "../services/time.service";
+import {Card} from "../objects/card";
 
 @Directive({
   selector: '[appDraggable]',
   exportAs: 'appDraggable'
 })
 export class DraggableDirective implements OnInit, OnDestroy {
+
+  @Input() card: Card;
 
   private cardRect;
 
@@ -65,7 +68,7 @@ export class DraggableDirective implements OnInit, OnDestroy {
 
     this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 
-    this.cardPositionService.emitHelperCard({id: 1, width: 150});
+    this.cardPositionService.emitHelperCard(this.card);
     this.cardPositionService.emitDragging(true);
     this.cardPositionService.emitPosition(this.startPosition);
 

@@ -16,8 +16,8 @@ import {CardPositionService} from "../services/card-position.service";
 import {Subscription} from "rxjs/internal/Subscription";
 
 @Directive({
-  selector: '[movable]',
-  exportAs: 'movable'
+  selector: '[appMovable]',
+  exportAs: 'appMovable'
 })
 export class MovableDirective implements OnInit, OnDestroy {
 
@@ -51,7 +51,7 @@ export class MovableDirective implements OnInit, OnDestroy {
       // console.log('new position', coordinates);
       // console.log(this.element.nativeElement.getBoundingClientRect().left);
       this.position = coordinates;
-      // console.log('movable', this.position);
+      // console.log('appMovable', this.position);
       // this.changeDetectorRef.detectChanges()
     })
   }

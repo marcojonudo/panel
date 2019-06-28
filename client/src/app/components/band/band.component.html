@@ -13,10 +13,12 @@
     <!--}">-->
   <div
     @unassigned-cards-container
-    class="flex-grow-1 unassigned-orders-cards-container d-flex pt-3 pb-3 pl-3">
+    class="align-items-center flex-grow-1 unassigned-orders-cards-container d-flex pl-3">
     <app-card
       @unassigned-card
       *ngFor="let card of (cards$ | async); trackBy: trackById"
+      class="mr-2"
+      [style.height.%]="60"
       [card]="card"></app-card>
   </div>
 </div>

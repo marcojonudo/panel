@@ -36,6 +36,7 @@ import { ScrollableDirective } from './directives/scrollable.directive';
 import { DropzoneDirective } from './directives/dropzone.directive';
 import { OverlayComponent } from './components/overlay/overlay.component';
 import { MainComponent } from './components/main/main.component';
+import { HelperCardComponent } from './components/helper-card/helper-card.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,8 @@ import { MainComponent } from './components/main/main.component';
     ScrollableDirective,
     DropzoneDirective,
     OverlayComponent,
-    MainComponent
+    MainComponent,
+    HelperCardComponent
   ],
   imports: [
     BrowserModule,

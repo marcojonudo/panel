@@ -5,6 +5,13 @@
   pointer-events: none;
 }
 
+.helper-card {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10;
+  background-color: red !important;
+}
+
 .transform-transition {
   transition: transform .4s;
 }

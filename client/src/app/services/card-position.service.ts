@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Injectable} from '@angular/core';
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
 import {Coordinates} from "../objects/coordinates";
+import {Card} from "../objects/card";
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,8 @@ export class CardPositionService {
   private coordinatesSubject: BehaviorSubject<Coordinates>;
   private _coordinates$: Observable<Coordinates>;
 
-  private helperCardSubject: BehaviorSubject<any>;
-  private _helperCard$: Observable<any>;
+  private helperCardSubject: BehaviorSubject<Card>;
+  private _helperCard$: Observable<Card>;
 
   private draggingSubject: BehaviorSubject<boolean>;
   private _dragging$: Observable<boolean>;
@@ -32,7 +33,7 @@ export class CardPositionService {
     this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
     this.coordinates$ = this.coordinatesSubject.asObservable();
 
-    this.helperCardSubject = new BehaviorSubject<Coordinates>(undefined);
+    this.helperCardSubject = new BehaviorSubject<Card>(undefined);
     this.helperCard$ = this.helperCardSubject.asObservable();
 
     this.draggingSubject = new BehaviorSubject<boolean>(false);
@@ -79,7 +80,7 @@ export class CardPositionService {
     this.coordinatesSubject.next(coordinates);
   }
 
-  emitHelperCard(card: any) {
+  emitHelperCard(card: Card) {
     this.helperCardSubject.next(card)
   }
 

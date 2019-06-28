@@ -1,6 +1,8 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {CardPositionService} from "../../services/card-position.service";
 import {animate, animateChild, query, stagger, style, transition, trigger} from "@angular/animations";
+import {Card} from "../../objects/card";
+import {DaysService} from "../../services/days.service";
 
 @Component({
   selector: 'app-overlay',
@@ -12,9 +14,13 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
   private coordinatesSubscription: any;
   private draggingSubscription: any;
+  private helperCardSubscription: any;
+
+  private helperCard: Card;
 
   constructor(
     private cardPositionService: CardPositionService,
+    private daysService: DaysService,
     private cdRef: ChangeDetectorRef
   ) { }
 
@@ -28,6 +34,9 @@ export class OverlayComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges();
       }
     });
+    this.helperCardSubscription = this.cardPositionService.helperCard$.subscribe( helperCard => {
+      this.helperCard = helperCard;
+    })
   }
 
   ngOnDestroy(): void {
@@ -35,8 +44,8 @@ export class OverlayComponent implements OnInit, OnDestroy {
     this.draggingSubscription.unsubscribe();
   }
 
-  get helperCard$() {
-    return this.cardPositionService.helperCard$;
+  get lineHeight$() {
+    return this.daysService.lineHeight$;
   }
 
   get dragging$() {
@@ -48,7 +57,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
   }
 
   test() {
-    console.log('transition end');
+    console.log('transition end', this.helperCard);
   }
 
 }

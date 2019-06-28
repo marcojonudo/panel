@@ -44,21 +44,9 @@ export class GridComponent implements OnInit, OnDestroy {
     moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);
   }
 
-  get oneDayMode$() {
-    return this.daysService.oneDayMode$;
+  get lineHeight$() {
+    return this.daysService.lineHeight$;
   }
-
-  get lineHeightDefault() {
-    return Constants.VALUE.LINE_HEIGHT_DEFAULT;
-  }
-
-  get lineHeightNarrow() {
-    return Constants.VALUE.LINE_HEIGHT_NARROW;
-  }
-
-  // get unassignedCardsDay$() {
-  //   return this.cardsService.assignedDaysCards$;
-  // }
 
   check() {
     console.log('checking grid');
