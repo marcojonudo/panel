@@ -32,7 +32,8 @@ export class MainComponent implements AfterViewInit {
 
   // private hide: boolean;
 
-  @ViewChild('draggableContainer', {static: true}) draggableContainer: ElementRef;
+  // @ViewChild('draggableContainer', {static: true}) draggableContainer: ElementRef;
+  @ViewChild('schedulesContainer', {static: true}) schedulesContainer: ElementRef;
 
   constructor(
     private daysService: DaysService,
@@ -49,6 +50,7 @@ export class MainComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    console.log('main after view init', this.schedulesContainer.nativeElement.offsetWidth);
     // this.cdRef.detach();
     // this.cdRef.detectChanges();
   }

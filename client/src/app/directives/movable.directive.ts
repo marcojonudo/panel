@@ -1,4 +1,5 @@
 import {
+  AfterViewChecked,
   ChangeDetectorRef,
   Directive,
   ElementRef,
@@ -53,7 +54,7 @@ export class MovableDirective implements OnInit, OnDestroy {
       this.position = coordinates;
       // console.log('appMovable', this.position);
       // this.changeDetectorRef.detectChanges()
-    })
+    });
   }
 
   ngOnDestroy() {

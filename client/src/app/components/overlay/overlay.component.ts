@@ -3,6 +3,7 @@ import {CardPositionService} from "../../services/card-position.service";
 import {animate, animateChild, query, stagger, style, transition, trigger} from "@angular/animations";
 import {Card} from "../../objects/card";
 import {DaysService} from "../../services/days.service";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
   selector: 'app-overlay',
@@ -17,10 +18,12 @@ export class OverlayComponent implements OnInit, OnDestroy {
   private helperCardSubscription: any;
 
   private helperCard: Card;
+  private dragging: boolean;
 
   constructor(
     private cardPositionService: CardPositionService,
     private daysService: DaysService,
+    private cardsService: CardsService,
     private cdRef: ChangeDetectorRef
   ) { }
 
@@ -28,15 +31,19 @@ export class OverlayComponent implements OnInit, OnDestroy {
     this.coordinatesSubscription = this.cardPositionService.coordinates$.subscribe( coordinates => {
       this.cdRef.detectChanges();
     });
+
+    /* Permite asignar la clase CSS de transición justo cuando se levanta el ratón, y forzar el último CD una vez
+    *  se ha establecido la última posición */
     this.draggingSubscription = this.cardPositionService.dragging$.subscribe( dragging => {
+      this.dragging = dragging;
       if (!dragging) {
-        console.log('overlay detecting changes in dragging');
         this.cdRef.detectChanges();
       }
     });
+
     this.helperCardSubscription = this.cardPositionService.helperCard$.subscribe( helperCard => {
       this.helperCard = helperCard;
-    })
+    });
   }
 
   ngOnDestroy(): void {
@@ -48,16 +55,16 @@ export class OverlayComponent implements OnInit, OnDestroy {
     return this.daysService.lineHeight$;
   }
 
-  get dragging$() {
-    return this.cardPositionService.dragging$;
-  }
-
   check(): void {
     console.log('checking overlay');
   }
 
-  test() {
-    console.log('transition end', this.helperCard);
+  updateCard() {
+    if (this.cardPositionService.dropzone) {
+      this.cardsService.updateCard(this.cardPositionService.dropzone.mechanic, this.helperCard);
+      this.cardPositionService.emitDropzone(undefined);
+      this.cardPositionService.emitHelperCard(undefined);
+    }
   }
 
 }

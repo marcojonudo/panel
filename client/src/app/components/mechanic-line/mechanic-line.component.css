@@ -4,10 +4,22 @@
   transition: background-color .5s;
 }
 
+.hours-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .quarter:last-child {
   border-right: none !important;
 }
 
 .dropzone-dragging {
   background-color: #E7F1F7;
+}
+
+.assigned-card {
+  position: absolute;
+  background-color: yellow;
+  height: 50px;
 }

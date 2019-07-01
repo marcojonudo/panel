@@ -3,17 +3,21 @@ import {
   Directive,
   ElementRef,
   HostBinding,
-  HostListener,
+  HostListener, Input,
   OnDestroy,
   OnInit,
   Renderer2
 } from '@angular/core';
 import {CardPositionService} from "../services/card-position.service";
+import {DropzoneInfo} from "../objects/dropzone-info";
+import {Mechanic} from "../objects/mechanic";
 
 @Directive({
   selector: '[appDropzone]'
 })
 export class DropzoneDirective implements OnInit {
+
+  @Input() mechanic: Mechanic;
 
   //TODO Revisar comportamiento dragging
   @HostBinding('class.dropzone-dragging') entered: boolean;
@@ -46,23 +50,18 @@ export class DropzoneDirective implements OnInit {
   //   }
   // }
 
-  // @HostListener('pointerenter')
   onPointerEnter(): void {
     if (this.dragging) {
       this.entered = true;
-      console.log(this.element);
-      this.cardPositionService.emitDropzonePosition(this.element.nativeElement.getBoundingClientRect());
-      // this.changeDetectorRef.detectChanges();
+      const dropzone = new DropzoneInfo(this.mechanic, this.element.nativeElement.getBoundingClientRect());
+      this.cardPositionService.emitDropzone(dropzone);
     }
   }
 
-  // @HostListener('pointerleave')
   onPointerLeave(): void {
     if (this.dragging) {
       this.entered = false;
-      this.cardPositionService.emitDropzonePosition(undefined);
-
-      // this.changeDetectorRef.detectChanges();
+      this.cardPositionService.emitDropzone(undefined);
     }
   }
 

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {AfterViewChecked, Component, EventEmitter, Input, Output} from '@angular/core';
 import {CardPositionService} from "../../services/card-position.service";
 
 @Component({

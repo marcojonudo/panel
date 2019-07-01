@@ -1,8 +1,17 @@
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {DaysService} from "../../services/days.service";
 import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
   selector: 'app-grid',
@@ -10,7 +19,7 @@ import {Mechanic} from "../../objects/mechanic";
   styleUrls: ['./grid.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridComponent implements OnInit, OnDestroy {
+export class GridComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() day: string;
 
@@ -19,13 +28,22 @@ export class GridComponent implements OnInit, OnDestroy {
   private mechanicsSubscription: any;
 
   constructor(
-    private daysService: DaysService
+    private daysService: DaysService,
+    private cardsService: CardsService,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
     this.mechanicsSubscription = this.daysService.daysMechanics$[this.day].subscribe(mechanics => {
       this.mechanics = mechanics;
     });
+    console.log('not on initias faisjdfpoaisdjfpoaidsf');
+  }
+
+  ngAfterViewInit(): void {
+    console.log('**********************************');
+    this.cardsService.initDimensions();
+    this.cdRef.detectChanges();
   }
 
   ngOnDestroy(): void {

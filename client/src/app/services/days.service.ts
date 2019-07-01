@@ -34,7 +34,6 @@ export class DaysService {
 
     this.oneDayMode = true;
     this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
-    console.log('lineHieght', this.lineHeight);
     this.sliceDays = this.days.length - 1;
 
     this.dayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);

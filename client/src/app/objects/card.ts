@@ -2,14 +2,20 @@ export class Card {
 
   id: number;
   day: string;
-  mechanic: string;
+  mechanicCode: string;
 
+  start: string;
+  end: string;
+
+  left: number;
   width: number;
 
-  constructor(id: number, day: string, mechanic: string, width: number) {
+  constructor(id: number, day: string, mechanicCode: string, start: string, end: string, width: number) {
     this.id = id;
     this.day = day;
-    this.mechanic = mechanic;
+    this.mechanicCode = mechanicCode;
+    this.start = start;
+    this.end = end;
     this.width = width;
   }
 

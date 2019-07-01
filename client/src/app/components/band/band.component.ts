@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   Input,
   OnInit,
@@ -9,6 +9,7 @@ import {animate, animateChild, query, stagger, style, transition, trigger} from 
 import {Draggable, Droppable} from "@shopify/draggable"
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
+import {Card} from "../../objects/card";
 
 @Component({
   selector: 'app-band',
@@ -35,18 +36,27 @@ import {CardsService} from "../../services/cards.service";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BandComponent {
+export class BandComponent implements OnInit {
 
   @Input() cards: any[];
 
   private intervalsNumber: number;
+  private unassignedCards: Card[];
 
   constructor(
     private timeService: TimeService,
     private cardPositionService: CardPositionService,
-    private cardsService: CardsService
+    private cardsService: CardsService,
+    private cdRef: ChangeDetectorRef
   ) {
     this.intervalsNumber = this.timeService.intervalsNumber;
+  }
+
+  ngOnInit(): void {
+    this.cardsService.unassignedCards$.subscribe( unassignedCards => {
+      this.unassignedCards = unassignedCards;
+      this.cdRef.detectChanges();
+    });
   }
 
   get helperCard$() {
@@ -63,6 +73,11 @@ export class BandComponent {
 
   trackById(index, item) {
     return item.id;
+  }
+
+  forceCardCd() {
+    /* Force card CD to save the new positions, once the dragged card is outside the unassigned list */
+    this.cdRef.detectChanges();
   }
 
 }

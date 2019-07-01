@@ -3,6 +3,7 @@ import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
 import {Coordinates} from "../objects/coordinates";
 import {Card} from "../objects/card";
+import {DropzoneInfo} from "../objects/dropzone-info";
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class CardPositionService {
 
   // private scrollLeftSubject;
   // scrollLeft$: Observable<number>;
+  private _dropzone: DropzoneInfo;
 
   private coordinatesSubject: BehaviorSubject<Coordinates>;
   private _coordinates$: Observable<Coordinates>;
@@ -21,8 +23,8 @@ export class CardPositionService {
   private draggingSubject: BehaviorSubject<boolean>;
   private _dragging$: Observable<boolean>;
 
-  private dropzonePositionSubject: BehaviorSubject<any>;
-  private _dropzonePosition$: Observable<any>;
+  private dropzoneSubject: BehaviorSubject<DropzoneInfo>;
+  private _dropzone$: Observable<DropzoneInfo>;
 
   // private _scrollLeft: number;
 
@@ -39,8 +41,18 @@ export class CardPositionService {
     this.draggingSubject = new BehaviorSubject<boolean>(false);
     this.dragging$ = this.draggingSubject.asObservable();
 
-    this.dropzonePositionSubject = new BehaviorSubject<any>(undefined);
-    this.dropzonePosition$ = this.dropzonePositionSubject.asObservable();
+    this.dropzoneSubject = new BehaviorSubject<DropzoneInfo>(undefined);
+    this.dropzone$ = this.dropzoneSubject.asObservable();
+  }
+
+  // region Getters / setters
+
+  get dropzone(): DropzoneInfo {
+    return this._dropzone;
+  }
+
+  set dropzone(value: DropzoneInfo) {
+    this._dropzone = value;
   }
 
   get coordinates$(): Observable<Coordinates> {
@@ -67,20 +79,23 @@ export class CardPositionService {
     this._dragging$ = value;
   }
 
-  get dropzonePosition$(): Observable<any> {
-    return this._dropzonePosition$;
+  get dropzone$(): Observable<DropzoneInfo> {
+    return this._dropzone$;
   }
 
-  set dropzonePosition$(value: Observable<any>) {
-    this._dropzonePosition$ = value;
+  set dropzone$(value: Observable<DropzoneInfo>) {
+    this._dropzone$ = value;
   }
+
+  // endregion
 
   emitPosition(coordinates: Coordinates) {
-    // console.log('emitting coordinates', coordinates);
+    console.log('emitting coordinates', coordinates);
     this.coordinatesSubject.next(coordinates);
   }
 
   emitHelperCard(card: Card) {
+    console.log('card position service: emit helper card');
     this.helperCardSubject.next(card)
   }
 
@@ -88,8 +103,9 @@ export class CardPositionService {
     this.draggingSubject.next(value);
   }
 
-  emitDropzonePosition(clientRect: any) {
-    this.dropzonePositionSubject.next(clientRect);
+  emitDropzone(dropzone: DropzoneInfo) {
+    this.dropzone = dropzone;
+    this.dropzoneSubject.next(this.dropzone);
   }
 
   // get scrollLeft() {

@@ -1,6 +1,7 @@
 import {
+  AfterViewChecked,
   Directive, ElementRef,
-  HostBinding, Input,
+  HostBinding, Input, OnChanges,
   OnDestroy,
   OnInit, Renderer2,
 } from '@angular/core';
@@ -13,7 +14,7 @@ import {Card} from "../objects/card";
   selector: '[appDraggable]',
   exportAs: 'appDraggable'
 })
-export class DraggableDirective implements OnInit, OnDestroy {
+export class DraggableDirective implements OnInit, AfterViewChecked, OnDestroy {
 
   @Input() card: Card;
 
@@ -49,9 +50,13 @@ export class DraggableDirective implements OnInit, OnDestroy {
     this.cardRect = this.element.nativeElement.getBoundingClientRect();
     this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
 
-    this.dropzonePositionListener = this.cardPositionService.dropzonePosition$.subscribe(position => {
-      this.dropzonePosition = position
+    this.dropzonePositionListener = this.cardPositionService.dropzone$.subscribe(dropzone => {
+      this.dropzonePosition = dropzone ? dropzone.rect : undefined;
     });
+  }
+
+  ngAfterViewChecked(): void {
+    this.cardRect = this.element.nativeElement.getBoundingClientRect();
   }
 
   ngOnDestroy() {
@@ -65,6 +70,8 @@ export class DraggableDirective implements OnInit, OnDestroy {
       this.cardRect.left,
       this.cardRect.top
     );
+
+    console.log('start position', this.startPosition);
 
     this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 
@@ -87,8 +94,6 @@ export class DraggableDirective implements OnInit, OnDestroy {
   onPointerUp(): void {
     if (this.dragging) {
       this.dragging = false;
-      // Evento emitido para asignar la clase que posibilita la transicion CSS a su posición
-      this.cardPositionService.emitDragging(this.dragging);
 
       if (this.dropzonePosition) {
         const leftIntervals = Math.floor((this.position.x - 180) / this.timeService.intervalWidth);
@@ -97,6 +102,7 @@ export class DraggableDirective implements OnInit, OnDestroy {
         this.position = new Coordinates(x, y);
       } else {
         this.position = this.startPosition;
+        this.cardPositionService.emitDropzone(undefined);
       }
 
       this.cardPositionService.emitPosition(this.position);
@@ -104,25 +110,9 @@ export class DraggableDirective implements OnInit, OnDestroy {
       this.pointerMoveListener();
       this.pointerUpListener();
 
-      // Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición
+      /* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición */
       this.cardPositionService.emitDragging(this.dragging);
     }
   }
-
-  // onDropMove(event) {
-  //   const draggableRect = interact.getElementRect(event.relatedTarget);
-  //   const leftIntervals = Math.floor((draggableRect.left - (180 - this.scrollLeft)) / this.timeService.intervalWidth);
-  //   const left = (180 - this.scrollLeft) + leftIntervals * this.timeService.intervalWidth;
-  //
-  //   const dropzoneRect = interact.getElementRect(event.target);
-  //   const dropzoneTop = draggableRect.top > dropzoneRect.top + dropzoneRect.height/4 ? dropzoneRect.top + dropzoneRect.height/2 : dropzoneRect.top;
-  //
-  //   event.relatedTarget.setAttribute('data-left', left);
-  //   event.relatedTarget.setAttribute('data-dropzone-top', dropzoneTop);
-  //   console.log({x: left, y: dropzoneTop});
-  //   event.draggable.options.drag.modifiers[0].options.targets[0] = () => {
-  //     return {x: left, y: dropzoneTop}
-  //   };
-  // }
 
 }
