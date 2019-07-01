@@ -3,8 +3,8 @@
     <div
       *ngFor="let quarter of quarters; first as isFirst"
       class="flex-grow-1 flex-basis-0 quarter"
-      [ngClass]="(width$ | async) < displayMinutesThreshold ? 'align-center' : 'pl-1'">
-      <span *ngIf="isFirst">{{hour}}<span *ngIf="(width$ | async) >= displayMinutesThreshold">:{{quarter}}</span></span>
+      [ngClass]="(percentageWidth$ | async) < displayMinutesThreshold ? 'align-center' : 'pl-1'">
+      <span *ngIf="isFirst">{{hour}}<span *ngIf="(percentageWidth$ | async) >= displayMinutesThreshold">:{{quarter}}</span></span>
     </div>
   </div>
 </div>

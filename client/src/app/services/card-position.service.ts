@@ -90,12 +90,12 @@ export class CardPositionService {
   // endregion
 
   emitPosition(coordinates: Coordinates) {
-    console.log('emitting coordinates', coordinates);
+    // console.log('emitting coordinates', coordinates);
     this.coordinatesSubject.next(coordinates);
   }
 
   emitHelperCard(card: Card) {
-    console.log('card position service: emit helper card');
+    // console.log('card position service: emit helper card');
     this.helperCardSubject.next(card)
   }
 

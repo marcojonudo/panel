@@ -19,7 +19,7 @@ import {CardsService} from "../../services/cards.service";
   styleUrls: ['./grid.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridComponent implements OnInit, AfterViewInit, OnDestroy {
+export class GridComponent implements OnInit, OnDestroy {
 
   @Input() day: string;
 
@@ -28,22 +28,13 @@ export class GridComponent implements OnInit, AfterViewInit, OnDestroy {
   private mechanicsSubscription: any;
 
   constructor(
-    private daysService: DaysService,
-    private cardsService: CardsService,
-    private cdRef: ChangeDetectorRef
+    private daysService: DaysService
   ) { }
 
   ngOnInit(): void {
     this.mechanicsSubscription = this.daysService.daysMechanics$[this.day].subscribe(mechanics => {
       this.mechanics = mechanics;
     });
-    console.log('not on initias faisjdfpoaisdjfpoaidsf');
-  }
-
-  ngAfterViewInit(): void {
-    console.log('**********************************');
-    this.cardsService.initDimensions();
-    this.cdRef.detectChanges();
   }
 
   ngOnDestroy(): void {

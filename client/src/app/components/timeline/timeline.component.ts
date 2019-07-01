@@ -26,8 +26,8 @@ export class TimelineComponent implements OnInit {
     return this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
   }
 
-  get width$() {
-    return this.timeService.width$
+  get percentageWidth$() {
+    return this.timeService.percentageWidth$
   }
 
   get displayMinutesThreshold() {

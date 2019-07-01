@@ -4,6 +4,7 @@ import {Observable} from "rxjs/internal/Observable";
 import {Card} from "../objects/card";
 import {Mechanic} from "../objects/mechanic";
 import {TimeService} from "./time.service";
+import {UtilsService} from "./utils.service";
 
 @Injectable({
   providedIn: 'root'
@@ -24,9 +25,13 @@ export class CardsService {
   private assignedDaysCardsSubjects: any;
   private _assignedDaysCards$: any;
 
-  constructor(private timeService: TimeService) {
+  private widthSubscription: any;
+
+  constructor(
+    private timeService: TimeService
+  ) {
     // this.cards = [{id: 1, width: 350}, {id: 1, width: 150}, {id: 1, width: 200}, {id: 1, width: 100}, {id: 1, width: 350}, {id: 1, width: 350, day: "2019-06-25", mechanic: "A"}, {id: 2, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 3, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 4, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 5, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 1, width: 350, day: "2019-06-25", mechanic: "B"}, {id: 2, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 3, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 4, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 5, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 1, width: 350, day: "2019-06-26", mechanic: "B"}, {id: 2, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 3, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 4, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 5, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 1, width: 350, day: "2019-06-26", mechanic: "C"}, {id: 2, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 3, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 4, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 5, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 1, width: 350, day: "2019-06-27", mechanic: "A"}, {id: 2, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 3, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 4, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 5, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 1, width: 350, day: "2019-06-27", mechanic: "D"}, {id: 2, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 3, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 4, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 5, width: 150, day: "2019-06-27", mechanic: "D"}];
-    this.cards = [new Card(1, undefined, undefined, undefined, undefined, 100), new Card(2, undefined, undefined, undefined, undefined, 150), new Card(3, undefined, undefined, undefined, undefined, 350), new Card(4, undefined, undefined, undefined, undefined, 200), new Card(1, "2019-06-25", "A", '09:00:00', '09:30:00', 350), new Card(2, "2019-06-25", "A", '10:00:00', '10:15:00', 150), new Card(3, "2019-06-25", "A", '11:00:00', '11:30:00', 150), new Card(4, "2019-06-25", "A", '11:30:00', '11:45:00', 150), new Card(5, "2019-06-25", "A", '12:00:00', '12:30:00', 150), new Card(1, "2019-06-25", "B", '09:00:00', '09:30:00', 350), new Card(2, "2019-06-25", "B", '09:00:00', '09:30:00', 150), new Card(3, "2019-06-25", "B", '09:00:00', '09:30:00', 150), new Card(4, "2019-06-25", "B", '09:00:00', '09:30:00', 150), new Card(5, "2019-06-25", "B", '09:00:00', '09:30:00', 150), new Card(1, "2019-06-26", "B", '09:00:00', '09:30:00', 350), new Card(2, "2019-06-26", "B", '09:00:00', '09:30:00', 150), new Card(3, "2019-06-26", "B", '09:00:00', '09:30:00', 150), new Card(4, "2019-06-25", "B", '09:00:00', '09:30:00', 150), new Card(5, "2019-06-25", "B", '09:00:00', '09:30:00', 150), new Card(1, "2019-06-26", "C", '09:00:00', '09:30:00', 350), new Card(2, "2019-06-26", "C", '09:00:00', '09:30:00', 150), new Card(3, "2019-06-26", "C", '09:00:00', '09:30:00', 150), new Card(4, "2019-06-25", "C", '09:00:00', '09:30:00', 150), new Card(5, "2019-06-25", "C", '09:00:00', '09:30:00', 150), new Card(1, "2019-06-27", "A", '09:00:00', '09:30:00', 350), new Card(2, "2019-06-27", "A", '09:00:00', '09:30:00', 150), new Card(3, "2019-06-27", "A", '09:00:00', '09:30:00', 150), new Card(4, "2019-06-27", "A", '09:00:00', '09:30:00', 150), new Card(5, "2019-06-27", "A", '09:00:00', '09:30:00', 150), new Card(1, "2019-06-27", "D", '09:00:00', '09:30:00', 350), new Card(2, "2019-06-27", "D", '09:00:00', '09:30:00', 150), new Card(3, "2019-06-27", "D", '09:00:00', '09:30:00', 150), new Card(4, "2019-06-27", "D", '09:00:00', '09:30:00', 150), new Card(5, "2019-06-27", "D", '09:00:00', '09:30:00', 150)];
+    this.cards = [new Card(1, undefined, undefined, undefined, undefined, undefined, 100), new Card(2, undefined, undefined, undefined, undefined, undefined, 150), new Card(3, undefined, undefined, undefined, undefined, undefined, 350), new Card(4, undefined, undefined, undefined, undefined, undefined, 200), new Card(1, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-25", "A", '10:00:00', 15, '10:15:00', 150), new Card(3, "2019-06-25", "A", '11:00:00', 30, '11:30:00', 150), new Card(4, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 150), new Card(5, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 150), new Card(1, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-26", "B", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-26", "B", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-26", "B", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-25", "C", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-25", "C", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150)];
 
     // this.unassignedCards = [{day: '2019-06-12', id: 6, width: 150, left: 180, top: 120}];
     // this.unassignedCards = this.cards.filter(card => card.mechanic);
@@ -45,6 +50,11 @@ export class CardsService {
     this.assignedDaysCards$ = {};
 
     this.initObservables(this.assignedDaysCards);
+
+    this.widthSubscription = this.timeService.intervalWidth$.subscribe(intervalWidth => {
+      // console.log('updated dropzone width in cards: ', intervalWidth);
+      this.calculatePosition()
+    });
 
     console.log('Unassigned cards', this.unassignedCards);
     console.log('Assigned days cards', this.assignedDaysCards);
@@ -103,7 +113,7 @@ export class CardsService {
   }
 
   updateCard(newMechanic: Mechanic, card: Card) {
-    console.log('updating card', newMechanic, card);
+    // console.log('updating card', newMechanic, card);
 
     const assignedInfo = this.removeCardFromOrigin(card);
     this.addToDestiny(newMechanic, card);
@@ -150,25 +160,30 @@ export class CardsService {
     this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position].next(this.assignedDaysCards[newMechanic.day][newMechanic.position]);
   }
 
-  // addCard(): void {
-  //   this.assignedDaysCards['2019-06-25']['A'].push({id: 1234, width: 150});
-  //   console.log(this.assignedDaysCards);
-  //   this.assignedDaysCardsSubjects['2019-06-25']['A'].next(this.assignedDaysCards['2019-06-25']['A']);
-  //   // this.assignedDaysCardsSubject.next(this.assignedDaysCards);
-  // }
+  private calculatePosition() {
+    for (let card of this.assignedCards) {
+      const start = UtilsService.parseTime(card.start);
+      card.left = this.calculateCardLeft(start);
+      card.width = this.calculateCardWidth(card.duration);
+      // console.log('width', card.duration, card.width);
+    }
+    for (let day in this.assignedDaysCardsSubjects) {
+      for (let mechanic in this.assignedDaysCardsSubjects[day]) {
+        this.assignedDaysCardsSubjects[day][mechanic].next(this.assignedDaysCards[day][mechanic])
+      }
+    }
+  }
 
-  calculateCardLeft(start: string) {
+  private calculateCardLeft(start: Date) {
     const relativeMinutes = this.timeService.getRelativeMinutes(start);
-    const relativeIntervals = relativeMinutes / 5;
+    const relativeIntervals = this.timeService.getIntervalsNumber(relativeMinutes);
 
-    console.log('start', start, relativeIntervals, this.timeService.intervalWidth, relativeIntervals * this.timeService.intervalWidth);
     return relativeIntervals * this.timeService.intervalWidth;
   }
 
-  initDimensions() {
-    for (let card of this.assignedCards) {
-      card.left = this.calculateCardLeft(card.start);
-    }
+  private calculateCardWidth(duration: number) {
+    const intervalsNumber = this.timeService.getIntervalsNumber(duration);
+    return intervalsNumber * this.timeService.intervalWidth;
   }
 
 }

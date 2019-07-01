@@ -50,7 +50,9 @@ export class MainComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log('main after view init', this.schedulesContainer.nativeElement.offsetWidth);
+    // console.log('main after view init', this.schedulesContainer.nativeElement.offsetWidth);
+    this.timeService.dropzoneWidth = this.schedulesContainer.nativeElement.offsetWidth - 180;
+
     // this.cdRef.detach();
     // this.cdRef.detectChanges();
   }
@@ -59,8 +61,8 @@ export class MainComponent implements AfterViewInit {
     return this.daysService.oneDayMode$;
   }
 
-  get width$() {
-    return this.timeService.width$
+  get percentageWidth$() {
+    return this.timeService.percentageWidth$
   }
 
   // get assignedDaysCards$() {

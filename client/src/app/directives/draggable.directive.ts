@@ -71,7 +71,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked, OnDestroy {
       this.cardRect.top
     );
 
-    console.log('start position', this.startPosition);
+    // console.log('start position', this.startPosition);
 
     this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 

@@ -8,7 +8,7 @@
         <div
           class="h-100"
           #schedulesContainer
-          [style.width.%]="width$ | async">
+          [style.width.%]="percentageWidth$ | async">
           <app-day-panel
             class="h-100 animated slideInRight"
             [index]="i"

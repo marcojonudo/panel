@@ -9,6 +9,7 @@ import {TimeService} from "../../services/time.service";
 import {Draggable, Droppable} from "@shopify/draggable"
 import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
+import {DaysService} from "../../services/days.service";
 
 @Component({
   selector: 'app-mechanic-line',
@@ -35,6 +36,7 @@ export class MechanicLineComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private timeService: TimeService,
     private cardsService: CardsService,
+    private daysService: DaysService,
     private cdRef: ChangeDetectorRef
   ) {
     this.hours = this.timeService.getHours();
@@ -52,10 +54,10 @@ export class MechanicLineComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.timeService.dropzoneWidth = this.dropzone.nativeElement.offsetWidth;
-    console.log('mechanic line after view init', this.dropzone.nativeElement.offsetWidth);
+    // this.timeService.dropzoneWidth = this.dropzone.nativeElement.offsetWidth;
+    // console.log('mechanic line after view init', this.dropzone.nativeElement.offsetWidth);
     // this.cardsService.initPosition(thi s.cards);
-    // this.timeService.calculateIntervalWidth(this.dropzone.nativeElement.offsetWidth);
+    // this.timeService.resize(this.dropzone.nativeElement.offsetWidth);
   }
 
   ngOnDestroy() {
@@ -64,6 +66,10 @@ export class MechanicLineComponent implements OnInit, AfterViewInit, OnDestroy {
 
   trackByItem(index, item) {
     return item;
+  }
+
+  get lineHeight$() {
+    return this.daysService.lineHeight$;
   }
 
   check() {
