@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
-  Input,
+  Input, OnDestroy,
   OnInit,
 } from '@angular/core';
 import {TimeService} from "../../services/time.service";
@@ -36,12 +36,14 @@ import {Card} from "../../objects/card";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BandComponent implements OnInit {
+export class BandComponent implements OnInit, OnDestroy {
 
-  @Input() cards: any[];
+  @Input() cards: Card[];
 
   private intervalsNumber: number;
   private unassignedCards: Card[];
+
+  private unassignedCardsSubscription;
 
   constructor(
     private timeService: TimeService,
@@ -53,14 +55,14 @@ export class BandComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cardsService.unassignedCards$.subscribe( unassignedCards => {
+    this.unassignedCardsSubscription = this.cardsService.unassignedCards$.subscribe( unassignedCards => {
       this.unassignedCards = unassignedCards;
       this.cdRef.detectChanges();
     });
   }
 
-  get helperCard$() {
-    return this.cardPositionService.helperCard$;
+  ngOnDestroy(): void {
+    this.unassignedCardsSubscription();
   }
 
   get cards$() {

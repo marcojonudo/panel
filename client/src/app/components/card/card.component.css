@@ -1,9 +1,5 @@
 .panel-card {
   background-color: blue;
-  /*height: 20px !important;*/
-  /*width: 150px;*/
-  /*min-width: 150px;*/
-  /*margin-right: 10px;*/
 }
 
 .draggable {
@@ -15,5 +11,14 @@
 }
 
 .draggable:not(.dragging) {
-  transition: transform .25s ease-in-out;
+  transition: transform .25s ease-in-out, visibility 0s .35s;
+}
+
+/*.dragging {*/
+  /*width: 500px !important;*/
+/*}*/
+
+.hidden {
+  visibility: hidden;
+
 }

@@ -31,7 +31,21 @@ export class CardsService {
     private timeService: TimeService
   ) {
     // this.cards = [{id: 1, width: 350}, {id: 1, width: 150}, {id: 1, width: 200}, {id: 1, width: 100}, {id: 1, width: 350}, {id: 1, width: 350, day: "2019-06-25", mechanic: "A"}, {id: 2, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 3, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 4, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 5, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 1, width: 350, day: "2019-06-25", mechanic: "B"}, {id: 2, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 3, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 4, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 5, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 1, width: 350, day: "2019-06-26", mechanic: "B"}, {id: 2, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 3, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 4, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 5, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 1, width: 350, day: "2019-06-26", mechanic: "C"}, {id: 2, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 3, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 4, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 5, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 1, width: 350, day: "2019-06-27", mechanic: "A"}, {id: 2, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 3, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 4, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 5, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 1, width: 350, day: "2019-06-27", mechanic: "D"}, {id: 2, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 3, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 4, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 5, width: 150, day: "2019-06-27", mechanic: "D"}];
-    this.cards = [new Card(1, undefined, undefined, undefined, undefined, undefined, 100), new Card(2, undefined, undefined, undefined, undefined, undefined, 150), new Card(3, undefined, undefined, undefined, undefined, undefined, 350), new Card(4, undefined, undefined, undefined, undefined, undefined, 200), new Card(1, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-25", "A", '10:00:00', 15, '10:15:00', 150), new Card(3, "2019-06-25", "A", '11:00:00', 30, '11:30:00', 150), new Card(4, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 150), new Card(5, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 150), new Card(1, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-26", "B", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-26", "B", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-26", "B", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-25", "C", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-25", "C", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 150), new Card(1, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 350), new Card(2, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150), new Card(3, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150), new Card(4, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150), new Card(5, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150)];
+    this.cards = [
+      new Card(1, undefined, undefined, undefined, undefined, undefined, 100),
+      new Card(2, undefined, undefined, undefined, undefined, undefined, 150),
+      new Card(3, undefined, undefined, undefined, undefined, undefined, 350),
+      new Card(4, undefined, undefined, undefined, undefined, undefined, 200),
+      new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 350),
+      new Card(6, "2019-06-25", "A", '10:00:00', 15, '10:15:00', 150),
+      new Card(7, "2019-06-25", "A", '11:00:00', 30, '11:30:00', 150),
+      new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 150),
+      new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 150),
+      new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 350),
+      new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 350),
+      new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 350),
+      new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150)
+    ];
 
     // this.unassignedCards = [{day: '2019-06-12', id: 6, width: 150, left: 180, top: 120}];
     // this.unassignedCards = this.cards.filter(card => card.mechanic);
@@ -112,27 +126,39 @@ export class CardsService {
     }
   }
 
-  updateCard(newMechanic: Mechanic, card: Card) {
-    // console.log('updating card', newMechanic, card);
+  removeCard(card: Card) {
+    if (card.mechanicCode) {
+      const cardIndex = this.assignedDaysCards[card.day][card.mechanicCode].indexOf(card);
+      this.assignedDaysCards[card.day][card.mechanicCode].splice(cardIndex, 1);
 
-    const assignedInfo = this.removeCardFromOrigin(card);
-    this.addToDestiny(newMechanic, card);
+      this.assignedDaysCardsSubjects[card.day][card.mechanicCode].next(this.assignedDaysCards[card.day][card.mechanicCode]);
+    } else {
+      const cardIndex = this.unassignedCards.indexOf(card);
+      this.unassignedCards.splice(cardIndex, 1);
 
-    console.log(this.unassignedCards);
-    console.log(this.assignedDaysCards);
-    card.day = newMechanic.day;
-    card.mechanicCode = newMechanic.position;
-    this.notifyChanges(assignedInfo, newMechanic);
+      this.unassignedCardsSubject.next(this.unassignedCards);
+    }
   }
 
-  private removeCardFromOrigin(card: Card): any {
+  updateCard(newMechanic: Mechanic, card: Card) {
+    // const assignedInfo = this.removeCardFromOrigin(card);
+    this.addToDestiny(newMechanic, card);
+
+    card.day = newMechanic.day;
+    card.mechanicCode = newMechanic.position;
+    // this.notifyChanges(assignedInfo, newMechanic);
+  }
+
+  removeCardFromOrigin(card: Card): any {
     if (card.mechanicCode) {
       const cardIndex = this.assignedDaysCards[card.day][card.mechanicCode].indexOf(card);
       this.assignedDaysCards[card.day][card.mechanicCode].splice(cardIndex, 1);
       return {day: card.day, mechanicCode: card.mechanicCode};
     } else {
       const cardIndex = this.unassignedCards.indexOf(card);
+      console.log(this.unassignedCards);
       this.unassignedCards.splice(cardIndex, 1);
+      console.log(this.unassignedCards);
     }
   }
 

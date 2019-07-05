@@ -22,7 +22,7 @@ export class DropzoneDirective implements OnInit {
   //TODO Revisar comportamiento dragging
   @HostBinding('class.dropzone-dragging') entered: boolean;
 
-  private dragging: boolean;
+  // private dragging: boolean;
 
   private pointerEnterListener;
   private pointerLeaveListener;
@@ -35,33 +35,32 @@ export class DropzoneDirective implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.cardPositionService.dragging$.subscribe(dragging => this.dragging = dragging);
-    this.pointerEnterListener = this.renderer.listen(this.element.nativeElement, 'pointerenter', this.onPointerEnter.bind(this))
-    this.pointerLeaveListener = this.renderer.listen(this.element.nativeElement, 'pointerleave', this.onPointerLeave.bind(this))
+    this.cardPositionService.dragging$.subscribe(dragging => {
+      if (dragging) {
+        this.pointerEnterListener = this.renderer.listen(this.element.nativeElement, 'pointerenter', this.onPointerEnter.bind(this));
+        this.pointerLeaveListener = this.renderer.listen(this.element.nativeElement, 'pointerleave', this.onPointerLeave.bind(this));
+      } else {
+        if (this.pointerEnterListener) {
+          this.pointerEnterListener();
+          this.pointerLeaveListener();
+        }
+      }
+    });
   }
 
-  // onDrag(helperCard: any) {
-  //   this.dragging = !!helperCard;
-  //   if (!this.dragging) {
-  //     if (this.entered) {
-  //       console.log('on drop!');
-  //     }
-  //     this.entered = false;
-  //   }
-  // }
-
   onPointerEnter(): void {
-    if (this.dragging) {
+    if (this.cardPositionService.dragging) {
       this.entered = true;
-      const dropzone = new DropzoneInfo(this.mechanic, this.element.nativeElement.getBoundingClientRect());
-      this.cardPositionService.emitDropzone(dropzone);
+      this.cardPositionService.dropzone = new DropzoneInfo(this.mechanic, this.element.nativeElement.getBoundingClientRect());;
+      console.log('ENTEREEEEEEED', this.cardPositionService.dropzone);
     }
   }
 
   onPointerLeave(): void {
-    if (this.dragging) {
+    if (this.cardPositionService.dragging) {
+      console.log('LEAVEEEEEEEEEEE', this.cardPositionService.dropzone);
       this.entered = false;
-      this.cardPositionService.emitDropzone(undefined);
+      this.cardPositionService.dropzone = undefined;
     }
   }
 

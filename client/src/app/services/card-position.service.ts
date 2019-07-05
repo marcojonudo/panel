@@ -12,6 +12,7 @@ export class CardPositionService {
 
   // private scrollLeftSubject;
   // scrollLeft$: Observable<number>;
+  private _dragging: boolean;
   private _dropzone: DropzoneInfo;
 
   private coordinatesSubject: BehaviorSubject<Coordinates>;
@@ -23,8 +24,8 @@ export class CardPositionService {
   private draggingSubject: BehaviorSubject<boolean>;
   private _dragging$: Observable<boolean>;
 
-  private dropzoneSubject: BehaviorSubject<DropzoneInfo>;
-  private _dropzone$: Observable<DropzoneInfo>;
+  // private dropzoneSubject: BehaviorSubject<DropzoneInfo>;
+  // private _dropzone$: Observable<DropzoneInfo>;
 
   // private _scrollLeft: number;
 
@@ -41,11 +42,19 @@ export class CardPositionService {
     this.draggingSubject = new BehaviorSubject<boolean>(false);
     this.dragging$ = this.draggingSubject.asObservable();
 
-    this.dropzoneSubject = new BehaviorSubject<DropzoneInfo>(undefined);
-    this.dropzone$ = this.dropzoneSubject.asObservable();
+    // this.dropzoneSubject = new BehaviorSubject<DropzoneInfo>(undefined);
+    // this.dropzone$ = this.dropzoneSubject.asObservable();
   }
 
   // region Getters / setters
+
+  get dragging(): boolean {
+    return this._dragging;
+  }
+
+  set dragging(value: boolean) {
+    this._dragging = value;
+  }
 
   get dropzone(): DropzoneInfo {
     return this._dropzone;
@@ -79,13 +88,13 @@ export class CardPositionService {
     this._dragging$ = value;
   }
 
-  get dropzone$(): Observable<DropzoneInfo> {
-    return this._dropzone$;
-  }
-
-  set dropzone$(value: Observable<DropzoneInfo>) {
-    this._dropzone$ = value;
-  }
+  // get dropzone$(): Observable<DropzoneInfo> {
+  //   return this._dropzone$;
+  // }
+  //
+  // set dropzone$(value: Observable<DropzoneInfo>) {
+  //   this._dropzone$ = value;
+  // }
 
   // endregion
 
@@ -100,12 +109,8 @@ export class CardPositionService {
   }
 
   emitDragging(value: boolean) {
-    this.draggingSubject.next(value);
-  }
-
-  emitDropzone(dropzone: DropzoneInfo) {
-    this.dropzone = dropzone;
-    this.dropzoneSubject.next(this.dropzone);
+    this.dragging = value;
+    this.draggingSubject.next(this.dragging);
   }
 
   // get scrollLeft() {

@@ -1,5 +1,5 @@
 import {
-  AfterViewChecked,
+  AfterViewChecked, ChangeDetectorRef,
   Directive, ElementRef,
   HostBinding, Input, OnChanges,
   OnDestroy,
@@ -9,12 +9,13 @@ import {Coordinates} from "../objects/coordinates";
 import {CardPositionService} from "../services/card-position.service";
 import {TimeService} from "../services/time.service";
 import {Card} from "../objects/card";
+import {DropzoneInfo} from "../objects/dropzone-info";
 
 @Directive({
   selector: '[appDraggable]',
   exportAs: 'appDraggable'
 })
-export class DraggableDirective implements OnInit, AfterViewChecked, OnDestroy {
+export class DraggableDirective implements OnInit, AfterViewChecked {
 
   @Input() card: Card;
 
@@ -24,21 +25,23 @@ export class DraggableDirective implements OnInit, AfterViewChecked, OnDestroy {
   private startEventCoordinates: Coordinates;
   private position: Coordinates;
 
-  private dropzonePositionListener: any;
-  private dropzonePosition: any;
+  // private dropzoneSubscription: any;
+  // private dropzone: any;
 
   private pointerDownListener;
   private pointerMoveListener;
   private pointerUpListener;
 
   @HostBinding('class.draggable') draggable: boolean;
-  @HostBinding('class.dragging') dragging: boolean;
+  @HostBinding('class.dragging')
+  @HostBinding('class.hidden') dragging: boolean;
 
   constructor(
     private element: ElementRef,
     private renderer: Renderer2,
     private cardPositionService: CardPositionService,
-    private timeService: TimeService
+    private timeService: TimeService,
+    private cdRef: ChangeDetectorRef
   ) {
     this.draggable = true;
     this.dragging = false;
@@ -47,31 +50,22 @@ export class DraggableDirective implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   ngOnInit() {
-    this.cardRect = this.element.nativeElement.getBoundingClientRect();
     this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
-
-    this.dropzonePositionListener = this.cardPositionService.dropzone$.subscribe(dropzone => {
-      this.dropzonePosition = dropzone ? dropzone.rect : undefined;
-    });
   }
 
   ngAfterViewChecked(): void {
     this.cardRect = this.element.nativeElement.getBoundingClientRect();
   }
 
-  ngOnDestroy() {
-    this.dropzonePositionListener.unsubscribe()
-  }
-
   onPointerDown(event: PointerEvent): void {
     this.dragging = true;
+    /* Permite asignar la clase declarada mediante @HostBinding */
+    this.cdRef.detectChanges();
 
     this.startPosition = new Coordinates(
       this.cardRect.left,
       this.cardRect.top
     );
-
-    // console.log('start position', this.startPosition);
 
     this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 
@@ -94,17 +88,34 @@ export class DraggableDirective implements OnInit, AfterViewChecked, OnDestroy {
   onPointerUp(): void {
     if (this.dragging) {
       this.dragging = false;
+      this.cdRef.detectChanges();
 
-      if (this.dropzonePosition) {
-        const leftIntervals = Math.floor((this.position.x - 180) / this.timeService.intervalWidth);
-        const x = 180 + leftIntervals * this.timeService.intervalWidth;
-        const y = this.position.y > this.dropzonePosition.top + this.dropzonePosition.height/4 ? this.dropzonePosition.y + this.dropzonePosition.height/2 : this.dropzonePosition.y;
-        this.position = new Coordinates(x, y);
+      /* Si la ficha se suelta encima de una línea o bandeja inferior (y no en un hueco vacío) */
+      if (this.cardPositionService.dropzone) {
+        /* Si la ficha se suelta encima de una línea (y no en la bandeja inferior) */
+        if (this.cardPositionService.dropzone.mechanic) {
+          console.log(1);
+          const rect = this.cardPositionService.dropzone.rect;
+          const leftIntervals = Math.floor((this.position.x - 180) / this.timeService.intervalWidth);
+          const x = 180 + leftIntervals * this.timeService.intervalWidth;
+          const y = this.position.y > rect.top + rect.height/4 ? rect.y + rect.height/2 : rect.y;
+          this.position = new Coordinates(x, y);
+        } else if (this.card.mechanicCode) {
+          console.log(2);
+          this.position = new Coordinates(this.position.x, this.position.y);
+          // this.cardPositionService.emitHelperCard(undefined);
+        } else {
+          console.log(3);
+          this.position = this.startPosition;
+          // this.cardPositionService.dropzone = undefined;
+        }
       } else {
+        console.log(4);
         this.position = this.startPosition;
-        this.cardPositionService.emitDropzone(undefined);
+        // this.cardPositionService.dropzone = undefined;
       }
 
+      this.cardPositionService.dropzone = undefined;
       this.cardPositionService.emitPosition(this.position);
       // this.cardPositionService.emitHelperCard(undefined);
       this.pointerMoveListener();

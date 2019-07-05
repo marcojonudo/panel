@@ -1,5 +1,6 @@
-import {AfterViewChecked, Component, EventEmitter, Input, Output} from '@angular/core';
+import {AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CardPositionService} from "../../services/card-position.service";
+import {Card} from "../../objects/card";
 
 @Component({
   selector: 'app-card',
@@ -8,16 +9,12 @@ import {CardPositionService} from "../../services/card-position.service";
 })
 export class CardComponent {
 
-  @Input() card: any;
+  @Input() card: Card;
 
-  constructor(private cardPositionService: CardPositionService) { }
-
-  get helperCard$() {
-    return this.cardPositionService.helperCard$;
-  }
+  constructor() { }
 
   check() {
-    console.log('checking card');
+    console.log('checking card', this.card.id);
   }
 
 }

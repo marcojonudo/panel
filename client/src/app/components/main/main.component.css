@@ -6,14 +6,6 @@
   overflow: auto;
 }
 
-.assigned-card {
-  position: absolute;
-  width: 100px;
-  height: 50px;
-  z-index: 999;
-  background-color: blue;
-}
-
 .cdk-virtual-scroll-viewport {
   overflow: visible;
   contain: none;

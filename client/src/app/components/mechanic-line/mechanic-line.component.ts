@@ -10,6 +10,7 @@ import {Draggable, Droppable} from "@shopify/draggable"
 import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
 import {DaysService} from "../../services/days.service";
+import {Card} from "../../objects/card";
 
 @Component({
   selector: 'app-mechanic-line',
@@ -17,7 +18,7 @@ import {DaysService} from "../../services/days.service";
   styleUrls: ['./mechanic-line.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicLineComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MechanicLineComponent implements OnInit, OnDestroy {
 
   private hours: number[];
   private quarters: string[];
@@ -29,9 +30,7 @@ export class MechanicLineComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() mechanic: Mechanic;
   @Input() day: string;
 
-  private cards: any[];
-
-  @ViewChild('dropzone', {static: true}) dropzone: ElementRef;
+  private cards: Card[];
 
   constructor(
     private timeService: TimeService,
@@ -53,14 +52,7 @@ export class MechanicLineComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngAfterViewInit() {
-    // this.timeService.dropzoneWidth = this.dropzone.nativeElement.offsetWidth;
-    // console.log('mechanic line after view init', this.dropzone.nativeElement.offsetWidth);
-    // this.cardsService.initPosition(thi s.cards);
-    // this.timeService.resize(this.dropzone.nativeElement.offsetWidth);
-  }
-
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.cardsSubscription.unsubscribe();
   }
 

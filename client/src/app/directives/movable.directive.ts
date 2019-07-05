@@ -62,37 +62,5 @@ export class MovableDirective implements OnInit, OnDestroy {
     // this.element.nativeElement.remove();
     this.subscription.unsubscribe();
   }
-  //
-  // onDragStart(event: PointerEvent) {
-  //   console.log('hola');
-  // }
-
-
-  // @HostListener('pointerdown', ['$event'])
-  // onPointerDown(event: PointerEvent): void {
-  //   this.dragging = true;
-  //   this.startPosition = new Coordinates(
-  //     event.clientX - this.position.x,
-  //     event.clientY - this.position.y
-  //   );
-  //
-  //   // this.overlayRef.attach(new TemplatePortal(this.templateRef, this.viewContainerRef))
-  // }
-  //
-  // @HostListener('document:pointermove', ['$event'])
-  // onPointerMove(event: PointerEvent): void {
-  //   if (this.dragging) {
-  //     this.position.x = event.clientX - this.startPosition.x;
-  //     this.position.y = event.clientY - this.startPosition.y;
-  //   }
-  // }
-  //
-  // @HostListener('document:pointerup', ['$event'])
-  // onPointerUp(event: PointerEvent): void {
-  //   if (this.dragging) {
-  //     this.dragging = false;
-  //     this.position = new Coordinates(0, 0)
-  //   }
-  // }
 
 }
