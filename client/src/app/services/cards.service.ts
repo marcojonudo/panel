@@ -5,6 +5,13 @@ import {Card} from "../objects/card";
 import {Mechanic} from "../objects/mechanic";
 import {TimeService} from "./time.service";
 import {UtilsService} from "./utils.service";
+import {CardPositionService} from "./card-position.service";
+import {DaysService} from "./days.service";
+
+enum CardAssignedType {
+  ASSIGNED,
+  UNASSIGNED
+}
 
 @Injectable({
   providedIn: 'root'
@@ -28,50 +35,48 @@ export class CardsService {
   private widthSubscription: any;
 
   constructor(
-    private timeService: TimeService
+    private daysService: DaysService,
+    private timeService: TimeService,
+    private cardPositionService: CardPositionService
   ) {
     // this.cards = [{id: 1, width: 350}, {id: 1, width: 150}, {id: 1, width: 200}, {id: 1, width: 100}, {id: 1, width: 350}, {id: 1, width: 350, day: "2019-06-25", mechanic: "A"}, {id: 2, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 3, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 4, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 5, width: 150, day: "2019-06-25", mechanic: "A"}, {id: 1, width: 350, day: "2019-06-25", mechanic: "B"}, {id: 2, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 3, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 4, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 5, width: 150, day: "2019-06-25", mechanic: "B"}, {id: 1, width: 350, day: "2019-06-26", mechanic: "B"}, {id: 2, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 3, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 4, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 5, width: 150, day: "2019-06-26", mechanic: "B"}, {id: 1, width: 350, day: "2019-06-26", mechanic: "C"}, {id: 2, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 3, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 4, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 5, width: 150, day: "2019-06-26", mechanic: "C"}, {id: 1, width: 350, day: "2019-06-27", mechanic: "A"}, {id: 2, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 3, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 4, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 5, width: 150, day: "2019-06-27", mechanic: "A"}, {id: 1, width: 350, day: "2019-06-27", mechanic: "D"}, {id: 2, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 3, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 4, width: 150, day: "2019-06-27", mechanic: "D"}, {id: 5, width: 150, day: "2019-06-27", mechanic: "D"}];
     this.cards = [
-      new Card(1, undefined, undefined, undefined, undefined, undefined, 100),
-      new Card(2, undefined, undefined, undefined, undefined, undefined, 150),
-      new Card(3, undefined, undefined, undefined, undefined, undefined, 350),
-      new Card(4, undefined, undefined, undefined, undefined, undefined, 200),
-      new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 350),
-      new Card(6, "2019-06-25", "A", '10:00:00', 15, '10:15:00', 150),
-      new Card(7, "2019-06-25", "A", '11:00:00', 30, '11:30:00', 150),
-      new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 150),
-      new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 150),
-      new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 350),
-      new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 350),
-      new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 350),
-      new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 150)
+      new Card(1, undefined, undefined, undefined, 30, undefined),
+      new Card(2, undefined, undefined, undefined, 15, undefined),
+      new Card(3, undefined, undefined, undefined, 60, undefined),
+      new Card(4, undefined, undefined, undefined, 45, undefined),
+      new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00'),
+      new Card(6, "2019-06-25", "A", '10:00:00', 15, '10:15:00'),
+      new Card(7, "2019-06-25", "A", '11:00:00', 30, '11:30:00'),
+      new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00'),
+      new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00'),
+      new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00'),
+      new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00'),
+      new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00'),
+      new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00')
     ];
 
-    // this.unassignedCards = [{day: '2019-06-12', id: 6, width: 150, left: 180, top: 120}];
-    // this.unassignedCards = this.cards.filter(card => card.mechanic);
+    this.assignedDaysCards = {};
+    this.assignedDaysCardsSubjects = {};
+    this.assignedDaysCards$ = {};
+
     this.unassignedCards = this.cards.filter(card => !card.day);
 
     this.assignedCards = this.cards.filter(card => card.day);
-    // for (let card of this.assignedCards) {
-    //   card.left = this.calculateCardLeft(card.start);
-    // }
-    this.assignedDaysCards = this.initAssignedDaysCards(this.assignedCards);
+    this.initAssignedDaysCardsObjects(this.assignedCards, this.daysService.daysMechanics);
 
     this.unassignedCardsSubject = new BehaviorSubject<any>(this.unassignedCards);
     this.unassignedCards$ = this.unassignedCardsSubject.asObservable();
 
-    this.assignedDaysCardsSubjects = {};
-    this.assignedDaysCards$ = {};
-
-    this.initObservables(this.assignedDaysCards);
-
     this.widthSubscription = this.timeService.intervalWidth$.subscribe(intervalWidth => {
-      // console.log('updated dropzone width in cards: ', intervalWidth);
-      this.calculatePosition()
+      this.calculatePosition(this.unassignedCards.concat(this.assignedCards));
+      this.notifyAll();
     });
 
     console.log('Unassigned cards', this.unassignedCards);
     console.log('Assigned days cards', this.assignedDaysCards);
+    console.log('Assigned days cards subjects', this.assignedDaysCardsSubjects);
+    console.log('Assigned days cards observables', this.assignedDaysCards$);
   }
 
   // region Getters / setters
@@ -94,39 +99,45 @@ export class CardsService {
 
   // endregion
 
-  initAssignedDaysCards(assignedCards: Card[]): any {
-    let assignedDaysCards = {};
-
-    for (let card of assignedCards) {
-      if (!assignedDaysCards[card.day]) {
-        assignedDaysCards[card.day] = {};
-      }
-
-      if (!assignedDaysCards[card.day][card.mechanicCode]) {
-        assignedDaysCards[card.day][card.mechanicCode] = []
-      }
-
-      assignedDaysCards[card.day][card.mechanicCode].push(card);
-    }
-
-    return assignedDaysCards
-  }
-
-  initObservables(assignedDaysCards: any): void {
-    for (let day in assignedDaysCards) {
+  initAssignedDaysCardsObjects(assignedCards: Card[], daysMechanics: any): any {
+    for (let day in daysMechanics) {
+      this.assignedDaysCards[day] = {};
       this.assignedDaysCardsSubjects[day] = {};
       this.assignedDaysCards$[day] = {};
-      for (let mechanic in assignedDaysCards[day]) {
-        const subject = new BehaviorSubject<any>(assignedDaysCards[day][mechanic]);
-        const observable = subject.asObservable();
 
-        this.assignedDaysCardsSubjects[day][mechanic] = subject;
-        this.assignedDaysCards$[day][mechanic] = observable;
+      for (let mechanic of daysMechanics[day]) {
+        const cards = assignedCards.filter(card => card.day == day && card.mechanicCode == mechanic.position);
+        this.assignedDaysCards[day][mechanic.position] = cards;
+
+        const subject = new BehaviorSubject<any>(cards);
+        const observable = subject.asObservable();
+        this.assignedDaysCardsSubjects[day][mechanic.position] = subject;
+        this.assignedDaysCards$[day][mechanic.position] = observable;
       }
     }
   }
 
-  removeCard(card: Card) {
+  // initObservables(daysMechanics: any): void {
+  //   for (let day in daysMechanics) {
+  //     this.assignedDaysCardsSubjects[day] = {};
+  //     this.assignedDaysCards$[day] = {};
+  //     for (let mechanic of daysMechanics[day]) {
+  //       const subject = new BehaviorSubject<any>(this.assignedDaysCards[day][mechanic.position]);
+  //       const observable = subject.asObservable();
+  //
+  //       this.assignedDaysCardsSubjects[day][mechanic.position] = subject;
+  //       this.assignedDaysCards$[day][mechanic.position] = observable;
+  //     }
+  //   }
+  // }
+
+  updateCard(newMechanic: Mechanic, card: Card) {
+    this.removeCardFromOrigin(card);
+    this.updateCardValues(newMechanic, card);
+    this.addToDestiny(newMechanic, card);
+  }
+
+  private removeCardFromOrigin(card: Card): any {
     if (card.mechanicCode) {
       const cardIndex = this.assignedDaysCards[card.day][card.mechanicCode].indexOf(card);
       this.assignedDaysCards[card.day][card.mechanicCode].splice(cardIndex, 1);
@@ -140,26 +151,12 @@ export class CardsService {
     }
   }
 
-  updateCard(newMechanic: Mechanic, card: Card) {
-    // const assignedInfo = this.removeCardFromOrigin(card);
-    this.addToDestiny(newMechanic, card);
-
+  private updateCardValues(newMechanic: Mechanic, card: Card) {
     card.day = newMechanic.day;
     card.mechanicCode = newMechanic.position;
-    // this.notifyChanges(assignedInfo, newMechanic);
-  }
 
-  removeCardFromOrigin(card: Card): any {
-    if (card.mechanicCode) {
-      const cardIndex = this.assignedDaysCards[card.day][card.mechanicCode].indexOf(card);
-      this.assignedDaysCards[card.day][card.mechanicCode].splice(cardIndex, 1);
-      return {day: card.day, mechanicCode: card.mechanicCode};
-    } else {
-      const cardIndex = this.unassignedCards.indexOf(card);
-      console.log(this.unassignedCards);
-      this.unassignedCards.splice(cardIndex, 1);
-      console.log(this.unassignedCards);
-    }
+    card.left = this.cardPositionService.position.x - 180;
+    card.start = `${this.calculateCardStart(card.left)}`;
   }
 
   private addToDestiny(newMechanic: Mechanic, card: Card): void {
@@ -168,6 +165,7 @@ export class CardsService {
       this.assignedDaysCardsSubjects[newMechanic.day] = {};
       this.assignedDaysCards$[newMechanic.day] = {};
     }
+
     if (!this.assignedDaysCards[newMechanic.day][newMechanic.position]) {
       this.assignedDaysCards[newMechanic.day][newMechanic.position] = [card];
       this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position] = new BehaviorSubject<Card[]>(this.assignedDaysCards[newMechanic.day][newMechanic.position]);
@@ -175,28 +173,23 @@ export class CardsService {
     } else {
       this.assignedDaysCards[newMechanic.day][newMechanic.position].push(card);
     }
-  }
 
-  private notifyChanges(assignedInfo, newMechanic: Mechanic): void {
-    if (assignedInfo) {
-      this.assignedDaysCardsSubjects[assignedInfo.day][assignedInfo.mechanicCode].next(this.assignedDaysCards[assignedInfo.day][assignedInfo.mechanicCode]);
-    } else {
-      this.unassignedCardsSubject.next(this.unassignedCards);
-    }
+    console.log(newMechanic, this.assignedDaysCards[newMechanic.day][newMechanic.position]);
+    console.log(newMechanic, this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position]);
     this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position].next(this.assignedDaysCards[newMechanic.day][newMechanic.position]);
+    console.log(newMechanic, this.assignedDaysCards[newMechanic.day][newMechanic.position]);
+    console.log(newMechanic, this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position]);
   }
 
-  private calculatePosition() {
-    for (let card of this.assignedCards) {
-      const start = UtilsService.parseTime(card.start);
-      card.left = this.calculateCardLeft(start);
-      card.width = this.calculateCardWidth(card.duration);
-      // console.log('width', card.duration, card.width);
-    }
-    for (let day in this.assignedDaysCardsSubjects) {
-      for (let mechanic in this.assignedDaysCardsSubjects[day]) {
-        this.assignedDaysCardsSubjects[day][mechanic].next(this.assignedDaysCards[day][mechanic])
+  // region Update properties
+
+  private calculatePosition(cards: Card[]) {
+    for (let card of cards) {
+      if (card.start) {
+        const start = UtilsService.parseTime(card.start);
+        card.left = this.calculateCardLeft(start);
       }
+      card.width = this.calculateCardWidth(card.duration);
     }
   }
 
@@ -207,9 +200,50 @@ export class CardsService {
     return relativeIntervals * this.timeService.intervalWidth;
   }
 
+  private calculateCardStart(left: number) {
+    const intervals = this.timeService.getIntervalsNumberFromLeft(left);
+    const minutes = this.timeService.getRelativeMinutesFromIntervals(intervals);
+    return this.timeService.getStart(minutes);
+  }
+
   private calculateCardWidth(duration: number) {
     const intervalsNumber = this.timeService.getIntervalsNumber(duration);
     return intervalsNumber * this.timeService.intervalWidth;
   }
+
+  // endregion
+
+  // region Notify
+
+  private notifyAll(): void {
+    this.notifyUnassigned();
+    this.notifyAllAssigned();
+  }
+
+  private notify(cards: Card[], type: CardAssignedType) {
+    if (type == CardAssignedType.UNASSIGNED) {
+      this.notifyUnassigned();
+    } else {
+      this.notifyAssigned(cards[0].day, cards[0].mechanicCode)
+    }
+  }
+
+  private notifyUnassigned(): void {
+    this.unassignedCardsSubject.next(this.unassignedCards);
+  }
+
+  private notifyAllAssigned(): void {
+    for (let day in this.assignedDaysCardsSubjects) {
+      for (let mechanic in this.assignedDaysCardsSubjects[day]) {
+        this.assignedDaysCardsSubjects[day][mechanic].next(this.assignedDaysCards[day][mechanic])
+      }
+    }
+  }
+
+  private notifyAssigned(day: string, mechanicCode: string): void {
+    this.assignedDaysCardsSubjects[day][mechanicCode].next(this.assignedDaysCards[day][mechanicCode]);
+  }
+
+  // endregion
 
 }

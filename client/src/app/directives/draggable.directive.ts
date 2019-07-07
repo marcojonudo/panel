@@ -25,9 +25,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
   private startEventCoordinates: Coordinates;
   private position: Coordinates;
 
-  // private dropzoneSubscription: any;
-  // private dropzone: any;
-
   private pointerDownListener;
   private pointerMoveListener;
   private pointerUpListener;
@@ -100,6 +97,11 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
           const x = 180 + leftIntervals * this.timeService.intervalWidth;
           const y = this.position.y > rect.top + rect.height/4 ? rect.y + rect.height/2 : rect.y;
           this.position = new Coordinates(x, y);
+
+          // this.card.left = this.position.x;
+          // this.cardPositionService.emitHelperCard(this.card);
+
+          console.log('new position', this.position);
         } else if (this.card.mechanicCode) {
           console.log(2);
           this.position = new Coordinates(this.position.x, this.position.y);
@@ -107,15 +109,15 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
         } else {
           console.log(3);
           this.position = this.startPosition;
-          // this.cardPositionService.dropzone = undefined;
+          this.cardPositionService.dropzone = undefined;
         }
       } else {
         console.log(4);
         this.position = this.startPosition;
-        // this.cardPositionService.dropzone = undefined;
+        this.cardPositionService.dropzone = undefined;
       }
 
-      this.cardPositionService.dropzone = undefined;
+      // this.cardPositionService.dropzone = undefined;
       this.cardPositionService.emitPosition(this.position);
       // this.cardPositionService.emitHelperCard(undefined);
       this.pointerMoveListener();

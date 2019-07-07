@@ -18,10 +18,10 @@ export class DaysService {
   private _days: string[];
   private _mechanics: Mechanic[];
 
-  private daysMechanics: any;
+  private _daysMechanics: any;
 
-  private dayModeSubject;
-  oneDayMode$: Observable<boolean>;
+  private dayModeSubject: BehaviorSubject<boolean>;
+  private _oneDayMode$: Observable<boolean>;
 
   private lineHeightSubject: BehaviorSubject<number>;
   private _lineHeight$: Observable<number>;
@@ -30,7 +30,7 @@ export class DaysService {
   private _daysMechanics$: any;
 
   constructor() {
-    this.days = ['2019-06-25', '2019-06-26', '2019-06-27', '2019-06-15'];
+    this.days = ['2019-06-25', '2019-06-26', '2019-06-27', '2019-06-28'];
 
     this.oneDayMode = true;
     this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
@@ -46,6 +46,7 @@ export class DaysService {
     this.daysMechanics = this.initDaysMechanics(this.mechanics);
 
     this.initObservables(this.daysMechanics);
+    console.log(this.daysMechanics);
   }
 
   // region Getters / setters
@@ -77,6 +78,22 @@ export class DaysService {
 
   set lineHeight$(value: Observable<number>) {
     this._lineHeight$ = value;
+  }
+
+  get oneDayMode$(): Observable<boolean> {
+    return this._oneDayMode$;
+  }
+
+  set oneDayMode$(value: Observable<boolean>) {
+    this._oneDayMode$ = value;
+  }
+
+  get daysMechanics(): any {
+    return this._daysMechanics;
+  }
+
+  set daysMechanics(value: any) {
+    this._daysMechanics = value;
   }
 
   // endregion

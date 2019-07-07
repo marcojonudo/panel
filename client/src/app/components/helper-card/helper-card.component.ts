@@ -33,7 +33,7 @@ export class HelperCardComponent implements OnInit {
   }
 
   check(): void {
-    console.log('checking helper card');
+    // console.log('checking helper card');
   }
 
 }

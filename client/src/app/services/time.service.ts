@@ -17,6 +17,8 @@ export class TimeService {
   private readonly QUARTERS_PER_HOUR: number = 4;
   private readonly INTERVALS_PER_QUARTER: number = 3;
   private readonly MINUTES_PER_INTERVAL: number = 5;
+  private readonly LEFT_OFFSET: number = 180;
+  private readonly MINUTES_8: number = 480;
 
   private widthValue: number;
 
@@ -160,6 +162,20 @@ export class TimeService {
 
   getIntervalsNumber(value: number) {
     return value / this.MINUTES_PER_INTERVAL;
+  }
+
+  getIntervalsNumberFromLeft(left: number) {
+    return left / this.intervalWidth;
+  }
+
+  getRelativeMinutesFromIntervals(intervalsNumber: number): number {
+    return this.MINUTES_8 + this.MINUTES_PER_INTERVAL * intervalsNumber;
+  }
+
+  getStart(minutes: number) {
+    const hours = minutes / 60 < 10 ? `0${minutes/60}` : `${minutes/60}`;
+    const m = minutes % 60 < 10 ? `0${minutes%60}` : `${minutes%60}`;
+    return `${hours}:${m}:00`
   }
 
 }

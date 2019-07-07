@@ -11,7 +11,7 @@
 }
 
 .draggable:not(.dragging) {
-  transition: transform .25s ease-in-out, visibility 0s .35s;
+  transition: transform .25s ease-in-out, visibility 0s .55s;
 }
 
 /*.dragging {*/

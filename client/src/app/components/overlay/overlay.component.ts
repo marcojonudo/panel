@@ -43,15 +43,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
     this.helperCardSubscription = this.cardPositionService.helperCard$.subscribe( helperCard => {
       this.helperCard = helperCard;
-      // if (this.helperCard) {
-      //   // if (this.helperCard.mechanicCode) {
-      //   //   this.cardsService.removeCard(this.helperCard);
-      //   // }
-      // } else {
-      //   if (this.cardPositionService.dropzone) {
-      //     console.log('UPDATE CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARD', this.cardPositionService.dropzone);
-      //   }
-      // }
+      this.cdRef.detectChanges();
     });
   }
 
@@ -65,14 +57,14 @@ export class OverlayComponent implements OnInit, OnDestroy {
   }
 
   check(): void {
-    console.log('checking overlay');
+    // console.log('checking overlay');
   }
 
   updateCard() {
-    console.log('update card');
+    console.log('update card', this.cardPositionService.dropzone);
     if (this.cardPositionService.dropzone) {
       this.cardsService.updateCard(this.cardPositionService.dropzone.mechanic, this.helperCard);
-      // this.cardPositionService.emitDropzone(undefined);
+      // this.cardPositionService.dropzone = undefined;
       this.cardPositionService.emitHelperCard(undefined);
     }
   }

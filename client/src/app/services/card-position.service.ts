@@ -14,6 +14,8 @@ export class CardPositionService {
   // scrollLeft$: Observable<number>;
   private _dragging: boolean;
   private _dropzone: DropzoneInfo;
+  private _position: Coordinates;
+  private _helperCard: Card;
 
   private coordinatesSubject: BehaviorSubject<Coordinates>;
   private _coordinates$: Observable<Coordinates>;
@@ -64,6 +66,22 @@ export class CardPositionService {
     this._dropzone = value;
   }
 
+  get position(): Coordinates {
+    return this._position;
+  }
+
+  set position(value: Coordinates) {
+    this._position = value;
+  }
+
+  get helperCard(): Card {
+    return this._helperCard;
+  }
+
+  set helperCard(value: Card) {
+    this._helperCard = value;
+  }
+
   get coordinates$(): Observable<Coordinates> {
     return this._coordinates$;
   }
@@ -100,12 +118,13 @@ export class CardPositionService {
 
   emitPosition(coordinates: Coordinates) {
     // console.log('emitting coordinates', coordinates);
+    this.position = coordinates;
     this.coordinatesSubject.next(coordinates);
   }
 
   emitHelperCard(card: Card) {
-    // console.log('card position service: emit helper card');
-    this.helperCardSubject.next(card)
+    this.helperCard = card;
+    this.helperCardSubject.next(this.helperCard);
   }
 
   emitDragging(value: boolean) {
