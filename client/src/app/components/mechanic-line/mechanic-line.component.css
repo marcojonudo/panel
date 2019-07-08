@@ -1,23 +1,23 @@
 .mechanic-line {
-  position: relative;
-  background-color: #e1e1e1;
-  transition: background-color .5s;
+	position: relative;
+	background-color: #e1e1e1;
+	transition: background-color .5s;
 }
 
 .hours-container {
-  position: absolute;
-  top: 0;
-  left: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 .quarter:last-child {
-  border-right: none !important;
+	border-right: none !important;
 }
 
 .dropzone-dragging {
-  background-color: #E7F1F7;
+	background-color: #E7F1F7;
 }
 
 .assigned-card {
-  position: absolute;
+	position: absolute;
 }

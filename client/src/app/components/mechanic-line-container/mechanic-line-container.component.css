@@ -1,10 +1,10 @@
 .mechanic-line-container {
-  border-top: 2px solid #595959;
-  border-bottom: 2px solid #595959;
+	border-top: 2px solid #595959;
+	border-bottom: 2px solid #595959;
 }
 
 .mechanic-info-container {
-  position: sticky;
-  left: 0;
-  z-index: 2;
+	position: sticky;
+	left: 0;
+	z-index: 2;
 }

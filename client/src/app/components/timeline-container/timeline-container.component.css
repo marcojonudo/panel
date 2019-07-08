@@ -1,16 +1,16 @@
 .timeline-container {
-  height: 30px;
-  position: sticky;
-  top: 0;
-  border-top: 2px solid #595959;
-  border-bottom: 2px solid #595959;
-  z-index: 5;
+	height: 30px;
+	position: sticky;
+	top: 0;
+	border-top: 2px solid #595959;
+	border-bottom: 2px solid #595959;
+	z-index: 5;
 }
 
 .day {
-  width: 180px;
-  position: sticky;
-  left: 0;
-  background-color: #595959;
-  color: #ffffff;
+	width: 180px;
+	position: sticky;
+	left: 0;
+	background-color: #595959;
+	color: #ffffff;
 }

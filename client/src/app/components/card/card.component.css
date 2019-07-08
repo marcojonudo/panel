@@ -1,24 +1,24 @@
 .panel-card {
-  background-color: blue;
+	background-color: blue;
 }
 
 .draggable {
-  cursor: move;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+	cursor: move;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 .draggable:not(.dragging) {
-  /*transition: transform .25s ease-in-out;*/
-  transition: transform .25s ease-in-out, visibility 0s .2s;
+	/*transition: transform .25s ease-in-out;*/
+	transition: transform .25s ease-in-out, visibility 0s .2s;
 }
 
 /*.dragging {*/
-  /*width: 500px !important;*/
+/*width: 500px !important;*/
 /*}*/
 
 .hidden {
-  visibility: hidden;
+	visibility: hidden;
 }

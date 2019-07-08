@@ -1,28 +1,28 @@
 .mechanic-info {
-  background-color: #ffffff;
-  border-right: 2px solid #595959;
+	background-color: #ffffff;
+	border-right: 2px solid #595959;
 }
 
 .default-width {
-  width: 180px;
+	width: 180px;
 }
 
 .min-layout-width {
-  width: 300px;
+	width: 300px;
 }
 
 .ability-container {
-  padding: 2px;
+	padding: 2px;
 }
 
 .ability {
-  width: 23px;
-  height: 23px;
-  background-color: yellow;
-  font-size: .6em;
-  font-weight: bold;
+	width: 23px;
+	height: 23px;
+	background-color: yellow;
+	font-size: .6em;
+	font-weight: bold;
 }
 
 .mechanic-position {
-  font-size: 2.5em;
+	font-size: 2.5em;
 }

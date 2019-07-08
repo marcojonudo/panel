@@ -1,19 +1,20 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 
 @Component({
-  selector: 'app-timeline-container',
-  templateUrl: './timeline-container.component.html',
-  styleUrls: ['./timeline-container.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+	selector: 'app-timeline-container',
+	templateUrl: './timeline-container.component.html',
+	styleUrls: ['./timeline-container.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineContainerComponent {
 
-  @Input() index: number;
+	@Input() index: number;
 
-  constructor() { }
+	constructor() {
+	}
 
-  check() {
-    console.log('checking timeline container')
-  }
+	check() {
+		console.log('checking timeline container')
+	}
 
 }

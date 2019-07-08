@@ -1,142 +1,143 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
-import {MechanicLineContainerComponent} from "../components/mechanic-line-container/mechanic-line-container.component";
 import {Mechanic} from "../objects/mechanic";
 import {Constants} from "../objects/constants";
-import {Coordinates} from "../objects/coordinates";
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root'
 })
 export class DaysService {
 
-  private oneDayMode: boolean;
-  private lineHeight: number;
-  private sliceDays: number;
+	private oneDayMode: boolean;
+	private lineHeight: number;
+	private sliceDays: number;
 
-  private _days: string[];
-  private _mechanics: Mechanic[];
+	private _days: string[];
+	private _mechanics: Mechanic[];
 
-  private _daysMechanics: any;
+	private _daysMechanics: any;
 
-  private dayModeSubject: BehaviorSubject<boolean>;
-  private _oneDayMode$: Observable<boolean>;
+	private dayModeSubject: BehaviorSubject<boolean>;
+	private _oneDayMode$: Observable<boolean>;
 
-  private lineHeightSubject: BehaviorSubject<number>;
-  private _lineHeight$: Observable<number>;
+	private lineHeightSubject: BehaviorSubject<number>;
+	private _lineHeight$: Observable<number>;
 
-  private daysMechanicsSubjects: any;
-  private _daysMechanics$: any;
+	private daysMechanicsSubjects: any;
+	private _daysMechanics$: any;
 
-  constructor() {
-    this.days = ['2019-06-25', '2019-06-26', '2019-06-27', '2019-06-28'];
+	constructor() {
+		this.days = ['2019-06-25', '2019-06-26', '2019-06-27', '2019-06-28'];
 
-    this.oneDayMode = true;
-    this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
-    this.sliceDays = this.days.length - 1;
+		this.oneDayMode = true;
+		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
+		this.sliceDays = this.days.length - 1;
 
-    this.dayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);
-    this.oneDayMode$ = this.dayModeSubject.asObservable();
+		this.dayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);
+		this.oneDayMode$ = this.dayModeSubject.asObservable();
 
-    this.lineHeightSubject = new BehaviorSubject<number>(this.lineHeight);
-    this.lineHeight$ = this.lineHeightSubject.asObservable();
+		this.lineHeightSubject = new BehaviorSubject<number>(this.lineHeight);
+		this.lineHeight$ = this.lineHeightSubject.asObservable();
 
-    this.mechanics = [new Mechanic('2019-06-25', 'A'), new Mechanic('2019-06-25', 'B'), new Mechanic('2019-06-25', 'C'), new Mechanic('2019-06-25', 'D'), new Mechanic('2019-06-26', 'A'), new Mechanic('2019-06-26', 'B'), new Mechanic('2019-06-26', 'C'), new Mechanic('2019-06-27', 'A'), new Mechanic('2019-06-27', 'B'), new Mechanic('2019-06-27', 'C'), new Mechanic('2019-06-27', 'D'), new Mechanic('2019-06-27', 'E')];
-    this.daysMechanics = this.initDaysMechanics(this.mechanics);
+		this.mechanics = [new Mechanic('2019-06-25', 'A'), new Mechanic('2019-06-25', 'B'), new Mechanic('2019-06-25', 'C'), new Mechanic('2019-06-25', 'D'), new Mechanic('2019-06-26', 'A'), new Mechanic('2019-06-26', 'B'), new Mechanic('2019-06-26', 'C'), new Mechanic('2019-06-27', 'A'), new Mechanic('2019-06-27', 'B'), new Mechanic('2019-06-27', 'C'), new Mechanic('2019-06-27', 'D'), new Mechanic('2019-06-27', 'E')];
+		this.daysMechanics = this.initDaysMechanics(this.mechanics);
 
-    this.initObservables(this.daysMechanics);
-    console.log('Days mechanics', this.daysMechanics);
-  }
+		this.initObservables(this.daysMechanics);
+		console.log('Days mechanics', this.daysMechanics);
+	}
 
-  // region Getters / setters
+	// region Getters / setters
 
-  get daysMechanics$(): any {
-    return this._daysMechanics$;
-  }
-  set daysMechanics$(value: any) {
-    this._daysMechanics$ = value;
-  }
+	get daysMechanics$(): any {
+		return this._daysMechanics$;
+	}
 
-  get days() {
-    return this._days;
-  }
-  set days(value: string[]) {
-    this._days = value;
-  }
+	set daysMechanics$(value: any) {
+		this._daysMechanics$ = value;
+	}
 
-  get mechanics() {
-    return this._mechanics;
-  }
-  set mechanics(mechanics: Mechanic[]) {
-    this._mechanics = mechanics
-  }
+	get days() {
+		return this._days;
+	}
 
-  get lineHeight$(): Observable<number> {
-    return this._lineHeight$;
-  }
+	set days(value: string[]) {
+		this._days = value;
+	}
 
-  set lineHeight$(value: Observable<number>) {
-    this._lineHeight$ = value;
-  }
+	get mechanics() {
+		return this._mechanics;
+	}
 
-  get oneDayMode$(): Observable<boolean> {
-    return this._oneDayMode$;
-  }
+	set mechanics(mechanics: Mechanic[]) {
+		this._mechanics = mechanics
+	}
 
-  set oneDayMode$(value: Observable<boolean>) {
-    this._oneDayMode$ = value;
-  }
+	get lineHeight$(): Observable<number> {
+		return this._lineHeight$;
+	}
 
-  get daysMechanics(): any {
-    return this._daysMechanics;
-  }
+	set lineHeight$(value: Observable<number>) {
+		this._lineHeight$ = value;
+	}
 
-  set daysMechanics(value: any) {
-    this._daysMechanics = value;
-  }
+	get oneDayMode$(): Observable<boolean> {
+		return this._oneDayMode$;
+	}
 
-  // endregion
+	set oneDayMode$(value: Observable<boolean>) {
+		this._oneDayMode$ = value;
+	}
 
-  initDaysMechanics(mechanics: Mechanic[]): any {
-    let daysMechanics = {};
+	get daysMechanics(): any {
+		return this._daysMechanics;
+	}
 
-    for (let mechanic of mechanics) {
-      if (!daysMechanics[mechanic.day]) {
-        daysMechanics[mechanic.day] = [];
-      }
+	set daysMechanics(value: any) {
+		this._daysMechanics = value;
+	}
 
-      daysMechanics[mechanic.day].push(mechanic);
-    }
+	// endregion
 
-    return daysMechanics;
-  }
+	initDaysMechanics(mechanics: Mechanic[]): any {
+		let daysMechanics = {};
 
-  initObservables(daysMechanics: any): void {
-    this.daysMechanicsSubjects = {};
-    this.daysMechanics$ = {};
+		for (let mechanic of mechanics) {
+			if (!daysMechanics[mechanic.day]) {
+				daysMechanics[mechanic.day] = [];
+			}
 
-    for (let day in daysMechanics) {
-      const subject = new BehaviorSubject<Mechanic[]>(daysMechanics[day]);
-      const observable = subject.asObservable();
+			daysMechanics[mechanic.day].push(mechanic);
+		}
 
-      this.daysMechanicsSubjects[day] = subject;
-      this.daysMechanics$[day] = observable;
-    }
-  }
+		return daysMechanics;
+	}
 
-  toggleDayMode() {
-    this.oneDayMode = !this.oneDayMode;
-    this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
-    this.dayModeSubject.next(this.oneDayMode);
-    this.lineHeightSubject.next(this.lineHeight);
-  }
+	initObservables(daysMechanics: any): void {
+		this.daysMechanicsSubjects = {};
+		this.daysMechanics$ = {};
 
-  get lineHeightDefault() {
-    return Constants.VALUE.LINE_HEIGHT_DEFAULT;
-  }
+		for (let day in daysMechanics) {
+			const subject = new BehaviorSubject<Mechanic[]>(daysMechanics[day]);
+			const observable = subject.asObservable();
 
-  get lineHeightNarrow() {
-    return Constants.VALUE.LINE_HEIGHT_NARROW;
-  }
+			this.daysMechanicsSubjects[day] = subject;
+			this.daysMechanics$[day] = observable;
+		}
+	}
+
+	toggleDayMode() {
+		this.oneDayMode = !this.oneDayMode;
+		this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
+		this.dayModeSubject.next(this.oneDayMode);
+		this.lineHeightSubject.next(this.lineHeight);
+	}
+
+	get lineHeightDefault() {
+		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
+	}
+
+	get lineHeightNarrow() {
+		return Constants.VALUE.LINE_HEIGHT_NARROW;
+	}
 }

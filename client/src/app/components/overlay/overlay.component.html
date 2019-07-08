@@ -1,22 +1,22 @@
 <div class="w-100 h-100 overlay">
-  <!--<app-card-->
-    <!--*ngIf="helperCard"-->
-    <!--[card]="helperCard"-->
-    <!--appMovable-->
-    <!--class="helper-card"-->
-    <!--[ngClass]="{'transform-transition': !(dragging$ | async)}"-->
-    <!--[style.height.px]="(lineHeight$ | async) / 2"-->
-    <!--(transitionend)="test()">-->
-  <!--</app-card>-->
-  <!-- TODO Revisar check de la ficha al hacer dragging -->
-  <app-helper-card
-    *ngIf="helperCard"
-    [card]="helperCard"
-    appMovable
-    class="helper-card"
-    [ngClass]="{'transform-transition': !dragging}"
-    [style.height.px]="(lineHeight$ | async) / 2"
-    (transitionend)="updateCard()">
-  </app-helper-card>
+	<!--<app-card-->
+	<!--*ngIf="helperCard"-->
+	<!--[card]="helperCard"-->
+	<!--appMovable-->
+	<!--class="helper-card"-->
+	<!--[ngClass]="{'transform-transition': !(dragging$ | async)}"-->
+	<!--[style.height.px]="(lineHeight$ | async) / 2"-->
+	<!--(transitionend)="test()">-->
+	<!--</app-card>-->
+	<!-- TODO Revisar check de la ficha al hacer dragging -->
+	<app-helper-card
+		*ngIf="helperCard"
+		[card]="helperCard"
+		appMovable
+		class="helper-card"
+		[ngClass]="{'transform-transition': !dragging}"
+		[style.height.px]="(lineHeight$ | async) / 2"
+		(transitionend)="updateCard()">
+	</app-helper-card>
 </div>
 <div>{{check()}}</div>

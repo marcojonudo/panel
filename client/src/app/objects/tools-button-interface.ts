@@ -1,4 +1,4 @@
 export interface ToolsButtonInterface {
-  icon: string;
-  action: any;
+	icon: string;
+	action: any;
 }

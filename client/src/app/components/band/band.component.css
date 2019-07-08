@@ -1,18 +1,18 @@
 .unassigned-orders-buttons-container {
-  background: #f9f9f9 url("../../../assets/img/texture.svg");
+	background: #f9f9f9 url("../../../assets/img/texture.svg");
 }
 
 .unassigned-orders-buttons-container button {
-  width: 8vw;
-  min-width: 150px;
-  font-size: .8em;
-  -webkit-border-radius: 0 !important;
-  -moz-border-radius: 0 !important;
-  border-radius: 0 !important;
-  line-height: 100%;
+	width: 8vw;
+	min-width: 150px;
+	font-size: .8em;
+	-webkit-border-radius: 0 !important;
+	-moz-border-radius: 0 !important;
+	border-radius: 0 !important;
+	line-height: 100%;
 }
 
 .unassigned-orders-cards-container {
-  background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
-  overflow-x: auto;
+	background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
+	overflow-x: auto;
 }

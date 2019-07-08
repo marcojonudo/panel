@@ -1,27 +1,27 @@
 <div class="d-flex flex-column h-100">
-  <div class="d-flex h-25 unassigned-orders-buttons-container">
-    <!--<button class="btn btn-outline-dark align-center padding-0">Ocultar</button>-->
-    <button class="btn btn-danger align-center padding-0">En curso</button>
-    <button class="btn btn-primary align-center padding-0">Cita previa</button>
-  </div>
-  <!--<div-->
-    <!--@unassigned-cards-container-->
-    <!--class="flex-grow-1 unassigned-orders-cards-container d-flex pt-3 pl-3"-->
-    <!--[ngStyle]="{-->
-      <!--'overflow-x': (clickedCard$ | async) ? 'visible' : 'scroll',-->
-      <!--'padding-bottom': (clickedCard$ | async) ? 'calc(1rem + 7px)' : '1rem'-->
-    <!--}">-->
-  <div
-    appDropzone
-    @unassigned-cards-container
-    class="align-items-center flex-grow-1 unassigned-orders-cards-container d-flex pl-3">
-    <app-card
-      @unassigned-card
-      (@unassigned-card.done)="forceCardCd()"
-      *ngFor="let card of (cards$ | async)"
-      class="mr-2"
-      [style.height.%]="60"
-      [card]="card"></app-card>
-  </div>
+	<div class="d-flex h-25 unassigned-orders-buttons-container">
+		<!--<button class="btn btn-outline-dark align-center padding-0">Ocultar</button>-->
+		<button class="btn btn-danger align-center padding-0">En curso</button>
+		<button class="btn btn-primary align-center padding-0">Cita previa</button>
+	</div>
+	<!--<div-->
+	<!--@unassigned-cards-container-->
+	<!--class="flex-grow-1 unassigned-orders-cards-container d-flex pt-3 pl-3"-->
+	<!--[ngStyle]="{-->
+	<!--'overflow-x': (clickedCard$ | async) ? 'visible' : 'scroll',-->
+	<!--'padding-bottom': (clickedCard$ | async) ? 'calc(1rem + 7px)' : '1rem'-->
+	<!--}">-->
+	<div
+		appDropzone
+		@unassigned-cards-container
+		class="align-items-center flex-grow-1 unassigned-orders-cards-container d-flex pl-3">
+		<app-card
+			@unassigned-card
+			(@unassigned-card.done)="forceCardCd()"
+			*ngFor="let card of (cards$ | async)"
+			class="mr-2"
+			[style.height.%]="60"
+			[card]="card"></app-card>
+	</div>
 </div>
 <div>{{check()}}</div>

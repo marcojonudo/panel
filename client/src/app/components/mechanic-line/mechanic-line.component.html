@@ -1,22 +1,24 @@
 <div
-  #dropzone
-  appDropzone
-  [mechanic]="mechanic"
-  class="h-100 d-flex mechanic-line">
-  <div class="h-100 w-100 d-flex" style="position: absolute; left: 0; top: 0">
-    <div *ngFor="let hour of hours; trackBy: trackByItem" class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">
-      <div *ngFor="let quarter of quarters; trackBy: trackByItem" class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>
-    </div>
-  </div>
-  <app-card
-    *ngFor="let card of cards"
-    class="assigned-card"
-    [ngStyle]="{
+	#dropzone
+	appDropzone
+	[mechanic]="mechanic"
+	class="h-100 d-flex mechanic-line">
+	<div class="h-100 w-100 d-flex" style="position: absolute; left: 0; top: 0">
+		<div *ngFor="let hour of hours; trackBy: trackByItem"
+			 class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">
+			<div *ngFor="let quarter of quarters; trackBy: trackByItem"
+				 class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>
+		</div>
+	</div>
+	<app-card
+		*ngFor="let card of cards"
+		class="assigned-card"
+		[ngStyle]="{
       'width.px': card.width,
       'height.px': (lineHeight$ | async) / 2,
       'left.px': card.left,
       'top.%': card.topLine ? 0 : 50
     }"
-    [card]="card"></app-card>
+		[card]="card"></app-card>
 </div>
 <div>{{check()}}</div>

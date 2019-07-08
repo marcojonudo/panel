@@ -1,42 +1,42 @@
 .timeline {
-  background-color: #ffffff;
+	background-color: #ffffff;
 }
 
 .timeline > div {
-  background: repeating-linear-gradient(
-    to right,
-    #ffffff,
-    #ffffff 25%,
-    #a2a2a2 25%,
-    #a2a2a2 calc(25% + 1px),
-    #ffffff calc(25% + 1px),
-    #ffffff 50%,
-    #a2a2a2 50%,
-    #a2a2a2 calc(50% + 1px),
-    #ffffff calc(50% + 1px),
-    #ffffff 75%,
-    #a2a2a2 75%,
-    #a2a2a2 calc(75% + 1px),
-    #ffffff calc(75% + 1px),
-    #ffffff 100%
-  );
-  /*background: repeating-linear-gradient(*/
-    /*to right,*/
-    /*#ffffff,*/
-    /*#ffffff 90px,*/
-    /*#a2a2a2 90px,*/
-    /*#a2a2a2 91px,*/
-    /*#ffffff 91px,*/
-    /*#ffffff 181px,*/
-    /*#a2a2a2 181px,*/
-    /*#a2a2a2 182px,*/
-    /*#ffffff 182px,*/
-    /*#ffffff 272px,*/
-    /*#a2a2a2 272px,*/
-    /*#a2a2a2 273px,*/
-    /*#ffffff 273px,*/
-    /*#ffffff 363px,*/
-    /*#a2a2a2 363px,*/
-    /*#a2a2a2 366px*/
-  /*);*/
+	background: repeating-linear-gradient(
+		to right,
+		#ffffff,
+		#ffffff 25%,
+		#a2a2a2 25%,
+		#a2a2a2 calc(25% + 1px),
+		#ffffff calc(25% + 1px),
+		#ffffff 50%,
+		#a2a2a2 50%,
+		#a2a2a2 calc(50% + 1px),
+		#ffffff calc(50% + 1px),
+		#ffffff 75%,
+		#a2a2a2 75%,
+		#a2a2a2 calc(75% + 1px),
+		#ffffff calc(75% + 1px),
+		#ffffff 100%
+	);
+	/*background: repeating-linear-gradient(*/
+	/*to right,*/
+	/*#ffffff,*/
+	/*#ffffff 90px,*/
+	/*#a2a2a2 90px,*/
+	/*#a2a2a2 91px,*/
+	/*#ffffff 91px,*/
+	/*#ffffff 181px,*/
+	/*#a2a2a2 181px,*/
+	/*#a2a2a2 182px,*/
+	/*#ffffff 182px,*/
+	/*#ffffff 272px,*/
+	/*#a2a2a2 272px,*/
+	/*#a2a2a2 273px,*/
+	/*#ffffff 273px,*/
+	/*#ffffff 363px,*/
+	/*#a2a2a2 363px,*/
+	/*#a2a2a2 366px*/
+	/*);*/
 }

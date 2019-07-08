@@ -1,17 +1,17 @@
 .overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	pointer-events: none;
 }
 
 .helper-card {
-  position: fixed;
-  pointer-events: none;
-  z-index: 10;
-  background-color: red !important;
+	position: fixed;
+	pointer-events: none;
+	z-index: 10;
+	background-color: red !important;
 }
 
 .transform-transition {
-  transition: transform .2s;
+	transition: transform .2s;
 }

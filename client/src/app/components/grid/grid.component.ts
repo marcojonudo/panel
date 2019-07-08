@@ -1,64 +1,55 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {DaysService} from "../../services/days.service";
-import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
-import {CardsService} from "../../services/cards.service";
 
 @Component({
-  selector: 'app-grid',
-  templateUrl: './grid.component.html',
-  styleUrls: ['./grid.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+	selector: 'app-grid',
+	templateUrl: './grid.component.html',
+	styleUrls: ['./grid.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GridComponent implements OnInit, OnDestroy {
 
-  @Input() day: string;
+	@Input() day: string;
 
-  private _mechanics: Mechanic[];
+	private _mechanics: Mechanic[];
 
-  private mechanicsSubscription: any;
+	private mechanicsSubscription: any;
 
-  constructor(
-    private daysService: DaysService
-  ) { }
+	constructor(
+		private daysService: DaysService
+	) {
+	}
 
-  ngOnInit(): void {
-    this.mechanicsSubscription = this.daysService.daysMechanics$[this.day].subscribe(mechanics => {
-      this.mechanics = mechanics;
-    });
-  }
+	ngOnInit(): void {
+		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day].subscribe(mechanics => {
+			this.mechanics = mechanics;
+		});
+	}
 
-  ngOnDestroy(): void {
-    this.mechanicsSubscription.unsubscribe();
-  }
+	ngOnDestroy(): void {
+		this.mechanicsSubscription.unsubscribe();
+	}
 
-  get mechanics(): Mechanic[] {
-    return this._mechanics;
-  }
+	get mechanics(): Mechanic[] {
+		return this._mechanics;
+	}
 
-  set mechanics(value: Mechanic[]) {
-    this._mechanics = value;
-  }
+	set mechanics(value: Mechanic[]) {
+		this._mechanics = value;
+	}
 
-  drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);
-  }
+	drop(event: CdkDragDrop<string[]>) {
+		moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);
+	}
 
-  get lineHeight$() {
-    return this.daysService.lineHeight$;
-  }
+	get lineHeight$() {
+		return this.daysService.lineHeight$;
+	}
 
-  check() {
-    console.log('checking grid');
-  }
+	check() {
+		console.log('checking grid');
+	}
 
 }

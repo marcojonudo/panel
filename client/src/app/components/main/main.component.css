@@ -1,30 +1,30 @@
 .cards-holder {
-  position: relative;
+	position: relative;
 }
 
 .overflow-auto {
-  overflow: auto;
+	overflow: auto;
 }
 
 .cdk-virtual-scroll-viewport {
-  overflow: visible;
-  contain: none;
+	overflow: visible;
+	contain: none;
 }
 
 .display-none {
-  display: none;
+	display: none;
 }
 
 app-day-panel:not(:first-child):not(:last-child) {
-  margin: 3rem;
+	margin: 3rem;
 }
 
 .unassigned-orders-container {
-  height: 100px;
-  min-height: 100px;
-  position: sticky;
-  bottom: 0;
-  z-index: 3;
+	height: 100px;
+	min-height: 100px;
+	position: sticky;
+	bottom: 0;
+	z-index: 3;
 }
 
 /*.ng-draggable {*/

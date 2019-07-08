@@ -1,10 +1,11 @@
-import { Directive } from '@angular/core';
+import {Directive} from '@angular/core';
 
 @Directive({
-  selector: '[appDraggableHelper]'
+	selector: '[appDraggableHelper]'
 })
 export class DraggableHelperDirective {
 
-  constructor() { }
+	constructor() {
+	}
 
 }
