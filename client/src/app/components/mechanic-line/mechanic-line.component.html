@@ -11,7 +11,12 @@
   <app-card
     *ngFor="let card of cards"
     class="assigned-card"
-    [ngStyle]="{'width.px': card.width, 'height.px': (lineHeight$ | async) / 2, 'left.px': card.left}"
+    [ngStyle]="{
+      'width.px': card.width,
+      'height.px': (lineHeight$ | async) / 2,
+      'left.px': card.left,
+      'top.%': card.topLine ? 0 : 50
+    }"
     [card]="card"></app-card>
 </div>
 <div>{{check()}}</div>

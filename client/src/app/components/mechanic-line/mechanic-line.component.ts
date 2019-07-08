@@ -45,9 +45,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.cardsService.assignedDaysCards$[this.day][this.mechanic.position]) {
-      console.log(this.day, this.mechanic.position, 'siiiiii');
       this.cardsSubscription = this.cardsService.assignedDaysCards$[this.day][this.mechanic.position].subscribe(cards => {
-        console.log('RECEIVING', this.day, this.mechanic, cards);
         this.cards = cards;
         this.cdRef.detectChanges();
       });

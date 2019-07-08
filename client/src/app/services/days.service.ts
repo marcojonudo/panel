@@ -46,7 +46,7 @@ export class DaysService {
     this.daysMechanics = this.initDaysMechanics(this.mechanics);
 
     this.initObservables(this.daysMechanics);
-    console.log(this.daysMechanics);
+    console.log('Days mechanics', this.daysMechanics);
   }
 
   // region Getters / setters

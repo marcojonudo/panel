@@ -96,7 +96,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
           const leftIntervals = Math.floor((this.position.x - 180) / this.timeService.intervalWidth);
           const x = 180 + leftIntervals * this.timeService.intervalWidth;
           const y = this.position.y > rect.top + rect.height/4 ? rect.y + rect.height/2 : rect.y;
-          this.position = new Coordinates(x, y);
+          this.position = new Coordinates(x, y, !(this.position.y > rect.top + rect.height/4));
 
           // this.card.left = this.position.x;
           // this.cardPositionService.emitHelperCard(this.card);
