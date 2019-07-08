@@ -43,9 +43,6 @@ export class CardPositionService {
 
     this.draggingSubject = new BehaviorSubject<boolean>(false);
     this.dragging$ = this.draggingSubject.asObservable();
-
-    // this.dropzoneSubject = new BehaviorSubject<DropzoneInfo>(undefined);
-    // this.dropzone$ = this.dropzoneSubject.asObservable();
   }
 
   // region Getters / setters
@@ -106,18 +103,9 @@ export class CardPositionService {
     this._dragging$ = value;
   }
 
-  // get dropzone$(): Observable<DropzoneInfo> {
-  //   return this._dropzone$;
-  // }
-  //
-  // set dropzone$(value: Observable<DropzoneInfo>) {
-  //   this._dropzone$ = value;
-  // }
-
   // endregion
 
   emitPosition(coordinates: Coordinates) {
-    // console.log('emitting coordinates', coordinates);
     this.position = coordinates;
     this.coordinatesSubject.next(coordinates);
   }

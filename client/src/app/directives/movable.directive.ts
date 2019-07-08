@@ -5,7 +5,7 @@ import {
   ElementRef,
   HostBinding,
   HostListener, OnDestroy,
-  OnInit,
+  AfterViewInit,
   TemplateRef,
   ViewContainerRef
 } from '@angular/core';
@@ -20,12 +20,12 @@ import {Subscription} from "rxjs/internal/Subscription";
   selector: '[appMovable]',
   exportAs: 'appMovable'
 })
-export class MovableDirective implements OnInit, OnDestroy {
+export class MovableDirective implements AfterViewInit, OnDestroy {
 
   @HostBinding('class.dragging') dragging: boolean;
 
   private position: Coordinates;
-  private subscription: Subscription;
+  private coordinatesSubscription: Subscription;
 
   // @HostBinding('class.draggable') draggable: boolean;
   // @HostBinding('class.dragging') dragging: boolean;
@@ -38,29 +38,20 @@ export class MovableDirective implements OnInit, OnDestroy {
 
   constructor(
     private cardPositionService: CardPositionService,
-    private sanitizer: DomSanitizer,
-    private element: ElementRef,
-    private changeDetectorRef: ChangeDetectorRef
+    private sanitizer: DomSanitizer
   ) {
     this.dragging = true;
-    // this.changeDetectorRef.detach();
-    // this.changeDetectorRef.detectChanges();
+    this.position = new Coordinates(0, 0);
   }
 
-  ngOnInit() {
-    this.subscription = this.cardPositionService.coordinates$.subscribe(coordinates => {
-      // console.log('new position', coordinates);
-      // console.log(this.element.nativeElement.getBoundingClientRect().left);
+  ngAfterViewInit() {
+    this.coordinatesSubscription = this.cardPositionService.coordinates$.subscribe(coordinates => {
       this.position = coordinates;
-      // console.log('appMovable', this.position);
-      // this.changeDetectorRef.detectChanges()
     });
   }
 
   ngOnDestroy() {
-    // console.log('on destroy');
-    // this.element.nativeElement.remove();
-    this.subscription.unsubscribe();
+    this.coordinatesSubscription.unsubscribe();
   }
 
 }

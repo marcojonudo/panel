@@ -26,11 +26,6 @@ import {Card} from "../../objects/card";
         style({ transform: 'scale(0.5)', opacity: 0 }),  // initial
         animate(200,
           style({ transform: 'scale(1)', opacity: 1 }))  // final
-      ]),
-      transition(':leave', [
-        style({ transform: 'scale(1)', opacity: 1, width: '*'}),  // initial
-        animate(200,
-          style({ transform: 'scale(0.5)', opacity: 0, width: 0, margin: 0}))  // final
       ])
     ])
   ],

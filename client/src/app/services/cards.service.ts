@@ -26,13 +26,11 @@ export class CardsService {
   private unassignedCardsSubject: BehaviorSubject<any>;
   private _unassignedCards$: Observable<any>;
 
-  // private assignedDaysCardsSubject: BehaviorSubject<any>;
-  // private _assignedDaysCards$: Observable<any>;
-
   private assignedDaysCardsSubjects: any;
   private _assignedDaysCards$: any;
 
   private widthSubscription: any;
+  // private helperCardSubscription: any;
 
   constructor(
     private daysService: DaysService,
@@ -72,6 +70,12 @@ export class CardsService {
       this.notifyAll();
     });
 
+    // this.helperCardSubscription = this.cardPositionService.helperCard$.subscribe(helperCard => {
+    //   if (!helperCard) {
+    //     this.updateCard(this.cardPositionService.dropzone.mechanic, helperCard);
+    //   }
+    // });
+
     console.log('Unassigned cards', this.unassignedCards);
     console.log('Assigned days cards', this.assignedDaysCards);
     console.log('Assigned days cards subjects', this.assignedDaysCardsSubjects);
@@ -98,6 +102,8 @@ export class CardsService {
 
   // endregion
 
+  // region Init
+
   initAssignedDaysCardsObjects(assignedCards: Card[], daysMechanics: any): any {
     for (let day in daysMechanics) {
       this.assignedDaysCards[day] = {};
@@ -116,55 +122,63 @@ export class CardsService {
     }
   }
 
+  // endregion
+
+	removeCardFromOrigin(card: Card): any {
+		if (card.mechanicCode) {
+			const cardIndex = this.assignedDaysCards[card.day][card.mechanicCode].indexOf(card);
+			this.assignedDaysCards[card.day][card.mechanicCode].splice(cardIndex, 1);
+
+			this.assignedDaysCardsSubjects[card.day][card.mechanicCode].next(this.assignedDaysCards[card.day][card.mechanicCode]);
+		} else {
+			const cardIndex = this.unassignedCards.indexOf(card);
+			this.unassignedCards.splice(cardIndex, 1);
+
+			this.unassignedCardsSubject.next(this.unassignedCards);
+		}
+		console.log('removing', this.unassignedCards);
+	}
+
   updateCard(newMechanic: Mechanic, card: Card) {
-    this.removeCardFromOrigin(card);
     this.updateCardValues(newMechanic, card);
     this.addToDestiny(newMechanic, card);
-  }
-
-  private removeCardFromOrigin(card: Card): any {
-    if (card.mechanicCode) {
-      const cardIndex = this.assignedDaysCards[card.day][card.mechanicCode].indexOf(card);
-      this.assignedDaysCards[card.day][card.mechanicCode].splice(cardIndex, 1);
-
-      this.assignedDaysCardsSubjects[card.day][card.mechanicCode].next(this.assignedDaysCards[card.day][card.mechanicCode]);
-    } else {
-      const cardIndex = this.unassignedCards.indexOf(card);
-      this.unassignedCards.splice(cardIndex, 1);
-
-      this.unassignedCardsSubject.next(this.unassignedCards);
-    }
+    console.log(this.unassignedCards);
   }
 
   private updateCardValues(newMechanic: Mechanic, card: Card) {
-    card.day = newMechanic.day;
-    card.mechanicCode = newMechanic.position;
+    if (newMechanic) {
+      card.day = newMechanic.day;
+      card.mechanicCode = newMechanic.position;
 
-    card.left = this.cardPositionService.position.x - 180;
-    card.start = `${this.calculateCardStart(card.left)}`;
-    card.topLine = this.cardPositionService.position.topLine;
+      card.left = this.cardPositionService.position.x - 180;
+      card.start = `${this.calculateCardStart(card.left)}`;
+      card.topLine = this.cardPositionService.position.topLine;
+    } else {
+      this.resetCard(card);
+    }
+  }
+
+  private resetCard(card: Card): void {
+    card.day = undefined;
+    card.mechanicCode = undefined;
+    card.left = undefined;
+    card.start = undefined;
+    card.topLine = undefined;
   }
 
   private addToDestiny(newMechanic: Mechanic, card: Card): void {
-    if (!this.assignedDaysCards[newMechanic.day]) {
-      this.assignedDaysCards[newMechanic.day] = {};
-      this.assignedDaysCardsSubjects[newMechanic.day] = {};
-      this.assignedDaysCards$[newMechanic.day] = {};
-    }
-
-    if (!this.assignedDaysCards[newMechanic.day][newMechanic.position]) {
-      this.assignedDaysCards[newMechanic.day][newMechanic.position] = [card];
-      this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position] = new BehaviorSubject<Card[]>(this.assignedDaysCards[newMechanic.day][newMechanic.position]);
-      this.assignedDaysCards$[newMechanic.day][newMechanic.position] = this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position].asObservable();
-    } else {
+    if (newMechanic) {
       this.assignedDaysCards[newMechanic.day][newMechanic.position].push(card);
+      this.notifyAssigned(newMechanic.day, newMechanic.position);
+    } else {
+      this.unassignedCards.push(card);
+      this.notifyUnassigned();
     }
+  }
 
-    console.log(newMechanic, this.assignedDaysCards[newMechanic.day][newMechanic.position]);
-    console.log(newMechanic, this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position]);
-    this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position].next(this.assignedDaysCards[newMechanic.day][newMechanic.position]);
-    console.log(newMechanic, this.assignedDaysCards[newMechanic.day][newMechanic.position]);
-    console.log(newMechanic, this.assignedDaysCardsSubjects[newMechanic.day][newMechanic.position]);
+  private addToLine(newMechanic: Mechanic, card: Card): void {
+    this.assignedDaysCards[newMechanic.day][newMechanic.position].push(card);
+    this.notifyAssigned(newMechanic.day, newMechanic.position);
   }
 
   // region Update properties

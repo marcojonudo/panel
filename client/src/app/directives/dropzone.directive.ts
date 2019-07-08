@@ -22,10 +22,9 @@ export class DropzoneDirective implements OnInit {
   //TODO Revisar comportamiento dragging
   @HostBinding('class.dropzone-dragging') entered: boolean;
 
-  // private dragging: boolean;
+  private dropzone: DropzoneInfo;
 
-  private pointerEnterListener;
-  private pointerLeaveListener;
+  private pointerMoveListener;
 
   constructor(
     private element: ElementRef,
@@ -35,32 +34,21 @@ export class DropzoneDirective implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.dropzone = new DropzoneInfo(this.mechanic, this.element.nativeElement.getBoundingClientRect());
     this.cardPositionService.dragging$.subscribe(dragging => {
       if (dragging) {
-        this.pointerEnterListener = this.renderer.listen(this.element.nativeElement, 'pointerenter', this.onPointerEnter.bind(this));
-        this.pointerLeaveListener = this.renderer.listen(this.element.nativeElement, 'pointerleave', this.onPointerLeave.bind(this));
+        this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
       } else {
-        if (this.pointerEnterListener) {
-          this.pointerEnterListener();
-          this.pointerLeaveListener();
+        if (this.pointerMoveListener) {
+          this.pointerMoveListener();
         }
       }
     });
   }
 
-  onPointerEnter(): void {
+  onPointerMove(): void {
     if (this.cardPositionService.dragging) {
-      this.entered = true;
-      this.cardPositionService.dropzone = new DropzoneInfo(this.mechanic, this.element.nativeElement.getBoundingClientRect());;
-      console.log('ENTEREEEEEEED', this.cardPositionService.dropzone);
-    }
-  }
-
-  onPointerLeave(): void {
-    if (this.cardPositionService.dragging) {
-      console.log('LEAVEEEEEEEEEEE', this.cardPositionService.dropzone);
-      this.entered = false;
-      this.cardPositionService.dropzone = undefined;
+      this.cardPositionService.dropzone = this.dropzone;
     }
   }
 
