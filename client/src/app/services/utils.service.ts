@@ -5,7 +5,7 @@ import {Injectable} from '@angular/core';
 })
 export class UtilsService {
 
-	public static parseTime(time: string): Date {
+	public static parseTimeFromString(time: string): Date {
 		const info = time.split(":");
 		let date = new Date();
 		date.setHours(parseInt(info[0]));
@@ -13,6 +13,12 @@ export class UtilsService {
 		date.setSeconds(parseInt(info[2]));
 
 		return date;
+	}
+
+	public static parseTimeFromMinutes(minutes: number): string {
+		const hours = minutes / 60 < 10 ? `0${minutes / 60}` : `${minutes / 60}`;
+		const m = minutes % 60 < 10 ? `0${minutes % 60}` : `${minutes % 60}`;
+		return `${hours}:${m}:00`
 	}
 
 	public static getTotalMinutes(time: Date): number {

@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
+import {UtilsService} from "./utils.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -150,7 +151,16 @@ export class TimeService {
 		// this._intervalWidth = dropzoneWidth / this.intervalsNumber;
 	}
 
-	getRelativeMinutes(time: Date) {
+	/* ---- LEFT ---- */
+
+	calculateLeft(start: Date) {
+		const relativeMinutes = this.getRelativeMinutes(start);
+		const relativeIntervals = this.getIntervalsNumberFromDuration(relativeMinutes);
+
+		return relativeIntervals * this.intervalWidth;
+	}
+
+	private getRelativeMinutes(time: Date) {
 		const minutes = time.getHours() * 60 + time.getMinutes();
 		return minutes - this.getStartScheduleMinutes();
 	}
@@ -159,22 +169,41 @@ export class TimeService {
 		return this.START_HOUR * this.MINUTES_PER_HOUR;
 	}
 
-	getIntervalsNumber(value: number) {
-		return value / this.MINUTES_PER_INTERVAL;
+	/* ---- START ---- */
+
+	calculateStart(left: number): string {
+		const intervals = this.getIntervalsNumberFromDimensionValue(left);
+		const minutes = this.getRelativeMinutesFromIntervals(intervals);
+		return UtilsService.parseTimeFromMinutes(minutes);
 	}
 
-	getIntervalsNumberFromLeft(left: number) {
-		return left / this.intervalWidth;
-	}
-
-	getRelativeMinutesFromIntervals(intervalsNumber: number): number {
+	private getRelativeMinutesFromIntervals(intervalsNumber: number): number {
 		return this.MINUTES_8 + this.MINUTES_PER_INTERVAL * intervalsNumber;
 	}
 
-	getStart(minutes: number) {
-		const hours = minutes / 60 < 10 ? `0${minutes / 60}` : `${minutes / 60}`;
-		const m = minutes % 60 < 10 ? `0${minutes % 60}` : `${minutes % 60}`;
-		return `${hours}:${m}:00`
+	/* ---- WIDTH ---- */
+
+	calculateWidth(duration: number): number {
+		return this.getIntervalsNumberFromDuration(duration) * this.intervalWidth;
+	}
+
+	private getIntervalsNumberFromDuration(duration: number) {
+		return duration / this.MINUTES_PER_INTERVAL;
+	}
+
+	/* ---- DURATION ---- */
+
+	calculateDuration(width: number): number {
+		return Math.round(this.getIntervalsNumberFromWidth(width) * this.MINUTES_PER_INTERVAL);
+	}
+
+	private getIntervalsNumberFromWidth(width: number) {
+		return width / this.intervalWidth;
+	}
+
+
+	getIntervalsNumberFromDimensionValue(value: number) {
+		return value / this.intervalWidth;
 	}
 
 }

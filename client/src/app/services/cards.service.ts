@@ -7,6 +7,7 @@ import {TimeService} from "./time.service";
 import {UtilsService} from "./utils.service";
 import {CardPositionService} from "./card-position.service";
 import {DaysService} from "./days.service";
+import {Coordinates} from "../objects/coordinates";
 
 enum CardAssignedType {
 	ASSIGNED,
@@ -30,8 +31,6 @@ export class CardsService {
 	private _assignedDaysCards$: any;
 
 	private widthSubscription: any;
-
-	// private helperCardSubscription: any;
 
 	constructor(
 		private daysService: DaysService,
@@ -70,12 +69,6 @@ export class CardsService {
 			this.calculatePosition(this.unassignedCards.concat(this.assignedCards));
 			this.notifyAll();
 		});
-
-		// this.helperCardSubscription = this.cardPositionService.helperCard$.subscribe(helperCard => {
-		//   if (!helperCard) {
-		//     this.updateCard(this.cardPositionService.dropzone.mechanic, helperCard);
-		//   }
-		// });
 
 		console.log('Unassigned cards', this.unassignedCards);
 		console.log('Assigned days cards', this.assignedDaysCards);
@@ -125,6 +118,8 @@ export class CardsService {
 
 	// endregion
 
+	// region Translate card
+
 	removeCardFromOrigin(card: Card): any {
 		if (card.mechanicCode) {
 			const cardIndex = this.assignedDaysCards[card.day][card.mechanicCode].indexOf(card);
@@ -137,26 +132,21 @@ export class CardsService {
 
 			this.unassignedCardsSubject.next(this.unassignedCards);
 		}
-		console.log('removing', this.unassignedCards);
 	}
 
-	updateCard(newMechanic: Mechanic, card: Card) {
-		this.updateCardValues(newMechanic, card);
-		this.addToDestiny(newMechanic, card);
-		console.log(this.unassignedCards);
-	}
-
-	private updateCardValues(newMechanic: Mechanic, card: Card) {
+	updateTranslatedCard(card: Card, newMechanic: Mechanic, position: Coordinates) {
 		if (newMechanic) {
 			card.day = newMechanic.day;
 			card.mechanicCode = newMechanic.position;
 
-			card.left = this.cardPositionService.position.x - 180;
-			card.start = `${this.calculateCardStart(card.left)}`;
-			card.topLine = this.cardPositionService.position.topLine;
+			card.left = position.x - 180;
+			card.start = this.calculateStart(card.left);
+			card.topLine = position.topLine;
 		} else {
 			this.resetCard(card);
 		}
+
+		this.addToDestiny(newMechanic, card);
 	}
 
 	private resetCard(card: Card): void {
@@ -177,39 +167,43 @@ export class CardsService {
 		}
 	}
 
-	private addToLine(newMechanic: Mechanic, card: Card): void {
-		this.assignedDaysCards[newMechanic.day][newMechanic.position].push(card);
-		this.notifyAssigned(newMechanic.day, newMechanic.position);
+	// endregion
+
+	// region Update with
+
+	updateCardDuration(card: Card, width: number): void {
+		card.width = width;
+		card.duration = this.timeService.calculateDuration(card.width);
 	}
+
+	// endregion
 
 	// region Update properties
 
 	private calculatePosition(cards: Card[]) {
 		for (let card of cards) {
 			if (card.start) {
-				const start = UtilsService.parseTime(card.start);
-				card.left = this.calculateCardLeft(start);
+				const start = UtilsService.parseTimeFromString(card.start);
+				card.left = this.calculateLeft(start);
 			}
-			card.width = this.calculateCardWidth(card.duration);
+			card.width = this.calculateWidth(card.duration);
 		}
 	}
 
-	private calculateCardLeft(start: Date) {
-		const relativeMinutes = this.timeService.getRelativeMinutes(start);
-		const relativeIntervals = this.timeService.getIntervalsNumber(relativeMinutes);
-
-		return relativeIntervals * this.timeService.intervalWidth;
+	private calculateLeft(start: Date) {
+		return this.timeService.calculateLeft(start);
 	}
 
-	private calculateCardStart(left: number) {
-		const intervals = this.timeService.getIntervalsNumberFromLeft(left);
-		const minutes = this.timeService.getRelativeMinutesFromIntervals(intervals);
-		return this.timeService.getStart(minutes);
+	private calculateStart(left: number): string {
+		return this.timeService.calculateStart(left);
 	}
 
-	private calculateCardWidth(duration: number) {
-		const intervalsNumber = this.timeService.getIntervalsNumber(duration);
-		return intervalsNumber * this.timeService.intervalWidth;
+	private calculateWidth(duration: number): number {
+		return this.timeService.calculateWidth(duration);
+	}
+
+	calculateDuration(width: number): number {
+		return this.timeService.calculateDuration(width);
 	}
 
 	// endregion
@@ -221,13 +215,13 @@ export class CardsService {
 		this.notifyAllAssigned();
 	}
 
-	private notify(cards: Card[], type: CardAssignedType) {
-		if (type == CardAssignedType.UNASSIGNED) {
-			this.notifyUnassigned();
-		} else {
-			this.notifyAssigned(cards[0].day, cards[0].mechanicCode)
-		}
-	}
+	// private notify(cards: Card[], type: CardAssignedType) {
+	// 	if (type == CardAssignedType.UNASSIGNED) {
+	// 		this.notifyUnassigned();
+	// 	} else {
+	// 		this.notifyAssigned(cards[0].day, cards[0].mechanicCode)
+	// 	}
+	// }
 
 	private notifyUnassigned(): void {
 		this.unassignedCardsSubject.next(this.unassignedCards);

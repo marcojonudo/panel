@@ -32,7 +32,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	private pointerMoveListener;
 	private pointerUpListener;
 
-	@HostBinding('class.draggable') draggable: boolean;
 	@HostBinding('class.dragging')
 	@HostBinding('class.hidden') dragging: boolean;
 
@@ -43,7 +42,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		private timeService: TimeService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.draggable = true;
 		this.dragging = false;
 
 		this.position = new Coordinates(0, 0);
@@ -86,57 +84,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 			this.dragging = false;
 			this.cdRef.detectChanges();
 
-			let emitHelperCard = false;
-
-			/* Evento emitido para eliminar la ficha del origen (en overlay) antes de que helperCard sea null */
-			// this.cardPositionService.emitDragging(this.dragging);
-
-			/* Si la ficha se suelta encima de una línea o bandeja inferior (y no en un hueco vacío) */
-			console.log('ddddddddddddddddd', this.cardPositionService.dropzone, this.card);
-			if (this.cardPositionService.dropzone) {
-				if (this.cardPositionService.dropzone.mechanic) {
-					this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
-				} else if (this.card.mechanicCode) {
-					emitHelperCard = true;
-				} else {
-					this.handleReturnStartPosition();
-				}
-			} else {
-				if (this.card.mechanicCode) {
-					this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
-				} else {
-					this.handleReturnStartPosition();
-				}
-			}
-
-			// if (this.cardPositionService.dropzone || this.card.mechanicCode) {
-			//   /* Si la ficha se suelta encima de una línea (y no en la bandeja inferior) */
-			//   if (this.cardPositionService.dropzone.mechanic) {
-			//     console.log(1);
-			//     const rect = this.cardPositionService.dropzone.rect;
-			//     const leftIntervals = Math.floor((this.position.x - 180) / this.timeService.intervalWidth);
-			//     const x = 180 + leftIntervals * this.timeService.intervalWidth;
-			//     const y = this.position.y > rect.top + rect.height/4 ? rect.y + rect.height/2 : rect.y;
-			//     this.position = new Coordinates(x, y, !(this.position.y > rect.top + rect.height/4));
-			//
-			//     // this.card.left = this.position.x;
-			//     // this.cardPositionService.emitHelperCard(this.card);
-			//   } else if (this.card.mechanicCode) {
-			//     /* Si la ficha se suelta en la bandeja inferior, y proviene de una línea de mecánico (tiene mechanicCode) */
-			//     console.log(2);
-			//     // this.position = new Coordinates(this.position.x+1, this.position.y+1);
-			//     this.cardPositionService.emitHelperCard(undefined);
-			//   } else {
-			//     /* Si la ficha se suelta en la bandeja inferior, y proviene de dicha bandeja */
-			//     console.log(3);
-			//     this.position = this.startPosition;
-			//     this.cardPositionService.dropzone = undefined;
-			//   }
-			// } else {
-			//   console.log(4);
-			//   this.position = this.startPosition;
-			//   this.cardPositionService.dropzone = undefined;
-			// }
+			let emitHelperCard = this.handleDestinyPosition();
 
 			this.cardPositionService.emitPosition(this.position);
 			this.pointerMoveListener();
@@ -152,6 +100,32 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 				this.cardPositionService.emitHelperCard(undefined);
 			}
 		}
+	}
+
+	private handleDestinyPosition(): boolean {
+		let emitHelperCard = false;
+
+		/* Si la ficha se suelta encima de una línea o bandeja inferior (y no en un hueco vacío o sin haber salido
+		 * de la dropzone) */
+		if (this.cardPositionService.dropzone) {
+			/* Si se suelta en otra dropzone */
+			if (this.cardPositionService.dropzone.mechanic) {
+				this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
+			} else if (this.card.mechanicCode) { /* Si se suelta una ficha asignada en la bandeja inferior */
+				emitHelperCard = true;
+			} else { /* Si se suelta en la bandeja inferior sin haber salido de la misma */
+				this.handleReturnStartPosition();
+			}
+		} else {
+			/* Si se suelta la ficha sin haber salido de la dropzone */
+			if (this.card.mechanicCode) {
+				this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
+			} else { /* Si se suelta la ficha en un hueco vacío */
+				this.handleReturnStartPosition();
+			}
+		}
+
+		return emitHelperCard;
 	}
 
 	private handleLinePosition(position: Coordinates, dropzone: DropzoneInfo, intervalWidth: number): void {

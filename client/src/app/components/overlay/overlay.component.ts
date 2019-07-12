@@ -42,7 +42,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			*  forma, se evitan problemas de parpadeos al modificar la propiedad 'visibility' para lograr los efectos
 			*  buscados */
 			if (!this.dragging && this.helperCard && this.cardPositionService.dropzone) {
-				console.log('en la subscription', this.dragging, this.helperCard, this.cardPositionService.dropzone);
 				this.cardsService.removeCardFromOrigin(this.helperCard);
 			}
 		});
@@ -52,7 +51,11 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			/* Cuando se borra la ficha auxiliar (terminó la transición o se soltó la ficha en la barra inferior), se
 			*  ejecutan las operaciones necesarias para actualizar la ficha */
 			if (!helperCard && this.cardPositionService.dropzone) {
-				this.cardsService.updateCard(this.cardPositionService.dropzone.mechanic, this.helperCard);
+				this.cardsService.updateTranslatedCard(
+					this.helperCard,
+					this.cardPositionService.dropzone.mechanic,
+					this.cardPositionService.position
+				);
 			}
 
 			this.helperCard = helperCard;

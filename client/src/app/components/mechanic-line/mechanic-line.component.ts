@@ -5,6 +5,7 @@ import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
 import {DaysService} from "../../services/days.service";
 import {Card} from "../../objects/card";
+import {ResizeEvent} from "angular-resizable-element";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -60,6 +61,10 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 
 	check() {
 		console.log('checking mechanic line', this.day, this.mechanic, this.cards);
+	}
+
+	test(event) {
+		console.log('FINISH RESIZING', event);
 	}
 
 }

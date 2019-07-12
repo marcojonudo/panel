@@ -24,19 +24,19 @@ import {DaysPipe} from './pipes/days.pipe'
 
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {ScrollingModule} from "@angular/cdk/scrolling";
-import {GridsterModule} from "angular-gridster2";
+
 import {CardComponent} from './components/card/card.component';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AngularDraggableModule} from "angular2-draggable";
 import {DraggableDirective} from './directives/draggable.directive'
 import {OverlayModule} from "@angular/cdk/overlay";
 import {MovableDirective} from './directives/movable.directive';
-import {DraggableHelperDirective} from './directives/draggable-helper.directive';
 import {ScrollableDirective} from './directives/scrollable.directive';
 import {DropzoneDirective} from './directives/dropzone.directive';
 import {OverlayComponent} from './components/overlay/overlay.component';
 import {MainComponent} from './components/main/main.component';
 import {HelperCardComponent} from './components/helper-card/helper-card.component';
+import {ResizableDirective} from './directives/resizable.directive';
 
 @NgModule({
 	declarations: [
@@ -57,19 +57,18 @@ import {HelperCardComponent} from './components/helper-card/helper-card.componen
 		CardComponent,
 		DraggableDirective,
 		MovableDirective,
-		DraggableHelperDirective,
 		ScrollableDirective,
 		DropzoneDirective,
 		OverlayComponent,
 		MainComponent,
-		HelperCardComponent
+		HelperCardComponent,
+		ResizableDirective
 	],
 	imports: [
 		BrowserModule,
 		AppRoutingModule,
 		DragDropModule,
 		ScrollingModule,
-		GridsterModule,
 		BrowserAnimationsModule,
 		AngularDraggableModule,
 		OverlayModule

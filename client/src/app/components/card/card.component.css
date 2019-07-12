@@ -11,14 +11,17 @@
 }
 
 .draggable:not(.dragging) {
-	/*transition: transform .25s ease-in-out;*/
 	transition: transform .25s ease-in-out, visibility 0s .2s;
 }
 
-/*.dragging {*/
-/*width: 500px !important;*/
-/*}*/
+.resizable {
+	transition: width .1s !important;
+}
 
 .hidden {
 	visibility: hidden;
+}
+
+.cursor-resize {
+	cursor: col-resize;
 }
