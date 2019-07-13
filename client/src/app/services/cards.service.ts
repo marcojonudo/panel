@@ -8,11 +8,7 @@ import {UtilsService} from "./utils.service";
 import {CardPositionService} from "./card-position.service";
 import {DaysService} from "./days.service";
 import {Coordinates} from "../objects/coordinates";
-
-enum CardAssignedType {
-	ASSIGNED,
-	UNASSIGNED
-}
+import {Order} from "../objects/order";
 
 @Injectable({
 	providedIn: 'root'
@@ -38,19 +34,19 @@ export class CardsService {
 		private cardPositionService: CardPositionService
 	) {
 		this.cards = [
-			new Card(1, undefined, undefined, undefined, 30, undefined, false),
-			new Card(2, undefined, undefined, undefined, 15, undefined, false),
-			new Card(3, undefined, undefined, undefined, 60, undefined, false),
-			new Card(4, undefined, undefined, undefined, 45, undefined, false),
-			new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', true),
-			new Card(6, "2019-06-25", "A", '10:00:00', 15, '10:15:00', false),
-			new Card(7, "2019-06-25", "A", '11:00:00', 30, '11:30:00', true),
-			new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', true),
-			new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', false),
-			new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', true),
-			new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', false),
-			new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', false),
-			new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', true)
+			new Card(1, undefined, undefined, undefined, 30, undefined, false, new Order(1)),
+			new Card(2, undefined, undefined, undefined, 15, undefined, false, new Order(1)),
+			new Card(3, undefined, undefined, undefined, 60, undefined, false, new Order(2)),
+			new Card(4, undefined, undefined, undefined, 45, undefined, false, new Order(3)),
+			new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', true, new Order(4)),
+			new Card(6, "2019-06-25", "A", '10:00:00', 15, '10:15:00', false, new Order(4)),
+			new Card(7, "2019-06-25", "A", '11:00:00', 30, '11:30:00', true, new Order(5)),
+			new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', true, new Order(6)),
+			new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', false, new Order(7)),
+			new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', true, new Order(8)),
+			new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', false, new Order(9)),
+			new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', false, new Order(10)),
+			new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', true, new Order(11))
 		];
 
 		this.assignedDaysCards = {};

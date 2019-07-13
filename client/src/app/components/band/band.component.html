@@ -18,8 +18,9 @@
 		<app-card
 			@unassigned-card
 			(@unassigned-card.done)="forceCardCd()"
-			*ngFor="let card of (cards$ | async)"
+			*ngFor="let card of unassignedCards; let i = index"
 			class="mr-2"
+			[ngClass]="{'mr-2': unassignedCards[i+1] && card.order.number != unassignedCards[i+1].order.number}"
 			[style.height.%]="60"
 			[card]="card"></app-card>
 	</div>

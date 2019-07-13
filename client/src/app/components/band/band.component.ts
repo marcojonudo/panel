@@ -55,10 +55,6 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.unassignedCardsSubscription();
 	}
 
-	get cards$() {
-		return this.cardsService.unassignedCards$;
-	}
-
 	check() {
 		console.log('checking band')
 	}
