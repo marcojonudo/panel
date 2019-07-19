@@ -1,4 +1,4 @@
-import {BrowserModule, EventManager} from '@angular/platform-browser';
+import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import {AppRoutingModule} from './app-routing.module';
@@ -37,6 +37,7 @@ import {OverlayComponent} from './components/overlay/overlay.component';
 import {MainComponent} from './components/main/main.component';
 import {HelperCardComponent} from './components/helper-card/helper-card.component';
 import {ResizableDirective} from './directives/resizable.directive';
+import {DraggableGroupComponent} from './components/draggable-group/draggable-group.component';
 
 @NgModule({
 	declarations: [
@@ -62,7 +63,8 @@ import {ResizableDirective} from './directives/resizable.directive';
 		OverlayComponent,
 		MainComponent,
 		HelperCardComponent,
-		ResizableDirective
+		ResizableDirective,
+		DraggableGroupComponent
 	],
 	imports: [
 		BrowserModule,

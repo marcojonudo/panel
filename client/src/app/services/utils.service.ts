@@ -25,4 +25,28 @@ export class UtilsService {
 		return time.getHours() * 60 + time.getMinutes();
 	}
 
+	public static groupBy(array: any[], property: any) {
+		let grouped = {};
+		for (let item of array) {
+			if (!grouped[property(item)]) {
+				grouped[property(item)] = []
+			}
+			grouped[property(item)].push(item);
+		}
+		return grouped;
+	}
+
+	public static groupList(array: any[], property: any) {
+		let groupList = [];
+		for (let item of array) {
+			const index = groupList.findIndex(list => list && property(list[0]) == property(item));
+			if (index == -1) {
+				groupList.push([item]);
+			} else {
+				groupList[index].push(item);
+			}
+		}
+		return groupList;
+	}
+
 }

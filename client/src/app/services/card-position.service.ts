@@ -15,13 +15,13 @@ export class CardPositionService {
 	private _dragging: boolean;
 	private _dropzone: DropzoneInfo;
 	private _position: Coordinates;
-	private _helperCard: Card;
+	private _helperCards: Card[];
 
 	private coordinatesSubject: BehaviorSubject<Coordinates>;
 	private _coordinates$: Observable<Coordinates>;
 
-	private helperCardSubject: BehaviorSubject<Card>;
-	private _helperCard$: Observable<Card>;
+	private helperCardsSubject: BehaviorSubject<Card[]>;
+	private _helperCard$: Observable<Card[]>;
 
 	private draggingSubject: BehaviorSubject<boolean>;
 	private _dragging$: Observable<boolean>;
@@ -38,8 +38,8 @@ export class CardPositionService {
 		this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
 		this.coordinates$ = this.coordinatesSubject.asObservable();
 
-		this.helperCardSubject = new BehaviorSubject<Card>(undefined);
-		this.helperCard$ = this.helperCardSubject.asObservable();
+		this.helperCardsSubject = new BehaviorSubject<Card[]>([]);
+		this.helperCards$ = this.helperCardsSubject.asObservable();
 
 		this.draggingSubject = new BehaviorSubject<boolean>(false);
 		this.dragging$ = this.draggingSubject.asObservable();
@@ -71,12 +71,12 @@ export class CardPositionService {
 		this._position = value;
 	}
 
-	get helperCard(): Card {
-		return this._helperCard;
+	get helperCards(): Card[] {
+		return this._helperCards;
 	}
 
-	set helperCard(value: Card) {
-		this._helperCard = value;
+	set helperCards(value: Card[]) {
+		this._helperCards = value;
 	}
 
 	get coordinates$(): Observable<Coordinates> {
@@ -87,11 +87,11 @@ export class CardPositionService {
 		this._coordinates$ = value;
 	}
 
-	get helperCard$(): Observable<any> {
+	get helperCards$(): Observable<any> {
 		return this._helperCard$;
 	}
 
-	set helperCard$(value: Observable<any>) {
+	set helperCards$(value: Observable<any>) {
 		this._helperCard$ = value;
 	}
 
@@ -110,9 +110,9 @@ export class CardPositionService {
 		this.coordinatesSubject.next(coordinates);
 	}
 
-	emitHelperCard(card: Card) {
-		this.helperCard = card;
-		this.helperCardSubject.next(this.helperCard);
+	emitHelperCards(cards: Card[]) {
+		this.helperCards = cards;
+		this.helperCardsSubject.next(this.helperCards);
 	}
 
 	emitDragging(value: boolean) {

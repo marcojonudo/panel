@@ -10,14 +10,24 @@
 				 class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>
 		</div>
 	</div>
-	<app-card
-		*ngFor="let card of cards"
+	<app-draggable-group
+		*ngFor="let cardsGroup of cardsGroups"
 		class="assigned-card"
 		[ngStyle]="{
 		  'height.px': (lineHeight$ | async) / 2,
-		  'left.px': card.left,
-		  'top.%': card.topLine ? 0 : 50
+		  'left.px': cardsGroup.left,
+		  'top.%': cardsGroup.cards[0].topLine ? 0 : 50
 		}"
-		[card]="card"></app-card>
+		[cards]="cardsGroup.cards">
+	</app-draggable-group>
+	<!--<app-card-->
+		<!--*ngFor="let card of cards"-->
+		<!--class="assigned-card"-->
+		<!--[ngStyle]="{-->
+		  <!--'height.px': (lineHeight$ | async) / 2,-->
+		  <!--'left.px': card.left,-->
+		  <!--'top.%': card.topLine ? 0 : 50-->
+		<!--}"-->
+		<!--[card]="card"></app-card>-->
 </div>
 <div>{{check()}}</div>

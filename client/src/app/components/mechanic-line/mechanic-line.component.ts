@@ -6,6 +6,7 @@ import {Mechanic} from "../../objects/mechanic";
 import {DaysService} from "../../services/days.service";
 import {Card} from "../../objects/card";
 import {ResizeEvent} from "angular-resizable-element";
+import {CardsGroup} from "../../objects/cards-group";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -25,7 +26,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	@Input() mechanic: Mechanic;
 	@Input() day: string;
 
-	private cards: Card[];
+	private cardsGroups: CardsGroup[];
 
 	constructor(
 		private timeService: TimeService,
@@ -39,9 +40,9 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		if (this.cardsService.assignedDaysCards$[this.day][this.mechanic.position]) {
-			this.cardsSubscription = this.cardsService.assignedDaysCards$[this.day][this.mechanic.position].subscribe(cards => {
-				this.cards = cards;
+		if (this.cardsService.assignedDaysCardsGroups$[this.day][this.mechanic.position]) {
+			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day][this.mechanic.position].subscribe(cardsGroup => {
+				this.cardsGroups = cardsGroup;
 				this.cdRef.detectChanges();
 			});
 		}
@@ -60,7 +61,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	check() {
-		console.log('checking mechanic line', this.day, this.mechanic, this.cards);
+		console.log('checking mechanic line', this.day, this.mechanic, this.cardsGroups);
 	}
 
 	test(event) {

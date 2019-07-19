@@ -20,7 +20,8 @@ import {DropzoneInfo} from "../objects/dropzone-info";
 })
 export class DraggableDirective implements OnInit, AfterViewChecked {
 
-	@Input() card: Card;
+	// @Input() card: Card;
+	@Input() cards: Card[];
 
 	private cardRect;
 
@@ -32,7 +33,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	private pointerMoveListener;
 	private pointerUpListener;
 
-	@HostBinding('class.dragging')
 	@HostBinding('class.hidden') dragging: boolean;
 
 	constructor(
@@ -64,8 +64,10 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.cardPositionService.emitPosition(this.startPosition);
 
 		this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
-		this.cardPositionService.emitHelperCard(this.card);
+		this.cardPositionService.emitHelperCards(this.cards);
+		console.time('emit dragging start');
 		this.cardPositionService.emitDragging(true);
+		console.timeEnd('emit dragging start');
 
 		this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
 		this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
@@ -80,26 +82,43 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	}
 
 	onPointerUp(): void {
-		if (this.dragging) {
-			this.dragging = false;
-			this.cdRef.detectChanges();
+		console.log('ON POINTER UP ENTER');
+		console.time('pointerup');
+		this.dragging = false;
+		// this.cdRef.detectChanges();
 
-			let emitHelperCard = this.handleDestinyPosition();
+		console.time('handleDestinyPosition');
+		let emitHelperCard = this.handleDestinyPosition();
+		console.timeEnd('handleDestinyPosition');
 
-			this.cardPositionService.emitPosition(this.position);
-			this.pointerMoveListener();
-			this.pointerUpListener();
 
-			/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
-			 * de su posición de origen.
-			 * Debe ir antes de la emisión de la helper card, para evitar parpadeos en las fichas al añadirlas en el destino
-			 * antes de eliminarlas del origen, de ahí el uso de la variable emitHelperCard (sólo para el caso de arrastrar
-			 * la ficha a la bandeja desde una línea */
-			this.cardPositionService.emitDragging(this.dragging);
-			if (emitHelperCard) {
-				this.cardPositionService.emitHelperCard(undefined);
-			}
+		console.time('emitPosition');
+		this.cardPositionService.emitPosition(this.position);
+		console.timeEnd('emitPosition');
+
+		console.time('resetListeners');
+		this.pointerMoveListener();
+		this.pointerUpListener();
+		console.timeEnd('resetListeners');
+
+		/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
+		 * de su posición de origen.
+		 * Debe ir antes de la emisión de la helper card, para evitar parpadeos en las fichas al añadirlas en el destino
+		 * antes de eliminarlas del origen, de ahí el uso de la variable emitHelperCards (sólo para el caso de arrastrar
+		 * la ficha a la bandeja desde una línea */
+		console.time('emitDragging');
+		console.log('emitDragging');
+		// setTimeout(() => {
+		this.cardPositionService.emitDragging(false);
+		// }, 0);
+		console.timeEnd('emitDragging');
+		if (emitHelperCard) {
+			console.time('emit helper');
+			this.cardPositionService.emitHelperCards(undefined);
+			console.timeEnd('emit helper');
 		}
+		console.log('ON POINTER UP EXIT');
+		console.timeEnd('pointerup')
 	}
 
 	private handleDestinyPosition(): boolean {
@@ -111,14 +130,14 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 			/* Si se suelta en otra dropzone */
 			if (this.cardPositionService.dropzone.mechanic) {
 				this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
-			} else if (this.card.mechanicCode) { /* Si se suelta una ficha asignada en la bandeja inferior */
+			} else if (this.cards[0].mechanicCode) { /* Si se suelta una ficha asignada en la bandeja inferior */
 				emitHelperCard = true;
 			} else { /* Si se suelta en la bandeja inferior sin haber salido de la misma */
 				this.handleReturnStartPosition();
 			}
 		} else {
 			/* Si se suelta la ficha sin haber salido de la dropzone */
-			if (this.card.mechanicCode) {
+			if (this.cards[0].mechanicCode) {
 				this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
 			} else { /* Si se suelta la ficha en un hueco vacío */
 				this.handleReturnStartPosition();

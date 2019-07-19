@@ -16,6 +16,9 @@ export class Card {
 
 	private _order: Order;
 
+	private _linkedNextId: number;
+	private _linkedPrevId: number;
+
 	constructor(
 		id: number,
 		day: string,
@@ -24,7 +27,9 @@ export class Card {
 		duration: number,
 		end: string,
 		topLine: boolean,
-		order: Order
+		order: Order,
+		linkedPrevId: number,
+		linkedNextId: number
 	) {
 		this.id = id;
 		this.day = day;
@@ -34,6 +39,8 @@ export class Card {
 		this.end = end;
 		this.topLine = topLine;
 		this.order = order;
+		this.linkedPrevId = linkedPrevId;
+		this.linkedNextId = linkedNextId;
 	}
 
 	// region Getters / setters
@@ -62,6 +69,26 @@ export class Card {
 		this._order = value;
 	}
 
+	get linkedPrevId(): number {
+		return this._linkedPrevId;
+	}
+
+	set linkedPrevId(value: number) {
+		this._linkedPrevId = value;
+	}
+	get linkedNextId(): number {
+		return this._linkedNextId;
+	}
+
+	set linkedNextId(value: number) {
+		this._linkedNextId = value;
+	}
+
 	// endregion
+
+	clone() {
+		return new Card(this.id, this.day, this.mechanicCode, this.start, this.duration, this.end, this.topLine,
+							this.order, this.linkedPrevId, this.linkedNextId);
+	}
 
 }

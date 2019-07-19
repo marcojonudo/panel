@@ -36,8 +36,8 @@ export class ScrollableDirective implements OnInit {
 		this.top = rect.top + this.scrollZoneSize;
 		this.bottom = rect.bottom - this.scrollZoneSize;
 
-		this.cardPositionService.helperCard$.subscribe(helperCard => {
-			this.dragging = !!helperCard;
+		this.cardPositionService.helperCards$.subscribe(helperCards => {
+			this.dragging = !!helperCards.length;
 		});
 	}
 

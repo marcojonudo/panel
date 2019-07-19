@@ -1,0 +1,9 @@
+<div
+	appDraggable
+	[cards]="cards"
+	class="h-100 d-flex draggable">
+	<app-card
+		*ngFor="let card of cards"
+		[card]="card"></app-card>
+</div>
+<div>{{check()}}</div>

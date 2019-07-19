@@ -1,11 +1,12 @@
-import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {Card} from "../../objects/card";
 import {CardPositionService} from "../../services/card-position.service";
 
 @Component({
 	selector: 'app-helper-card',
 	templateUrl: './helper-card.component.html',
-	styleUrls: ['./helper-card.component.css']
+	styleUrls: ['./helper-card.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HelperCardComponent implements OnInit {
 
@@ -34,7 +35,7 @@ export class HelperCardComponent implements OnInit {
 	}
 
 	check(): void {
-		// console.log('checking helper card');
+		console.log('checking helper card');
 	}
 
 }

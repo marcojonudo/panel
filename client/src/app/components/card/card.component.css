@@ -2,24 +2,8 @@
 	background-color: blue;
 }
 
-.draggable {
-	cursor: move;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-.draggable:not(.dragging) {
-	transition: transform .25s ease-in-out, visibility 0s .2s;
-}
-
 .resizable {
 	transition: width .1s !important;
-}
-
-.hidden {
-	visibility: hidden;
 }
 
 .cursor-resize {

@@ -1,11 +1,12 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
 
 @Component({
 	selector: 'app-main',
 	templateUrl: './main.component.html',
-	styleUrls: ['./main.component.css']
+	styleUrls: ['./main.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainComponent implements AfterViewInit {
 
@@ -23,7 +24,6 @@ export class MainComponent implements AfterViewInit {
 	// private startPosition;
 
 	// private unassignedCardsDays: any;
-	private unassignedCards: any[];
 	// private assignedCards: any[];
 	// private testList: any[];
 
@@ -44,8 +44,6 @@ export class MainComponent implements AfterViewInit {
 		this.relativeContainer = true;
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
-
-		this.unassignedCards = [{id: 1, width: 350}];
 	}
 
 	ngAfterViewInit(): void {
@@ -64,8 +62,8 @@ export class MainComponent implements AfterViewInit {
 		return this.timeService.percentageWidth$
 	}
 
-	// get assignedDaysCards$() {
-	//   return this.cardsService.assignedDaysCards$;
+	// get assignedDaysCardsGroups$() {
+	//   return this.cardsService.assignedDaysCardsGroups$;
 	// }
 
 	trackByDay(index, item) {

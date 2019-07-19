@@ -1,4 +1,4 @@
-import {AfterViewInit, Directive, HostBinding, OnDestroy} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Directive, HostBinding, OnDestroy} from '@angular/core';
 import {DomSanitizer, SafeStyle} from "@angular/platform-browser";
 import {Coordinates} from "../objects/coordinates";
 import {CardPositionService} from "../services/card-position.service";
@@ -18,6 +18,7 @@ export class MovableDirective implements AfterViewInit, OnDestroy {
 	// @HostBinding('class.draggable') draggable: boolean;
 	// @HostBinding('class.dragging') dragging: boolean;
 
+	// TODO Evaluar si meter esto en en el overlay o aquí. Hacineod el detectChanges sólo aquí, no pilla la transición final
 	@HostBinding('style.transform') get transform(): SafeStyle {
 		return this.sanitizer.bypassSecurityTrustStyle(
 			`translateX(${this.position.x}px) translateY(${this.position.y}px)`
@@ -26,7 +27,8 @@ export class MovableDirective implements AfterViewInit, OnDestroy {
 
 	constructor(
 		private cardPositionService: CardPositionService,
-		private sanitizer: DomSanitizer
+		private sanitizer: DomSanitizer,
+		private cdRef: ChangeDetectorRef
 	) {
 		this.dragging = true;
 		this.position = new Coordinates(0, 0);
@@ -35,6 +37,7 @@ export class MovableDirective implements AfterViewInit, OnDestroy {
 	ngAfterViewInit() {
 		this.coordinatesSubscription = this.cardPositionService.coordinates$.subscribe(coordinates => {
 			this.position = coordinates;
+			// this.cdRef.detectChanges();
 		});
 	}
 
