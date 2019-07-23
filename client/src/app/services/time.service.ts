@@ -171,10 +171,10 @@ export class TimeService {
 
 	/* ---- START ---- */
 
-	calculateStart(left: number): string {
+	calculateStart(left: number, day: Date): Date {
 		const intervals = this.getIntervalsNumberFromDimensionValue(left);
 		const minutes = this.getRelativeMinutesFromIntervals(intervals);
-		return UtilsService.parseTimeFromMinutes(minutes);
+		return UtilsService.parseTimeFromMinutes(minutes, day);
 	}
 
 	private getRelativeMinutesFromIntervals(intervalsNumber: number): number {

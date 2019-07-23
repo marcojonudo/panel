@@ -72,11 +72,7 @@ export class CardsService {
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
 		this.widthSubscription = this.timeService.intervalWidth$.subscribe(() => {
-			console.log('CALCULATING');
 			this.initDimensions();
-			// this.initWidth(this.unassignedCardsGroups.concat(this.assignedCardsGroups));
-			// this.initWidth(this.unassignedCards.concat(this.assignedCards));
-			// this.initLeft(this.assignedCardsGroups);
 			this.notifyAll();
 		});
 
@@ -222,15 +218,9 @@ export class CardsService {
 				card.day = newMechanic.day;
 				card.mechanicCode = newMechanic.position;
 
-				// card.left = position.x - 180;
-				// console.log(cardsGroup.cards.slice(0, index));
-				console.log(cardsGroup.left);
-				// const cardsDuration = cardsGroup.cards.slice(0, index).map(card => card.duration).reduce((a, b) => a + b, 0);
-				// console.log(cardsDuration, this.calculateWidth(cardsDuration));
-				const cardLeft = cardsGroup.left + 1;//cardsGroup.cards.slice(0, index).reduce((a, b) => a.duration + b.duration, 0)
-				// card.start = this.calculateStart(cardLeft);
+				const cardsDuration = cardsGroup.cards.slice(0, index).map(card => card.duration).reduce((a, b) => a + b, 0);
+				card.start = this.calculateStart(cardsGroup.left + this.calculateWidth(cardsDuration), newMechanic.day)
 				card.topLine = position.topLine;
-
 			});
 			console.timeEnd('updateCards');
 		} else {
@@ -286,8 +276,8 @@ export class CardsService {
 		return this.timeService.calculateLeft(start);
 	}
 
-	private calculateStart(left: number): string {
-		return this.timeService.calculateStart(left);
+	private calculateStart(left: number, day: Date): Date {
+		return this.timeService.calculateStart(left, day);
 	}
 
 	private calculateWidth(duration: number): number {

@@ -43,7 +43,6 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position]) {
 			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position].subscribe(cardsGroup => {
 				this.cardsGroups = cardsGroup;
-				console.log('mechanic line cards groups', this.cardsGroups);
 				this.cdRef.detectChanges();
 			});
 		}

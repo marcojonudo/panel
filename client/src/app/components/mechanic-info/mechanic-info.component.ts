@@ -8,22 +8,13 @@ import {CardsService} from "../../services/cards.service";
 	styleUrls: ['./mechanic-info.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicInfoComponent implements AfterViewInit {
+export class MechanicInfoComponent {
 
 	@Input() mechanic: string;
 
 	constructor(
-		private daysService: DaysService,
-		private cardsService: CardsService
+		private daysService: DaysService
 	) {
-	}
-
-	ngAfterViewInit() {
-	}
-
-	test(): void {
-		console.log('clicked in mechanic info container');
-		// this.cardsService.addCard();
 	}
 
 	check() {

@@ -26,8 +26,4 @@ export class CardComponent
 		console.log('checking card', this.card, this.card.width);
 	}
 
-	test() {
-		console.log(this.card);
-	}
-
 }

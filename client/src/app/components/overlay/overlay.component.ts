@@ -82,7 +82,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	}
 
 	updateCard() {
-		console.log('UPDATE CARD EN OVERLAY');
 		this.cardPositionService.emitHelperCardsGroup(undefined);
 	}
 

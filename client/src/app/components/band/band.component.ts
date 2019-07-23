@@ -74,15 +74,4 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.cdRef.detectChanges();
 	}
 
-	getPreviousGroupWidth(cards: Card[][], index): number {
-		console.log(cards.filter((card, i) => i < index));
-		let totalWidth = 0;
-		for (let i = 0; i < index; i++) {
-			totalWidth += cards[i].reduce((sum, current) => sum + current.width, 0);
-			console.log('totalWidth', totalWidth, cards[i]);
-		}
-		console.log(totalWidth);
-		return totalWidth;
-	}
-
 }
