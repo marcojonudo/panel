@@ -4,6 +4,7 @@ import {Observable} from "rxjs/internal/Observable";
 import {Coordinates} from "../objects/coordinates";
 import {Card} from "../objects/card";
 import {DropzoneInfo} from "../objects/dropzone-info";
+import {CardsGroup} from "../objects/cards-group";
 
 @Injectable({
 	providedIn: 'root'
@@ -15,13 +16,13 @@ export class CardPositionService {
 	private _dragging: boolean;
 	private _dropzone: DropzoneInfo;
 	private _position: Coordinates;
-	private _helperCards: Card[];
+	private _helperCardsGroup: CardsGroup;
 
 	private coordinatesSubject: BehaviorSubject<Coordinates>;
 	private _coordinates$: Observable<Coordinates>;
 
-	private helperCardsSubject: BehaviorSubject<Card[]>;
-	private _helperCard$: Observable<Card[]>;
+	private helperCardsGroupSubject: BehaviorSubject<CardsGroup>;
+	private _helperCardsGroup$: Observable<CardsGroup>;
 
 	private draggingSubject: BehaviorSubject<boolean>;
 	private _dragging$: Observable<boolean>;
@@ -38,8 +39,8 @@ export class CardPositionService {
 		this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
 		this.coordinates$ = this.coordinatesSubject.asObservable();
 
-		this.helperCardsSubject = new BehaviorSubject<Card[]>([]);
-		this.helperCards$ = this.helperCardsSubject.asObservable();
+		this.helperCardsGroupSubject = new BehaviorSubject<CardsGroup>(undefined);
+		this.helperCardsGroup$ = this.helperCardsGroupSubject.asObservable();
 
 		this.draggingSubject = new BehaviorSubject<boolean>(false);
 		this.dragging$ = this.draggingSubject.asObservable();
@@ -71,12 +72,12 @@ export class CardPositionService {
 		this._position = value;
 	}
 
-	get helperCards(): Card[] {
-		return this._helperCards;
+	get helperCardsGroup(): CardsGroup {
+		return this._helperCardsGroup;
 	}
 
-	set helperCards(value: Card[]) {
-		this._helperCards = value;
+	set helperCardsGroup(value: CardsGroup) {
+		this._helperCardsGroup = value;
 	}
 
 	get coordinates$(): Observable<Coordinates> {
@@ -87,12 +88,12 @@ export class CardPositionService {
 		this._coordinates$ = value;
 	}
 
-	get helperCards$(): Observable<any> {
-		return this._helperCard$;
+	get helperCardsGroup$(): Observable<any> {
+		return this._helperCardsGroup$;
 	}
 
-	set helperCards$(value: Observable<any>) {
-		this._helperCard$ = value;
+	set helperCardsGroup$(value: Observable<any>) {
+		this._helperCardsGroup$ = value;
 	}
 
 	get dragging$(): Observable<any> {
@@ -110,9 +111,9 @@ export class CardPositionService {
 		this.coordinatesSubject.next(coordinates);
 	}
 
-	emitHelperCards(cards: Card[]) {
-		this.helperCards = cards;
-		this.helperCardsSubject.next(this.helperCards);
+	emitHelperCardsGroup(cardsGroup: CardsGroup) {
+		this.helperCardsGroup = cardsGroup;
+		this.helperCardsGroupSubject.next(this.helperCardsGroup);
 	}
 
 	emitDragging(value: boolean) {

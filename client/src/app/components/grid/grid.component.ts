@@ -11,7 +11,7 @@ import {Mechanic} from "../../objects/mechanic";
 })
 export class GridComponent implements OnInit, OnDestroy {
 
-	@Input() day: string;
+	@Input() day: Date;
 
 	private _mechanics: Mechanic[];
 
@@ -23,7 +23,7 @@ export class GridComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day].subscribe(mechanics => {
+		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()].subscribe(mechanics => {
 			this.mechanics = mechanics;
 		});
 	}

@@ -38,6 +38,7 @@ import {MainComponent} from './components/main/main.component';
 import {HelperCardComponent} from './components/helper-card/helper-card.component';
 import {ResizableDirective} from './directives/resizable.directive';
 import {DraggableGroupComponent} from './components/draggable-group/draggable-group.component';
+import { HelperDraggableGroupComponent } from './components/helper-draggable-group/helper-draggable-group.component';
 
 @NgModule({
 	declarations: [
@@ -64,7 +65,8 @@ import {DraggableGroupComponent} from './components/draggable-group/draggable-gr
 		MainComponent,
 		HelperCardComponent,
 		ResizableDirective,
-		DraggableGroupComponent
+		DraggableGroupComponent,
+		HelperDraggableGroupComponent
 	],
 	imports: [
 		BrowserModule,

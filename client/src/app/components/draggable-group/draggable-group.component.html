@@ -1,9 +1,9 @@
 <div
 	appDraggable
-	[cards]="cards"
+	[cardsGroup]="cardsGroup"
 	class="h-100 d-flex draggable">
 	<app-card
-		*ngFor="let card of cards"
+		*ngFor="let card of cardsGroup.cards"
 		[card]="card"></app-card>
 </div>
 <div>{{check()}}</div>

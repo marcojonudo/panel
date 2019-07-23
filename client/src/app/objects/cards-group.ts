@@ -4,6 +4,7 @@ export class CardsGroup {
 
 	private _cards: Card[];
 
+	private _start: Date;
 	private _left: number;
 	private _topLine: boolean;
 
@@ -23,6 +24,14 @@ export class CardsGroup {
 		this._cards = value;
 	}
 
+	get start(): Date {
+		return this._start;
+	}
+
+	set start(value: Date) {
+		this._start = value;
+	}
+
 	get left(): number {
 		return this._left;
 	}
@@ -40,5 +49,22 @@ export class CardsGroup {
 	}
 
 	// endregion
+
+	clone(): CardsGroup {
+		let newCardsGroup = new CardsGroup(this.cards);
+		newCardsGroup.left = this.left;
+		newCardsGroup.topLine = this.topLine;
+		return newCardsGroup;
+	}
+
+	// cloneCards(): void {
+	// 	this.cards = this.cards.map((card) => {
+	// 		/* La ficha se clona por el mismo motivo. El componente card-component recibe una ficha, pero no
+	// 		*  detecta cambios si se modifica únicamente una propiedad, ya que la referencia es la misma */
+	// 		let newCard = card.clone();
+	// 		newCard.width = this.calculateWidth(card.duration);
+	// 		return newCard;
+	// 	});
+	// }
 
 }

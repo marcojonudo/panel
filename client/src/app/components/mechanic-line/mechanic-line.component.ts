@@ -24,7 +24,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	private cardsSubscription: any;
 
 	@Input() mechanic: Mechanic;
-	@Input() day: string;
+	@Input() day: Date;
 
 	private cardsGroups: CardsGroup[];
 
@@ -40,9 +40,10 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		if (this.cardsService.assignedDaysCardsGroups$[this.day][this.mechanic.position]) {
-			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day][this.mechanic.position].subscribe(cardsGroup => {
+		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position]) {
+			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position].subscribe(cardsGroup => {
 				this.cardsGroups = cardsGroup;
+				console.log('mechanic line cards groups', this.cardsGroups);
 				this.cdRef.detectChanges();
 			});
 		}

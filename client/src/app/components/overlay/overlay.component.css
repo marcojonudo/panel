@@ -5,17 +5,22 @@
 	pointer-events: none;
 }
 
-.helper-card-container {
+.helper-cards-group {
 	position: fixed;
 	pointer-events: none;
 	z-index: 10;
+	background-color: red !important;
 }
 
 .helper-card {
 	background-color: white !important;
-	border: 1px solid #000000;
+	/*border: 1px solid #000000;*/
 }
 
 .transform-transition {
 	transition: transform .2s;
 }
+
+/*.draggable {*/
+	/*transition: transform .25s ease-in-out, visibility 0s .2s;*/
+/*}*/

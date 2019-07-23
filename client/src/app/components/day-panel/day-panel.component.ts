@@ -12,7 +12,7 @@ export class DayPanelComponent {
 
 	@Input() index: number;
 	// @Input() dayCards: any[];
-	@Input() day: string;
+	@Input() day: Date;
 
 	constructor(
 		private timeService: TimeService,

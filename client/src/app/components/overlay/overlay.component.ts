@@ -3,6 +3,7 @@ import {CardPositionService} from "../../services/card-position.service";
 import {Card} from "../../objects/card";
 import {DaysService} from "../../services/days.service";
 import {CardsService} from "../../services/cards.service";
+import {CardsGroup} from "../../objects/cards-group";
 
 @Component({
 	selector: 'app-overlay',
@@ -14,9 +15,9 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	private coordinatesSubscription: any;
 	private draggingSubscription: any;
-	private helperCardSubscription: any;
+	private helperCardsGroupSubscription: any;
 
-	private helperCards: Card[];
+	private helperCardsGroup: CardsGroup;
 	private dragging: boolean;
 
 	constructor(
@@ -41,32 +42,32 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 			console.timeEnd('[overlay] draggingSubscriptionChanges');
 
-			/* Cuando se deja de arrastrar (dragging = false y helperCards = true), se elimina la ficha del origen. De esta
+			/* Cuando se deja de arrastrar (dragging = false y helperCardsGroup = true), se elimina la ficha del origen. De esta
 			*  forma, se evitan problemas de parpadeos al modificar la propiedad 'visibility' para lograr los efectos
 			*  buscados */
-			if (!this.dragging && this.helperCards && this.cardPositionService.dropzone) {
+			if (!this.dragging && this.helperCardsGroup && this.cardPositionService.dropzone) {
 				console.time('[overlay] removeCardsFromOrigin');
-				this.cardsService.removeCardsFromOrigin(this.helperCards);
+				this.cardsService.removeCardsFromOrigin(this.helperCardsGroup);
 				console.timeEnd('[overlay] removeCardsFromOrigin');
 			}
 		});
 
 		/* Permite mostrar o eliminar la ficha auxiliar en pantalla */
-		this.helperCardSubscription = this.cardPositionService.helperCards$.subscribe(helperCards => {
+		this.helperCardsGroupSubscription = this.cardPositionService.helperCardsGroup$.subscribe(helperCardsGroup => {
 			/* Cuando se borra la ficha auxiliar (terminó la transición o se soltó la ficha en la barra inferior), se
 			*  ejecutan las operaciones necesarias para actualizar la ficha */
 			console.time('[overlay][helperCardSubscription]');
-			if (!helperCards && this.cardPositionService.dropzone) {
+			if (!helperCardsGroup && this.cardPositionService.dropzone) {
 				console.time('[overlay] updateTranslatedCards');
 				this.cardsService.updateTranslatedCards(
-					this.helperCards,
+					this.helperCardsGroup,
 					this.cardPositionService.dropzone.mechanic,
 					this.cardPositionService.position
 				);
 				console.timeEnd('[overlay] updateTranslatedCards');
 			}
 
-			this.helperCards = helperCards;
+			this.helperCardsGroup = helperCardsGroup;
 			console.log('------------------------------------------------------------------------- 3');
 			this.cdRef.detectChanges();
 			console.timeEnd('[overlay][helperCardSubscription]');
@@ -87,7 +88,8 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	}
 
 	updateCard() {
-		this.cardPositionService.emitHelperCards([]);
+		console.log('UPDATE CARD EN OVERLAY');
+		// this.cardPositionService.emitHelperCardsGroup(undefined);
 	}
 
 }

@@ -21,6 +21,18 @@ export class UtilsService {
 		return `${hours}:${m}:00`
 	}
 
+	public static parseDateFromString(date: string): Date {
+		const info = date.split('-');
+		return new Date(+info[0], +info[1], +info[2]);
+	}
+
+	public static parseDateFromCompleteString(date: string): Date {
+		const info = date.split(' ');
+		const dateInfo = info[0].split('-');
+		const timeInfo = info[1].split(':');
+		return new Date(+dateInfo[0], +dateInfo[1], +dateInfo[2], +timeInfo[0], +timeInfo[1], +timeInfo[2]);
+	}
+
 	public static getTotalMinutes(time: Date): number {
 		return time.getHours() * 60 + time.getMinutes();
 	}

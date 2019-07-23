@@ -8,12 +8,9 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 })
 export class MechanicLineContainerComponent {
 
-	constructor() {
-	}
-
 	@Input() mechanic: string;
 	// @Input() cards: any[];
-	@Input() day: string;
+	@Input() day: Date;
 
 	check() {
 		console.log('checking mechanic line container', this.mechanic, this.day)

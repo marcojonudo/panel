@@ -1,10 +1,12 @@
+import {UtilsService} from "../services/utils.service";
+
 export class Mechanic {
 
-	day: string;
+	day: Date;
 	position: string;
 
 	constructor(day: string, position: string) {
-		this.day = day;
+		this.day = UtilsService.parseDateFromString(day);
 		this.position = position;
 	}
 

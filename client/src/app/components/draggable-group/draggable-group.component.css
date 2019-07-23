@@ -6,9 +6,13 @@
 	user-select: none;
 }
 
-.draggable:not(.dragging) {
-	transition: transform .25s ease-in-out, visibility 0s .2s;
-}
+/*.draggable:not(.dragging) {*/
+	/*transition: transform .25s ease-in-out, visibility 0s .2s;*/
+/*}*/
+
+/*.draggable {*/
+	/*transition: transform .25s ease-in-out, visibility 0s .2s;*/
+/*}*/
 
 .hidden {
 	visibility: hidden;

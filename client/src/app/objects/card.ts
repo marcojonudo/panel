@@ -1,12 +1,13 @@
 import {Order} from "./order";
+import {UtilsService} from "../services/utils.service";
 
 export class Card {
 
 	id: number;
-	day: string;
+	day: Date;
 	mechanicCode: string;
 
-	start: string;
+	private _start: Date;
 	private _duration: number;
 	end: string;
 	topLine: boolean;
@@ -32,9 +33,9 @@ export class Card {
 		linkedNextId: number
 	) {
 		this.id = id;
-		this.day = day;
+		this.day = day ? UtilsService.parseDateFromString(day) : undefined;
 		this.mechanicCode = mechanicCode;
-		this.start = start;
+		this.start = start ? UtilsService.parseDateFromCompleteString(`${day} ${start}`) : undefined;
 		this.duration = duration;
 		this.end = end;
 		this.topLine = topLine;
@@ -44,6 +45,14 @@ export class Card {
 	}
 
 	// region Getters / setters
+
+	get start(): Date {
+		return this._start;
+	}
+
+	set start(value: Date) {
+		this._start = value;
+	}
 
 	get duration(): number {
 		return this._duration;
@@ -87,8 +96,11 @@ export class Card {
 	// endregion
 
 	clone() {
-		return new Card(this.id, this.day, this.mechanicCode, this.start, this.duration, this.end, this.topLine,
-							this.order, this.linkedPrevId, this.linkedNextId);
+		let card = new Card(this.id, undefined, this.mechanicCode, undefined, this.duration, this.end,
+							this.topLine, this.order, this.linkedPrevId, this.linkedNextId);
+		card.day = this.day;
+		card.start = this.start;
+		return card;
 	}
 
 }

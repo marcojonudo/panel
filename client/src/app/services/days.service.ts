@@ -3,6 +3,7 @@ import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
 import {Mechanic} from "../objects/mechanic";
 import {Constants} from "../objects/constants";
+import {UtilsService} from "./utils.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -13,7 +14,7 @@ export class DaysService {
 	private lineHeight: number;
 	private sliceDays: number;
 
-	private _days: string[];
+	private _days: Date[];
 	private _mechanics: Mechanic[];
 
 	private _daysMechanics: any;
@@ -28,7 +29,12 @@ export class DaysService {
 	private _daysMechanics$: any;
 
 	constructor() {
-		this.days = ['2019-06-25', '2019-06-26', '2019-06-27', '2019-06-28'];
+		this.days = [
+			UtilsService.parseDateFromString('2019-06-25'),
+			UtilsService.parseDateFromString('2019-06-26'),
+			UtilsService.parseDateFromString('2019-06-27'),
+			UtilsService.parseDateFromString('2019-06-28')
+		];
 
 		this.oneDayMode = true;
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
@@ -40,7 +46,20 @@ export class DaysService {
 		this.lineHeightSubject = new BehaviorSubject<number>(this.lineHeight);
 		this.lineHeight$ = this.lineHeightSubject.asObservable();
 
-		this.mechanics = [new Mechanic('2019-06-25', 'A'), new Mechanic('2019-06-25', 'B'), new Mechanic('2019-06-25', 'C'), new Mechanic('2019-06-25', 'D'), new Mechanic('2019-06-26', 'A'), new Mechanic('2019-06-26', 'B'), new Mechanic('2019-06-26', 'C'), new Mechanic('2019-06-27', 'A'), new Mechanic('2019-06-27', 'B'), new Mechanic('2019-06-27', 'C'), new Mechanic('2019-06-27', 'D'), new Mechanic('2019-06-27', 'E')];
+		this.mechanics = [
+			new Mechanic('2019-06-25', 'A'),
+			new Mechanic('2019-06-25', 'B'),
+			new Mechanic('2019-06-25', 'C'),
+			new Mechanic('2019-06-25', 'D'),
+			new Mechanic('2019-06-26', 'A'),
+			new Mechanic('2019-06-26', 'B'),
+			new Mechanic('2019-06-26', 'C'),
+			new Mechanic('2019-06-27', 'A'),
+			new Mechanic('2019-06-27', 'B'),
+			new Mechanic('2019-06-27', 'C'),
+			new Mechanic('2019-06-27', 'D'),
+			new Mechanic('2019-06-27', 'E')
+		];
 		this.daysMechanics = this.initDaysMechanics(this.mechanics);
 
 		this.initObservables(this.daysMechanics);
@@ -57,11 +76,11 @@ export class DaysService {
 		this._daysMechanics$ = value;
 	}
 
-	get days() {
+	get days(): Date[] {
 		return this._days;
 	}
 
-	set days(value: string[]) {
+	set days(value: Date[]) {
 		this._days = value;
 	}
 
@@ -103,11 +122,11 @@ export class DaysService {
 		let daysMechanics = {};
 
 		for (let mechanic of mechanics) {
-			if (!daysMechanics[mechanic.day]) {
-				daysMechanics[mechanic.day] = [];
+			if (!daysMechanics[mechanic.day.getTime()]) {
+				daysMechanics[mechanic.day.getTime()] = [];
 			}
 
-			daysMechanics[mechanic.day].push(mechanic);
+			daysMechanics[mechanic.day.getTime()].push(mechanic);
 		}
 
 		return daysMechanics;
@@ -117,12 +136,12 @@ export class DaysService {
 		this.daysMechanicsSubjects = {};
 		this.daysMechanics$ = {};
 
-		for (let day in daysMechanics) {
-			const subject = new BehaviorSubject<Mechanic[]>(daysMechanics[day]);
+		for (let dayTime in daysMechanics) {
+			const subject = new BehaviorSubject<Mechanic[]>(daysMechanics[dayTime]);
 			const observable = subject.asObservable();
 
-			this.daysMechanicsSubjects[day] = subject;
-			this.daysMechanics$[day] = observable;
+			this.daysMechanicsSubjects[dayTime] = subject;
+			this.daysMechanics$[dayTime] = observable;
 		}
 	}
 

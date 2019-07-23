@@ -42,9 +42,14 @@ export class CardsService {
 			new Card(3, undefined, undefined, undefined, 60, undefined, false, new Order(2), undefined, undefined),
 			new Card(4, undefined, undefined, undefined, 45, undefined, false, new Order(3), undefined, undefined),
 			new Card(15, undefined, undefined, undefined, 60, undefined, false, new Order(3), undefined, undefined),
-			new Card(16, undefined, undefined, undefined, 60, undefined, false, new Order(12), undefined, undefined),
-			new Card(17, undefined, undefined, undefined, 60, undefined, false, new Order(13), undefined, undefined),
-			new Card(18, undefined, undefined, undefined, 60, undefined, false, new Order(14), undefined, undefined),
+			new Card(16, undefined, undefined, undefined, 50, undefined, false, new Order(12), undefined, undefined),
+			new Card(17, undefined, undefined, undefined, 40, undefined, false, new Order(13), undefined, undefined),
+			new Card(18, undefined, undefined, undefined, 45, undefined, false, new Order(14), undefined, undefined),
+			new Card(19, undefined, undefined, undefined, 25, undefined, false, new Order(15), undefined, undefined),
+			new Card(20, undefined, undefined, undefined, 20, undefined, false, new Order(16), undefined, undefined),
+			new Card(21, undefined, undefined, undefined, 35, undefined, false, new Order(17), undefined, undefined),
+			new Card(22, undefined, undefined, undefined, 15, undefined, false, new Order(18), undefined, undefined),
+			new Card(23, undefined, undefined, undefined, 30, undefined, false, new Order(19), undefined, undefined),
 			new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', true, new Order(4), undefined, 6),
 			new Card(6, "2019-06-25", "A", '09:30:00', 15, '09:45:00', true, new Order(4), 5, undefined),
 			new Card(7, "2019-06-25", "A", '11:00:00', 30, '11:30:00', true, new Order(5), undefined, undefined),
@@ -68,11 +73,10 @@ export class CardsService {
 
 		this.widthSubscription = this.timeService.intervalWidth$.subscribe(() => {
 			console.log('CALCULATING');
-			console.log(this.unassignedCards);
-			console.log(this.unassignedCardsGroups);
-			this.initWidth(this.unassignedCardsGroups.concat(this.assignedCardsGroups));
+			this.initDimensions();
+			// this.initWidth(this.unassignedCardsGroups.concat(this.assignedCardsGroups));
 			// this.initWidth(this.unassignedCards.concat(this.assignedCards));
-			this.initLeft(this.assignedCardsGroups);
+			// this.initLeft(this.assignedCardsGroups);
 			this.notifyAll();
 		});
 
@@ -118,21 +122,21 @@ export class CardsService {
 		this.assignedDaysCardsGroupsSubjects = {};
 		this.assignedDaysCardsGroups$ = {};
 
-		for (let day in daysMechanics) {
-			this.assignedDaysCardsGroups[day] = {};
-			this.assignedDaysCardsGroupsSubjects[day] = {};
-			this.assignedDaysCardsGroups$[day] = {};
+		for (let dayTime in daysMechanics) {
+			this.assignedDaysCardsGroups[dayTime] = {};
+			this.assignedDaysCardsGroupsSubjects[dayTime] = {};
+			this.assignedDaysCardsGroups$[dayTime] = {};
 
-			for (let mechanic of daysMechanics[day]) {
+			for (let mechanic of daysMechanics[dayTime]) {
 				const cardsGroup = assignedCardsGroups.filter(cardsGroup =>
-					cardsGroup.cards[0].day == day && cardsGroup.cards[0].mechanicCode == mechanic.position
+					cardsGroup.cards[0].day.getTime() == dayTime && cardsGroup.cards[0].mechanicCode == mechanic.position
 				);
-				this.assignedDaysCardsGroups[day][mechanic.position] = cardsGroup;
+				this.assignedDaysCardsGroups[dayTime][mechanic.position] = cardsGroup;
 
 				const subject = new BehaviorSubject<any>(cardsGroup);
 				const observable = subject.asObservable();
-				this.assignedDaysCardsGroupsSubjects[day][mechanic.position] = subject;
-				this.assignedDaysCardsGroups$[day][mechanic.position] = observable;
+				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic.position] = subject;
+				this.assignedDaysCardsGroups$[dayTime][mechanic.position] = observable;
 			}
 		}
 	}
@@ -156,47 +160,60 @@ export class CardsService {
 		return cards.find(groupCard => groupCard.linkedPrevId == card.id || groupCard.linkedNextId == card.id)
 	}
 
-	private initWidth(cardsGroups: CardsGroup[]) {
-		for (let cardsGroup of cardsGroups) {
-			/* El componente draggable-group recibe como input cardsGroup.cards. Con el map, se genera un nuevo array
-			*  con otra referencia. De no hacerlo así, al tener la estrategia de CD onPush, detectaría la misma
-			*  referencia y no se realizarían los cambios */
-			cardsGroup.cards = cardsGroup.cards.map((card) => {
-				/* La ficha se clona por el mismo motivo. El componente card-component recibe una ficha, pero no
-				*  detecta cambios si se modifica únicamente una propiedad, ya que la referencia es la misma */
-				let newCard = card.clone();
-				newCard.width = this.calculateWidth(card.duration);
-				return newCard;
-			})
+	private initDimensions() {
+		this.unassignedCardsGroups = this.unassignedCardsGroups.map((cardsGroup: CardsGroup) => {
+			return this.initCardsGroupDimensions(cardsGroup, false);
+		});
+		for (let dayTime in this.assignedDaysCardsGroups) {
+			for (let mechanic in this.assignedDaysCardsGroups[dayTime]) {
+				this.assignedDaysCardsGroups[dayTime][mechanic] = this.assignedDaysCardsGroups[dayTime][mechanic].map((cardsGroup: CardsGroup) => {
+					return this.initCardsGroupDimensions(cardsGroup, true);
+				});
+			}
 		}
 	}
 
-	private initLeft(cardsGroups: CardsGroup[]) {
-		for (let cardsGroup of cardsGroups) {
-			const start = UtilsService.parseTimeFromString(cardsGroup.cards[0].start);
-			cardsGroup.left = this.calculateLeft(start);
+	private initCardsGroupDimensions(cardsGroup: CardsGroup, calculateLeft: boolean) {
+		let newCardsGroup = cardsGroup.clone();
+		newCardsGroup.cards.forEach((card) => {
+			card.width = this.calculateWidth(card.duration);
+		});
+
+		if (calculateLeft) {
+			// const start = UtilsService.parseTimeFromString(newCardsGroup.cards[0].start);
+			newCardsGroup.left = this.calculateLeft(newCardsGroup.cards[0].start);
+			newCardsGroup.start = newCardsGroup.cards[0].start;
 		}
+		return newCardsGroup;
 	}
 
 	// endregion
 
 	// region Translate card
 
-	removeCardsFromOrigin(cards: Card[]): any {
-		if (cards[0].mechanicCode) {
-			for (let card of cards) {
-				const cardIndex = this.assignedDaysCardsGroups[card.day][card.mechanicCode].indexOf(card);
-				this.assignedDaysCardsGroups[card.day][card.mechanicCode].splice(cardIndex, 1);
-			}
+	removeCardsFromOrigin(cardsGroup: CardsGroup): any {
+		if (cardsGroup.cards[0].mechanicCode) {
+			const card = cardsGroup.cards[0];
+			const cardsGroupIndex = this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].indexOf(cardsGroup);
+			this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].splice(cardsGroupIndex, 1);
 
-			this.assignedDaysCardsGroupsSubjects[cards[0].day][cards[0].mechanicCode].next(
-				this.assignedDaysCardsGroups[cards[0].day][cards[0].mechanicCode]
+			// for (let card of cards) {
+			// 	const cardIndex = this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].indexOf(card);
+			// 	this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].splice(cardIndex, 1);
+			// }
+
+			this.assignedDaysCardsGroupsSubjects[card[0].day.getTime()][card[0].mechanicCode].next(
+				this.assignedDaysCardsGroups[card[0].day.getTime()][card[0].mechanicCode]
 			);
 		} else {
-			// for (let card of cards) {
-			const cardsIndex = 0;//this.groupedUnassignedCards.indexOf(cards);
-			this.unassignedCardsGroups.splice(cardsIndex, 1);
-			// }
+			const cardsGroupIndex = this.unassignedCardsGroups.indexOf(cardsGroup);
+			// this.unassignedCardsGroups.find((cardsGroup, index) => {
+			// 	if (cardsGroup.cards == cards) {
+			// 		cardsIndex = index;
+			// 		return true;
+			// 	}
+			// });
+			this.unassignedCardsGroups.splice(cardsGroupIndex, 1);
 
 			console.log('[cardsService] unassignedCards.next()');
 			console.time('[cardsService] unassignedCards.next()');
@@ -205,23 +222,32 @@ export class CardsService {
 		}
 	}
 
-	updateTranslatedCards(cards: Card[], newMechanic: Mechanic, position: Coordinates) {
+	updateTranslatedCards(cardsGroup: CardsGroup, newMechanic: Mechanic, position: Coordinates) {
 		if (newMechanic) {
-			for (let card of cards) {
+			cardsGroup.left = position.x - 180;
+			console.time('updateCards');
+			cardsGroup.cards.forEach((card, index) => {
 				card.day = newMechanic.day;
 				card.mechanicCode = newMechanic.position;
 
-				card.left = position.x - 180;
-				card.start = this.calculateStart(card.left);
+				// card.left = position.x - 180;
+				// console.log(cardsGroup.cards.slice(0, index));
+				console.log(cardsGroup.left);
+				// const cardsDuration = cardsGroup.cards.slice(0, index).map(card => card.duration).reduce((a, b) => a + b, 0);
+				// console.log(cardsDuration, this.calculateWidth(cardsDuration));
+				const cardLeft = cardsGroup.left + 1;//cardsGroup.cards.slice(0, index).reduce((a, b) => a.duration + b.duration, 0)
+				// card.start = this.calculateStart(cardLeft);
 				card.topLine = position.topLine;
-			}
+
+			});
+			console.timeEnd('updateCards');
 		} else {
-			for (let card of cards) {
+			for (let card of cardsGroup.cards) {
 				this.resetCard(card);
 			}
 		}
 
-		this.addToDestiny(newMechanic, cards);
+		this.addToDestiny(newMechanic, cardsGroup);
 	}
 
 	private resetCard(card: Card): void {
@@ -232,16 +258,21 @@ export class CardsService {
 		card.topLine = undefined;
 	}
 
-	private addToDestiny(newMechanic: Mechanic, cards: Card[]): void {
+	private addToDestiny(newMechanic: Mechanic, cardsGroup: CardsGroup): void {
 		if (newMechanic) {
-			for (let card of cards) {
-				this.assignedDaysCardsGroups[newMechanic.day][newMechanic.position].push(card);
-			}
+			this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.position].push(cardsGroup);
+			// for (let card of cards) {
+			// 	this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.position].push(card);
+			// }
+			console.log('notifyAssigned');
+			console.time('notifyAssigned');
 			this.notifyAssigned(newMechanic.day, newMechanic.position);
+			console.timeEnd('notifyAssigned');
 		} else {
-			for (let card of cards) {
-				this.unassignedCards.push(card);
-			}
+			this.unassignedCardsGroups.push(cardsGroup);
+			// for (let card of cards) {
+			// 	this.unassignedCards.push(card);
+			// }
 			this.notifyUnassigned();
 		}
 	}
@@ -297,15 +328,15 @@ export class CardsService {
 	}
 
 	private notifyAllAssigned(): void {
-		for (let day in this.assignedDaysCardsGroupsSubjects) {
-			for (let mechanic in this.assignedDaysCardsGroupsSubjects[day]) {
-				this.assignedDaysCardsGroupsSubjects[day][mechanic].next(this.assignedDaysCardsGroups[day][mechanic])
+		for (let dayTime in this.assignedDaysCardsGroupsSubjects) {
+			for (let mechanic in this.assignedDaysCardsGroupsSubjects[dayTime]) {
+				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic].next(this.assignedDaysCardsGroups[dayTime][mechanic])
 			}
 		}
 	}
 
-	private notifyAssigned(day: string, mechanicCode: string): void {
-		this.assignedDaysCardsGroupsSubjects[day][mechanicCode].next(this.assignedDaysCardsGroups[day][mechanicCode]);
+	private notifyAssigned(day: Date, mechanicCode: string): void {
+		this.assignedDaysCardsGroupsSubjects[day.getTime()][mechanicCode].next(this.assignedDaysCardsGroups[day.getTime()][mechanicCode]);
 	}
 
 	// endregion
