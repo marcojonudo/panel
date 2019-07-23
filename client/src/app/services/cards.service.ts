@@ -128,9 +128,9 @@ export class CardsService {
 			this.assignedDaysCardsGroups$[dayTime] = {};
 
 			for (let mechanic of daysMechanics[dayTime]) {
-				const cardsGroup = assignedCardsGroups.filter(cardsGroup =>
-					cardsGroup.cards[0].day.getTime() == dayTime && cardsGroup.cards[0].mechanicCode == mechanic.position
-				);
+				const cardsGroup = assignedCardsGroups.filter(cardsGroup => {
+					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.position
+				});
 				this.assignedDaysCardsGroups[dayTime][mechanic.position] = cardsGroup;
 
 				const subject = new BehaviorSubject<any>(cardsGroup);
@@ -197,22 +197,14 @@ export class CardsService {
 			const cardsGroupIndex = this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].indexOf(cardsGroup);
 			this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].splice(cardsGroupIndex, 1);
 
-			// for (let card of cards) {
-			// 	const cardIndex = this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].indexOf(card);
-			// 	this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].splice(cardIndex, 1);
-			// }
-
-			this.assignedDaysCardsGroupsSubjects[card[0].day.getTime()][card[0].mechanicCode].next(
-				this.assignedDaysCardsGroups[card[0].day.getTime()][card[0].mechanicCode]
+			console.log('[cardsService] assignedDaysCards.next()');
+			console.time('[cardsService] assignedDaysCards.next()');
+			this.assignedDaysCardsGroupsSubjects[card.day.getTime()][card.mechanicCode].next(
+				this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode]
 			);
+			console.timeEnd('[cardsService] assignedDaysCards.next()');
 		} else {
 			const cardsGroupIndex = this.unassignedCardsGroups.indexOf(cardsGroup);
-			// this.unassignedCardsGroups.find((cardsGroup, index) => {
-			// 	if (cardsGroup.cards == cards) {
-			// 		cardsIndex = index;
-			// 		return true;
-			// 	}
-			// });
 			this.unassignedCardsGroups.splice(cardsGroupIndex, 1);
 
 			console.log('[cardsService] unassignedCards.next()');

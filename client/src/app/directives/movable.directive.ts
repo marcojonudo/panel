@@ -10,8 +10,6 @@ import {Subscription} from "rxjs/internal/Subscription";
 })
 export class MovableDirective implements AfterViewInit, OnDestroy {
 
-	@HostBinding('class.dragging') dragging: boolean;
-
 	private position: Coordinates;
 	private coordinatesSubscription: Subscription;
 
@@ -27,10 +25,8 @@ export class MovableDirective implements AfterViewInit, OnDestroy {
 
 	constructor(
 		private cardPositionService: CardPositionService,
-		private sanitizer: DomSanitizer,
-		private cdRef: ChangeDetectorRef
+		private sanitizer: DomSanitizer
 	) {
-		this.dragging = true;
 		this.position = new Coordinates(0, 0);
 	}
 

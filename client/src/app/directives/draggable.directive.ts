@@ -34,7 +34,8 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	private pointerMoveListener;
 	private pointerUpListener;
 
-	@HostBinding('class.hidden') dragging: boolean;
+	@HostBinding('class.hidden')
+	dragging: boolean;
 
 	constructor(
 		private element: ElementRef,
@@ -57,6 +58,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	}
 
 	onPointerDown(event: PointerEvent): void {
+		console.time('onPointerDown');
 		this.dragging = true;
 		/* Permite asignar la clase declarada mediante @HostBinding */
 		this.cdRef.detectChanges();
@@ -70,6 +72,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 		this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
 		this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
+		console.timeEnd('onPointerDown');
 	}
 
 	onPointerMove(event: PointerEvent): void {
@@ -83,7 +86,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	onPointerUp(): void {
 		console.time('onPointerUp');
 		this.dragging = false;
-		// this.cdRef.detectChanges();
+		this.cdRef.detectChanges();
 
 		let emitHelperCard = this.handleDestinyPosition();
 		this.cardPositionService.emitPosition(this.position);

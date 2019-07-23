@@ -8,34 +8,14 @@ import {CardPositionService} from "../../services/card-position.service";
 	styleUrls: ['./helper-card.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HelperCardComponent implements OnInit {
+export class HelperCardComponent {
 
 	@Input() card: Card;
 
-	private coordinatesSubscription: any;
-	private draggingSubscription: any;
-
-	constructor(
-		private cardPositionService: CardPositionService,
-		private cdRef: ChangeDetectorRef
-	) {
-	}
-
-	ngOnInit() {
-		// this.coordinatesSubscription = this.cardPositionService.coordinates$.subscribe( coordinates => {
-		//   console.log('reciving coor helper card', coordinates);
-		//   this.cdRef.detectChanges();
-		// });
-		// this.draggingSubscription = this.cardPositionService.dragging$.subscribe( dragging => {
-		//   if (!dragging) {
-		//     console.log('overlay detecting changes in dragging');
-		//     this.cdRef.detectChanges();
-		//   }
-		// });
-	}
+	constructor() {}
 
 	check(): void {
-		console.log('checking helper card');
+		console.log('checking helper card', this.card);
 	}
 
 }

@@ -37,10 +37,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		*  se ha establecido la última posición */
 		this.draggingSubscription = this.cardPositionService.dragging$.subscribe(dragging => {
 			this.dragging = dragging;
-			console.log('------------------------------------------------------------------------- 2');
-			console.time('[overlay] draggingSubscriptionChanges');
 			this.cdRef.detectChanges();
-			console.timeEnd('[overlay] draggingSubscriptionChanges');
 
 			/* Cuando se deja de arrastrar (dragging = false y helperCardsGroup = true), se elimina la ficha del origen. De esta
 			*  forma, se evitan problemas de parpadeos al modificar la propiedad 'visibility' para lograr los efectos
@@ -56,7 +53,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		this.helperCardsGroupSubscription = this.cardPositionService.helperCardsGroup$.subscribe(helperCardsGroup => {
 			/* Cuando se borra la ficha auxiliar (terminó la transición o se soltó la ficha en la barra inferior), se
 			*  ejecutan las operaciones necesarias para actualizar la ficha */
-			console.time('[overlay][helperCardSubscription]');
 			if (!helperCardsGroup && this.cardPositionService.dropzone) {
 				console.time('[overlay] updateTranslatedCards');
 				this.cardsService.updateTranslatedCards(
@@ -68,9 +64,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			}
 
 			this.helperCardsGroup = helperCardsGroup;
-			console.log('------------------------------------------------------------------------- 3');
 			this.cdRef.detectChanges();
-			console.timeEnd('[overlay][helperCardSubscription]');
 		});
 	}
 
@@ -89,7 +83,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	updateCard() {
 		console.log('UPDATE CARD EN OVERLAY');
-		// this.cardPositionService.emitHelperCardsGroup(undefined);
+		this.cardPositionService.emitHelperCardsGroup(undefined);
 	}
 
 }

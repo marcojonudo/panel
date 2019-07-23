@@ -11,7 +11,6 @@ import {CardsGroup} from "../../objects/cards-group";
 export class DraggableGroupComponent {
 
 	@Input() cardsGroup: CardsGroup;
-	// @Input() cards: Card[];
 
 	check(): void {
 		console.log('checking draggable group', this.cardsGroup.cards);

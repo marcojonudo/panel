@@ -1,25 +1,22 @@
 <div class="w-100 h-100 overlay">
-	<!-- TODO Revisar check de la ficha al hacer dragging -->
-	<app-draggable-group
+	<app-helper-draggable-group
 		*ngIf="helperCardsGroup"
 		appMovable
 		class="helper-cards-group transform-transition"
-		[ngClass]="{
-			'transform-transition': !dragging
-		}"
+		[ngClass]="{'transform-transition': !dragging}"
 		[style.height.px]="(lineHeight$ | async) / 2"
 		[cardsGroup]="helperCardsGroup"
 		(transitionend)="updateCard()">
-	</app-draggable-group>
+	</app-helper-draggable-group>
 	<!--<div-->
-		<!--*ngIf="helperCardsGroup && helperCardsGroup.length"-->
+		<!--*ngIf="helperCardsGroup"-->
 		<!--appMovable-->
 		<!--class="d-flex helper-cards-group"-->
 		<!--[ngClass]="{'transform-transition': !dragging}"-->
 		<!--[style.height.px]="(lineHeight$ | async) / 2"-->
 		<!--(transitionend)="updateCard()">-->
 		<!--<app-helper-card-->
-			<!--*ngFor="let card of helperCardsGroup"-->
+			<!--*ngFor="let card of helperCardsGroup.cards"-->
 			<!--[card]="card"-->
 			<!--class="helper-card">-->
 		<!--</app-helper-card>-->
