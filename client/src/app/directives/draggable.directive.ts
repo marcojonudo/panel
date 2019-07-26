@@ -155,22 +155,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		return emitHelperCard;
 	}
 
-	// private handleLinePosition(position: Coordinates, dropzone: DropzoneInfo, intervalWidth: number): void {
-	// 	const rect = dropzone.rect;
-	// 	const leftIntervals = Math.floor((position.x - 180) / intervalWidth);
-	// 	const x = 180 + leftIntervals * intervalWidth;
-	// 	const y = position.y > rect.top + rect.height / 4 ? rect.y + rect.height / 2 : rect.y;
-	// 	this.position = new Coordinates(x, y, !(position.y > rect.top + rect.height / 4));
-	//
-	// 	this.cardPositionService.helperCardsGroup.left = this.position.x - 180;
-	// 	this.cardsService.handleOverlappedMovements(
-	// 		dropzone.mechanic,
-	// 		this.cardPositionService.helperCardsGroup,
-	// 		this.position
-	// 	);
-	// 	this.position.x = this.cardPositionService.helperCardsGroup.left + 180;
-	// }
-
 	private handleReturnStartPosition(): void {
 		this.position = this.startPosition;
 		this.cardPositionService.dropzone = undefined;

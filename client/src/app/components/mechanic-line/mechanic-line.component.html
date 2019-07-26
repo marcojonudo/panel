@@ -15,7 +15,7 @@
 		class="assigned-card"
 		[ngStyle]="{
 		  'height.px': (lineHeight$ | async) / 2,
-		  'left.px': cardsGroup.left,
+		  'transform': 'translateX(' + cardsGroup.left + 'px)',
 		  'top.%': cardsGroup.cards[0].topLine ? 0 : 50
 		}"
 		[cardsGroup]="cardsGroup">

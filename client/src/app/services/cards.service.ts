@@ -212,19 +212,9 @@ export class CardsService {
 
 	updateTranslatedCards(cardsGroup: CardsGroup, newMechanic: Mechanic) {
 		if (newMechanic) {
-			// cardsGroup.left = position.x - 180;
-			// cardsGroup.cards[0].start = this.calculateStart(cardsGroup.left, newMechanic.day);
-			// console.time('handleOverlappedMovements');
-			// this.handleOverlappedMovements(newMechanic, cardsGroup, position);
-			// console.timeEnd('handleOverlappedMovements');
-
 			cardsGroup.cards.forEach(card => {
 				card.day = newMechanic.day;
 				card.mechanicCode = newMechanic.position;
-
-				// const cardsDuration = this.findCardsDuration(cardsGroup.cards.slice(0, index));
-				// card.start = this.calculateStart(cardsGroup.left + this.calculateWidth(cardsDuration), newMechanic.day);
-				// card.topLine = position.topLine;
 			});
 		} else {
 			this.resetCardsGroup(cardsGroup);
@@ -233,52 +223,8 @@ export class CardsService {
 		this.addToDestiny(newMechanic, cardsGroup);
 	}
 
-	// handleOverlappedMovements(newMechanic: Mechanic, cardsGroup: CardsGroup, position: Coordinates): void {
-	// 	const overlappedCards = this.findOverlappedCardsGroups(newMechanic.day, newMechanic.position, cardsGroup);
-	// 	const allCardsGroups = UtilsService.sort(overlappedCards.concat([cardsGroup]), (cardsGroup) => cardsGroup.cards[0].start);
-	//
-	// 	allCardsGroups.forEach((cardsGroup, index) => {
-	// 		const width = this.findCardsGroupsWidth(allCardsGroups.slice(0, index));
-	// 		cardsGroup.left = allCardsGroups[0].left + width;
-	// 		// cardsGroup.left = cardsGroup.left < position.x + this.findCardsGroupsWidth([cardsGroup]) - 180 ? cardsGroup.left : position.x - 180;
-	// 		// cardsGroup.start = this.calculateStart(cardsGroup.left, newMechanic.day);
-	//
-	// 		// cardsGroup.cards.forEach((card, index) => {
-	// 		// 	card.day = newMechanic.day;
-	// 		// 	card.mechanicCode = newMechanic.position;
-	// 		//
-	// 		// 	const cardsDuration = this.findCardsDuration(cardsGroup.cards.slice(0, index));
-	// 		// 	card.start = this.calculateStart(cardsGroup.left + this.calculateWidth(cardsDuration), newMechanic.day);
-	// 		// 	console.log('start', card.start);
-	// 		// 	card.topLine = position.topLine;
-	// 		// });
-	// 	});
-	// 	console.log('lefts', allCardsGroups.map(g => g.left));
-	// }
-	//
-	// private findOverlappedCardsGroups(day: Date, mechanicCode: string, cardsGroup: CardsGroup): CardsGroup[] {
-	// 	const dayMechanicCardsGroups = this.assignedDaysCardsGroups[day.getTime()][mechanicCode].filter(group =>
-	// 		group.topLine == cardsGroup.topLine
-	// 	);
-	// 	let newCardsMinutes = this.getDurationArray(cardsGroup.cards[0].start, cardsGroup.cards);
-	// 	newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);
-	//
-	// 	return dayMechanicCardsGroups.filter(cardsGroup => {
-	// 		const minutesArray = this.getDurationArray(cardsGroup.cards[0].start, cardsGroup.cards);
-	// 		return minutesArray.find(minutes => newCardsMinutes.indexOf(minutes) >= 0);
-	// 	});
-	// }
-
-	// private getDurationArray(start: Date, cards: Card[]) {
-	// 	return UtilsService.createMinutesArray(
-	// 		UtilsService.getTotalMinutes(start),
-	// 		UtilsService.getTotalMinutes(UtilsService.addMinutes(start, this.findCardsDuration(cards)))
-	// 	);
-	// }
-
 	private resetCardsGroup(cardsGroup: CardsGroup) {
 		cardsGroup.left = undefined;
-		// cardsGroup.start = undefined;
 		cardsGroup.topLine = undefined;
 
 		for (let card of cardsGroup.cards) {
