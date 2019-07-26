@@ -14,6 +14,7 @@ import {TimeService} from "../services/time.service";
 import {Card} from "../objects/card";
 import {DropzoneInfo} from "../objects/dropzone-info";
 import {CardsGroup} from "../objects/cards-group";
+import {CardsService} from "../services/cards.service";
 
 @Directive({
 	selector: '[appDraggable]',
@@ -41,6 +42,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		private element: ElementRef,
 		private renderer: Renderer2,
 		private cardPositionService: CardPositionService,
+		private cardsService: CardsService,
 		private timeService: TimeService,
 		private cdRef: ChangeDetectorRef
 	) {
@@ -88,8 +90,13 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.dragging = false;
 		this.cdRef.detectChanges();
 
+		/* Si emitHelperCard es true, se emite el evento inmediatamente en lugar de al terminar la transición en
+		*  overlay. Significa que la ficha se soltó en la barra inferior */
 		let emitHelperCard = this.handleDestinyPosition();
+		console.time('emitPosition');
+		console.log('emitting', this.position);
 		this.cardPositionService.emitPosition(this.position);
+		console.timeEnd('emitPosition');
 
 		/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
 		 * de su posición de origen.
@@ -97,9 +104,14 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		 * antes de eliminarlas del origen, de ahí el uso de la variable emitHelperCardsGroup (sólo para el caso de arrastrar
 		 * la ficha a la bandeja desde una línea */
 		// setTimeout(() => {
+
+		console.time('emitDragging');
 		this.cardPositionService.emitDragging(this.dragging);
+		console.timeEnd('emitDragging');
 		if (emitHelperCard) {
+			console.time('emitHelperCardsGroup');
 			this.cardPositionService.emitHelperCardsGroup(undefined);
+			console.timeEnd('emitHelperCardsGroup');
 		}
 
 		this.pointerMoveListener();
@@ -115,7 +127,12 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		if (this.cardPositionService.dropzone) {
 			/* Si se suelta en otra dropzone */
 			if (this.cardPositionService.dropzone.mechanic) {
-				this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
+				const mechanic = this.cardPositionService.dropzone.mechanic;
+				this.position = this.cardPositionService.handleLinePosition(
+					this.position,
+					this.timeService.intervalWidth,
+					this.cardsService.getAssignedCards(mechanic.day, mechanic.position)
+				);
 			} else if (this.cardsGroup.cards[0].mechanicCode) { /* Si se suelta una ficha asignada en la bandeja inferior */
 				emitHelperCard = true;
 			} else { /* Si se suelta en la bandeja inferior sin haber salido de la misma */
@@ -124,7 +141,12 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		} else {
 			/* Si se suelta la ficha sin haber salido de la dropzone */
 			if (this.cardsGroup.cards[0].mechanicCode) {
-				this.handleLinePosition(this.position, this.cardPositionService.dropzone, this.timeService.intervalWidth);
+				const mechanic = this.cardPositionService.dropzone.mechanic;
+				this.position = this.cardPositionService.handleLinePosition(
+					this.position,
+					this.timeService.intervalWidth,
+					this.cardsService.getAssignedCards(mechanic.day, mechanic.position)
+				);
 			} else { /* Si se suelta la ficha en un hueco vacío */
 				this.handleReturnStartPosition();
 			}
@@ -133,13 +155,21 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		return emitHelperCard;
 	}
 
-	private handleLinePosition(position: Coordinates, dropzone: DropzoneInfo, intervalWidth: number): void {
-		const rect = dropzone.rect;
-		const leftIntervals = Math.floor((position.x - 180) / intervalWidth);
-		const x = 180 + leftIntervals * intervalWidth;
-		const y = position.y > rect.top + rect.height / 4 ? rect.y + rect.height / 2 : rect.y;
-		this.position = new Coordinates(x, y, !(position.y > rect.top + rect.height / 4));
-	}
+	// private handleLinePosition(position: Coordinates, dropzone: DropzoneInfo, intervalWidth: number): void {
+	// 	const rect = dropzone.rect;
+	// 	const leftIntervals = Math.floor((position.x - 180) / intervalWidth);
+	// 	const x = 180 + leftIntervals * intervalWidth;
+	// 	const y = position.y > rect.top + rect.height / 4 ? rect.y + rect.height / 2 : rect.y;
+	// 	this.position = new Coordinates(x, y, !(position.y > rect.top + rect.height / 4));
+	//
+	// 	this.cardPositionService.helperCardsGroup.left = this.position.x - 180;
+	// 	this.cardsService.handleOverlappedMovements(
+	// 		dropzone.mechanic,
+	// 		this.cardPositionService.helperCardsGroup,
+	// 		this.position
+	// 	);
+	// 	this.position.x = this.cardPositionService.helperCardsGroup.left + 180;
+	// }
 
 	private handleReturnStartPosition(): void {
 		this.position = this.startPosition;

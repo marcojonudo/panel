@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {Card} from "../objects/card";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,6 +37,39 @@ export class UtilsService {
 
 	public static getTotalMinutes(time: Date): number {
 		return time.getHours() * 60 + time.getMinutes();
+	}
+
+	public static addMinutes(date: Date, minutes: number): Date {
+		return new Date(date.getTime() + minutes*60000);
+	}
+
+	public static createMinutesArray(from: number, to: number): number[] {
+		const length = (to - from) / 5;
+		let array = [];
+		for (let i = 0; i < length+1; i++) {
+			array.push(from + i * 5);
+		}
+		return array;
+	}
+
+	public static sort(array: any[], property: any) {
+		return array.sort((a, b) => {
+			if (property(a) < property(b)) {
+				return -1;
+			}
+			if (property(b) < property(a)) {
+				return 0;
+			}
+			return 0;
+		});
+	}
+
+	public static sum(array: any[], property: string): number {
+		return array.map(card => card[property]).reduce((a, b) => a + b, 0);
+	}
+
+	public static filter(array: any[], property: any, value: any) {
+		return array.filter(item => property(item) == value);
 	}
 
 	public static groupBy(array: any[], property: any) {

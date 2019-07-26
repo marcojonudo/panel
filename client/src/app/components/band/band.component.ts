@@ -52,8 +52,23 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((unassignedCardsGroups: CardsGroup[]) => {
+			console.time('PUSH');
+			// const cards = unassignedCardsGroups.filter(cardsGroup =>
+			// 	this.unassignedCardsGroups.map(group => group.id).indexOf(cardsGroup.id) < 0
+			// );
+			// if (cards.length) {
+			// 	this.unassignedCardsGroups.push(...cards);
+			// } else {
 			this.unassignedCardsGroups = unassignedCardsGroups;
+			// }
+			// this.unassignedCardsGroups = unassignedCardsGroups;
+			console.timeEnd('PUSH');
+
+			console.log('final unassigned', this.unassignedCardsGroups);
+			// this.unassignedCardsGroups.push(unassignedCardsGroups[unassignedCardsGroups.length-1]);
+			console.time('PUSH DETECT');
 			this.cdRef.detectChanges();
+			console.timeEnd('PUSH DETECT');
 		});
 	}
 
@@ -67,11 +82,6 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	trackById(index, item) {
 		return item.id;
-	}
-
-	forceCardCd() {
-		/* Force card CD to save the new positions, once the dragged card is outside the unassigned list */
-		this.cdRef.detectChanges();
 	}
 
 }

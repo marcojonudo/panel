@@ -29,7 +29,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.coordinatesSubscription = this.cardPositionService.coordinates$.subscribe(coordinates => {
-			console.log('------------------------------------------------------------------------- 1');
 			this.cdRef.detectChanges();
 		});
 
@@ -43,9 +42,9 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			*  forma, se evitan problemas de parpadeos al modificar la propiedad 'visibility' para lograr los efectos
 			*  buscados */
 			if (!this.dragging && this.helperCardsGroup && this.cardPositionService.dropzone) {
-				console.time('[overlay] removeCardsFromOrigin');
-				this.cardsService.removeCardsFromOrigin(this.helperCardsGroup);
-				console.timeEnd('[overlay] removeCardsFromOrigin');
+				console.time('[overlay] removeFromOrigin');
+				this.cardsService.removeFromOrigin(this.helperCardsGroup);
+				console.timeEnd('[overlay] removeFromOrigin');
 			}
 		});
 
@@ -57,8 +56,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 				console.time('[overlay] updateTranslatedCards');
 				this.cardsService.updateTranslatedCards(
 					this.helperCardsGroup,
-					this.cardPositionService.dropzone.mechanic,
-					this.cardPositionService.position
+					this.cardPositionService.dropzone.mechanic
 				);
 				console.timeEnd('[overlay] updateTranslatedCards');
 			}

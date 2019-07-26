@@ -4,6 +4,8 @@ export class CardsGroup {
 
 	private _cards: Card[];
 
+	private _id: number;
+
 	private _start: Date;
 	private _left: number;
 	private _topLine: boolean;
@@ -12,6 +14,7 @@ export class CardsGroup {
 		cards: Card[]
 	) {
 		this.cards = cards;
+		this.id = this.cards[0].id;
 	}
 
 	// region Getters / setters
@@ -22,6 +25,14 @@ export class CardsGroup {
 
 	set cards(value: Card[]) {
 		this._cards = value;
+	}
+
+	get id(): number {
+		return this._id;
+	}
+
+	set id(value: number) {
+		this._id = value;
 	}
 
 	get start(): Date {
