@@ -15,7 +15,8 @@ export class DropzoneDirective implements OnInit {
 
 	private dropzone: DropzoneInfo;
 
-	private pointerMoveListener;
+	private pointerMoveListener: any;
+	private pointerLeaveListener: any;
 
 	constructor(
 		private element: ElementRef,
@@ -30,18 +31,22 @@ export class DropzoneDirective implements OnInit {
 		this.cardPositionService.dragging$.subscribe(dragging => {
 			if (dragging) {
 				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
+				this.pointerLeaveListener = this.renderer.listen(this.element.nativeElement, 'pointerleave', this.onPointerLeave.bind(this));
 			} else {
 				if (this.pointerMoveListener) {
 					this.pointerMoveListener();
+					this.pointerLeaveListener();
 				}
 			}
 		});
 	}
 
 	onPointerMove(): void {
-		if (this.cardPositionService.dragging) {
-			this.cardPositionService.dropzone = this.dropzone;
-		}
+		this.cardPositionService.dropzone = this.dropzone;
+	}
+
+	onPointerLeave(): void {
+		this.cardPositionService.dropzone = undefined;
 	}
 
 }

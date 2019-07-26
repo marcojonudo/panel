@@ -139,17 +139,8 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 				this.handleReturnStartPosition();
 			}
 		} else {
-			/* Si se suelta la ficha sin haber salido de la dropzone */
-			if (this.cardsGroup.cards[0].mechanicCode) {
-				const mechanic = this.cardPositionService.dropzone.mechanic;
-				this.position = this.cardPositionService.handleLinePosition(
-					this.position,
-					this.timeService.intervalWidth,
-					this.cardsService.getAssignedCards(mechanic.day, mechanic.position)
-				);
-			} else { /* Si se suelta la ficha en un hueco vacío */
-				this.handleReturnStartPosition();
-			}
+			/* Si se suelta la ficha en un hueco vacío */
+			this.handleReturnStartPosition();
 		}
 
 		return emitHelperCard;
