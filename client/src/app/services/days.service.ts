@@ -11,7 +11,7 @@ import {UtilsService} from "./utils.service";
 export class DaysService {
 
 	private oneDayMode: boolean;
-	private lineHeight: number;
+	private _lineHeight: number;
 	private sliceDays: number;
 
 	private _days: Date[];
@@ -37,28 +37,28 @@ export class DaysService {
 		];
 
 		this.oneDayMode = true;
-		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
+		this._lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.sliceDays = this.days.length - 1;
 
 		this.dayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);
 		this.oneDayMode$ = this.dayModeSubject.asObservable();
 
-		this.lineHeightSubject = new BehaviorSubject<number>(this.lineHeight);
+		this.lineHeightSubject = new BehaviorSubject<number>(this._lineHeight);
 		this.lineHeight$ = this.lineHeightSubject.asObservable();
 
 		this.mechanics = [
-			new Mechanic('2019-06-25', 'A'),
-			new Mechanic('2019-06-25', 'B'),
-			new Mechanic('2019-06-25', 'C'),
-			new Mechanic('2019-06-25', 'D'),
-			new Mechanic('2019-06-26', 'A'),
-			new Mechanic('2019-06-26', 'B'),
-			new Mechanic('2019-06-26', 'C'),
-			new Mechanic('2019-06-27', 'A'),
-			new Mechanic('2019-06-27', 'B'),
-			new Mechanic('2019-06-27', 'C'),
-			new Mechanic('2019-06-27', 'D'),
-			new Mechanic('2019-06-27', 'E')
+			new Mechanic('2019-06-25', 'A', 2),
+			new Mechanic('2019-06-25', 'B', 2),
+			new Mechanic('2019-06-25', 'C', 2),
+			new Mechanic('2019-06-25', 'D', 2),
+			new Mechanic('2019-06-26', 'A', 2),
+			new Mechanic('2019-06-26', 'B', 2),
+			new Mechanic('2019-06-26', 'C', 2),
+			new Mechanic('2019-06-27', 'A', 2),
+			new Mechanic('2019-06-27', 'B', 2),
+			new Mechanic('2019-06-27', 'C', 2),
+			new Mechanic('2019-06-27', 'D', 2),
+			new Mechanic('2019-06-27', 'E', 2)
 		];
 		this.daysMechanics = this.initDaysMechanics(this.mechanics);
 
@@ -116,7 +116,17 @@ export class DaysService {
 		this._daysMechanics = value;
 	}
 
+	get lineHeight(): number {
+		return this._lineHeight;
+	}
+
+	set lineHeight(value: number) {
+		this._lineHeight = value;
+	}
+
 	// endregion
+
+	// region Init
 
 	initDaysMechanics(mechanics: Mechanic[]): any {
 		let daysMechanics = {};
@@ -145,11 +155,13 @@ export class DaysService {
 		}
 	}
 
+	// endregion
+
 	toggleDayMode() {
 		this.oneDayMode = !this.oneDayMode;
-		this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
+		this._lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
 		this.dayModeSubject.next(this.oneDayMode);
-		this.lineHeightSubject.next(this.lineHeight);
+		this.lineHeightSubject.next(this._lineHeight);
 	}
 
 	get lineHeightDefault() {
@@ -159,4 +171,10 @@ export class DaysService {
 	get lineHeightNarrow() {
 		return Constants.VALUE.LINE_HEIGHT_NARROW;
 	}
+
+	updateMechanicLines(mechanic: Mechanic): void {
+		mechanic.lines = Math.round(mechanic.height / this.lineHeight);
+		console.log(mechanic);
+	}
+
 }

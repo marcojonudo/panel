@@ -6,7 +6,6 @@ import {Mechanic} from "../objects/mechanic";
 import {TimeService} from "./time.service";
 import {UtilsService} from "./utils.service";
 import {DaysService} from "./days.service";
-import {Coordinates} from "../objects/coordinates";
 import {Order} from "../objects/order";
 
 import {CardsGroup} from "../objects/cards-group";
@@ -36,29 +35,29 @@ export class CardsService {
 		private timeService: TimeService
 	) {
 		this.cards = [
-			new Card(1, undefined, undefined, undefined, 30, undefined, false, new Order(1), undefined, undefined),
-			new Card(2, undefined, undefined, undefined, 15, undefined, false, new Order(1), undefined, undefined),
-			new Card(14, undefined, undefined, undefined, 15, undefined, false, new Order(1), undefined, undefined),
-			new Card(3, undefined, undefined, undefined, 60, undefined, false, new Order(2), undefined, undefined),
-			new Card(4, undefined, undefined, undefined, 45, undefined, false, new Order(3), undefined, undefined),
-			new Card(15, undefined, undefined, undefined, 60, undefined, false, new Order(3), undefined, undefined),
-			new Card(16, undefined, undefined, undefined, 50, undefined, false, new Order(12), undefined, undefined),
-			new Card(17, undefined, undefined, undefined, 40, undefined, false, new Order(13), undefined, undefined),
-			new Card(18, undefined, undefined, undefined, 45, undefined, false, new Order(14), undefined, undefined),
-			new Card(19, undefined, undefined, undefined, 25, undefined, false, new Order(15), undefined, undefined),
-			new Card(20, undefined, undefined, undefined, 20, undefined, false, new Order(16), undefined, undefined),
-			new Card(21, undefined, undefined, undefined, 35, undefined, false, new Order(17), undefined, undefined),
-			new Card(22, undefined, undefined, undefined, 15, undefined, false, new Order(18), undefined, undefined),
-			new Card(23, undefined, undefined, undefined, 30, undefined, false, new Order(19), undefined, undefined),
-			new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', true, new Order(4), undefined, 6),
-			new Card(6, "2019-06-25", "A", '09:30:00', 15, '09:45:00', true, new Order(4), 5, undefined),
-			new Card(7, "2019-06-25", "A", '10:00:00', 30, '10:45:00', true, new Order(5), undefined, undefined),
-			new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', true, new Order(6), undefined, undefined),
-			new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', false, new Order(7), undefined, undefined),
-			new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', true, new Order(8), undefined, undefined),
-			new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', false, new Order(9), undefined, undefined),
-			new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', false, new Order(10), undefined, undefined),
-			new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', true, new Order(11), undefined, undefined),
+			new Card(1, undefined, undefined, undefined, 30, undefined, undefined, new Order(1), undefined, undefined),
+			new Card(2, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
+			new Card(14, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
+			new Card(3, undefined, undefined, undefined, 60, undefined, undefined, new Order(2), undefined, undefined),
+			new Card(4, undefined, undefined, undefined, 45, undefined, undefined, new Order(3), undefined, undefined),
+			new Card(15, undefined, undefined, undefined, 60, undefined, undefined, new Order(3), undefined, undefined),
+			new Card(16, undefined, undefined, undefined, 50, undefined, undefined, new Order(12), undefined, undefined),
+			new Card(17, undefined, undefined, undefined, 40, undefined, undefined, new Order(13), undefined, undefined),
+			new Card(18, undefined, undefined, undefined, 45, undefined, undefined, new Order(14), undefined, undefined),
+			new Card(19, undefined, undefined, undefined, 25, undefined, undefined, new Order(15), undefined, undefined),
+			new Card(20, undefined, undefined, undefined, 20, undefined, undefined, new Order(16), undefined, undefined),
+			new Card(21, undefined, undefined, undefined, 35, undefined, undefined, new Order(17), undefined, undefined),
+			new Card(22, undefined, undefined, undefined, 15, undefined, undefined, new Order(18), undefined, undefined),
+			new Card(23, undefined, undefined, undefined, 30, undefined, undefined, new Order(19), undefined, undefined),
+			new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 0, new Order(4), undefined, 6),
+			new Card(6, "2019-06-25", "A", '09:30:00', 15, '09:45:00', 0, new Order(4), 5, undefined),
+			new Card(7, "2019-06-25", "A", '10:00:00', 30, '10:45:00', 1, new Order(5), undefined, undefined),
+			new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 0, new Order(6), undefined, undefined),
+			new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 1, new Order(7), undefined, undefined),
+			new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 1, new Order(8), undefined, undefined),
+			new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 1, new Order(9), undefined, undefined),
+			new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 0, new Order(10), undefined, undefined),
+			new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 1, new Order(11), undefined, undefined),
 		];
 
 		this.unassignedCards = this.cards.filter(card => !card.day);
@@ -225,7 +224,6 @@ export class CardsService {
 
 	private resetCardsGroup(cardsGroup: CardsGroup) {
 		cardsGroup.left = undefined;
-		cardsGroup.topLine = undefined;
 
 		for (let card of cardsGroup.cards) {
 			this.resetCard(card);
@@ -237,7 +235,6 @@ export class CardsService {
 		card.mechanicCode = undefined;
 		card.left = undefined;
 		card.start = undefined;
-		card.topLine = undefined;
 	}
 
 	private addToDestiny(newMechanic: Mechanic, cardsGroup: CardsGroup): void {

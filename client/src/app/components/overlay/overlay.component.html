@@ -4,7 +4,7 @@
 		appMovable
 		class="helper-cards-group transform-transition"
 		[ngClass]="{'transform-transition': !dragging}"
-		[style.height.px]="(lineHeight$ | async) / 2"
+		[style.height.px]="lineHeight$ | async"
 		[cardsGroup]="helperCardsGroup"
 		(transitionend)="updateCard()">
 	</app-helper-draggable-group>

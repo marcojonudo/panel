@@ -1,12 +1,12 @@
-import {ChangeDetectorRef, Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
+import {ChangeDetectorRef, Directive, ElementRef, Input, Renderer2} from '@angular/core';
 import {Card} from "../objects/card";
-import {TimeService} from "../services/time.service";
 import {CardsService} from "../services/cards.service";
+import {TimeService} from "../services/time.service";
 
 @Directive({
-  selector: '[appResizable]'
+  selector: '[appResizableCard]'
 })
-export class ResizableDirective implements OnInit {
+export class ResizableCardDirective {
 
 	@Input() card: Card;
 
@@ -14,7 +14,6 @@ export class ResizableDirective implements OnInit {
 	private pointerMoveListener;
 	private pointerUpListener;
 
-	private startWidth: number;
 	private lastX: number;
 
 	constructor(
@@ -31,8 +30,6 @@ export class ResizableDirective implements OnInit {
 
 	onPointerDown(event: PointerEvent): void {
 		event.stopPropagation();
-		this.cdRef.detectChanges();
-		this.startWidth = this.card.width;
 		this.lastX = event.clientX;
 
 		this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
@@ -59,3 +56,4 @@ export class ResizableDirective implements OnInit {
 	}
 
 }
+

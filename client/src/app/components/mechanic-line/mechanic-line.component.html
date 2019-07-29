@@ -14,20 +14,10 @@
 		*ngFor="let cardsGroup of cardsGroups"
 		class="assigned-card"
 		[ngStyle]="{
-		  'height.px': (lineHeight$ | async) / 2,
-		  'transform': 'translateX(' + cardsGroup.left + 'px)',
-		  'top.%': cardsGroup.cards[0].topLine ? 0 : 50
+			'height.px': lineHeight$ | async,
+			'transform': 'translateX(' + cardsGroup.left + 'px) translateY(' + cardsGroup.cards[0].line * 100 + '%)'
 		}"
 		[cardsGroup]="cardsGroup">
 	</app-draggable-group>
-	<!--<app-card-->
-		<!--*ngFor="let card of cards"-->
-		<!--class="assigned-card"-->
-		<!--[ngStyle]="{-->
-		  <!--'height.px': (lineHeight$ | async) / 2,-->
-		  <!--'left.px': card.left,-->
-		  <!--'top.%': card.topLine ? 0 : 50-->
-		<!--}"-->
-		<!--[card]="card"></app-card>-->
 </div>
 <div>{{check()}}</div>

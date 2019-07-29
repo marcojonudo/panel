@@ -8,6 +8,7 @@ import {CardsGroup} from "../objects/cards-group";
 import {Mechanic} from "../objects/mechanic";
 import {UtilsService} from "./utils.service";
 import {TimeService} from "./time.service";
+import {DaysService} from "./days.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,7 +37,8 @@ export class CardPositionService {
 	// private _scrollLeft: number;
 
 	constructor(
-		private timeService: TimeService
+		private timeService: TimeService,
+		private daysService: DaysService
 	) {
 		// this.scrollLeftSubject = new BehaviorSubject<number>(0);
 		// this.scrollLeft$ = this.scrollLeftSubject.asObservable();
@@ -133,7 +135,6 @@ export class CardPositionService {
 	// Handle position updates
 
 	handleLinePosition(lastPosition: Coordinates, intervalWidth: number, daysMechanicCardsGroups: CardsGroup[]): Coordinates {
-		console.log('HANDLE LINE POSITION');
 		/* La posición se redondea a los múltiplos de 5 minutos */
 		let position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth);
 		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
@@ -149,15 +150,16 @@ export class CardPositionService {
 	}
 
 	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {
+		const line = Math.round((position.y - rect.top) / this.daysService.lineHeight);
 		const leftIntervals = Math.floor((position.x - 180) / intervalWidth);
 		const x = 180 + leftIntervals * intervalWidth;
-		const y = position.y > rect.top + rect.height / 4 ? rect.y + rect.height / 2 : rect.y;
-		return new Coordinates(x, y, !(position.y > rect.top + rect.height / 4));
+		const y = rect.top + line * this.daysService.lineHeight;
+		return new Coordinates(x, y, line);
 	}
 
 	private updateDimensionsProperties(cardsGroup: CardsGroup, position: Coordinates): void {
 		cardsGroup.left = position.x - 180;
-		cardsGroup.cards.forEach(card => card.topLine = position.topLine);
+		cardsGroup.cards.forEach(card => card.line = position.line);
 	}
 
 	private handleOverlappedMovements(cardsGroup: CardsGroup, daysMechanicCardsGroups: CardsGroup[]): void {
@@ -184,7 +186,7 @@ export class CardPositionService {
 
 	private findOverlappedCardsGroups(cardsGroup: CardsGroup, dayMechanicCardsGroups: CardsGroup[]): CardsGroup[] {
 		dayMechanicCardsGroups = dayMechanicCardsGroups.filter(group =>
-			group.cards[0].topLine == cardsGroup.cards[0].topLine && group != cardsGroup
+			group.cards[0].line == cardsGroup.cards[0].line && group != cardsGroup
 		);
 		let newCardsMinutes = this.getDurationArray(
 			this.timeService.calculateStart(cardsGroup.left, new Date()),

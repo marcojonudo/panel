@@ -7,7 +7,7 @@ export class Constants {
 		SCROLLABLE_CONTAINER: 'scrollableContainer'
 	};
 	public static VALUE: any = {
-		LINE_HEIGHT_DEFAULT: 80,
-		LINE_HEIGHT_NARROW: 50
+		LINE_HEIGHT_DEFAULT: 40,
+		LINE_HEIGHT_NARROW: 25
 	};
 }

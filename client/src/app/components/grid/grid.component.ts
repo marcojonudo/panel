@@ -23,17 +23,17 @@ export class GridComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()].subscribe(mechanics => {
-			this.mechanics = mechanics;
-		});
+		// this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()].subscribe(mechanics => {
+		// 	this.mechanics = mechanics;
+		// });
 	}
 
 	ngOnDestroy(): void {
-		this.mechanicsSubscription.unsubscribe();
+		// this.mechanicsSubscription.unsubscribe();
 	}
 
 	get mechanics(): Mechanic[] {
-		return this._mechanics;
+		return this.daysService.daysMechanics$[this.day.getTime()];
 	}
 
 	set mechanics(value: Mechanic[]) {

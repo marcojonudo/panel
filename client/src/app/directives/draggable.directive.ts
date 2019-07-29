@@ -94,7 +94,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		*  overlay. Significa que la ficha se soltó en la barra inferior */
 		let emitHelperCard = this.handleDestinyPosition();
 		console.time('emitPosition');
-		console.log('emitting', this.position);
 		this.cardPositionService.emitPosition(this.position);
 		console.timeEnd('emitPosition');
 

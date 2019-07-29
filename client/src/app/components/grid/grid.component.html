@@ -14,9 +14,8 @@
 	<!--[style.height.px]="(oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow"-->
 	<!--[mechanic]="mechanic"></app-mechanic-line-container>-->
 	<app-mechanic-line-container
-		*ngFor="let mechanic of mechanics"
+		*ngFor="let mechanic of (mechanics | async)"
 		class="mechanic-line-container-wrapper"
-		[style.height.px]="(lineHeight$ | async)"
 		[day]="day"
 		[mechanic]="mechanic"></app-mechanic-line-container>
 </div>

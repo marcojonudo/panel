@@ -1,4 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {Mechanic} from "../../objects/mechanic";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -8,7 +9,7 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 })
 export class MechanicLineContainerComponent {
 
-	@Input() mechanic: string;
+	@Input() mechanic: Mechanic;
 	// @Input() cards: any[];
 	@Input() day: Date;
 

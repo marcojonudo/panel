@@ -8,7 +8,6 @@ export class CardsGroup {
 
 	private _start: Date;
 	private _left: number;
-	private _topLine: boolean;
 
 	constructor(
 		cards: Card[]
@@ -51,20 +50,11 @@ export class CardsGroup {
 		this._left = value;
 	}
 
-	get topLine(): boolean {
-		return this._topLine;
-	}
-
-	set topLine(value: boolean) {
-		this._topLine = value;
-	}
-
 	// endregion
 
 	clone(): CardsGroup {
 		let newCardsGroup = new CardsGroup(this.cards);
 		newCardsGroup.left = this.left;
-		newCardsGroup.topLine = this.topLine;
 		return newCardsGroup;
 	}
 

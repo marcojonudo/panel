@@ -64,8 +64,4 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		console.log('checking mechanic line', this.day, this.mechanic, this.cardsGroups);
 	}
 
-	test(event) {
-		console.log('FINISH RESIZING', event);
-	}
-
 }

@@ -10,7 +10,7 @@ export class Card {
 	private _start: Date;
 	private _duration: number;
 	end: string;
-	topLine: boolean;
+	line: number;
 
 	left: number;
 	private _width: number;
@@ -27,7 +27,7 @@ export class Card {
 		start: string,
 		duration: number,
 		end: string,
-		topLine: boolean,
+		line: number,
 		order: Order,
 		linkedPrevId: number,
 		linkedNextId: number
@@ -38,7 +38,7 @@ export class Card {
 		this.start = start ? UtilsService.parseDateFromCompleteString(`${day} ${start}`) : undefined;
 		this.duration = duration;
 		this.end = end;
-		this.topLine = topLine;
+		this.line = line;
 		this.order = order;
 		this.linkedPrevId = linkedPrevId;
 		this.linkedNextId = linkedNextId;
@@ -97,7 +97,7 @@ export class Card {
 
 	clone() {
 		let card = new Card(this.id, undefined, this.mechanicCode, undefined, this.duration, this.end,
-							this.topLine, this.order, this.linkedPrevId, this.linkedNextId);
+							this.line, this.order, this.linkedPrevId, this.linkedNextId);
 		card.day = this.day;
 		card.start = this.start;
 		return card;

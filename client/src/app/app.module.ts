@@ -36,9 +36,10 @@ import {DropzoneDirective} from './directives/dropzone.directive';
 import {OverlayComponent} from './components/overlay/overlay.component';
 import {MainComponent} from './components/main/main.component';
 import {HelperCardComponent} from './components/helper-card/helper-card.component';
-import {ResizableDirective} from './directives/resizable.directive';
 import {DraggableGroupComponent} from './components/draggable-group/draggable-group.component';
-import { HelperDraggableGroupComponent } from './components/helper-draggable-group/helper-draggable-group.component';
+import {HelperDraggableGroupComponent} from './components/helper-draggable-group/helper-draggable-group.component';
+import {ResizableLineDirective} from './directives/resizable-line.directive';
+import {ResizableCardDirective} from './directives/resizable-card.directive';
 
 @NgModule({
 	declarations: [
@@ -64,9 +65,10 @@ import { HelperDraggableGroupComponent } from './components/helper-draggable-gro
 		OverlayComponent,
 		MainComponent,
 		HelperCardComponent,
-		ResizableDirective,
 		DraggableGroupComponent,
-		HelperDraggableGroupComponent
+		HelperDraggableGroupComponent,
+		ResizableLineDirective,
+		ResizableCardDirective
 	],
 	imports: [
 		BrowserModule,
