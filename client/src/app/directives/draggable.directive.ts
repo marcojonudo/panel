@@ -102,8 +102,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		 * Debe ir antes de la emisión de la helper card, para evitar parpadeos en las fichas al añadirlas en el destino
 		 * antes de eliminarlas del origen, de ahí el uso de la variable emitHelperCardsGroup (sólo para el caso de arrastrar
 		 * la ficha a la bandeja desde una línea */
-		// setTimeout(() => {
-
 		console.time('emitDragging');
 		this.cardPositionService.emitDragging(this.dragging);
 		console.timeEnd('emitDragging');

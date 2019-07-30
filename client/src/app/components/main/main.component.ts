@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Renderer2, ViewChild} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
 
@@ -31,7 +31,6 @@ export class MainComponent implements AfterViewInit {
 
 	// private hide: boolean;
 
-	// @ViewChild('draggableContainer', {static: true}) draggableContainer: ElementRef;
 	@ViewChild('schedulesContainer', {static: true}) schedulesContainer: ElementRef;
 
 	constructor(
@@ -47,11 +46,7 @@ export class MainComponent implements AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		// console.log('main after view init', this.schedulesContainer.nativeElement.offsetWidth);
 		this.timeService.dropzoneWidth = this.schedulesContainer.nativeElement.offsetWidth - 180;
-
-		// this.cdRef.detach();
-		// this.cdRef.detectChanges();
 	}
 
 	get oneDayMode$() {
@@ -61,10 +56,6 @@ export class MainComponent implements AfterViewInit {
 	get percentageWidth$() {
 		return this.timeService.percentageWidth$
 	}
-
-	// get assignedDaysCardsGroups$() {
-	//   return this.cardsService.assignedDaysCardsGroups$;
-	// }
 
 	trackByDay(index, item) {
 		return item

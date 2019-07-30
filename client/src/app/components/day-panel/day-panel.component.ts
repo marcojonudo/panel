@@ -11,18 +11,9 @@ import {DaysService} from "../../services/days.service";
 export class DayPanelComponent {
 
 	@Input() index: number;
-	// @Input() dayCards: any[];
 	@Input() day: Date;
 
-	constructor(
-		private timeService: TimeService,
-		private daysService: DaysService
-	) {
-	}
-
-	get oneDayMode$() {
-		return this.daysService.oneDayMode$;
-	}
+	constructor() { }
 
 	checkDayPanel() {
 		console.log('checking day panel');

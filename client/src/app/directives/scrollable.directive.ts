@@ -1,4 +1,4 @@
-import {Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
+import {Directive, ElementRef, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {CardPositionService} from "../services/card-position.service";
 
@@ -7,26 +7,26 @@ import {CardPositionService} from "../services/card-position.service";
 })
 export class ScrollableDirective implements OnInit {
 
-	@Input() scrollLeft: number;
-	@Input() scrollTop: number;
-
 	private left: number;
 	private right: number;
 	private top: number;
 	private bottom: number;
 
-	private dragging: boolean;
+	private pointerMoveListener: any;
+	private saveOnScroll: boolean;
 
 	private readonly scrollZoneSize: number;
-	private readonly speed: number;
+	private readonly step: number;
 
 	constructor(
 		private cardPositionService: CardPositionService,
 		private element: ElementRef,
 		private renderer: Renderer2
 	) {
+		this.saveOnScroll = true;
+
 		this.scrollZoneSize = 50;
-		this.speed = 10;
+		this.step = 10;
 	}
 
 	ngOnInit() {
@@ -36,31 +36,36 @@ export class ScrollableDirective implements OnInit {
 		this.top = rect.top + this.scrollZoneSize;
 		this.bottom = rect.bottom - this.scrollZoneSize;
 
-		// this.cardPositionService.helperCardsGroup$.subscribe(helperCards => {
-		// 	this.dragging = !!helperCards.length;
-		// });
+		this.cardPositionService.dragging$.subscribe(dragging => {
+			if (dragging) {
+				this.saveOnScroll = false;
+				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
+			} else {
+				if (this.pointerMoveListener) {
+					this.saveOnScroll = true;
+					this.pointerMoveListener();
+				}
+			}
+		});
 	}
 
-	// @HostListener('document:pointermove', ['$event'])
-	// onPointerMove(event: PointerEvent): void {
-	//   if (this.dragging) {
-	//     if (event.clientX > this.right) {
-	//       this.scrollLeft += this.speed;
-	//       this.setScrollLeft(this.scrollLeft);
-	//     } else if (event.clientX < this.left) {
-	//       this.scrollLeft -= this.speed;
-	//       this.setScrollLeft(this.scrollLeft);
-	//     }
-	//
-	//     if (event.clientY > this.bottom) {
-	//       this.scrollTop += this.speed;
-	//       this.setScrollTop(this.scrollTop);
-	//     } else if (event.clientY < this.top) {
-	//       this.scrollTop -= this.speed;
-	//       this.setScrollTop(this.scrollTop);
-	//     }
-	//   }
-	// }
+	onPointerMove(event: PointerEvent): void {
+		if (event.clientX > this.right) {
+			this.cardPositionService.scrollLeft += this.step;
+			this.setScrollLeft(this.cardPositionService.scrollLeft);
+		} else if (event.clientX < this.left) {
+			this.cardPositionService.scrollLeft -= this.step;
+			this.setScrollLeft(this.cardPositionService.scrollLeft);
+		}
+
+		if (event.clientY > this.bottom) {
+			this.cardPositionService.scrollTop += this.step;
+			this.setScrollTop(this.cardPositionService.scrollTop);
+		} else if (event.clientY < this.top) {
+			this.cardPositionService.scrollTop -= this.step;
+			this.setScrollTop(this.cardPositionService.scrollTop);
+		}
+	}
 
 	setScrollLeft(scrollLeft: number) {
 		this.renderer.setProperty(
@@ -76,6 +81,14 @@ export class ScrollableDirective implements OnInit {
 			Constants.PROPERTY.SCROLL_TOP,
 			scrollTop
 		);
+	}
+
+	@HostListener('scroll', ['$event'])
+	onScroll(event): void {
+		if (this.saveOnScroll) {
+			this.cardPositionService.scrollLeft = event.target.scrollLeft;
+			this.cardPositionService.scrollTop = event.target.scrollTop;
+		}
 	}
 
 }

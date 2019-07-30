@@ -5,10 +5,10 @@ import {Coordinates} from "../objects/coordinates";
 import {Card} from "../objects/card";
 import {DropzoneInfo} from "../objects/dropzone-info";
 import {CardsGroup} from "../objects/cards-group";
-import {Mechanic} from "../objects/mechanic";
 import {UtilsService} from "./utils.service";
 import {TimeService} from "./time.service";
 import {DaysService} from "./days.service";
+import {Constants} from "../objects/constants";
 
 @Injectable({
 	providedIn: 'root'
@@ -19,6 +19,8 @@ export class CardPositionService {
 	// scrollLeft$: Observable<number>;
 	private _dragging: boolean;
 	private _dropzone: DropzoneInfo;
+	private _scrollLeft: number;
+	private _scrollTop: number;
 	private _position: Coordinates;
 	private _helperCardsGroup: CardsGroup;
 
@@ -42,6 +44,8 @@ export class CardPositionService {
 	) {
 		// this.scrollLeftSubject = new BehaviorSubject<number>(0);
 		// this.scrollLeft$ = this.scrollLeftSubject.asObservable();
+		this.scrollLeft = 0;
+		this.scrollTop = 0;
 
 		this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
 		this.coordinates$ = this.coordinatesSubject.asObservable();
@@ -111,6 +115,22 @@ export class CardPositionService {
 		this._dragging$ = value;
 	}
 
+	get scrollLeft(): number {
+		return this._scrollLeft;
+	}
+
+	set scrollLeft(value: number) {
+		this._scrollLeft = value;
+	}
+
+	get scrollTop(): number {
+		return this._scrollTop;
+	}
+
+	set scrollTop(value: number) {
+		this._scrollTop = value;
+	}
+
 	// endregion
 
 	// region Emitters
@@ -132,37 +152,39 @@ export class CardPositionService {
 
 	// endregion
 
-	// Handle position updates
+	// region Handle position updates
 
 	handleLinePosition(lastPosition: Coordinates, intervalWidth: number, daysMechanicCardsGroups: CardsGroup[]): Coordinates {
 		/* La posición se redondea a los múltiplos de 5 minutos */
-		let position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth);
+		let position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth, this.scrollLeft);
 		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
 		*  cuenta a la hora de identificar las fichas solapadas */
-		this.updateDimensionsProperties(this.helperCardsGroup, position);
+		this.updateDimensionsProperties(this.helperCardsGroup, position, this.scrollLeft);
 
 		/* Se gestionan los movimientos de fichas solapadas */
-		this.handleOverlappedMovements(this.helperCardsGroup, daysMechanicCardsGroups);
+		this.handleOverlappedMovements(this.helperCardsGroup, daysMechanicCardsGroups, this.scrollLeft);
+
 		/* Se define la nueva posición, una vez tenidas en cuenta las fichas solapadas, para completar la transición
 		*  en la directiva draggable */
-		position.x = this.helperCardsGroup.left + 180;
+		position.x = this.leftToAbsolutePosition(this.helperCardsGroup.left);
 		return position;
 	}
 
-	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {
+	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number, scrollLeft: number): Coordinates {
+		const leftIntervals = Math.floor(this.absolutePositionToLeft(position.x) / intervalWidth);
+		const x = this.leftToAbsolutePosition(leftIntervals * intervalWidth);
+
 		const line = Math.round((position.y - rect.top) / this.daysService.lineHeight);
-		const leftIntervals = Math.floor((position.x - 180) / intervalWidth);
-		const x = 180 + leftIntervals * intervalWidth;
 		const y = rect.top + line * this.daysService.lineHeight;
 		return new Coordinates(x, y, line);
 	}
 
-	private updateDimensionsProperties(cardsGroup: CardsGroup, position: Coordinates): void {
-		cardsGroup.left = position.x - 180;
+	private updateDimensionsProperties(cardsGroup: CardsGroup, position: Coordinates, scrollLeft: number): void {
+		cardsGroup.left = this.absolutePositionToLeft(position.x);
 		cardsGroup.cards.forEach(card => card.line = position.line);
 	}
 
-	private handleOverlappedMovements(cardsGroup: CardsGroup, daysMechanicCardsGroups: CardsGroup[]): void {
+	private handleOverlappedMovements(cardsGroup: CardsGroup, daysMechanicCardsGroups: CardsGroup[], scrollLeft: number): void {
 		/* Se obtienen las fichas solapadas */
 		const overlappedCardsGroups = this.findOverlappedCardsGroups(cardsGroup, daysMechanicCardsGroups);
 
@@ -173,14 +195,14 @@ export class CardPositionService {
 			(cardsGroup) => cardsGroup.left
 		);
 		/* Se actualizan los valores relacionados con la posicion (left y start) */
-		this.updatePositionProperties(allCardsGroups, this.dropzone.mechanic.day);
+		this.updatePositionProperties(allCardsGroups, this.dropzone.mechanic.day, scrollLeft);
 
 		/* Si la ficha soltada desplaza otras hacia la derecha, también se debe comprobar si estas, a su vez, se
 		*  solapan con otras. Para ello, de la lista completa se obtienen aquellas que estén a la derecha de la soltada,
 		*  y se repite la gestión para fichas solapadas */
 		const checkNewOverlapped = allCardsGroups.slice(allCardsGroups.indexOf(cardsGroup)+1);
 		if (checkNewOverlapped.length) {
-			checkNewOverlapped.forEach(group => this.handleOverlappedMovements(group, daysMechanicCardsGroups));
+			checkNewOverlapped.forEach(group => this.handleOverlappedMovements(group, daysMechanicCardsGroups, scrollLeft));
 		}
 	}
 
@@ -213,7 +235,7 @@ export class CardPositionService {
 		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
 	}
 
-	private updatePositionProperties(cardsGroups: CardsGroup[], day: Date) {
+	private updatePositionProperties(cardsGroups: CardsGroup[], day: Date, scrollLeft: number) {
 		cardsGroups.forEach((cardsGroup, index) => {
 			const width = this.findCardsGroupsWidth(cardsGroups.slice(0, index));
 			cardsGroup.left = cardsGroups[0].left + width;
@@ -230,14 +252,15 @@ export class CardPositionService {
 
 	// endregion
 
-	// get scrollLeft() {
-	//   return this._scrollLeft;
-	// }
+	/* La posición del cursor en pantalla cuenta el eje de las X desde el inicio de la misma. Sin embargo, para hacer
+	 * cálculos relativos al horario (con comienzo a las 8), se deben restar los 180px de ancho que tiene la info del
+	 * mecánico */
+	absolutePositionToLeft(value: number, scrollLeft: number = this.scrollLeft): number {
+		return value + scrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
+	}
 
-	// set scrollLeft(value: number) {
-	//   this._scrollLeft = value;
-	//   console.log('scrolling');
-	//   this.scrollLeftSubject.next(this.scrollLeft);
-	// }
+	leftToAbsolutePosition(value: number, scrollLeft: number = this.scrollLeft): number {
+		return value - scrollLeft + Constants.VALUE.MECHANIC_INFO_WIDTH;
+	}
 
 }
