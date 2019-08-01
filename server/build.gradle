@@ -23,7 +23,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.0.2'
+        mavenBom 'io.micronaut:micronaut-bom:1.1.4'
     }
 }
 
@@ -45,7 +45,7 @@ dependencies {
 
     compile "io.micronaut:micronaut-management"
     compile "feuvert:database-http-client:0.2.0"
-    compile "feuvert:utils:0.10.0"
+    compile "feuvert:utils:0.10.3"
     compile "org.codehaus.groovy:groovy-json:2.5.4"
 }
 

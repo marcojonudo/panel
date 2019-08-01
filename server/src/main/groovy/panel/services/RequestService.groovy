@@ -8,7 +8,7 @@ import io.micronaut.http.HttpStatus
 import panel.utils.Constants
 import panel.utils.Url
 import utils.exceptions.WrongDatabaseResponseException
-import utils.pogos.EmployeeSchedule
+import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.fviberi.Order
 import utils.pogos.panel.Card
 import utils.pogos.panel.GroupUnits

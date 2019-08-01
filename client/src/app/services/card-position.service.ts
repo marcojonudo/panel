@@ -33,17 +33,10 @@ export class CardPositionService {
 	private draggingSubject: BehaviorSubject<boolean>;
 	private _dragging$: Observable<boolean>;
 
-	// private dropzoneSubject: BehaviorSubject<DropzoneInfo>;
-	// private _dropzone$: Observable<DropzoneInfo>;
-
-	// private _scrollLeft: number;
-
 	constructor(
 		private timeService: TimeService,
 		private daysService: DaysService
 	) {
-		// this.scrollLeftSubject = new BehaviorSubject<number>(0);
-		// this.scrollLeft$ = this.scrollLeftSubject.asObservable();
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
 

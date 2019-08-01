@@ -18,5 +18,6 @@ class Constants {
 
 	static final List<String> A_Z = 'A'..'Z'
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']
+	static final String DATE_DB_PATTERN = "yyyy-MM-dd"
 
 }

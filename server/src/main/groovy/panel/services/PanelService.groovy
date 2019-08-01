@@ -8,13 +8,13 @@ import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
 import panel.pogos.UpdateCards
 import panel.utils.Constants
-import utils.pogos.EmployeeSchedule
 import utils.pogos.fviberi.Article
 import utils.pogos.fviberi.Order
 import utils.pogos.panel.Card
 import utils.pogos.panel.Group
 import utils.pogos.panel.GroupUnits
 import utils.pogos.panel.Task
+import utils.pogos.schedules.EmployeeSchedule
 
 import javax.inject.Singleton
 
@@ -37,7 +37,7 @@ class PanelService {
 	}
 
 	Map getPanelInfo(Date day = new Date()) {
-		List<EmployeeSchedule> dayMechanics = getDayMechanics(new Date())
+		Map<java.sql.Date, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
 		List<Order> orders = fviberiDatabaseClient.getOrders(new Date(), Constants.ORDERS_QUERY_STATES).collect { (Order) it }
@@ -46,7 +46,7 @@ class PanelService {
 
 		UpdateCards updateCards = syncOrders(orders, dayCards)
 		saveCards(updateCards)
-		return [dayMechanics: dayMechanics, cards: updateCards.getAll()]
+		return [dayMechanics: daysMechanics, cards: updateCards.getAll()]
 	}
 
 	// region Mechanics
@@ -56,27 +56,29 @@ class PanelService {
 	 * @param date Day to get mechanics
 	 * @return List of mechanic employees
 	 */
-	List<EmployeeSchedule> getDayMechanics(Date date) {
-		List<EmployeeSchedule> dayMechanics = schedulesDatabaseClient.getDayMechanics(date).collect { (EmployeeSchedule) it }
-		dayMechanics = loadEmployeesPosition(dayMechanics).sort { it.panelInfo.position }
-		return dayMechanics
+	Map<java.sql.Date, List<EmployeeSchedule>> getDaysMechanics(Date date) {
+		List<EmployeeSchedule> mechanics = schedulesDatabaseClient.getMechanics(date, true).collect {
+			(EmployeeSchedule) it
+		}
+		Map<java.sql.Date, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day }
+		return daysMechanics
 	}
 
-	/**
-	 * Define panel mechanic position if it is not defined yet
-	 * @param dayMechanics List of day mechanics
-	 * @return List of mechanics with loaded position
-	 */
-	List<EmployeeSchedule> loadEmployeesPosition(List<EmployeeSchedule> dayMechanics) {
-		boolean mechanicWithoutPosition = dayMechanics.find { !it.panelInfo.position }
-		if (mechanicWithoutPosition) {
-			dayMechanics.eachWithIndex { EmployeeSchedule employeeSchedule, int i ->
-				employeeSchedule.panelInfo.position = Constants.A_Z[i]
-			}
-			dayMechanics = schedulesDatabaseClient.updateEmployeesSchedulesPosition(dayMechanics).collect { (EmployeeSchedule) it }
-		}
-		return dayMechanics
-	}
+//	/**
+//	 * Define panel mechanic position if it is not defined yet
+//	 * @param dayMechanics List of day mechanics
+//	 * @return List of mechanics with loaded position
+//	 */
+//	List<EmployeeSchedule> loadEmployeesPosition(List<EmployeeSchedule> dayMechanics) {
+//		boolean mechanicWithoutPosition = dayMechanics.find { !it.panelInfo.position }
+//		if (mechanicWithoutPosition) {
+//			dayMechanics.eachWithIndex { EmployeeSchedule employeeSchedule, int i ->
+//				employeeSchedule.panelInfo.position = Constants.A_Z[i]
+//			}
+//			dayMechanics = schedulesDatabaseClient.updateEmployeesSchedulesPosition(dayMechanics).collect { (EmployeeSchedule) it }
+//		}
+//		return dayMechanics
+//	}
 
 	// endregion
 
@@ -88,11 +90,11 @@ class PanelService {
 	 * @param tasks List of all tasks
 	 * @return Map with orders and its groups and units
 	 */
-	static Map<Order, List<GroupUnits>> getOrdersGroups(List<Order> orders, List<Task> tasks) {
-		Map<Order, List<GroupUnits>> ordersGroups = orders.collectEntries {
+	static Map<Order, List<GroupUnits>> getOrdersGroupsUnits(List<Order> orders, List<Task> tasks) {
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = orders.collectEntries {
 			[(it): (getOrderGroups(it, tasks))]
 		}
-		return ordersGroups
+		return ordersGroupsUnits
 	}
 
 	/**
@@ -105,50 +107,60 @@ class PanelService {
 		/* Se obtienen las task correspondientes a los artículos de la orden */
 		List<Task> orderTasks = tasks.findAll { it.articleCode in order.lines.article.code }
 
-		/* Se identifican las agrupaciones en función del número de tareas que tenga cada una.
-		 * Si una tarea pertenece a más de un grupo, tiene prioridad aquel que mayor número de tareas tenga */
-		Map<Integer, List<Group>> orderedGroups = ((List<Group>) orderTasks.groups.flatten()).groupBy { it.code }.sort { a, b ->
-			b.value.size() <=> a.value.size()
-		}
-
-		/* Se procesan los grupos en orden, evitando que una tarea aparezca en más de uno */
 		List<Task> processedTasks = []
 		List<GroupUnits> selectedGroupsInfo = []
-		orderedGroups.each { int groupCode, List<Group> groups ->
-			List<Task> orderGroupTasks = orderTasks.findAll { groupCode in it.groups.code }
-
-			boolean alreadyProcessedTask = processedTasks.find { it.articleCode in orderGroupTasks.articleCode }
+		// TODO EValuar usar un find por rendimiento
+		orderTasks.each { Task task ->
+			boolean alreadyProcessedTask = processedTasks.find { it.articleCode == task.articleCode }
 			if (!alreadyProcessedTask) {
-				processedTasks += orderGroupTasks
-				List<Float> units = order.lines.findAll {
-					it.article.code in orderGroupTasks.articleCode
-				}.sort { it.article.code }.units.collect { it as Float }
-				selectedGroupsInfo << new GroupUnits(groups[0], units)
+				List<Group> possibleGroups = task.groups.sort { a, b -> b.tasks.size() <=> a.tasks.size() }
+				Group selectedGroup = possibleGroups.find { Group group ->
+					List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks.articleCode }
+					return group.tasks.size() == commonTasks.size()
+				}
+				selectedGroupsInfo << new GroupUnits(selectedGroup, getOrderGroupUnits(order, selectedGroup))
+				processedTasks += selectedGroup.tasks
 			}
 		}
 		return selectedGroupsInfo
 	}
 
+	static List<Float> getOrderGroupUnits(Order order, Group group) {
+		return order.lines.findAll {
+			it.article.code in group.tasks.articleCode
+		}.units.collect { it as Float }
+	}
+
 	/**
 	 * Build order cards based on order info and groups
-	 * @param ordersGroups Orders with their associated groups and units
+	 * @param ordersGroupsUnits Orders with their associated groups and units
 	 * @return List of Card
 	 */
-	List<Card> buildOrdersCards(Map<Order, List<GroupUnits>> ordersGroups) {
-		List<GroupUnits> ordersGroupsUnits = (List<GroupUnits>) ordersGroups.values().flatten()
-		List<Integer> durations = panelDatabaseClient.getDurations(ordersGroupsUnits)
+	List<Card> buildOrdersCards(List<Order> orders, Map<Order, List<GroupUnits>> ordersGroupsUnits) {
+		Map<Integer, List<Map>> durationGroupsUnits = panelDatabaseClient.getDurations(
+				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+		)
 
 		List<Card> ordersCards = []
-		if (ordersGroupsUnits.size() != durations.size()) {
-			LOG.error("Durations not found for all the groups: ${ordersGroupsUnits.group.code}")
-		} else {
-			int durationIndex = 0
-			ordersCards = (List<Card>) ordersGroups.inject([]) { List<Card> orderCards, Order order, List<GroupUnits> groupsUnits ->
-				List<Card> cards = groupsUnits.collect { new Card(order, it.group, it.units[0], durations[durationIndex++]) }
-				orderCards = orderCards + cards
-				return orderCards
+		durationGroupsUnits.each { Integer orderNumber, List<Map> groupsUnitsMap ->
+			List<GroupUnits> groupsUnits = groupsUnitsMap.collect { (GroupUnits) it }
+			Order order = orders.find { it.number == orderNumber }
+			if (groupsUnits.duration) {
+				ordersCards += groupsUnits.collect { new Card(order, it.group, it.units[0], it.duration) }
+			} else {
+				LOG.warn("Duration not found for group: ${groupsUnits.group.code}")
 			}
 		}
+//		if (groupsUnits.size() != durations.size()) {
+//			LOG.error("Durations not found for all the groups: ${groupsUnits.group.code}")
+//		} else {
+//			int durationIndex = 0
+//			ordersCards = (List<Card>) ordersGroupsUnits.inject([]) { List<Card> orderCards, Order order, List<GroupUnits> groupsUnits2 ->
+//				List<Card> cards = groupsUnits2.collect { new Card(order, it.group, it.units[0], durations[durationIndex++]) }
+//				orderCards = orderCards + cards
+//				return orderCards
+//			}
+//		}
 
 		return ordersCards
 	}
@@ -164,14 +176,14 @@ class PanelService {
 	 */
 	UpdateCards syncOrders(List<Order> orders, List<Card> dayCards) {
 		/* Se obtiene una lista de todas las tareas de las distintas órdenes */
-		List<Integer> articlesCodes = ((List<Article>) orders.lines.article.flatten()).findAll { it.labour }.unique().code
+		List<Integer> articlesCodes = ((List<Article>) orders.lines.article.flatten()).findAll { it.labour }.code.unique()
 		List<Task> ordersTasks = panelDatabaseClient.getTasks(articlesCodes).collect { (Task) it }
 
 		/* Para cada orden, se obtienen sus agrupaciones y las unidades de cada uno de ellos */
-		Map<Order, List<GroupUnits>> ordersGroups = getOrdersGroups(orders, ordersTasks)
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = getOrdersGroupsUnits(orders, ordersTasks)
 
 		/* Se construyen las fichas a partir de la información de ordenes y grupos */
-		List<Card> ordersCards = buildOrdersCards(ordersGroups)
+		List<Card> ordersCards = buildOrdersCards(orders, ordersGroupsUnits)
 
 		/* A partir de las órdenes, las fichas guardadas y las recién construidas, se obtienen aquellas que deben ser
 		*  actualizadas en DB */
@@ -196,13 +208,13 @@ class PanelService {
 	static UpdateCards getNewOrUpdatedCards(List<Card> dayCards, List<Card> builtCards) {
 		UpdateCards updateCards = new UpdateCards()
 		builtCards.each { Card builtCard ->
-			List<Card> dayOrderCards = dayCards.findAll { it.orderInfo.number == builtCard.orderInfo.number }
+			List<Card> dayOrderCards = dayCards.findAll { it.order.number == builtCard.order.number }
 
 			if (dayOrderCards) {
 				boolean handledCards = handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
 				if (!handledCards) {
 					/* Si el grupo de builtCard no coincide con ninguno de dayOrderCards, se comprueba si ha reemplazado
-					*  a alguno existente o si es una ficha completamente nueva */
+					 * a alguno existente o si es una ficha completamente nueva */
 					handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
 				}
 			} else {
@@ -284,11 +296,11 @@ class PanelService {
 	 * @return boolean
 	 */
 	static boolean checkUpdatedOrderInfo(Card dayCard, Card builtCard) {
-		Map orderInfoDifferences = (builtCard.orderInfo.properties + builtCard.orderInfo.vehicleInfo.properties) -
-				(dayCard.orderInfo.properties + dayCard.orderInfo.vehicleInfo.properties)
+		Map orderDifferences = (builtCard.order.properties + builtCard.vehicle.properties) -
+				(dayCard.order.properties + dayCard.vehicle.properties)
 		/* Si no cambia ninguna propiedad, el mapa tendrá sólo la entrada correspondiente al objeto
 		*  vehicleInfo */
-		return orderInfoDifferences.size() > 1
+		return orderDifferences.size() > 1
 	}
 
 	/**
@@ -298,7 +310,8 @@ class PanelService {
 	 * @return Updated card
 	 */
 	static Card updateCardOrderInfo(Card dayCard, Card builtCard) {
-		dayCard.orderInfo = builtCard.orderInfo
+		dayCard.order = builtCard.order
+		dayCard.vehicle = builtCard.vehicle
 		return dayCard
 	}
 
@@ -335,7 +348,7 @@ class PanelService {
 	 */
 	static List<Card> getDeletedOrdersCards(List<Order> orders, List<Card> dayCards) {
 		List<Card> cardsToDelete = dayCards.findAll {
-			!(it.orderInfo.number in orders.number) && it.status != Card.Status.TEMPORAL
+			!(it.order.number in orders.number) && it.status != Card.Status.TEMPORAL
 		}
 		return cardsToDelete
 	}
@@ -348,7 +361,7 @@ class PanelService {
 	 */
 	static List<Card> getUpdatedGroupDeletedCards(List<Card> dayCards, List<Card> builtCards) {
 		List<Card> cardsToDelete = dayCards.findAll { Card dayCard ->
-			List<Card> builtOrderCards = builtCards.findAll { it.orderInfo.number == dayCard.orderInfo.number }
+			List<Card> builtOrderCards = builtCards.findAll { it.order.number == dayCard.order.number }
 			Card orderAndGroupCard = builtOrderCards.find { it.group.code == dayCard.group.code }
 			return builtOrderCards && !orderAndGroupCard
 		}
@@ -370,9 +383,15 @@ class PanelService {
 	// region Save cards
 
 	void saveCards(UpdateCards updateCards) {
-		panelDatabaseClient.createCards(updateCards.newCards)
-		panelDatabaseClient.updateCards(updateCards.updatedCards)
-		panelDatabaseClient.deleteCards(updateCards.deletedCards.id)
+		if (updateCards.newCards) {
+			panelDatabaseClient.createCards(updateCards.newCards)
+		}
+		if (updateCards.updatedCards) {
+			panelDatabaseClient.updateCards(updateCards.updatedCards)
+		}
+		if (updateCards.deletedCards) {
+			panelDatabaseClient.deleteCards(updateCards.deletedCards.id)
+		}
 	}
 
 	// endregion

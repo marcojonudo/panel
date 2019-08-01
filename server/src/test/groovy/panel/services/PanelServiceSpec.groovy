@@ -11,7 +11,7 @@ import panel.clients.schedules.SchedulesDatabaseClient
 import panel.pogos.UpdateCards
 import spock.lang.Shared
 import spock.lang.Specification
-import utils.pogos.EmployeeSchedule
+import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.fviberi.*
 import utils.pogos.panel.Card
 import utils.pogos.panel.Group
@@ -108,7 +108,7 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
-	// region getDayMechanics
+	// region getDaysMechanics
 
 	void "test get day mechanics sort correct not defined positions"() {
 		given:
@@ -121,7 +121,7 @@ class PanelServiceSpec extends Specification {
 		schedulesDatabaseClient.updateEmployeesSchedulesPosition(dayMechanics) >> dayMechanics
 
 		when:
-		List<EmployeeSchedule> updatedMechanics = panelService.getDayMechanics(date)
+		List<EmployeeSchedule> updatedMechanics = panelService.getDaysMechanics(date)
 
 		then:
 		updatedMechanics.panelInfo.position == ['A', 'B']
@@ -137,7 +137,7 @@ class PanelServiceSpec extends Specification {
 		schedulesDatabaseClient.getDayMechanics(date) >> dayMechanics
 
 		when:
-		List<EmployeeSchedule> updatedMechanics = panelService.getDayMechanics(date)
+		List<EmployeeSchedule> updatedMechanics = panelService.getDaysMechanics(date)
 
 		then:
 		updatedMechanics.panelInfo.position == ['A', 'B']

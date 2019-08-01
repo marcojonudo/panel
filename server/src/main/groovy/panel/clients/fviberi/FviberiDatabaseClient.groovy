@@ -8,17 +8,18 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
+import panel.utils.Constants
 
 import javax.inject.Singleton
 
 @Singleton
 @CompileStatic
 @Requires(notEnv = Environment.TEST)
-@Client("http://localhost:8084/panel")
+@Client("http://localhost:8082/panel")
 @Header(name = "database", value = "fviberi")
 interface FviberiDatabaseClient extends FviberiDatabaseApi {
 
 	@Get("/orders")
-	List<Map> getOrders(@QueryValue @Format("yyyy-mm-dd") Date day, @QueryValue List<String> states)
+	List<Map> getOrders(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day, @QueryValue List<String> states)
 
 }
