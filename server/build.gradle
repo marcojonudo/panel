@@ -17,7 +17,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url "https://jcenter.bintray.com" }
-    maven { url "http://sidesman2:8081/repository/feuvert-repo/" }
+//    maven { url "http://sidesman2:8081/repository/feuvert-repo/" }
     //    maven { url "http://localhost/repository" }
 }
 
@@ -41,7 +41,7 @@ dependencies {
     testCompile "junit:junit:4.12"
     testCompile "io.micronaut:micronaut-inject-java"
     testCompile "org.hamcrest:hamcrest-all:1.3"
-    testCompile "io.micronaut.test:micronaut-test-spock:1.0.2"
+    testCompile "io.micronaut.test:micronaut-test-spock:1.1.0"
 
     compile "io.micronaut:micronaut-management"
     compile "feuvert:database-http-client:0.2.0"

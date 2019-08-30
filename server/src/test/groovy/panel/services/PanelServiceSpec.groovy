@@ -11,18 +11,19 @@ import panel.clients.schedules.SchedulesDatabaseClient
 import panel.pogos.UpdateCards
 import spock.lang.Shared
 import spock.lang.Specification
-import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.fviberi.*
 import utils.pogos.panel.Card
 import utils.pogos.panel.Group
 import utils.pogos.panel.GroupUnits
 import utils.pogos.panel.Task
+import utils.pogos.schedules.EmployeeSchedule
 
 import javax.inject.Inject
-import java.sql.Time
 
 @MicronautTest
 class PanelServiceSpec extends Specification {
+
+	// region Collaborators
 
 	@Inject
 	PanelService panelService
@@ -48,10 +49,14 @@ class PanelServiceSpec extends Specification {
 		Mock(SchedulesDatabaseClient)
 	}
 
+	// endregion
+
+	// region Variables
+
 	@Shared
 	Order order4Articles = new Order(
 			number: 1,
-			timeInfo: new OrderTime(shortCode: 'C1'),
+			timeInfo: [new OrderTime(shortCode: 'C1')],
 			lines: [
 					new OrderLine(article: new Article(code: 1)),
 					new OrderLine(article: new Article(code: 2)),
@@ -64,47 +69,22 @@ class PanelServiceSpec extends Specification {
 	@Shared
 	Order order1Article = new Order(
 			number: 2,
-			timeInfo: new OrderTime(shortCode: 'C2'),
+			timeInfo: [new OrderTime(shortCode: 'C2')],
 			lines: [
 					new OrderLine(article: new Article(code: 1))
 			],
 			vehicle: new Vehicle([:])
 	)
 
-	// region loadEmployeesPosition
-
-	void "test load employees position already defined positions"() {
-		given:
-		List<EmployeeSchedule> dayMechanics = [
-				new EmployeeSchedule([panelInfo: [position: 'C']]),
-				new EmployeeSchedule([panelInfo: [position: 'D']])
-		]
-
-		when:
-		List<EmployeeSchedule> updatedMechanics = panelService.loadEmployeesPosition(dayMechanics)
-
-		then:
-		updatedMechanics.size() == 2
-		updatedMechanics[0].panelInfo.position == 'C'
-		updatedMechanics[1].panelInfo.position == 'D'
-	}
-
-	void "test load employees position not defined positions"() {
-		given:
-		List<EmployeeSchedule> dayMechanics = [
-				new EmployeeSchedule([panelInfo: [:]]),
-				new EmployeeSchedule([panelInfo: [:]])
-		]
-		schedulesDatabaseClient.updateEmployeesSchedulesPosition(dayMechanics) >> dayMechanics
-
-		when:
-		List<EmployeeSchedule> updatedMechanics = panelService.loadEmployeesPosition(dayMechanics)
-
-		then:
-		updatedMechanics.size() == 2
-		updatedMechanics[0].panelInfo.position == 'A'
-		updatedMechanics[1].panelInfo.position == 'B'
-	}
+	@Shared Task task1 = new Task(articleCode: 1)
+	@Shared Task task2 = new Task(articleCode: 2)
+	@Shared Task task3 = new Task(articleCode: 3)
+	@Shared Task task4 = new Task(articleCode: 4)
+	@Shared Group group1 = new Group(code: 1, shortName: 'group1')
+	@Shared Group group2 = new Group(code: 2)
+	@Shared Group group3 = new Group(code: 3)
+	@Shared Group group4 = new Group(code: 4)
+	@Shared Group group5 = new Group(code: 5)
 
 	// endregion
 
@@ -113,34 +93,20 @@ class PanelServiceSpec extends Specification {
 	void "test get day mechanics sort correct not defined positions"() {
 		given:
 		Date date = new Date()
-		List<EmployeeSchedule> dayMechanics = [
-				new EmployeeSchedule([panelInfo: [:]]),
-				new EmployeeSchedule([panelInfo: [:]])
+		List<Map> dayMechanics = [
+				[day: 1567090800000],
+				[day: 1567090800000],
+				[day: 1566939600000]
 		]
-		schedulesDatabaseClient.getDayMechanics(date) >> dayMechanics
-		schedulesDatabaseClient.updateEmployeesSchedulesPosition(dayMechanics) >> dayMechanics
+		schedulesDatabaseClient.getMechanics(date, true) >> dayMechanics
 
 		when:
-		List<EmployeeSchedule> updatedMechanics = panelService.getDaysMechanics(date)
+		Map<java.sql.Date, List<EmployeeSchedule>> daysMechanics = panelService.getDaysMechanics(date)
 
 		then:
-		updatedMechanics.panelInfo.position == ['A', 'B']
-	}
-
-	void "test get day mechanics sort correct already defined positions"() {
-		given:
-		Date date = new Date()
-		List<EmployeeSchedule> dayMechanics = [
-				new EmployeeSchedule([panelInfo: [position: 'B']]),
-				new EmployeeSchedule([panelInfo: [position: 'A']])
-		]
-		schedulesDatabaseClient.getDayMechanics(date) >> dayMechanics
-
-		when:
-		List<EmployeeSchedule> updatedMechanics = panelService.getDaysMechanics(date)
-
-		then:
-		updatedMechanics.panelInfo.position == ['A', 'B']
+		daysMechanics.size() == 2
+		daysMechanics[new java.sql.Date(new Date(1567090800000).time)].size() == 2
+		daysMechanics[new java.sql.Date(new Date(1566939600000).time)].size() == 1
 	}
 
 	// endregion
@@ -149,15 +115,18 @@ class PanelServiceSpec extends Specification {
 
 	void "test get order groups 1"() {
 		given:
-		List<Task> tasks = [
-				new Task(articleCode: 1, groups: [new Group(code: 1), new Group(code: 5)]),
-				new Task(articleCode: 2, groups: [new Group(code: 2), new Group(code: 5)]),
-				new Task(articleCode: 3, groups: [new Group(code: 3)]),
-				new Task(articleCode: 4, groups: [new Group(code: 4), new Group(code: 5)])
-		]
+		group1.tasks = [task1]
+		group2.tasks = [task2]
+		group3.tasks = [task3]
+		group4.tasks = [task4]
+		group5.tasks = [task1, task2, task4]
+		task1.groups = [group1, group5]
+		task2.groups = [group2, group5]
+		task3.groups = [group3]
+		task4.groups = [group4, group5]
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, tasks)
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task1, task2, task3, task4])
 
 		then:
 		groupUnits.size() == 2
@@ -167,15 +136,17 @@ class PanelServiceSpec extends Specification {
 
 	void "test get order groups 2"() {
 		given:
-		List<Task> tasks = [
-				new Task(articleCode: 1, groups: [new Group(code: 1)]),
-				new Task(articleCode: 2, groups: [new Group(code: 2)]),
-				new Task(articleCode: 3, groups: [new Group(code: 3)]),
-				new Task(articleCode: 4, groups: [new Group(code: 4)])
-		]
+		group1.tasks = [task1]
+		group2.tasks = [task2]
+		group3.tasks = [task3]
+		group4.tasks = [task4]
+		task1.groups = [group1]
+		task2.groups = [group2]
+		task3.groups = [group3]
+		task4.groups = [group4]
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, tasks)
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task1, task2, task3, task4])
 
 		then:
 		groupUnits.size() == 4
@@ -187,15 +158,18 @@ class PanelServiceSpec extends Specification {
 
 	void "test get order groups 3"() {
 		given:
-		List<Task> tasks = [
-				new Task(articleCode: 1, groups: [new Group(code: 1), new Group(code: 2)]),
-				new Task(articleCode: 2, groups: [new Group(code: 1), new Group(code: 3)]),
-				new Task(articleCode: 3, groups: [new Group(code: 2), new Group(code: 4)]),
-				new Task(articleCode: 4, groups: [new Group(code: 3), new Group(code: 5)])
-		]
+		group1.tasks = [task1, task2]
+		group2.tasks = [task1, task3]
+		group3.tasks = [task2, task4]
+		group4.tasks = [task3]
+		group5.tasks = [task4]
+		task1.groups = [group1, group2]
+		task2.groups = [group1, group3]
+		task3.groups = [group2, group4]
+		task4.groups = [group3, group5]
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, tasks)
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task1, task2, task3, task4])
 
 		then:
 		groupUnits.size() == 3
@@ -206,12 +180,15 @@ class PanelServiceSpec extends Specification {
 
 	void "test get order groups one article one absorbable task"() {
 		given:
-		List<Task> tasks = [
-				new Task(articleCode: 1, absorbable: true, groups: [new Group(code: 1)])
-		]
+		group1.tasks = [task1]
+		task1.absorbable = true
+		task1.groups = [group1]
+//		List<Task> tasks = [
+//				new Task(articleCode: 1, absorbable: true, groups: [new Group(code: 1)])
+//		]
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order1Article, tasks)
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order1Article, [task1])
 
 		then:
 		groupUnits.size() == 1
@@ -220,15 +197,17 @@ class PanelServiceSpec extends Specification {
 
 	void "test get order groups several articles several absorbable tasks"() {
 		given:
-		List<Task> tasks = [
-				new Task(articleCode: 1, groups: [new Group(code: 1)]),
-				new Task(articleCode: 2, absorbable: true, groups: [new Group(code: 1)]),
-				new Task(articleCode: 3, absorbable: true, groups: [new Group(code: 1)]),
-				new Task(articleCode: 4, absorbable: true, groups: [new Group(code: 1)])
-		]
+		group1.tasks = [task1, task2, task3, task4]
+		task2.absorbable = true
+		task3.absorbable = true
+		task4.absorbable = true
+		task1.groups = [group1]
+		task2.groups = [group1]
+		task3.groups = [group1]
+		task4.groups = [group1]
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, tasks)
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task1, task2, task3, task4])
 
 		then:
 		groupUnits.size() == 1
@@ -241,65 +220,78 @@ class PanelServiceSpec extends Specification {
 
 	void "test build order cards 1"() {
 		given:
-		GroupUnits groupUnits = new GroupUnits(new Group(code: 1, shortName: 'ABC'), [1])
-		Map<Order, List<GroupUnits>> ordersGroups = [
+		GroupUnits groupUnits = new GroupUnits(group1, [1])
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits]
 		]
-		panelDatabaseClient.getDurations([groupUnits]) >> [30]
+		panelDatabaseClient.getDurations(
+				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+		) >> [(order1Article.number): [[group: group1, units: 1, duration: 30]]]
 
 		when:
-		List<Card> cards = panelService.buildOrdersCards(ordersGroups)
+		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
 
 		then:
 		cards.size() == 1
-		cards[0].orderInfo.number == order1Article.number
-		cards[0].orderInfo.code == order1Article.timeInfo.shortCode
-		cards[0].code == 'ABC'
-		cards[0].group.code == 1
+		cards[0].order.number == order1Article.number
+		cards[0].order.code == order1Article.timeInfo.shortCode
+		cards[0].code == group1.shortName
+		cards[0].group.code == group1.code
 		cards[0].status == Card.Status.DEFAULT
-		cards[0].duration == new Time(0, 30, 0)
+		cards[0].duration == 30
 	}
 
 	void "test build order cards 2"() {
 		given:
-		GroupUnits groupUnits1 = new GroupUnits(new Group(code: 1), [1])
-		GroupUnits groupUnits2 = new GroupUnits(new Group(code: 2), [1, 1])
-		GroupUnits groupUnits3 = new GroupUnits(new Group(code: 3), [3])
-		Map<Order, List<GroupUnits>> ordersGroups = [
+		GroupUnits groupUnits1 = new GroupUnits(group1, [1])
+		GroupUnits groupUnits2 = new GroupUnits(group2, [1, 1])
+		GroupUnits groupUnits3 = new GroupUnits(group3, [3])
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits1],
 				(order4Articles): [groupUnits1, groupUnits2, groupUnits3]
 		]
-		panelDatabaseClient.getDurations([groupUnits1, groupUnits1, groupUnits2, groupUnits3]) >> [10, 10, 45, 20]
+		panelDatabaseClient.getDurations(
+				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+		) >> [
+				(order1Article.number): [[group: group1, units: 1, duration: 10]],
+				(order4Articles.number): [
+						[group: group1, units: 1, duration: 10],
+						[group: group2, units: 2, duration: 30],
+						[group: group3, units: 3, duration: 45]
+				],
+		]
 
 		when:
-		List<Card> cards = panelService.buildOrdersCards(ordersGroups)
+		List<Card> cards = panelService.buildOrdersCards([order1Article, order4Articles], ordersGroupsUnits)
 
 		then:
 		cards.size() == 4
-		cards[0].orderInfo.number == order1Article.number
-		cards[0].group.code == 1
-		cards[0].duration == new Time(0, 10, 0)
-		cards[1].orderInfo.number == order4Articles.number
-		cards[1].group.code == 1
-		cards[1].duration == new Time(0, 10, 0)
-		cards[2].orderInfo.number == order4Articles.number
-		cards[2].group.code == 2
-		cards[2].duration == new Time(0, 45, 0)
-		cards[3].orderInfo.number == order4Articles.number
-		cards[3].group.code == 3
-		cards[3].duration == new Time(0, 20, 0)
+		cards[0].order.number == order1Article.number
+		cards[0].group.code == group1.code
+		cards[0].duration == 10
+		cards[1].order.number == order4Articles.number
+		cards[1].group.code == group1.code
+		cards[1].duration == 10
+		cards[2].order.number == order4Articles.number
+		cards[2].group.code == group2.code
+		cards[2].duration == 30
+		cards[3].order.number == order4Articles.number
+		cards[3].group.code == group3.code
+		cards[3].duration == 45
 	}
 
 	void "test build order cards duration not found for group"() {
 		given:
-		GroupUnits groupUnits1 = new GroupUnits(new Group(code: 1), [1])
-		Map<Order, List<GroupUnits>> ordersGroups = [
+		GroupUnits groupUnits1 = new GroupUnits(group1, [1])
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits1]
 		]
-		panelDatabaseClient.getDurations([groupUnits1]) >> []
+		panelDatabaseClient.getDurations(
+				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+		) >> [(order1Article.number): []]
 
 		when:
-		List<Card> cards = panelService.buildOrdersCards(ordersGroups)
+		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
 
 		then:
 		!cards
@@ -307,12 +299,12 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
-	// region checkUpdatedOrderInfo
+//	// region checkUpdatedOrderInfo
 
 	void "test check updated card same fields"() {
 		given:
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']], mechanicCode: '1', status: Card.Status.TEMPORAL)
-		Card dayCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']], mechanicCode: '1', status: Card.Status.TEMPORAL)
+		Card builtCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.TEMPORAL, vehicle: [brand: 'FV'])
+		Card dayCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.TEMPORAL, vehicle: [brand: 'FV'])
 
 		when:
 		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -323,8 +315,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card updated order info"() {
 		given:
-		Card builtCard = new Card(orderInfo: [number: 1, code: 'C1', vehicleInfo: [brand: 'FV']])
-		Card dayCard = new Card(orderInfo: [number: 1, code: 'C2', vehicleInfo: [brand: 'FV']])
+		Card builtCard = new Card(order: [number: 1, code: 'C1'], duration: 20, vehicle: [brand: 'FV'])
+		Card dayCard = new Card(order: [number: 1, code: 'C2'], duration: 20, vehicle: [brand: 'FV'])
 
 		when:
 		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -335,8 +327,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card updated vehicle info"() {
 		given:
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']])
-		Card dayCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']])
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], duration: 30)
+		Card dayCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], duration: 30)
 
 		when:
 		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -351,15 +343,15 @@ class PanelServiceSpec extends Specification {
 
 	void "test update card order info"() {
 		given:
-		Card dayCard = new Card(orderInfo: [number: 1, state: 'A', vehicleInfo: [brand: 'BMW']])
-		Card builtCard = new Card(orderInfo: [number: 1, state: 'V', vehicleInfo: [brand: 'FV']])
+		Card dayCard = new Card(order: [number: 1, state: 'A'], vehicle: [brand: 'BMW'], duration: 10)
+		Card builtCard = new Card(order: [number: 1, state: 'V'], vehicle: [brand: 'FV'], duration: 10)
 
 		when:
 		Card updatedDayCard = panelService.updateCardOrderInfo(dayCard, builtCard)
 
 		then:
-		updatedDayCard.orderInfo.vehicleInfo.brand == 'FV'
-		updatedDayCard.orderInfo.state == 'V'
+		updatedDayCard.vehicle.brand == 'FV'
+		updatedDayCard.order.state == Order.State.V
 	}
 
 	// endregion
@@ -424,28 +416,28 @@ class PanelServiceSpec extends Specification {
 
 	void "test update card group info same groups"() {
 		given:
-		Card dayCard = new Card(group: [code: 1], duration: new Time(0, 20, 0))
-		Card builtCard = new Card(group: [code: 1], duration: new Time(0, 20, 0))
+		Card dayCard = new Card(group: [code: 1], duration: 20)
+		Card builtCard = new Card(group: [code: 1], duration: 20)
 
 		when:
 		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
 
 		then:
 		updatedCard.group.code == 1
-		updatedCard.duration == new Time(0, 20, 0)
+		updatedCard.duration == 20
 	}
 
 	void "test update card group info updated group"() {
 		given:
-		Card dayCard = new Card(group: [code: 1], duration: new Time(0, 20, 0))
-		Card builtCard = new Card(group: [code: 2], duration: new Time(0, 30, 0))
+		Card dayCard = new Card(group: [code: 1], duration: 20)
+		Card builtCard = new Card(group: [code: 2], duration: 30)
 
 		when:
 		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
 
 		then:
 		updatedCard.group.code == 2
-		updatedCard.duration == new Time(0, 30, 0)
+		updatedCard.duration == 30
 	}
 
 	// endregion
@@ -455,8 +447,8 @@ class PanelServiceSpec extends Specification {
 	void "test handle existent group card new group"() {
 		given:
 		UpdateCards updateCards = new UpdateCards()
-		List<Card> dayOrderCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 2])
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])
 
 		when:
 		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
@@ -464,13 +456,14 @@ class PanelServiceSpec extends Specification {
 		then:
 		!handled
 		!updateCards.updatedCards
+		!updateCards.sameCards
 	}
 
 	void "test handle existent group card same group not updated card"() {
 		given:
 		UpdateCards updateCards = new UpdateCards()
-		List<Card> dayOrderCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
 
 		when:
 		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
@@ -478,13 +471,14 @@ class PanelServiceSpec extends Specification {
 		then:
 		handled
 		!updateCards.updatedCards
+		updateCards.sameCards.size() == 1
 	}
 
 	void "test handle existent group card same group updated card"() {
 		given:
 		UpdateCards updateCards = new UpdateCards()
-		List<Card> dayOrderCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']], group: [code: 1])
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])
 
 		when:
 		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
@@ -493,7 +487,8 @@ class PanelServiceSpec extends Specification {
 		handled
 		updateCards.updatedCards
 		updateCards.updatedCards.size() == 1
-		updateCards.updatedCards[0].orderInfo.vehicleInfo.brand == 'FV'
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		!updateCards.sameCards
 	}
 
 	// endregion
@@ -503,8 +498,8 @@ class PanelServiceSpec extends Specification {
 	void "test handle replaced group card completely new group"() {
 		given:
 		UpdateCards updateCards = new UpdateCards()
-		List<Card> dayOrderCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 2])
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])
 
 		when:
 		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
@@ -520,8 +515,8 @@ class PanelServiceSpec extends Specification {
 	void "test handle replaced group card replaced group no updated card"() {
 		given:
 		UpdateCards updateCards = new UpdateCards()
-		List<Card> dayOrderCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
 
 		when:
 		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
@@ -530,7 +525,7 @@ class PanelServiceSpec extends Specification {
 		updateCards.updatedCards
 		updateCards.updatedCards.size() == 1
 		updateCards.updatedCards[0].group.code == 2
-		updateCards.updatedCards[0].orderInfo.vehicleInfo.brand == 'BMW'
+		updateCards.updatedCards[0].vehicle.brand == 'BMW'
 		!updateCards.newCards
 		!updateCards.deletedCards
 	}
@@ -538,8 +533,8 @@ class PanelServiceSpec extends Specification {
 	void "test handle replaced group card replaced group updated card"() {
 		given:
 		UpdateCards updateCards = new UpdateCards()
-		List<Card> dayOrderCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-		Card builtCard = new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
 
 		when:
 		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
@@ -548,7 +543,7 @@ class PanelServiceSpec extends Specification {
 		updateCards.updatedCards
 		updateCards.updatedCards.size() == 1
 		updateCards.updatedCards[0].group.code == 2
-		updateCards.updatedCards[0].orderInfo.vehicleInfo.brand == 'FV'
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
 		!updateCards.newCards
 		!updateCards.deletedCards
 	}
@@ -559,10 +554,10 @@ class PanelServiceSpec extends Specification {
 
 	void "test get new order cards new card with new group"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
 		List<Card> builtCards = [
-				new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1]),
-				new Card(orderInfo: [number: 2, vehicleInfo: [brand: 'BMW']], group: [code: 1])
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
+				new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
 		]
 
 		when:
@@ -571,27 +566,31 @@ class PanelServiceSpec extends Specification {
 		then:
 		updateCards.newCards
 		updateCards.newCards.size() == 1
-		updateCards.newCards[0].orderInfo.number == 2
+		updateCards.newCards[0].order.number == 2
+		updateCards.sameCards
+		updateCards.sameCards.size() == 1
+		updateCards.sameCards[0].order.number == 1
 		!updateCards.updatedCards
 		!updateCards.deletedCards
 	}
 
 	void "test get updated order cards no updated cards"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
 
 		then:
-		!updateCards.getAll()
+		updateCards.sameCards.size() == updateCards.getAll().size()
+		updateCards.sameCards[0].order.number == 1
 	}
 
 	void "test get updated order cards updated order info card"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])]
 
 		when:
 		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
@@ -599,17 +598,18 @@ class PanelServiceSpec extends Specification {
 		then:
 		updateCards.updatedCards
 		updateCards.updatedCards.size() == 1
-		updateCards.updatedCards[0].orderInfo.number == 1
-		updateCards.updatedCards[0].orderInfo.vehicleInfo.brand == 'FV'
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
 		updateCards.updatedCards[0].group.code == 1
 		!updateCards.newCards
 		!updateCards.deletedCards
+		!updateCards.sameCards
 	}
 
 	void "test get updated order cards updated replaced card"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 2, tasks: [[articleCode: 1]]])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1]]])]
 
 		when:
 		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
@@ -617,17 +617,18 @@ class PanelServiceSpec extends Specification {
 		then:
 		updateCards.updatedCards
 		updateCards.updatedCards.size() == 1
-		updateCards.updatedCards[0].orderInfo.number == 1
-		updateCards.updatedCards[0].orderInfo.vehicleInfo.brand == 'BMW'
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'BMW'
 		updateCards.updatedCards[0].group.code == 2
 		!updateCards.newCards
 		!updateCards.deletedCards
+		!updateCards.sameCards
 	}
 
 	void "test get updated order cards updated replaced card and updated order info"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']], group: [code: 2, tasks: [[articleCode: 1]]])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]])]
 
 		when:
 		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
@@ -635,8 +636,8 @@ class PanelServiceSpec extends Specification {
 		then:
 		updateCards.updatedCards
 		updateCards.updatedCards.size() == 1
-		updateCards.updatedCards[0].orderInfo.number == 1
-		updateCards.updatedCards[0].orderInfo.vehicleInfo.brand == 'FV'
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
 		updateCards.updatedCards[0].group.code == 2
 	}
 
@@ -646,7 +647,7 @@ class PanelServiceSpec extends Specification {
 
 	void "test deleted orders cards no cards to delete"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dayCards)
@@ -657,14 +658,14 @@ class PanelServiceSpec extends Specification {
 
 	void "test deleted orders cards card to delete"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 2, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dayCards)
 
 		then:
 		cards.size() == 1
-		cards[0].orderInfo.number == 2
+		cards[0].order.number == 2
 	}
 
 	// endregion
@@ -673,8 +674,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test get updated group deleted cards no cards to delete"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dayCards, builtCards)
@@ -685,15 +686,15 @@ class PanelServiceSpec extends Specification {
 
 	void "test get updated group deleted cards cards to delete"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 2])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
 
 		when:
 		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dayCards, builtCards)
 
 		then:
 		cards.size() == 1
-		cards[0].orderInfo.number == 1
+		cards[0].order.number == 1
 		cards[0].group.code == 1
 	}
 
@@ -703,7 +704,7 @@ class PanelServiceSpec extends Specification {
 
 	void "test delete card"() {
 		given:
-		Card card = new Card(orderInfo: [number: 2, vehicleInfo: [brand: 'BMW']], group: [code: 1])
+		Card card = new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
 
 		when:
 		Card deletedCard = panelService.deleteCard(card)
@@ -718,8 +719,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test get deleted cards no deleted cards"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		List<Card> cards = panelService.getDeletedCards([order4Articles], dayCards, builtCards)
@@ -730,8 +731,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test get deleted cards deleted order deleted cards"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 2, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		List<Card> cards = panelService.getDeletedCards([order1Article], dayCards, builtCards)
@@ -739,13 +740,13 @@ class PanelServiceSpec extends Specification {
 		then:
 		cards
 		cards.size() == 1
-		cards[0].orderInfo.number == 1
+		cards[0].order.number == 1
 	}
 
 	void "test get deleted cards deleted updated group deleted card"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 2])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
 
 		when:
 		List<Card> cards = panelService.getDeletedCards([order4Articles], dayCards, builtCards)
@@ -762,8 +763,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards no actions needed"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
@@ -772,41 +773,46 @@ class PanelServiceSpec extends Specification {
 		!updateCards.newCards
 		!updateCards.updatedCards
 		!updateCards.deletedCards
+		updateCards.sameCards.size() == 1
+		updateCards.sameCards[0].order.number == 1
 	}
 
 	void "test handle cards new cards"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = dayCards + [new Card(orderInfo: [number: 2, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = dayCards + [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles, order1Article], dayCards, builtCards)
 
 		then:
 		updateCards.newCards.size() == 1
-		updateCards.newCards[0].orderInfo.number == 2
+		updateCards.newCards[0].order.number == 2
+		updateCards.sameCards.size() == 1
+		updateCards.sameCards[0].order.number == 1
 		!updateCards.updatedCards
 		!updateCards.deletedCards
 	}
 
 	void "test handle cards updated cards"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'FV']], group: [code: 1])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
 
 		then:
 		updateCards.updatedCards.size() == 1
-		updateCards.updatedCards[0].orderInfo.number == 1
-		updateCards.updatedCards[0].orderInfo.vehicleInfo.brand == 'FV'
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		!updateCards.sameCards
 	}
 
 	void "test handle cards updated new cards"() {
 		given:
-		List<Card> dayCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 1])]
-		List<Card> builtCards = [new Card(orderInfo: [number: 1, vehicleInfo: [brand: 'BMW']], group: [code: 2])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
@@ -819,6 +825,7 @@ class PanelServiceSpec extends Specification {
 		updateCards.deletedCards[0].group.code == 1
 		updateCards.deletedCards[0].dateDeleted
 		!updateCards.updatedCards
+		!updateCards.sameCards
 	}
 
 	// endregion

@@ -10,14 +10,17 @@ class UpdateCards {
 	List<Card> updatedCards
 	List<Card> deletedCards
 
+	List<Card> sameCards
+
 	UpdateCards() {
 		newCards = []
 		updatedCards = []
 		deletedCards = []
+		sameCards = []
 	}
 
 	List<Card> getAll() {
-		return newCards + updatedCards + deletedCards
+		return newCards + updatedCards + deletedCards + sameCards
 	}
 
 }

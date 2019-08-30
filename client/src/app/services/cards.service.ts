@@ -9,6 +9,7 @@ import {DaysService} from "./days.service";
 import {Order} from "../objects/order";
 
 import {CardsGroup} from "../objects/cards-group";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
 	providedIn: 'root'
@@ -32,8 +33,13 @@ export class CardsService {
 
 	constructor(
 		private daysService: DaysService,
-		private timeService: TimeService
+		private timeService: TimeService,
+		private http: HttpClient
 	) {
+		this.http.get('http://localhost:8083/panel/get')
+			.subscribe(data => {
+				console.log(data);
+			});
 		this.cards = [
 			new Card(1, undefined, undefined, undefined, 30, undefined, undefined, new Order(1), undefined, undefined),
 			new Card(2, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),

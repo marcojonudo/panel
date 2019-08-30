@@ -40,6 +40,7 @@ import {DraggableGroupComponent} from './components/draggable-group/draggable-gr
 import {HelperDraggableGroupComponent} from './components/helper-draggable-group/helper-draggable-group.component';
 import {ResizableLineDirective} from './directives/resizable-line.directive';
 import {ResizableCardDirective} from './directives/resizable-card.directive';
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
 	declarations: [
@@ -77,7 +78,8 @@ import {ResizableCardDirective} from './directives/resizable-card.directive';
 		ScrollingModule,
 		BrowserAnimationsModule,
 		AngularDraggableModule,
-		OverlayModule
+		OverlayModule,
+		HttpClientModule
 	],
 	providers: [
 		TimeService,

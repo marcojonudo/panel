@@ -1,8 +1,6 @@
 package panel.clients.schedules
 
 import groovy.transform.CompileStatic
-import io.micronaut.context.annotation.Requires
-import io.micronaut.context.env.Environment
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Get
@@ -16,7 +14,6 @@ import javax.inject.Singleton
 
 @Singleton
 @CompileStatic
-@Requires(notEnv = Environment.TEST)
 @Client("http://localhost:8082/schedules")
 @Header(name = "database", value = "cubo")
 interface SchedulesDatabaseClient extends SchedulesDatabaseApi {

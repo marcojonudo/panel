@@ -64,22 +64,6 @@ class PanelService {
 		return daysMechanics
 	}
 
-//	/**
-//	 * Define panel mechanic position if it is not defined yet
-//	 * @param dayMechanics List of day mechanics
-//	 * @return List of mechanics with loaded position
-//	 */
-//	List<EmployeeSchedule> loadEmployeesPosition(List<EmployeeSchedule> dayMechanics) {
-//		boolean mechanicWithoutPosition = dayMechanics.find { !it.panelInfo.position }
-//		if (mechanicWithoutPosition) {
-//			dayMechanics.eachWithIndex { EmployeeSchedule employeeSchedule, int i ->
-//				employeeSchedule.panelInfo.position = Constants.A_Z[i]
-//			}
-//			dayMechanics = schedulesDatabaseClient.updateEmployeesSchedulesPosition(dayMechanics).collect { (EmployeeSchedule) it }
-//		}
-//		return dayMechanics
-//	}
-
 	// endregion
 
 	// region Build cards
@@ -113,7 +97,9 @@ class PanelService {
 		orderTasks.each { Task task ->
 			boolean alreadyProcessedTask = processedTasks.find { it.articleCode == task.articleCode }
 			if (!alreadyProcessedTask) {
-				List<Group> possibleGroups = task.groups.sort { a, b -> b.tasks.size() <=> a.tasks.size() }
+				List<Group> possibleGroups = task.groups.findAll {
+					!it.tasks.find { it.articleCode in processedTasks.articleCode }
+				}.sort { a, b -> b.tasks.size() <=> a.tasks.size() }
 				Group selectedGroup = possibleGroups.find { Group group ->
 					List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks.articleCode }
 					return group.tasks.size() == commonTasks.size()
@@ -151,17 +137,6 @@ class PanelService {
 				LOG.warn("Duration not found for group: ${groupsUnits.group.code}")
 			}
 		}
-//		if (groupsUnits.size() != durations.size()) {
-//			LOG.error("Durations not found for all the groups: ${groupsUnits.group.code}")
-//		} else {
-//			int durationIndex = 0
-//			ordersCards = (List<Card>) ordersGroupsUnits.inject([]) { List<Card> orderCards, Order order, List<GroupUnits> groupsUnits2 ->
-//				List<Card> cards = groupsUnits2.collect { new Card(order, it.group, it.units[0], durations[durationIndex++]) }
-//				orderCards = orderCards + cards
-//				return orderCards
-//			}
-//		}
-
 		return ordersCards
 	}
 
@@ -240,6 +215,9 @@ class PanelService {
 			/* El grupo sigue siendo el mismo, por lo que se comprueba si ha cambiado alguna propiedad de la orden */
 			if (checkUpdatedOrderInfo(dayGroupOrderCard, builtCard)) {
 				updateCards.updatedCards << updateCardOrderInfo(dayGroupOrderCard, builtCard)
+			} else {
+				/* Fichas que no han sufrido ningún cambio, pero deben devolverse para que se carguen en panel */
+				updateCards.sameCards << dayGroupOrderCard
 			}
 			return true
 		}
@@ -298,9 +276,7 @@ class PanelService {
 	static boolean checkUpdatedOrderInfo(Card dayCard, Card builtCard) {
 		Map orderDifferences = (builtCard.order.properties + builtCard.vehicle.properties) -
 				(dayCard.order.properties + dayCard.vehicle.properties)
-		/* Si no cambia ninguna propiedad, el mapa tendrá sólo la entrada correspondiente al objeto
-		*  vehicleInfo */
-		return orderDifferences.size() > 1
+		return orderDifferences.size() > 0
 	}
 
 	/**
