@@ -132,7 +132,11 @@ class PanelService {
 			List<GroupUnits> groupsUnits = groupsUnitsMap.collect { (GroupUnits) it }
 			Order order = orders.find { it.number == orderNumber }
 			if (groupsUnits.duration) {
-				ordersCards += groupsUnits.collect { new Card(order, it.group, it.units[0], it.duration) }
+				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
+					Card linkedPrevious = ordersCards && ordersCards.last()?.order?.number == order.number ?
+							ordersCards.last() : null
+					ordersCards << new Card(order, groupUnits.group, groupUnits.units[0], groupUnits.duration, linkedPrevious)
+				}
 			} else {
 				LOG.warn("Duration not found for group: ${groupsUnits.group.code}")
 			}
