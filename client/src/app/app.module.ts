@@ -41,6 +41,7 @@ import {HelperDraggableGroupComponent} from './components/helper-draggable-group
 import {ResizableLineDirective} from './directives/resizable-line.directive';
 import {ResizableCardDirective} from './directives/resizable-card.directive';
 import {HttpClientModule} from "@angular/common/http";
+import { SpinnerComponent } from './components/spinner/spinner.component';
 
 @NgModule({
 	declarations: [
@@ -69,7 +70,8 @@ import {HttpClientModule} from "@angular/common/http";
 		DraggableGroupComponent,
 		HelperDraggableGroupComponent,
 		ResizableLineDirective,
-		ResizableCardDirective
+		ResizableCardDirective,
+		SpinnerComponent
 	],
 	imports: [
 		BrowserModule,

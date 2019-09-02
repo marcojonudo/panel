@@ -1,5 +1,6 @@
-<app-main></app-main>
+<app-main *ngIf="!loading"></app-main>
 <app-overlay></app-overlay>
+<app-spinner *ngIf="loading"></app-spinner>
 <!--<div class="w-100 h-100 overlay" *ngIf="helperCardsGroup$ | async">-->
 <!--<div-->
 <!--style="pointer-events: none; position: fixed; width: 150px; height: 50px; z-index: 1000; background-color: red !important;">-->
