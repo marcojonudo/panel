@@ -45,8 +45,8 @@ class PanelService {
 		List<Card> dayCards = panelDatabaseClient.getCards(day).collect { (Card) it }
 
 		UpdateCards updateCards = syncOrders(orders, dayCards)
-		saveCards(updateCards)
-		return [dayMechanics: daysMechanics, cards: updateCards.getAll()]
+		List<Card> cards = saveCards(updateCards)
+		return [dayMechanics: daysMechanics, cards: cards + updateCards.sameCards]
 	}
 
 	// region Mechanics
@@ -133,9 +133,9 @@ class PanelService {
 			Order order = orders.find { it.number == orderNumber }
 			if (groupsUnits.duration) {
 				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
-					Card linkedPrevious = ordersCards && ordersCards.last()?.order?.number == order.number ?
-							ordersCards.last() : null
-					ordersCards << new Card(order, groupUnits.group, groupUnits.units[0], groupUnits.duration, linkedPrevious)
+//					Card linkedPrevious = ordersCards && ordersCards.last()?.order?.number == order.number ?
+//							ordersCards.last() : null
+					ordersCards << new Card(order, groupUnits.group, groupUnits.units[0], groupUnits.duration)
 				}
 			} else {
 				LOG.warn("Duration not found for group: ${groupsUnits.group.code}")
@@ -362,15 +362,38 @@ class PanelService {
 
 	// region Save cards
 
-	void saveCards(UpdateCards updateCards) {
+	/**
+	 * Save cards in database, wether creating new rows or updating existing ones
+	 * @param updateCards Object with cars to create, update or delete (update dateDeleted)
+	 */
+	List<Card> saveCards(UpdateCards updateCards) {
+		List<Card> cards = []
 		if (updateCards.newCards) {
-			panelDatabaseClient.createCards(updateCards.newCards)
+			cards = panelDatabaseClient.createCards(updateCards.newCards).collect { (Card) it }
+			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
+			* para poder relacionar los IDS enlazados */
+			relateCardsIds(cards)
+			panelDatabaseClient.updateCardsLinks(cards)
 		}
 		if (updateCards.updatedCards) {
-			panelDatabaseClient.updateCards(updateCards.updatedCards)
+			cards += panelDatabaseClient.updateCards(updateCards.updatedCards).collect { (Card) it }
 		}
 		if (updateCards.deletedCards) {
-			panelDatabaseClient.deleteCards(updateCards.deletedCards.id)
+			cards += panelDatabaseClient.deleteCards(updateCards.deletedCards.id).collect { (Card) it }
+		}
+		return cards
+	}
+
+	/**
+	 * Relate linked cards IDs once the cards where saved in DB
+	 * @param cards List of recently created cards
+	 */
+	static void relateCardsIds(List<Card> cards) {
+		cards.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
+			orderCards.eachWithIndex { Card card, int i ->
+				card.linkedPreviousId = i > 0 && orderCards[i-1].order.number == card.order.number ? orderCards[i-1].id : (Long) null
+				card.linkedNextId = i < orderCards.size()-1 && orderCards[i+1].order.number == card.order.number ? orderCards[i+1].id : (Long) null
+			}
 		}
 	}
 

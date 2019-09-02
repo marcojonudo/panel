@@ -18,8 +18,6 @@ class PanelController {
 	@Get("/get")
 	Map get() {
 		Map panelInfo = panelService.getPanelInfo()
-//		Configuration configuration = configurationDataService.findByClave("planning.types")
-
 		return panelInfo
 	}
 

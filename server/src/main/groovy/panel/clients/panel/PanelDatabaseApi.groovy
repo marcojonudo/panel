@@ -19,6 +19,6 @@ interface PanelDatabaseApi {
 	Map<Integer, List<Map>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 	List<Map> createCards(@Body List<Card> cards)
 	List<Map> updateCards(@Body List<Card> cards)
-	void deleteCards(@Body List<Long> ids)
+	List<Map> deleteCards(@Body List<Long> ids)
 
 }
