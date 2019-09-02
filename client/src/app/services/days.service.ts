@@ -29,16 +29,15 @@ export class DaysService {
 	private _daysMechanics$: any;
 
 	constructor() {
-		this.days = [
-			UtilsService.parseDateFromString('2019-06-25'),
-			UtilsService.parseDateFromString('2019-06-26'),
-			UtilsService.parseDateFromString('2019-06-27'),
-			UtilsService.parseDateFromString('2019-06-28')
-		];
+		// this.days = [
+		// 	UtilsService.parseDateFromString('2019-06-25'),
+		// 	UtilsService.parseDateFromString('2019-06-26'),
+		// 	UtilsService.parseDateFromString('2019-06-27'),
+		// 	UtilsService.parseDateFromString('2019-06-28')
+		// ];
 
 		this.oneDayMode = true;
 		this._lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
-		this.sliceDays = this.days.length - 1;
 
 		this.dayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);
 		this.oneDayMode$ = this.dayModeSubject.asObservable();
@@ -46,24 +45,22 @@ export class DaysService {
 		this.lineHeightSubject = new BehaviorSubject<number>(this._lineHeight);
 		this.lineHeight$ = this.lineHeightSubject.asObservable();
 
-		this.mechanics = [
-			new Mechanic('2019-06-25', 'A', 2),
-			new Mechanic('2019-06-25', 'B', 2),
-			new Mechanic('2019-06-25', 'C', 2),
-			new Mechanic('2019-06-25', 'D', 2),
-			new Mechanic('2019-06-26', 'A', 2),
-			new Mechanic('2019-06-26', 'B', 2),
-			new Mechanic('2019-06-26', 'C', 2),
-			new Mechanic('2019-06-27', 'A', 2),
-			new Mechanic('2019-06-27', 'B', 2),
-			new Mechanic('2019-06-27', 'C', 2),
-			new Mechanic('2019-06-27', 'D', 2),
-			new Mechanic('2019-06-27', 'E', 2)
-		];
-		this.daysMechanics = this.initDaysMechanics(this.mechanics);
+		// this.mechanics = [
+		// 	new Mechanic('2019-06-25', 'A', 2),
+		// 	new Mechanic('2019-06-25', 'B', 2),
+		// 	new Mechanic('2019-06-25', 'C', 2),
+		// 	new Mechanic('2019-06-25', 'D', 2),
+		// 	new Mechanic('2019-06-26', 'A', 2),
+		// 	new Mechanic('2019-06-26', 'B', 2),
+		// 	new Mechanic('2019-06-26', 'C', 2),
+		// 	new Mechanic('2019-06-27', 'A', 2),
+		// 	new Mechanic('2019-06-27', 'B', 2),
+		// 	new Mechanic('2019-06-27', 'C', 2),
+		// 	new Mechanic('2019-06-27', 'D', 2),
+		// 	new Mechanic('2019-06-27', 'E', 2)
+		// ];
+		// this.daysMechanics = this.initDaysMechanics(this.mechanics);
 
-		this.initObservables(this.daysMechanics);
-		console.log('Days mechanics', this.daysMechanics);
 	}
 
 	// region Getters / setters
@@ -128,18 +125,27 @@ export class DaysService {
 
 	// region Init
 
-	initDaysMechanics(mechanics: Mechanic[]): any {
-		let daysMechanics = {};
+	init(daysMechanicsList: any) {
+		daysMechanicsList.sort((a, b) => a.day - b.day);
+		this.initDays(daysMechanicsList);
+		this.initDaysMechanics(daysMechanicsList);
 
-		for (let mechanic of mechanics) {
-			if (!daysMechanics[mechanic.day.getTime()]) {
-				daysMechanics[mechanic.day.getTime()] = [];
-			}
+		this.initObservables(this.daysMechanics);
+		console.log('Days', this.days);
+		console.log('Days mechanics', this.daysMechanics);
+	}
 
-			daysMechanics[mechanic.day.getTime()].push(mechanic);
+	initDays(daysMechanicsList: any) {
+		this.days = daysMechanicsList.map(entry => entry.day);
+		console.log(this.days[0].getDate());
+		this.sliceDays = this.days.length - 1;
+	}
+
+	initDaysMechanics(daysMechanicsList: any) {
+		this.daysMechanics = {};
+		for (let dayMechanics of daysMechanicsList) {
+			this.daysMechanics[dayMechanics.day.getTime()] = UtilsService.sort(dayMechanics.mechanics, (m) => m.position);
 		}
-
-		return daysMechanics;
 	}
 
 	initObservables(daysMechanics: any): void {

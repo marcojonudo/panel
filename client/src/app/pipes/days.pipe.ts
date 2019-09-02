@@ -5,8 +5,7 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class DaysPipe implements PipeTransform {
 
-	// TODO Cambiar tipo a day
-	transform(days: any[], oneDayMode: boolean): any[] {
+	transform(days: Date[], oneDayMode: boolean): any[] {
 		return oneDayMode ? days.slice(0, 1) : days;
 	}
 

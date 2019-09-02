@@ -16,7 +16,7 @@ export class DayPanelComponent {
 	constructor() { }
 
 	checkDayPanel() {
-		console.log('checking day panel');
+		console.log('checking day panel', this.day);
 	}
 
 }

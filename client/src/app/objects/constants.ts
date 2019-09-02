@@ -11,4 +11,6 @@ export class Constants {
 		LINE_HEIGHT_NARROW: 25,
 		MECHANIC_INFO_WIDTH: 180
 	};
+	public static MORNING = 'MORNING';
+	public static AFTERNOON = 'AFTERNOON';
 }

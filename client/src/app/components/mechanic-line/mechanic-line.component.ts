@@ -35,6 +35,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.hours = this.timeService.getHours();
+		console.log('HOURS', this.hours);
 		this.quarters = this.timeService.getQuarters();
 		this.assignedCards = [{id: 6, width: 150, left: 180, top: 120}];
 	}

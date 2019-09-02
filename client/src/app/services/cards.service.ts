@@ -36,54 +36,40 @@ export class CardsService {
 		private timeService: TimeService,
 		private http: HttpClient
 	) {
-		this.http.get('http://localhost:8083/panel/get')
-			.subscribe(data => {
-				console.log(data);
-			});
-		this.cards = [
-			new Card(1, undefined, undefined, undefined, 30, undefined, undefined, new Order(1), undefined, undefined),
-			new Card(2, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
-			new Card(14, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
-			new Card(3, undefined, undefined, undefined, 60, undefined, undefined, new Order(2), undefined, undefined),
-			new Card(4, undefined, undefined, undefined, 45, undefined, undefined, new Order(3), undefined, undefined),
-			new Card(15, undefined, undefined, undefined, 60, undefined, undefined, new Order(3), undefined, undefined),
-			new Card(16, undefined, undefined, undefined, 50, undefined, undefined, new Order(12), undefined, undefined),
-			new Card(17, undefined, undefined, undefined, 40, undefined, undefined, new Order(13), undefined, undefined),
-			new Card(18, undefined, undefined, undefined, 45, undefined, undefined, new Order(14), undefined, undefined),
-			new Card(19, undefined, undefined, undefined, 25, undefined, undefined, new Order(15), undefined, undefined),
-			new Card(20, undefined, undefined, undefined, 20, undefined, undefined, new Order(16), undefined, undefined),
-			new Card(21, undefined, undefined, undefined, 35, undefined, undefined, new Order(17), undefined, undefined),
-			new Card(22, undefined, undefined, undefined, 15, undefined, undefined, new Order(18), undefined, undefined),
-			new Card(23, undefined, undefined, undefined, 30, undefined, undefined, new Order(19), undefined, undefined),
-			new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 0, new Order(4), undefined, 6),
-			new Card(6, "2019-06-25", "A", '09:30:00', 15, '09:45:00', 0, new Order(4), 5, undefined),
-			new Card(7, "2019-06-25", "A", '10:00:00', 30, '10:45:00', 1, new Order(5), undefined, undefined),
-			new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 0, new Order(6), undefined, undefined),
-			new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 1, new Order(7), undefined, undefined),
-			new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 1, new Order(8), undefined, undefined),
-			new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 1, new Order(9), undefined, undefined),
-			new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 0, new Order(10), undefined, undefined),
-			new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 1, new Order(11), undefined, undefined),
-		];
-
-		this.unassignedCards = this.cards.filter(card => !card.day);
-		this.unassignedCardsGroups = this.initGroupedUnassignedCards(this.unassignedCards);
-
-		this.assignedCards = this.cards.filter(card => card.day);
-		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
-		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, this.daysService.daysMechanics);
-
-		this.unassignedCardsGroupsSubject = new BehaviorSubject<any>(this.unassignedCardsGroups);
-		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
-
-		this.widthSubscription = this.timeService.intervalWidth$.subscribe(() => {
-			this.initDimensions();
-			this.notifyAll();
-		});
-
-		console.log('Unassigned cards groups', this.unassignedCardsGroups);
-		console.log('Assigned cards groups', this.assignedCardsGroups);
-		console.log('Assigned days cards groups', this.assignedDaysCardsGroups);
+		// this.http.get('http://localhost:8083/panel/get')
+		// 	.subscribe((data: any) => {
+		// 		console.log(data);
+		// 		const cards = data.cards.map(card => {
+		// 			return new Card(card);
+		// 		});
+		// 		this.init(cards);
+		// 	});
+		// this.cards = [
+		// 	new Card(1, undefined, undefined, undefined, 30, undefined, undefined, new Order(1), undefined, undefined),
+		// 	new Card(2, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
+		// 	new Card(14, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
+		// 	new Card(3, undefined, undefined, undefined, 60, undefined, undefined, new Order(2), undefined, undefined),
+		// 	new Card(4, undefined, undefined, undefined, 45, undefined, undefined, new Order(3), undefined, undefined),
+		// 	new Card(15, undefined, undefined, undefined, 60, undefined, undefined, new Order(3), undefined, undefined),
+		// 	new Card(16, undefined, undefined, undefined, 50, undefined, undefined, new Order(12), undefined, undefined),
+		// 	new Card(17, undefined, undefined, undefined, 40, undefined, undefined, new Order(13), undefined, undefined),
+		// 	new Card(18, undefined, undefined, undefined, 45, undefined, undefined, new Order(14), undefined, undefined),
+		// 	new Card(19, undefined, undefined, undefined, 25, undefined, undefined, new Order(15), undefined, undefined),
+		// 	new Card(20, undefined, undefined, undefined, 20, undefined, undefined, new Order(16), undefined, undefined),
+		// 	new Card(21, undefined, undefined, undefined, 35, undefined, undefined, new Order(17), undefined, undefined),
+		// 	new Card(22, undefined, undefined, undefined, 15, undefined, undefined, new Order(18), undefined, undefined),
+		// 	new Card(23, undefined, undefined, undefined, 30, undefined, undefined, new Order(19), undefined, undefined),
+		// 	new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 0, new Order(4), undefined, 6),
+		// 	new Card(6, "2019-06-25", "A", '09:30:00', 15, '09:45:00', 0, new Order(4), 5, undefined),
+		// 	new Card(7, "2019-06-25", "A", '10:00:00', 30, '10:45:00', 1, new Order(5), undefined, undefined),
+		// 	new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 0, new Order(6), undefined, undefined),
+		// 	new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 1, new Order(7), undefined, undefined),
+		// 	new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 1, new Order(8), undefined, undefined),
+		// 	new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 1, new Order(9), undefined, undefined),
+		// 	new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 0, new Order(10), undefined, undefined),
+		// 	new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 1, new Order(11), undefined, undefined),
+		// ];
+		// this.cards = [];
 	}
 
 	// region Getters / setters
@@ -108,10 +94,56 @@ export class CardsService {
 
 	// region Init
 
-	private initGroupedUnassignedCards(unassignedCards: Card[]) {
-		return UtilsService.groupList(unassignedCards, (card) => card.order.number).map(groupedCards => {
-			return new CardsGroup(groupedCards)
+	init(cards: Card[]) {
+		this.cards = cards;
+
+		this.unassignedCards = this.cards.filter(card => !card.day);
+		this.unassignedCardsGroups = this.initGroupedUnassignedCards(this.unassignedCards);
+
+		this.assignedCards = this.cards.filter(card => card.day);
+		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
+		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, this.daysService.daysMechanics);
+
+		this.unassignedCardsGroupsSubject = new BehaviorSubject<any>(this.unassignedCardsGroups);
+		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
+
+		this.widthSubscription = this.timeService.intervalWidth$.subscribe(() => {
+			this.initDimensions();
+			this.notifyAll();
 		});
+
+		console.log('Cards', this.cards);
+		console.log('Unassigned cards groups', this.unassignedCardsGroups);
+		console.log('Assigned cards groups', this.assignedCardsGroups);
+		console.log('Assigned days cards groups', this.assignedDaysCardsGroups);
+	}
+
+	private initGroupedUnassignedCards(unassignedCards: Card[]): CardsGroup[] {
+		let groups = [];
+		let processedCards = [];
+		for (let card of unassignedCards) {
+			const processed = processedCards.indexOf(card) > -1;
+			if (!processed) {
+				const linkedCards = this.findLinkedCards(unassignedCards, card, [card]);
+				groups.push(new CardsGroup(linkedCards));
+				processedCards = processedCards.concat(linkedCards);
+			}
+		}
+		return groups;
+	}
+
+	private findLinkedCards(cards: Card[], card: Card, linkedCards: Card[]): Card[] {
+		if (card.linkedPrevId) {
+			const linkedPrevCard = cards.find(c => c.id == card.linkedPrevId);
+			linkedCards.push(linkedPrevCard);
+			this.findLinkedCards(cards, linkedPrevCard, linkedCards);
+		}
+		if (card.linkedNextId) {
+			const linkedNextCard = cards.find(c => c.id == card.linkedNextId);
+			linkedCards.push(linkedNextCard);
+			this.findLinkedCards(cards, linkedNextCard, linkedCards);
+		}
+		return linkedCards;
 	}
 
 	private initAssignedCardsGroups(assignedCards: Card[]) {
@@ -124,6 +156,7 @@ export class CardsService {
 		this.assignedDaysCardsGroups$ = {};
 
 		for (let dayTime in daysMechanics) {
+			console.log('dayTime', dayTime);
 			this.assignedDaysCardsGroups[dayTime] = {};
 			this.assignedDaysCardsGroupsSubjects[dayTime] = {};
 			this.assignedDaysCardsGroups$[dayTime] = {};
@@ -225,6 +258,7 @@ export class CardsService {
 			this.resetCardsGroup(cardsGroup);
 		}
 
+		console.log(cardsGroup);
 		this.addToDestiny(newMechanic, cardsGroup);
 	}
 

@@ -20,28 +20,41 @@ export class Card {
 	private _linkedNextId: number;
 	private _linkedPrevId: number;
 
-	constructor(
-		id: number,
-		day: string,
-		mechanicCode: string,
-		start: string,
-		duration: number,
-		end: string,
-		line: number,
-		order: Order,
-		linkedPrevId: number,
-		linkedNextId: number
-	) {
-		this.id = id;
-		this.day = day ? UtilsService.parseDateFromString(day) : undefined;
-		this.mechanicCode = mechanicCode;
-		this.start = start ? UtilsService.parseDateFromCompleteString(`${day} ${start}`) : undefined;
-		this.duration = duration;
-		this.end = end;
-		this.line = line;
-		this.order = order;
-		this.linkedPrevId = linkedPrevId;
-		this.linkedNextId = linkedNextId;
+	// constructor(
+	// 	id: number,
+	// 	day: string,
+	// 	mechanicCode: string,
+	// 	start: string,
+	// 	duration: number,
+	// 	end: string,
+	// 	line: number,
+	// 	order: Order,
+	// 	linkedPrevId: number,
+	// 	linkedNextId: number
+	// ) {
+	// 	this.id = id;
+	// 	this.day = day ? UtilsService.parseDateFromString(day) : undefined;
+	// 	this.mechanicCode = mechanicCode;
+	// 	this.start = start ? UtilsService.parseDateFromCompleteString(`${day} ${start}`) : undefined;
+	// 	this.duration = duration;
+	// 	this.end = end;
+	// 	this.line = line;
+	// 	this.order = order;
+	// 	this.linkedPrevId = linkedPrevId;
+	// 	this.linkedNextId = linkedNextId;
+	// }
+
+	constructor(card: any) {
+		this.id = card.id;
+		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;
+		this.mechanicCode = card.mechanicCode;
+		this.start = card.start ? UtilsService.parseCompleteDate(this.day, card.start) : undefined;
+		this.duration = card.duration;
+		this.end = card.end;
+		this.line = card.line;
+		this.order = new Order(card.order);
+		this.linkedPrevId = card.linkedPrevId;
+		this.linkedNextId = card.linkedNextId;
 	}
 
 	// region Getters / setters
@@ -96,11 +109,11 @@ export class Card {
 	// endregion
 
 	clone() {
-		let card = new Card(this.id, undefined, this.mechanicCode, undefined, this.duration, this.end,
-							this.line, this.order, this.linkedPrevId, this.linkedNextId);
-		card.day = this.day;
-		card.start = this.start;
-		return card;
+		// let card = new Card(this.id, undefined, this.mechanicCode, undefined, this.duration, this.end,
+		// 					this.line, this.order, this.linkedPrevId, this.linkedNextId);
+		// card.day = this.day;
+		// card.start = this.start;
+		// return card;
 	}
 
 }

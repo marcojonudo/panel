@@ -13,7 +13,7 @@
 						class="h-100 animated slideInRight"
 						[index]="i"
 						[day]="day"
-						*ngFor="let day of daysPanels | days: (oneDayMode$ | async); trackBy: trackByDay; let i = index"></app-day-panel>
+						*ngFor="let day of days | days: (oneDayMode$ | async); trackBy: trackByDay; let i = index"></app-day-panel>
 				</div>
 			</div>
 			<app-tools-panel class="flex-grow-1 h-100"></app-tools-panel>

@@ -3,9 +3,9 @@ import {Draggable, Droppable} from "@shopify/draggable"
 import {Card} from "./objects/card";
 import {HttpClient} from "@angular/common/http";
 import {CardsService} from "./services/cards.service";
-import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
-import {Observable} from "rxjs/internal/Observable";
-import {LoadingService} from "./services/loading.service";
+import {UtilsService} from "./services/utils.service";
+import {DaysService} from "./services/days.service";
+import {Mechanic} from "./objects/mechanic";
 
 @Component({
 	selector: 'app-root',
@@ -20,16 +20,17 @@ export class AppComponent implements AfterViewInit {
 
 	constructor(
 		private cdRef: ChangeDetectorRef,
+		private daysService: DaysService,
 		private cardsService: CardsService,
 		private http: HttpClient
 	) {
 		this.loading = true;
 		this.http.get('http://localhost:8083/panel/get')
 			.subscribe((data: any) => {
-				const cards = data.cards.map(card => {
-					return new Card(card);
-				});
-				cardsService.init(cards);
+				console.log(data);
+				// console.log(Object.keys(data.daysMechanics).map(a => UtilsService.parseDateFromString(a)));
+				daysService.init(this.parseDaysMechanics(data.daysMechanics));
+				cardsService.init(data.cards.map(card => new Card(card)));
 				this.loading = false;
 				this.cdRef.detectChanges();
 			});
@@ -50,6 +51,20 @@ export class AppComponent implements AfterViewInit {
 	}
 
 	// endregion
+
+	parseDaysMechanics(daysMechanics: any) {
+		let daysMechanicsList = [];
+		for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
+			const day = UtilsService.parseDateFromString(dayString);
+			daysMechanicsList.push(
+				{day: day, mechanics: mechanics.map(mechanic =>
+						new Mechanic(day, mechanic.panelPosition, mechanic.employee, mechanic.schedule, mechanic.lines)
+					)
+				}
+			);
+		}
+		return daysMechanicsList;
+	}
 
 	check() {
 		console.log('checking app component');

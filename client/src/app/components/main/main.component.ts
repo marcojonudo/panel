@@ -11,7 +11,7 @@ import {DaysService} from "../../services/days.service";
 export class MainComponent implements AfterViewInit {
 
 	//TODO Cambiar tipo
-	private daysPanels: any[];
+	private days: Date[];
 	private itemSize: number;
 
 	private relativeContainer: boolean;
@@ -37,7 +37,7 @@ export class MainComponent implements AfterViewInit {
 		private daysService: DaysService,
 		private timeService: TimeService
 	) {
-		this.daysPanels = this.daysService.days;
+		this.days = this.daysService.days;
 		// this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
 
 		this.relativeContainer = true;

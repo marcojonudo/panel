@@ -37,7 +37,7 @@ class PanelService {
 	}
 
 	Map getPanelInfo(Date day = new Date()) {
-		Map<java.sql.Date, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
+		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
 		List<Order> orders = fviberiDatabaseClient.getOrders(new Date(), Constants.ORDERS_QUERY_STATES).collect { (Order) it }
@@ -46,7 +46,7 @@ class PanelService {
 
 		UpdateCards updateCards = syncOrders(orders, dayCards)
 		List<Card> cards = saveCards(updateCards)
-		return [dayMechanics: daysMechanics, cards: cards + updateCards.sameCards]
+		return [daysMechanics: daysMechanics, cards: cards + updateCards.sameCards]
 	}
 
 	// region Mechanics
@@ -56,11 +56,11 @@ class PanelService {
 	 * @param date Day to get mechanics
 	 * @return List of mechanic employees
 	 */
-	Map<java.sql.Date, List<EmployeeSchedule>> getDaysMechanics(Date date) {
+	Map<String, List<EmployeeSchedule>> getDaysMechanics(Date date) {
 		List<EmployeeSchedule> mechanics = schedulesDatabaseClient.getMechanics(date, true).collect {
 			(EmployeeSchedule) it
 		}
-		Map<java.sql.Date, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day }
+		Map<String, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day.toString() }
 		return daysMechanics
 	}
 

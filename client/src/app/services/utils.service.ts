@@ -25,7 +25,16 @@ export class UtilsService {
 
 	public static parseDateFromString(date: string): Date {
 		const info = date.split('-');
-		return new Date(+info[0], +info[1], +info[2]);
+		return new Date(+info[0], +info[1]-1, +info[2]);
+	}
+
+	public static parseDateFromLong(date: number): Date {
+		return new Date(date);
+	}
+
+	public static parseCompleteDate(day: Date, start: string): Date {
+		const timeInfo = start.split(':');
+		return new Date(day.getFullYear(), day.getMonth(), day.getDate(), +timeInfo[0], +timeInfo[1], +timeInfo[2]);
 	}
 
 	public static parseDateFromCompleteString(date: string): Date {

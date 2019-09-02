@@ -29,7 +29,7 @@ export class GridComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		// this.mechanicsSubscription.unsubscribe();
+		// this.mechanicasSubscription.unsubscribe();
 	}
 
 	get mechanics(): Mechanic[] {

@@ -8,13 +8,13 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 })
 export class TimelineContainerComponent {
 
-	@Input() index: number;
+	@Input() day: Date;
 
 	constructor() {
 	}
 
 	check() {
-		console.log('checking timeline container')
+		console.log('checking timeline container', this.day)
 	}
 
 }

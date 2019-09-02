@@ -1,6 +1,7 @@
 <div
-	class="h-100 panel-card resizable"
+	class="h-100 panel-card resizable d-flex"
 	[style.width.px]="card.width">
+	{{card.order.code}}
 	<div appResizableCard [card]="card" class="h-100 cursor-resize ml-auto" style="background-color: yellow; width: 3px;"></div>
 </div>
 <div>{{check()}}</div>
