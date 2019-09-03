@@ -60,7 +60,7 @@ class PanelService {
 		List<EmployeeSchedule> mechanics = schedulesDatabaseClient.getMechanics(date, true).collect {
 			(EmployeeSchedule) it
 		}
-		Map<String, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day.toString() }
+		Map<String, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day?.toString() }
 		return daysMechanics
 	}
 

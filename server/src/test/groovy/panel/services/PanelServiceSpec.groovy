@@ -1449,7 +1449,7 @@ class PanelServiceSpec extends Specification {
 
 	// region getDaysMechanics
 
-	void "test get day mechanics sort correct not defined positions"() {
+	void "test get day mechanics sort not null days"() {
 		given:
 		Date date = new Date()
 		List<Map> dayMechanics = [
@@ -1468,6 +1468,29 @@ class PanelServiceSpec extends Specification {
 		daysMechanics['2019-08-29'].size() == 2
 		daysMechanics['2019-08-27']
 		daysMechanics['2019-08-27'].size() == 1
+	}
+
+	void "test get day mechanics null days"() {
+		given:
+		Date date = new Date()
+		List<Map> dayMechanics = [
+				[day: 1567090800000],
+				[day: 1566939600000],
+				[day: null],
+		]
+		schedulesDatabaseClient.getMechanics(date, true) >> dayMechanics
+
+		when:
+		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.getDaysMechanics(date)
+
+		then:
+		daysMechanics.size() == 3
+		daysMechanics['2019-08-29']
+		daysMechanics['2019-08-29'].size() == 1
+		daysMechanics['2019-08-27']
+		daysMechanics['2019-08-27'].size() == 1
+		daysMechanics[null]
+		daysMechanics[null].size() == 1
 	}
 
 	// endregion
