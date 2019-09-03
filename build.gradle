@@ -16,3 +16,10 @@ task assembleServerAndClient() {
 	description = 'Build combined server & client JAR'
 	dependsOn([copyClientResources, ':server:shadowJar'])
 }
+
+task runAll() {
+	group = 'application'
+	description = 'Run server and client'
+	dependsOn(':client:buildDev')
+	dependsOn(':server:run')
+}
