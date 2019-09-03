@@ -93,13 +93,18 @@ class PanelService {
 
 		List<Task> processedTasks = []
 		List<GroupUnits> selectedGroupsInfo = []
-		// TODO EValuar usar un find por rendimiento
 		orderTasks.each { Task task ->
 			boolean alreadyProcessedTask = processedTasks.find { it.articleCode == task.articleCode }
 			if (!alreadyProcessedTask) {
 				List<Group> possibleGroups = task.groups.findAll {
 					!it.tasks.find { it.articleCode in processedTasks.articleCode }
-				}.sort { a, b -> b.tasks.size() <=> a.tasks.size() }
+				}.sort { a, b ->
+					if (b.tasks.size() == a.tasks.size()) {
+						return a.color.order <=> b.color.order
+					} else {
+						b.tasks.size() <=> a.tasks.size()
+					}
+				}
 				Group selectedGroup = possibleGroups.find { Group group ->
 					List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks.articleCode }
 					return group.tasks.size() == commonTasks.size()

@@ -331,54 +331,18 @@ class PanelServiceSpec extends Specification {
 	@Shared Task task337 = new Task(articleCode: 99337, groups: [])
 	@Shared Task task338 = new Task(articleCode: 99338, groups: [])
 	@Shared Task task339 = new Task(articleCode: 99339, groups: [])
-	@Shared Task task340 = new Task(articleCode: 99340, groups: [])
-	@Shared Task task341 = new Task(articleCode: 99341, groups: [])
-	@Shared Task task342 = new Task(articleCode: 99342, groups: [])
-	@Shared Task task343 = new Task(articleCode: 99343, groups: [])
-	@Shared Task task344 = new Task(articleCode: 99344, groups: [])
-	@Shared Task task345 = new Task(articleCode: 99345, groups: [])
-	@Shared Task task346 = new Task(articleCode: 99346, groups: [])
-	@Shared Task task347 = new Task(articleCode: 99347, groups: [])
-	@Shared Task task348 = new Task(articleCode: 99348, groups: [])
 	@Shared Task task349 = new Task(articleCode: 99349, groups: [])
 	@Shared Task task350 = new Task(articleCode: 99350, groups: [])
-	@Shared Task task351 = new Task(articleCode: 99351, groups: [])
-	@Shared Task task352 = new Task(articleCode: 99352, groups: [])
-	@Shared Task task353 = new Task(articleCode: 99353, groups: [])
-	@Shared Task task354 = new Task(articleCode: 99354, groups: [])
-	@Shared Task task355 = new Task(articleCode: 99355, groups: [])
 	@Shared Task task356 = new Task(articleCode: 99356, groups: [])
 	@Shared Task task357 = new Task(articleCode: 99357, groups: [])
 	@Shared Task task358 = new Task(articleCode: 99358, groups: [])
 	@Shared Task task359 = new Task(articleCode: 99359, groups: [])
 	@Shared Task task360 = new Task(articleCode: 99360, groups: [])
 	@Shared Task task361 = new Task(articleCode: 99361, groups: [])
-	@Shared Task task362 = new Task(articleCode: 99362, groups: [])
-	@Shared Task task363 = new Task(articleCode: 99363, groups: [])
-	@Shared Task task364 = new Task(articleCode: 99364, groups: [])
-	@Shared Task task365 = new Task(articleCode: 99365, groups: [])
-	@Shared Task task366 = new Task(articleCode: 99366, groups: [])
-	@Shared Task task367 = new Task(articleCode: 99367, groups: [])
-	@Shared Task task368 = new Task(articleCode: 99368, groups: [])
-	@Shared Task task369 = new Task(articleCode: 99369, groups: [])
-	@Shared Task task370 = new Task(articleCode: 99370, groups: [])
-	@Shared Task task371 = new Task(articleCode: 99371, groups: [])
-	@Shared Task task372 = new Task(articleCode: 99372, groups: [])
-	@Shared Task task373 = new Task(articleCode: 99373, groups: [])
-	@Shared Task task374 = new Task(articleCode: 99374, groups: [])
-	@Shared Task task375 = new Task(articleCode: 99375, groups: [])
-	@Shared Task task376 = new Task(articleCode: 99376, groups: [])
-	@Shared Task task377 = new Task(articleCode: 99377, groups: [])
-	@Shared Task task378 = new Task(articleCode: 99378, groups: [])
-	@Shared Task task379 = new Task(articleCode: 99379, groups: [])
-	@Shared Task task380 = new Task(articleCode: 99380, groups: [])
-	@Shared Task task381 = new Task(articleCode: 99381, groups: [])
-	@Shared Task task382 = new Task(articleCode: 99382, groups: [])
 	@Shared Task task383 = new Task(articleCode: 99383, groups: [])
 	@Shared Task task384 = new Task(articleCode: 99384, groups: [])
 	@Shared Task task385 = new Task(articleCode: 99385, groups: [])
 	@Shared Task task386 = new Task(articleCode: 99386, groups: [])
-	@Shared Task task387 = new Task(articleCode: 99387, groups: [])
 	@Shared Task task409 = new Task(articleCode: 99409, groups: [])
 	@Shared Task task410 = new Task(articleCode: 99410, groups: [])
 	@Shared Task task411 = new Task(articleCode: 99411, groups: [])
@@ -387,474 +351,324 @@ class PanelServiceSpec extends Specification {
 	@Shared Task task414 = new Task(articleCode: 99414, groups: [])
 	@Shared Task task415 = new Task(articleCode: 99415, groups: [])
 	@Shared Task task416 = new Task(articleCode: 99416, groups: [])
-	@Shared Task task417 = new Task(articleCode: 99417, groups: [])
-	@Shared Task task420 = new Task(articleCode: 99420, groups: [])
-	@Shared Task task421 = new Task(articleCode: 99421, groups: [])
-	@Shared Task task422 = new Task(articleCode: 99422, groups: [])
-	@Shared Task task423 = new Task(articleCode: 99423, groups: [])
-	@Shared Task task424 = new Task(articleCode: 99424, groups: [])
-	@Shared Task task425 = new Task(articleCode: 99425, groups: [])
-	@Shared Task task427 = new Task(articleCode: 99427, groups: [])
-	@Shared Task task429 = new Task(articleCode: 99429, groups: [])
-	@Shared Task task437 = new Task(articleCode: 99437, groups: [])
 	@Shared Task task888 = new Task(articleCode: 99888, groups: [])
-	@Shared Task task901 = new Task(articleCode: 99901, groups: [])
-	@Shared Task task902 = new Task(articleCode: 99902, groups: [])
-	@Shared Task task903 = new Task(articleCode: 99903, groups: [])
-	@Shared Task task904 = new Task(articleCode: 99904, groups: [])
-	@Shared Task task905 = new Task(articleCode: 99905, groups: [])
-	@Shared Task task906 = new Task(articleCode: 99906, groups: [])
-	@Shared Task task907 = new Task(articleCode: 99907, groups: [])
-	@Shared Task task908 = new Task(articleCode: 99908, groups: [])
-	@Shared Task task909 = new Task(articleCode: 99909, groups: [])
-	@Shared Task task910 = new Task(articleCode: 99910, groups: [])
-	@Shared Task task911 = new Task(articleCode: 99911, groups: [])
-	@Shared Task task912 = new Task(articleCode: 99912, groups: [])
-	@Shared Task task913 = new Task(articleCode: 99913, groups: [])
-	@Shared Task task914 = new Task(articleCode: 99914, groups: [])
-	@Shared Task task915 = new Task(articleCode: 99915, groups: [])
-	@Shared Task task916 = new Task(articleCode: 99916, groups: [])
-	@Shared Task task917 = new Task(articleCode: 99917, groups: [])
-	@Shared Task task3 = new Task(articleCode: 3, groups: [])
-	@Shared Task task419 = new Task(articleCode: 99419, groups: [])
-	@Shared Task task150 = new Task(articleCode: 99150, groups: [])
-	@Shared Task task426 = new Task(articleCode: 99426, groups: [])
-	@Shared Task task310 = new Task(articleCode: 99310, groups: [])
-	@Shared Task task439 = new Task(articleCode: 99439, groups: [])
-	@Shared Task task440 = new Task(articleCode: 99440, groups: [])
-	@Shared Task task441 = new Task(articleCode: 99441, groups: [])
-	@Shared Task task442 = new Task(articleCode: 99442, groups: [])
-	@Shared Task task443 = new Task(articleCode: 99443, groups: [])
-	@Shared Task task444 = new Task(articleCode: 99444, groups: [])
-	@Shared Task task445 = new Task(articleCode: 99445, groups: [])
-	@Shared Task task446 = new Task(articleCode: 99446, groups: [])
-	@Shared Task task447 = new Task(articleCode: 99447, groups: [])
-	@Shared Task task448 = new Task(articleCode: 99448, groups: [])
-	@Shared Task task449 = new Task(articleCode: 99449, groups: [])
-	@Shared Task task450 = new Task(articleCode: 99450, groups: [])
-	@Shared Task task451 = new Task(articleCode: 99451, groups: [])
-	@Shared Task task452 = new Task(articleCode: 99452, groups: [])
-	@Shared Task task453 = new Task(articleCode: 99453, groups: [])
-	@Shared Task task454 = new Task(articleCode: 99454, groups: [])
-	@Shared Task task455 = new Task(articleCode: 99455, groups: [])
-	@Shared Task task456 = new Task(articleCode: 99456, groups: [])
-	@Shared Task task457 = new Task(articleCode: 99457, groups: [])
-	@Shared Task task458 = new Task(articleCode: 99458, groups: [])
-	@Shared Task task459 = new Task(articleCode: 99459, groups: [])
-	@Shared Task task460 = new Task(articleCode: 99460, groups: [])
-	@Shared Task task461 = new Task(articleCode: 99461, groups: [])
-	@Shared Task task462 = new Task(articleCode: 99462, groups: [])
-	@Shared Task task918 = new Task(articleCode: 99918, groups: [])
-	@Shared Task task919 = new Task(articleCode: 99919, groups: [])
-	@Shared Task task920 = new Task(articleCode: 99920, groups: [])
-	@Shared Task task921 = new Task(articleCode: 99921, groups: [])
 
-	@Shared Group group1 = new Group(code: 1, tasks: [])
-	@Shared Group group2 = new Group(code: 2, tasks: [])
-	@Shared Group group3 = new Group(code: 3, tasks: [])
-	@Shared Group group4 = new Group(code: 4, tasks: [])
-	@Shared Group group5 = new Group(code: 5, tasks: [])
-	@Shared Group group6 = new Group(code: 6, tasks: [])
-	@Shared Group group7 = new Group(code: 7, tasks: [])
-	@Shared Group group8 = new Group(code: 8, tasks: [])
-	@Shared Group group9 = new Group(code: 9, tasks: [])
-	@Shared Group group10 = new Group(code: 10, tasks: [])
-	@Shared Group group11 = new Group(code: 11, tasks: [])
-	@Shared Group group12 = new Group(code: 12, tasks: [])
-	@Shared Group group13 = new Group(code: 13, tasks: [])
-	@Shared Group group14 = new Group(code: 14, tasks: [])
-	@Shared Group group15 = new Group(code: 15, tasks: [])
-	@Shared Group group16 = new Group(code: 16, tasks: [])
-	@Shared Group group17 = new Group(code: 17, tasks: [])
-	@Shared Group group18 = new Group(code: 18, tasks: [])
-	@Shared Group group19 = new Group(code: 19, tasks: [])
-	@Shared Group group20 = new Group(code: 20, tasks: [])
-	@Shared Group group21 = new Group(code: 21, tasks: [])
-	@Shared Group group22 = new Group(code: 22, tasks: [])
-	@Shared Group group23 = new Group(code: 23, tasks: [])
-	@Shared Group group24 = new Group(code: 24, tasks: [])
-	@Shared Group group25 = new Group(code: 25, tasks: [])
-	@Shared Group group26 = new Group(code: 26, tasks: [])
-	@Shared Group group27 = new Group(code: 27, tasks: [])
-	@Shared Group group28 = new Group(code: 28, tasks: [])
-	@Shared Group group29 = new Group(code: 29, tasks: [])
-	@Shared Group group30 = new Group(code: 30, tasks: [])
-	@Shared Group group31 = new Group(code: 31, tasks: [])
-	@Shared Group group32 = new Group(code: 32, tasks: [])
-	@Shared Group group33 = new Group(code: 33, tasks: [])
-	@Shared Group group34 = new Group(code: 34, tasks: [])
-	@Shared Group group35 = new Group(code: 35, tasks: [])
-	@Shared Group group36 = new Group(code: 36, tasks: [])
-	@Shared Group group37 = new Group(code: 37, tasks: [])
-	@Shared Group group38 = new Group(code: 38, tasks: [])
-	@Shared Group group39 = new Group(code: 39, tasks: [])
-	@Shared Group group40 = new Group(code: 40, tasks: [])
-	@Shared Group group41 = new Group(code: 41, tasks: [])
-	@Shared Group group42 = new Group(code: 42, tasks: [])
-	@Shared Group group43 = new Group(code: 43, tasks: [])
-	@Shared Group group44 = new Group(code: 44, tasks: [])
-	@Shared Group group45 = new Group(code: 45, tasks: [])
-	@Shared Group group46 = new Group(code: 46, tasks: [])
-	@Shared Group group47 = new Group(code: 47, tasks: [])
-	@Shared Group group48 = new Group(code: 48, tasks: [])
-	@Shared Group group49 = new Group(code: 49, tasks: [])
-	@Shared Group group50 = new Group(code: 50, tasks: [])
-	@Shared Group group51 = new Group(code: 51, tasks: [])
-	@Shared Group group52 = new Group(code: 52, tasks: [])
-	@Shared Group group53 = new Group(code: 53, tasks: [])
-	@Shared Group group54 = new Group(code: 54, tasks: [])
-	@Shared Group group55 = new Group(code: 55, tasks: [])
-	@Shared Group group56 = new Group(code: 56, tasks: [])
-	@Shared Group group57 = new Group(code: 57, tasks: [])
-	@Shared Group group58 = new Group(code: 58, tasks: [])
-	@Shared Group group60 = new Group(code: 60, tasks: [])
-	@Shared Group group61 = new Group(code: 61, tasks: [])
-	@Shared Group group62 = new Group(code: 62, tasks: [])
-	@Shared Group group63 = new Group(code: 63, tasks: [])
-	@Shared Group group64 = new Group(code: 64, tasks: [])
-	@Shared Group group65 = new Group(code: 65, tasks: [])
-	@Shared Group group66 = new Group(code: 66, tasks: [])
-	@Shared Group group67 = new Group(code: 67, tasks: [])
-	@Shared Group group68 = new Group(code: 68, tasks: [])
-	@Shared Group group69 = new Group(code: 69, tasks: [])
-	@Shared Group group70 = new Group(code: 70, tasks: [])
-	@Shared Group group71 = new Group(code: 71, tasks: [])
-	@Shared Group group72 = new Group(code: 72, tasks: [])
-	@Shared Group group73 = new Group(code: 73, tasks: [])
-	@Shared Group group74 = new Group(code: 74, tasks: [])
-	@Shared Group group75 = new Group(code: 75, tasks: [])
-	@Shared Group group76 = new Group(code: 76, tasks: [])
-	@Shared Group group77 = new Group(code: 77, tasks: [])
-	@Shared Group group78 = new Group(code: 78, tasks: [])
-	@Shared Group group79 = new Group(code: 79, tasks: [])
-	@Shared Group group80 = new Group(code: 80, tasks: [])
-	@Shared Group group81 = new Group(code: 81, tasks: [])
-	@Shared Group group82 = new Group(code: 82, tasks: [])
-	@Shared Group group83 = new Group(code: 83, tasks: [])
-	@Shared Group group84 = new Group(code: 84, tasks: [])
-	@Shared Group group85 = new Group(code: 85, tasks: [])
-	@Shared Group group86 = new Group(code: 86, tasks: [])
-	@Shared Group group87 = new Group(code: 87, tasks: [])
-	@Shared Group group88 = new Group(code: 88, tasks: [])
-	@Shared Group group89 = new Group(code: 89, tasks: [])
-	@Shared Group group90 = new Group(code: 90, tasks: [])
-	@Shared Group group91 = new Group(code: 91, tasks: [])
-	@Shared Group group92 = new Group(code: 92, tasks: [])
-	@Shared Group group93 = new Group(code: 93, tasks: [])
-	@Shared Group group94 = new Group(code: 94, tasks: [])
-	@Shared Group group95 = new Group(code: 95, tasks: [])
-	@Shared Group group96 = new Group(code: 96, tasks: [])
-	@Shared Group group97 = new Group(code: 97, tasks: [])
-	@Shared Group group98 = new Group(code: 98, tasks: [])
-	@Shared Group group99 = new Group(code: 99, tasks: [])
-	@Shared Group group100 = new Group(code: 100, tasks: [])
-	@Shared Group group101 = new Group(code: 101, tasks: [])
-	@Shared Group group102 = new Group(code: 102, tasks: [])
-	@Shared Group group103 = new Group(code: 103, tasks: [])
-	@Shared Group group104 = new Group(code: 104, tasks: [])
-	@Shared Group group105 = new Group(code: 105, tasks: [])
-	@Shared Group group106 = new Group(code: 106, tasks: [])
-	@Shared Group group107 = new Group(code: 107, tasks: [])
-	@Shared Group group108 = new Group(code: 108, tasks: [])
-	@Shared Group group109 = new Group(code: 109, tasks: [])
-	@Shared Group group110 = new Group(code: 110, tasks: [])
-	@Shared Group group111 = new Group(code: 111, tasks: [])
-	@Shared Group group112 = new Group(code: 112, tasks: [])
-	@Shared Group group113 = new Group(code: 113, tasks: [])
-	@Shared Group group114 = new Group(code: 114, tasks: [])
-	@Shared Group group115 = new Group(code: 115, tasks: [])
-	@Shared Group group116 = new Group(code: 116, tasks: [])
-	@Shared Group group117 = new Group(code: 117, tasks: [])
-	@Shared Group group118 = new Group(code: 118, tasks: [])
-	@Shared Group group119 = new Group(code: 119, tasks: [])
-	@Shared Group group120 = new Group(code: 120, tasks: [])
-	@Shared Group group121 = new Group(code: 121, tasks: [])
-	@Shared Group group122 = new Group(code: 122, tasks: [])
-	@Shared Group group123 = new Group(code: 123, tasks: [])
-	@Shared Group group124 = new Group(code: 124, tasks: [])
-	@Shared Group group125 = new Group(code: 125, tasks: [])
-	@Shared Group group126 = new Group(code: 126, tasks: [])
-	@Shared Group group127 = new Group(code: 127, tasks: [])
-	@Shared Group group128 = new Group(code: 128, tasks: [])
-	@Shared Group group129 = new Group(code: 129, tasks: [])
-	@Shared Group group130 = new Group(code: 130, tasks: [])
-	@Shared Group group131 = new Group(code: 131, tasks: [])
-	@Shared Group group132 = new Group(code: 132, tasks: [])
-	@Shared Group group133 = new Group(code: 133, tasks: [])
-	@Shared Group group134 = new Group(code: 134, tasks: [])
-	@Shared Group group135 = new Group(code: 135, tasks: [])
-	@Shared Group group136 = new Group(code: 136, tasks: [])
-	@Shared Group group137 = new Group(code: 137, tasks: [])
-	@Shared Group group138 = new Group(code: 138, tasks: [])
-	@Shared Group group139 = new Group(code: 139, tasks: [])
-	@Shared Group group140 = new Group(code: 140, tasks: [])
-	@Shared Group group141 = new Group(code: 141, tasks: [])
-	@Shared Group group142 = new Group(code: 142, tasks: [])
-	@Shared Group group143 = new Group(code: 143, tasks: [])
-	@Shared Group group144 = new Group(code: 144, tasks: [])
-	@Shared Group group145 = new Group(code: 145, tasks: [])
-	@Shared Group group146 = new Group(code: 146, tasks: [])
-	@Shared Group group147 = new Group(code: 147, tasks: [])
-	@Shared Group group148 = new Group(code: 148, tasks: [])
-	@Shared Group group149 = new Group(code: 149, tasks: [])
-	@Shared Group group150 = new Group(code: 150, tasks: [])
-	@Shared Group group151 = new Group(code: 151, tasks: [])
-	@Shared Group group152 = new Group(code: 152, tasks: [])
-	@Shared Group group153 = new Group(code: 153, tasks: [])
-	@Shared Group group154 = new Group(code: 154, tasks: [])
-	@Shared Group group155 = new Group(code: 155, tasks: [])
-	@Shared Group group156 = new Group(code: 156, tasks: [])
-	@Shared Group group157 = new Group(code: 157, tasks: [])
-	@Shared Group group158 = new Group(code: 158, tasks: [])
-	@Shared Group group159 = new Group(code: 159, tasks: [])
-	@Shared Group group160 = new Group(code: 160, tasks: [])
-	@Shared Group group161 = new Group(code: 161, tasks: [])
-	@Shared Group group162 = new Group(code: 162, tasks: [])
-	@Shared Group group163 = new Group(code: 163, tasks: [])
-	@Shared Group group164 = new Group(code: 164, tasks: [])
-	@Shared Group group165 = new Group(code: 165, tasks: [])
-	@Shared Group group166 = new Group(code: 166, tasks: [])
-	@Shared Group group167 = new Group(code: 167, tasks: [])
-	@Shared Group group168 = new Group(code: 168, tasks: [])
-	@Shared Group group169 = new Group(code: 169, tasks: [])
-	@Shared Group group170 = new Group(code: 170, tasks: [])
-	@Shared Group group171 = new Group(code: 171, tasks: [])
-	@Shared Group group172 = new Group(code: 172, tasks: [])
-	@Shared Group group173 = new Group(code: 173, tasks: [])
-	@Shared Group group174 = new Group(code: 174, tasks: [])
-	@Shared Group group175 = new Group(code: 175, tasks: [])
-	@Shared Group group176 = new Group(code: 176, tasks: [])
-	@Shared Group group177 = new Group(code: 177, tasks: [])
-	@Shared Group group178 = new Group(code: 178, tasks: [])
-	@Shared Group group179 = new Group(code: 179, tasks: [])
-	@Shared Group group180 = new Group(code: 180, tasks: [])
-	@Shared Group group181 = new Group(code: 181, tasks: [])
-	@Shared Group group182 = new Group(code: 182, tasks: [])
-	@Shared Group group183 = new Group(code: 183, tasks: [])
-	@Shared Group group184 = new Group(code: 184, tasks: [])
-	@Shared Group group185 = new Group(code: 185, tasks: [])
-	@Shared Group group186 = new Group(code: 186, tasks: [])
-	@Shared Group group187 = new Group(code: 187, tasks: [])
-	@Shared Group group188 = new Group(code: 188, tasks: [])
-	@Shared Group group189 = new Group(code: 189, tasks: [])
-	@Shared Group group190 = new Group(code: 190, tasks: [])
-	@Shared Group group191 = new Group(code: 191, tasks: [])
-	@Shared Group group192 = new Group(code: 192, tasks: [])
-	@Shared Group group193 = new Group(code: 193, tasks: [])
-	@Shared Group group194 = new Group(code: 194, tasks: [])
-	@Shared Group group195 = new Group(code: 195, tasks: [])
-	@Shared Group group196 = new Group(code: 196, tasks: [])
-	@Shared Group group197 = new Group(code: 197, tasks: [])
-	@Shared Group group198 = new Group(code: 198, tasks: [])
-	@Shared Group group199 = new Group(code: 199, tasks: [])
-	@Shared Group group200 = new Group(code: 200, tasks: [])
-	@Shared Group group201 = new Group(code: 201, tasks: [])
-	@Shared Group group202 = new Group(code: 202, tasks: [])
-	@Shared Group group203 = new Group(code: 203, tasks: [])
-	@Shared Group group204 = new Group(code: 204, tasks: [])
-	@Shared Group group205 = new Group(code: 205, tasks: [])
-	@Shared Group group206 = new Group(code: 206, tasks: [])
-	@Shared Group group207 = new Group(code: 207, tasks: [])
-	@Shared Group group208 = new Group(code: 208, tasks: [])
-	@Shared Group group209 = new Group(code: 209, tasks: [])
-	@Shared Group group210 = new Group(code: 210, tasks: [])
-	@Shared Group group211 = new Group(code: 211, tasks: [])
-	@Shared Group group212 = new Group(code: 212, tasks: [])
-	@Shared Group group213 = new Group(code: 213, tasks: [])
-	@Shared Group group214 = new Group(code: 214, tasks: [])
-	@Shared Group group215 = new Group(code: 215, tasks: [])
-	@Shared Group group216 = new Group(code: 216, tasks: [])
-	@Shared Group group217 = new Group(code: 217, tasks: [])
-	@Shared Group group218 = new Group(code: 218, tasks: [])
-	@Shared Group group219 = new Group(code: 219, tasks: [])
-	@Shared Group group220 = new Group(code: 220, tasks: [])
-	@Shared Group group221 = new Group(code: 221, tasks: [])
-	@Shared Group group222 = new Group(code: 222, tasks: [])
-	@Shared Group group223 = new Group(code: 223, tasks: [])
-	@Shared Group group224 = new Group(code: 224, tasks: [])
-	@Shared Group group225 = new Group(code: 225, tasks: [])
-	@Shared Group group226 = new Group(code: 226, tasks: [])
-	@Shared Group group227 = new Group(code: 227, tasks: [])
-	@Shared Group group228 = new Group(code: 228, tasks: [])
-	@Shared Group group229 = new Group(code: 229, tasks: [])
-	@Shared Group group230 = new Group(code: 230, tasks: [])
-	@Shared Group group231 = new Group(code: 231, tasks: [])
-	@Shared Group group232 = new Group(code: 232, tasks: [])
-	@Shared Group group233 = new Group(code: 233, tasks: [])
-	@Shared Group group234 = new Group(code: 234, tasks: [])
-	@Shared Group group235 = new Group(code: 235, tasks: [])
-	@Shared Group group236 = new Group(code: 236, tasks: [])
-	@Shared Group group237 = new Group(code: 237, tasks: [])
-	@Shared Group group238 = new Group(code: 238, tasks: [])
-	@Shared Group group239 = new Group(code: 239, tasks: [])
-	@Shared Group group240 = new Group(code: 240, tasks: [])
-	@Shared Group group241 = new Group(code: 241, tasks: [])
-	@Shared Group group242 = new Group(code: 242, tasks: [])
-	@Shared Group group243 = new Group(code: 243, tasks: [])
-	@Shared Group group244 = new Group(code: 244, tasks: [])
-	@Shared Group group245 = new Group(code: 245, tasks: [])
-	@Shared Group group246 = new Group(code: 246, tasks: [])
-	@Shared Group group247 = new Group(code: 247, tasks: [])
-	@Shared Group group248 = new Group(code: 248, tasks: [])
-	@Shared Group group249 = new Group(code: 249, tasks: [])
-	@Shared Group group250 = new Group(code: 250, tasks: [])
-	@Shared Group group251 = new Group(code: 251, tasks: [])
-	@Shared Group group252 = new Group(code: 252, tasks: [])
-	@Shared Group group253 = new Group(code: 253, tasks: [])
-	@Shared Group group254 = new Group(code: 254, tasks: [])
-	@Shared Group group255 = new Group(code: 255, tasks: [])
-	@Shared Group group256 = new Group(code: 256, tasks: [])
-	@Shared Group group257 = new Group(code: 257, tasks: [])
-	@Shared Group group258 = new Group(code: 258, tasks: [])
-	@Shared Group group259 = new Group(code: 259, tasks: [])
-	@Shared Group group260 = new Group(code: 260, tasks: [])
-	@Shared Group group261 = new Group(code: 261, tasks: [])
-	@Shared Group group262 = new Group(code: 262, tasks: [])
-	@Shared Group group263 = new Group(code: 263, tasks: [])
-	@Shared Group group264 = new Group(code: 264, tasks: [])
-	@Shared Group group265 = new Group(code: 265, tasks: [])
-	@Shared Group group266 = new Group(code: 266, tasks: [])
-	@Shared Group group267 = new Group(code: 267, tasks: [])
-	@Shared Group group268 = new Group(code: 268, tasks: [])
-	@Shared Group group269 = new Group(code: 269, tasks: [])
-	@Shared Group group270 = new Group(code: 270, tasks: [])
-	@Shared Group group271 = new Group(code: 271, tasks: [])
-	@Shared Group group272 = new Group(code: 272, tasks: [])
-	@Shared Group group273 = new Group(code: 273, tasks: [])
-	@Shared Group group274 = new Group(code: 274, tasks: [])
-	@Shared Group group275 = new Group(code: 275, tasks: [])
-	@Shared Group group276 = new Group(code: 276, tasks: [])
-	@Shared Group group277 = new Group(code: 277, tasks: [])
-	@Shared Group group278 = new Group(code: 278, tasks: [])
-	@Shared Group group279 = new Group(code: 279, tasks: [])
-	@Shared Group group280 = new Group(code: 280, tasks: [])
-	@Shared Group group281 = new Group(code: 281, tasks: [])
-	@Shared Group group282 = new Group(code: 282, tasks: [])
-	@Shared Group group283 = new Group(code: 283, tasks: [])
-	@Shared Group group284 = new Group(code: 284, tasks: [])
-	@Shared Group group285 = new Group(code: 285, tasks: [])
-	@Shared Group group286 = new Group(code: 286, tasks: [])
-	@Shared Group group287 = new Group(code: 287, tasks: [])
-	@Shared Group group288 = new Group(code: 288, tasks: [])
-	@Shared Group group289 = new Group(code: 289, tasks: [])
-	@Shared Group group290 = new Group(code: 290, tasks: [])
-	@Shared Group group291 = new Group(code: 291, tasks: [])
-	@Shared Group group292 = new Group(code: 292, tasks: [])
-	@Shared Group group293 = new Group(code: 293, tasks: [])
-	@Shared Group group294 = new Group(code: 294, tasks: [])
-	@Shared Group group295 = new Group(code: 295, tasks: [])
-	@Shared Group group296 = new Group(code: 296, tasks: [])
-	@Shared Group group297 = new Group(code: 297, tasks: [])
-	@Shared Group group298 = new Group(code: 298, tasks: [])
-	@Shared Group group299 = new Group(code: 299, tasks: [])
-	@Shared Group group300 = new Group(code: 300, tasks: [])
-	@Shared Group group301 = new Group(code: 301, tasks: [])
-	@Shared Group group302 = new Group(code: 302, tasks: [])
-	@Shared Group group303 = new Group(code: 303, tasks: [])
-	@Shared Group group304 = new Group(code: 304, tasks: [])
-	@Shared Group group305 = new Group(code: 305, tasks: [])
-	@Shared Group group306 = new Group(code: 306, tasks: [])
-	@Shared Group group307 = new Group(code: 307, tasks: [])
-	@Shared Group group308 = new Group(code: 308, tasks: [])
-	@Shared Group group309 = new Group(code: 309, tasks: [])
-	@Shared Group group310 = new Group(code: 310, tasks: [])
-	@Shared Group group311 = new Group(code: 311, tasks: [])
-	@Shared Group group312 = new Group(code: 312, tasks: [])
-	@Shared Group group313 = new Group(code: 313, tasks: [])
-	@Shared Group group314 = new Group(code: 314, tasks: [])
-	@Shared Group group315 = new Group(code: 315, tasks: [])
-	@Shared Group group316 = new Group(code: 316, tasks: [])
-	@Shared Group group317 = new Group(code: 317, tasks: [])
-	@Shared Group group318 = new Group(code: 318, tasks: [])
-	@Shared Group group319 = new Group(code: 319, tasks: [])
-	@Shared Group group320 = new Group(code: 320, tasks: [])
-	@Shared Group group321 = new Group(code: 321, tasks: [])
-	@Shared Group group322 = new Group(code: 322, tasks: [])
-	@Shared Group group323 = new Group(code: 323, tasks: [])
-	@Shared Group group324 = new Group(code: 324, tasks: [])
-	@Shared Group group325 = new Group(code: 325, tasks: [])
-	@Shared Group group326 = new Group(code: 326, tasks: [])
-	@Shared Group group327 = new Group(code: 327, tasks: [])
-	@Shared Group group328 = new Group(code: 328, tasks: [])
-	@Shared Group group329 = new Group(code: 329, tasks: [])
-	@Shared Group group330 = new Group(code: 330, tasks: [])
-	@Shared Group group331 = new Group(code: 331, tasks: [])
-	@Shared Group group332 = new Group(code: 332, tasks: [])
-	@Shared Group group333 = new Group(code: 333, tasks: [])
-	@Shared Group group334 = new Group(code: 334, tasks: [])
-	@Shared Group group335 = new Group(code: 335, tasks: [])
-	@Shared Group group336 = new Group(code: 336, tasks: [])
-	@Shared Group group337 = new Group(code: 337, tasks: [])
-	@Shared Group group338 = new Group(code: 338, tasks: [])
-	@Shared Group group339 = new Group(code: 339, tasks: [])
-	@Shared Group group340 = new Group(code: 340, tasks: [])
-	@Shared Group group341 = new Group(code: 341, tasks: [])
-	@Shared Group group342 = new Group(code: 342, tasks: [])
-	@Shared Group group343 = new Group(code: 343, tasks: [])
-	@Shared Group group344 = new Group(code: 344, tasks: [])
-	@Shared Group group345 = new Group(code: 345, tasks: [])
-	@Shared Group group346 = new Group(code: 346, tasks: [])
-	@Shared Group group347 = new Group(code: 347, tasks: [])
-	@Shared Group group348 = new Group(code: 348, tasks: [])
-	@Shared Group group349 = new Group(code: 349, tasks: [])
-	@Shared Group group350 = new Group(code: 350, tasks: [])
-	@Shared Group group351 = new Group(code: 351, tasks: [])
-	@Shared Group group352 = new Group(code: 352, tasks: [])
-	@Shared Group group353 = new Group(code: 353, tasks: [])
-	@Shared Group group354 = new Group(code: 354, tasks: [])
-	@Shared Group group355 = new Group(code: 355, tasks: [])
-	@Shared Group group356 = new Group(code: 356, tasks: [])
-	@Shared Group group357 = new Group(code: 357, tasks: [])
-	@Shared Group group358 = new Group(code: 358, tasks: [])
-	@Shared Group group359 = new Group(code: 359, tasks: [])
-	@Shared Group group360 = new Group(code: 360, tasks: [])
-	@Shared Group group361 = new Group(code: 361, tasks: [])
-	@Shared Group group362 = new Group(code: 362, tasks: [])
-	@Shared Group group363 = new Group(code: 363, tasks: [])
-	@Shared Group group364 = new Group(code: 364, tasks: [])
-	@Shared Group group365 = new Group(code: 365, tasks: [])
-	@Shared Group group366 = new Group(code: 366, tasks: [])
-	@Shared Group group367 = new Group(code: 367, tasks: [])
-	@Shared Group group368 = new Group(code: 368, tasks: [])
-	@Shared Group group369 = new Group(code: 369, tasks: [])
-	@Shared Group group370 = new Group(code: 370, tasks: [])
-	@Shared Group group371 = new Group(code: 371, tasks: [])
-	@Shared Group group372 = new Group(code: 372, tasks: [])
-	@Shared Group group373 = new Group(code: 373, tasks: [])
-	@Shared Group group374 = new Group(code: 374, tasks: [])
-	@Shared Group group375 = new Group(code: 375, tasks: [])
-	@Shared Group group376 = new Group(code: 376, tasks: [])
-	@Shared Group group377 = new Group(code: 377, tasks: [])
-	@Shared Group group378 = new Group(code: 378, tasks: [])
-	@Shared Group group379 = new Group(code: 379, tasks: [])
-	@Shared Group group380 = new Group(code: 380, tasks: [])
-	@Shared Group group381 = new Group(code: 381, tasks: [])
-	@Shared Group group382 = new Group(code: 382, tasks: [])
-	@Shared Group group383 = new Group(code: 383, tasks: [])
-	@Shared Group group384 = new Group(code: 384, tasks: [])
-	@Shared Group group385 = new Group(code: 385, tasks: [])
-	@Shared Group group386 = new Group(code: 386, tasks: [])
-	@Shared Group group387 = new Group(code: 387, tasks: [])
-	@Shared Group group388 = new Group(code: 388, tasks: [])
-	@Shared Group group389 = new Group(code: 389, tasks: [])
-	@Shared Group group390 = new Group(code: 390, tasks: [])
-	@Shared Group group391 = new Group(code: 391, tasks: [])
-	@Shared Group group392 = new Group(code: 392, tasks: [])
-	@Shared Group group393 = new Group(code: 393, tasks: [])
-	@Shared Group group394 = new Group(code: 394, tasks: [])
-	@Shared Group group395 = new Group(code: 395, tasks: [])
-	@Shared Group group396 = new Group(code: 396, tasks: [])
-	@Shared Group group397 = new Group(code: 397, tasks: [])
-	@Shared Group group398 = new Group(code: 398, tasks: [])
-	@Shared Group group399 = new Group(code: 399, tasks: [])
-	@Shared Group group400 = new Group(code: 400, tasks: [])
-	@Shared Group group401 = new Group(code: 401, tasks: [])
-	@Shared Group group402 = new Group(code: 402, tasks: [])
-	@Shared Group group403 = new Group(code: 403, tasks: [])
-	@Shared Group group404 = new Group(code: 404, tasks: [])
-	@Shared Group group405 = new Group(code: 405, tasks: [])
-	@Shared Group group406 = new Group(code: 406, tasks: [])
-	@Shared Group group407 = new Group(code: 407, tasks: [])
+	@Shared Group group1 = new Group(code: 1, shortName: 'SN', tasks: [], color: [order: 0])
+	@Shared Group group2 = new Group(code: 2, tasks: [], color: [order: 0])
+	@Shared Group group3 = new Group(code: 3, tasks: [], color: [order: 0])
+	@Shared Group group4 = new Group(code: 4, tasks: [], color: [order: 0])
+	@Shared Group group5 = new Group(code: 5, tasks: [], color: [order: 0])
+	@Shared Group group6 = new Group(code: 6, tasks: [], color: [order: 0])
+	@Shared Group group7 = new Group(code: 7, tasks: [], color: [order: 0])
+	@Shared Group group8 = new Group(code: 8, tasks: [], color: [order: 0])
+	@Shared Group group9 = new Group(code: 9, tasks: [], color: [order: 0])
+	@Shared Group group10 = new Group(code: 10, tasks: [], color: [order: 0])
+	@Shared Group group11 = new Group(code: 11, tasks: [], color: [order: 0])
+	@Shared Group group12 = new Group(code: 12, tasks: [], color: [order: 0])
+	@Shared Group group13 = new Group(code: 13, tasks: [], color: [order: 3])
+	@Shared Group group14 = new Group(code: 14, tasks: [], color: [order: 0])
+	@Shared Group group15 = new Group(code: 15, tasks: [], color: [order: 0])
+	@Shared Group group16 = new Group(code: 16, tasks: [], color: [order: 0])
+	@Shared Group group17 = new Group(code: 17, tasks: [], color: [order: 0])
+	@Shared Group group18 = new Group(code: 18, tasks: [], color: [order: 0])
+	@Shared Group group19 = new Group(code: 19, tasks: [], color: [order: 0])
+	@Shared Group group20 = new Group(code: 20, tasks: [], color: [order: 0])
+	@Shared Group group21 = new Group(code: 21, tasks: [], color: [order: 0])
+	@Shared Group group22 = new Group(code: 22, tasks: [], color: [order: 0])
+	@Shared Group group23 = new Group(code: 23, tasks: [], color: [order: 0])
+	@Shared Group group24 = new Group(code: 24, tasks: [], color: [order: 0])
+	@Shared Group group25 = new Group(code: 25, tasks: [], color: [order: 0])
+	@Shared Group group26 = new Group(code: 26, tasks: [], color: [order: 0])
+	@Shared Group group27 = new Group(code: 27, tasks: [], color: [order: 0])
+	@Shared Group group28 = new Group(code: 28, tasks: [], color: [order: 0])
+	@Shared Group group29 = new Group(code: 29, tasks: [], color: [order: 7])
+	@Shared Group group30 = new Group(code: 30, tasks: [], color: [order: 7])
+	@Shared Group group31 = new Group(code: 31, tasks: [], color: [order: 7])
+	@Shared Group group32 = new Group(code: 32, tasks: [], color: [order: 7])
+	@Shared Group group33 = new Group(code: 33, tasks: [], color: [order: 7])
+	@Shared Group group34 = new Group(code: 34, tasks: [], color: [order: 3])
+	@Shared Group group35 = new Group(code: 35, tasks: [], color: [order: 3])
+	@Shared Group group36 = new Group(code: 36, tasks: [], color: [order: 3])
+	@Shared Group group37 = new Group(code: 37, tasks: [], color: [order: 3])
+	@Shared Group group38 = new Group(code: 38, tasks: [], color: [order: 3])
+	@Shared Group group39 = new Group(code: 39, tasks: [], color: [order: 3])
+	@Shared Group group40 = new Group(code: 40, tasks: [], color: [order: 3])
+	@Shared Group group41 = new Group(code: 41, tasks: [], color: [order: 3])
+	@Shared Group group42 = new Group(code: 42, tasks: [], color: [order: 3])
+	@Shared Group group43 = new Group(code: 43, tasks: [], color: [order: 3])
+	@Shared Group group44 = new Group(code: 44, tasks: [], color: [order: 3])
+	@Shared Group group45 = new Group(code: 45, tasks: [], color: [order: 4])
+	@Shared Group group46 = new Group(code: 46, tasks: [], color: [order: 4])
+	@Shared Group group47 = new Group(code: 47, tasks: [], color: [order: 3])
+	@Shared Group group48 = new Group(code: 48, tasks: [], color: [order: 3])
+	@Shared Group group49 = new Group(code: 49, tasks: [], color: [order: 3])
+	@Shared Group group50 = new Group(code: 50, tasks: [], color: [order: 3])
+	@Shared Group group51 = new Group(code: 51, tasks: [], color: [order: 3])
+	@Shared Group group52 = new Group(code: 52, tasks: [], color: [order: 4])
+	@Shared Group group53 = new Group(code: 53, tasks: [], color: [order: 3])
+	@Shared Group group54 = new Group(code: 54, tasks: [], color: [order: 3])
+	@Shared Group group55 = new Group(code: 55, tasks: [], color: [order: 3])
+	@Shared Group group56 = new Group(code: 56, tasks: [], color: [order: 3])
+	@Shared Group group57 = new Group(code: 57, tasks: [], color: [order: 3])
+	@Shared Group group58 = new Group(code: 58, tasks: [], color: [order: 3])
+	@Shared Group group60 = new Group(code: 60, tasks: [], color: [order: 3])
+	@Shared Group group61 = new Group(code: 61, tasks: [], color: [order: 3])
+	@Shared Group group62 = new Group(code: 62, tasks: [], color: [order: 3])
+	@Shared Group group63 = new Group(code: 63, tasks: [], color: [order: 3])
+	@Shared Group group64 = new Group(code: 64, tasks: [], color: [order: 3])
+	@Shared Group group65 = new Group(code: 65, tasks: [], color: [order: 3])
+	@Shared Group group66 = new Group(code: 66, tasks: [], color: [order: 3])
+	@Shared Group group67 = new Group(code: 67, tasks: [], color: [order: 3])
+	@Shared Group group68 = new Group(code: 68, tasks: [], color: [order: 3])
+	@Shared Group group69 = new Group(code: 69, tasks: [], color: [order: 3])
+	@Shared Group group70 = new Group(code: 70, tasks: [], color: [order: 3])
+	@Shared Group group71 = new Group(code: 71, tasks: [], color: [order: 3])
+	@Shared Group group72 = new Group(code: 72, tasks: [], color: [order: 8])
+	@Shared Group group73 = new Group(code: 73, tasks: [], color: [order: 3])
+	@Shared Group group74 = new Group(code: 74, tasks: [], color: [order: 3])
+	@Shared Group group75 = new Group(code: 75, tasks: [], color: [order: 1])
+	@Shared Group group76 = new Group(code: 76, tasks: [], color: [order: 1])
+	@Shared Group group77 = new Group(code: 77, tasks: [], color: [order: 3])
+	@Shared Group group78 = new Group(code: 78, tasks: [], color: [order: 3])
+	@Shared Group group79 = new Group(code: 79, tasks: [], color: [order: 3])
+	@Shared Group group80 = new Group(code: 80, tasks: [], color: [order: 3])
+	@Shared Group group81 = new Group(code: 81, tasks: [], color: [order: 3])
+	@Shared Group group82 = new Group(code: 82, tasks: [], color: [order: 3])
+	@Shared Group group83 = new Group(code: 83, tasks: [], color: [order: 3])
+	@Shared Group group84 = new Group(code: 84, tasks: [], color: [order: 3])
+	@Shared Group group85 = new Group(code: 85, tasks: [], color: [order: 3])
+	@Shared Group group86 = new Group(code: 86, tasks: [], color: [order: 3])
+	@Shared Group group87 = new Group(code: 87, tasks: [], color: [order: 1])
+	@Shared Group group88 = new Group(code: 88, tasks: [], color: [order: 1])
+	@Shared Group group89 = new Group(code: 89, tasks: [], color: [order: 1])
+	@Shared Group group90 = new Group(code: 90, tasks: [], color: [order: 1])
+	@Shared Group group91 = new Group(code: 91, tasks: [], color: [order: 1])
+	@Shared Group group92 = new Group(code: 92, tasks: [], color: [order: 1])
+	@Shared Group group93 = new Group(code: 93, tasks: [], color: [order: 1])
+	@Shared Group group94 = new Group(code: 94, tasks: [], color: [order: 1])
+	@Shared Group group95 = new Group(code: 95, tasks: [], color: [order: 1])
+	@Shared Group group96 = new Group(code: 96, tasks: [], color: [order: 1])
+	@Shared Group group97 = new Group(code: 97, tasks: [], color: [order: 1])
+	@Shared Group group98 = new Group(code: 98, tasks: [], color: [order: 1])
+	@Shared Group group99 = new Group(code: 99, tasks: [], color: [order: 1])
+	@Shared Group group100 = new Group(code: 100, tasks: [], color: [order: 1])
+	@Shared Group group101 = new Group(code: 101, tasks: [], color: [order: 1])
+	@Shared Group group102 = new Group(code: 102, tasks: [], color: [order: 1])
+	@Shared Group group103 = new Group(code: 103, tasks: [], color: [order: 1])
+	@Shared Group group104 = new Group(code: 104, tasks: [], color: [order: 1])
+	@Shared Group group105 = new Group(code: 105, tasks: [], color: [order: 1])
+	@Shared Group group106 = new Group(code: 106, tasks: [], color: [order: 1])
+	@Shared Group group107 = new Group(code: 107, tasks: [], color: [order: 1])
+	@Shared Group group108 = new Group(code: 108, tasks: [], color: [order: 3])
+	@Shared Group group109 = new Group(code: 109, tasks: [], color: [order: 3])
+	@Shared Group group110 = new Group(code: 110, tasks: [], color: [order: 3])
+	@Shared Group group111 = new Group(code: 111, tasks: [], color: [order: 3])
+	@Shared Group group112 = new Group(code: 112, tasks: [], color: [order: 3])
+	@Shared Group group113 = new Group(code: 113, tasks: [], color: [order: 3])
+	@Shared Group group114 = new Group(code: 114, tasks: [], color: [order: 3])
+	@Shared Group group115 = new Group(code: 115, tasks: [], color: [order: 5])
+	@Shared Group group116 = new Group(code: 116, tasks: [], color: [order: 5])
+	@Shared Group group117 = new Group(code: 117, tasks: [], color: [order: 3])
+	@Shared Group group118 = new Group(code: 118, tasks: [], color: [order: 3])
+	@Shared Group group119 = new Group(code: 119, tasks: [], color: [order: 5])
+	@Shared Group group120 = new Group(code: 120, tasks: [], color: [order: 3])
+	@Shared Group group121 = new Group(code: 121, tasks: [], color: [order: 3])
+	@Shared Group group122 = new Group(code: 122, tasks: [], color: [order: 3])
+	@Shared Group group123 = new Group(code: 123, tasks: [], color: [order: 3])
+	@Shared Group group124 = new Group(code: 124, tasks: [], color: [order: 3])
+	@Shared Group group125 = new Group(code: 125, tasks: [], color: [order: 3])
+	@Shared Group group126 = new Group(code: 126, tasks: [], color: [order: 3])
+	@Shared Group group127 = new Group(code: 127, tasks: [], color: [order: 3])
+	@Shared Group group128 = new Group(code: 128, tasks: [], color: [order: 3])
+	@Shared Group group129 = new Group(code: 129, tasks: [], color: [order: 3])
+	@Shared Group group130 = new Group(code: 130, tasks: [], color: [order: 3])
+	@Shared Group group131 = new Group(code: 131, tasks: [], color: [order: 3])
+	@Shared Group group132 = new Group(code: 132, tasks: [], color: [order: 3])
+	@Shared Group group133 = new Group(code: 133, tasks: [], color: [order: 3])
+	@Shared Group group134 = new Group(code: 134, tasks: [], color: [order: 3])
+	@Shared Group group135 = new Group(code: 135, tasks: [], color: [order: 3])
+	@Shared Group group136 = new Group(code: 136, tasks: [], color: [order: 3])
+	@Shared Group group137 = new Group(code: 137, tasks: [], color: [order: 3])
+	@Shared Group group138 = new Group(code: 138, tasks: [], color: [order: 3])
+	@Shared Group group139 = new Group(code: 139, tasks: [], color: [order: 3])
+	@Shared Group group140 = new Group(code: 140, tasks: [], color: [order: 3])
+	@Shared Group group141 = new Group(code: 141, tasks: [], color: [order: 3])
+	@Shared Group group142 = new Group(code: 142, tasks: [], color: [order: 3])
+	@Shared Group group143 = new Group(code: 143, tasks: [], color: [order: 3])
+	@Shared Group group144 = new Group(code: 144, tasks: [], color: [order: 3])
+	@Shared Group group145 = new Group(code: 145, tasks: [], color: [order: 3])
+	@Shared Group group146 = new Group(code: 146, tasks: [], color: [order: 3])
+	@Shared Group group147 = new Group(code: 147, tasks: [], color: [order: 3])
+	@Shared Group group148 = new Group(code: 148, tasks: [], color: [order: 3])
+	@Shared Group group149 = new Group(code: 149, tasks: [], color: [order: 3])
+	@Shared Group group150 = new Group(code: 150, tasks: [], color: [order: 3])
+	@Shared Group group151 = new Group(code: 151, tasks: [], color: [order: 3])
+	@Shared Group group152 = new Group(code: 152, tasks: [], color: [order: 3])
+	@Shared Group group153 = new Group(code: 153, tasks: [], color: [order: 6])
+	@Shared Group group154 = new Group(code: 154, tasks: [], color: [order: 6])
+	@Shared Group group155 = new Group(code: 155, tasks: [], color: [order: 6])
+	@Shared Group group156 = new Group(code: 156, tasks: [], color: [order: 6])
+	@Shared Group group157 = new Group(code: 157, tasks: [], color: [order: 6])
+	@Shared Group group158 = new Group(code: 158, tasks: [], color: [order: 6])
+	@Shared Group group159 = new Group(code: 159, tasks: [], color: [order: 3])
+	@Shared Group group160 = new Group(code: 160, tasks: [], color: [order: 6])
+	@Shared Group group161 = new Group(code: 161, tasks: [], color: [order: 5])
+	@Shared Group group162 = new Group(code: 162, tasks: [], color: [order: 5])
+	@Shared Group group163 = new Group(code: 163, tasks: [], color: [order: 5])
+	@Shared Group group164 = new Group(code: 164, tasks: [], color: [order: 5])
+	@Shared Group group165 = new Group(code: 165, tasks: [], color: [order: 5])
+	@Shared Group group166 = new Group(code: 166, tasks: [], color: [order: 5])
+	@Shared Group group167 = new Group(code: 167, tasks: [], color: [order: 5])
+	@Shared Group group168 = new Group(code: 168, tasks: [], color: [order: 3])
+	@Shared Group group169 = new Group(code: 169, tasks: [], color: [order: 3])
+	@Shared Group group170 = new Group(code: 170, tasks: [], color: [order: 3])
+	@Shared Group group171 = new Group(code: 171, tasks: [], color: [order: 3])
+	@Shared Group group172 = new Group(code: 172, tasks: [], color: [order: 3])
+	@Shared Group group173 = new Group(code: 173, tasks: [], color: [order: 3])
+	@Shared Group group174 = new Group(code: 174, tasks: [], color: [order: 3])
+	@Shared Group group175 = new Group(code: 175, tasks: [], color: [order: 3])
+	@Shared Group group176 = new Group(code: 176, tasks: [], color: [order: 3])
+	@Shared Group group177 = new Group(code: 177, tasks: [], color: [order: 3])
+	@Shared Group group178 = new Group(code: 178, tasks: [], color: [order: 3])
+	@Shared Group group179 = new Group(code: 179, tasks: [], color: [order: 3])
+	@Shared Group group180 = new Group(code: 180, tasks: [], color: [order: 3])
+	@Shared Group group181 = new Group(code: 181, tasks: [], color: [order: 3])
+	@Shared Group group182 = new Group(code: 182, tasks: [], color: [order: 3])
+	@Shared Group group183 = new Group(code: 183, tasks: [], color: [order: 3])
+	@Shared Group group184 = new Group(code: 184, tasks: [], color: [order: 3])
+	@Shared Group group185 = new Group(code: 185, tasks: [], color: [order: 3])
+	@Shared Group group186 = new Group(code: 186, tasks: [], color: [order: 3])
+	@Shared Group group187 = new Group(code: 187, tasks: [], color: [order: 3])
+	@Shared Group group188 = new Group(code: 188, tasks: [], color: [order: 3])
+	@Shared Group group189 = new Group(code: 189, tasks: [], color: [order: 3])
+	@Shared Group group190 = new Group(code: 190, tasks: [], color: [order: 3])
+	@Shared Group group191 = new Group(code: 191, tasks: [], color: [order: 3])
+	@Shared Group group192 = new Group(code: 192, tasks: [], color: [order: 3])
+	@Shared Group group193 = new Group(code: 193, tasks: [], color: [order: 3])
+	@Shared Group group194 = new Group(code: 194, tasks: [], color: [order: 3])
+	@Shared Group group195 = new Group(code: 195, tasks: [], color: [order: 3])
+	@Shared Group group196 = new Group(code: 196, tasks: [], color: [order: 5])
+	@Shared Group group197 = new Group(code: 197, tasks: [], color: [order: 3])
+	@Shared Group group198 = new Group(code: 198, tasks: [], color: [order: 5])
+	@Shared Group group199 = new Group(code: 199, tasks: [], color: [order: 5])
+	@Shared Group group200 = new Group(code: 200, tasks: [], color: [order: 3])
+	@Shared Group group201 = new Group(code: 201, tasks: [], color: [order: 3])
+	@Shared Group group202 = new Group(code: 202, tasks: [], color: [order: 3])
+	@Shared Group group203 = new Group(code: 203, tasks: [], color: [order: 3])
+	@Shared Group group204 = new Group(code: 204, tasks: [], color: [order: 3])
+	@Shared Group group205 = new Group(code: 205, tasks: [], color: [order: 3])
+	@Shared Group group206 = new Group(code: 206, tasks: [], color: [order: 5])
+	@Shared Group group207 = new Group(code: 207, tasks: [], color: [order: 3])
+	@Shared Group group208 = new Group(code: 208, tasks: [], color: [order: 3])
+	@Shared Group group209 = new Group(code: 209, tasks: [], color: [order: 3])
+	@Shared Group group210 = new Group(code: 210, tasks: [], color: [order: 3])
+	@Shared Group group211 = new Group(code: 211, tasks: [], color: [order: 3])
+	@Shared Group group212 = new Group(code: 212, tasks: [], color: [order: 3])
+	@Shared Group group213 = new Group(code: 213, tasks: [], color: [order: 3])
+	@Shared Group group214 = new Group(code: 214, tasks: [], color: [order: 3])
+	@Shared Group group215 = new Group(code: 215, tasks: [], color: [order: 3])
+	@Shared Group group216 = new Group(code: 216, tasks: [], color: [order: 3])
+	@Shared Group group217 = new Group(code: 217, tasks: [], color: [order: 3])
+	@Shared Group group218 = new Group(code: 218, tasks: [], color: [order: 3])
+	@Shared Group group219 = new Group(code: 219, tasks: [], color: [order: 3])
+	@Shared Group group220 = new Group(code: 220, tasks: [], color: [order: 3])
+	@Shared Group group221 = new Group(code: 221, tasks: [], color: [order: 3])
+	@Shared Group group222 = new Group(code: 222, tasks: [], color: [order: 3])
+	@Shared Group group223 = new Group(code: 223, tasks: [], color: [order: 3])
+	@Shared Group group224 = new Group(code: 224, tasks: [], color: [order: 3])
+	@Shared Group group225 = new Group(code: 225, tasks: [], color: [order: 3])
+	@Shared Group group226 = new Group(code: 226, tasks: [], color: [order: 3])
+	@Shared Group group227 = new Group(code: 227, tasks: [], color: [order: 3])
+	@Shared Group group228 = new Group(code: 228, tasks: [], color: [order: 3])
+	@Shared Group group229 = new Group(code: 229, tasks: [], color: [order: 3])
+	@Shared Group group230 = new Group(code: 230, tasks: [], color: [order: 3])
+	@Shared Group group231 = new Group(code: 231, tasks: [], color: [order: 3])
+	@Shared Group group232 = new Group(code: 232, tasks: [], color: [order: 3])
+	@Shared Group group233 = new Group(code: 233, tasks: [], color: [order: 3])
+	@Shared Group group234 = new Group(code: 234, tasks: [], color: [order: 3])
+	@Shared Group group235 = new Group(code: 235, tasks: [], color: [order: 3])
+	@Shared Group group236 = new Group(code: 236, tasks: [], color: [order: 3])
+	@Shared Group group237 = new Group(code: 237, tasks: [], color: [order: 5])
+	@Shared Group group238 = new Group(code: 238, tasks: [], color: [order: 3])
+	@Shared Group group239 = new Group(code: 239, tasks: [], color: [order: 3])
+	@Shared Group group240 = new Group(code: 240, tasks: [], color: [order: 3])
+	@Shared Group group241 = new Group(code: 241, tasks: [], color: [order: 3])
+	@Shared Group group242 = new Group(code: 242, tasks: [], color: [order: 3])
+	@Shared Group group243 = new Group(code: 243, tasks: [], color: [order: 3])
+	@Shared Group group244 = new Group(code: 244, tasks: [], color: [order: 3])
+	@Shared Group group245 = new Group(code: 245, tasks: [], color: [order: 3])
+	@Shared Group group246 = new Group(code: 246, tasks: [], color: [order: 3])
+	@Shared Group group247 = new Group(code: 247, tasks: [], color: [order: 3])
+	@Shared Group group248 = new Group(code: 248, tasks: [], color: [order: 3])
+	@Shared Group group249 = new Group(code: 249, tasks: [], color: [order: 3])
+	@Shared Group group250 = new Group(code: 250, tasks: [], color: [order: 3])
+	@Shared Group group251 = new Group(code: 251, tasks: [], color: [order: 3])
+	@Shared Group group252 = new Group(code: 252, tasks: [], color: [order: 3])
+	@Shared Group group253 = new Group(code: 253, tasks: [], color: [order: 3])
+	@Shared Group group254 = new Group(code: 254, tasks: [], color: [order: 3])
+	@Shared Group group255 = new Group(code: 255, tasks: [], color: [order: 3])
+	@Shared Group group256 = new Group(code: 256, tasks: [], color: [order: 3])
+	@Shared Group group257 = new Group(code: 257, tasks: [], color: [order: 3])
+	@Shared Group group258 = new Group(code: 258, tasks: [], color: [order: 3])
+	@Shared Group group259 = new Group(code: 259, tasks: [], color: [order: 3])
+	@Shared Group group260 = new Group(code: 260, tasks: [], color: [order: 3])
+	@Shared Group group261 = new Group(code: 261, tasks: [], color: [order: 3])
+	@Shared Group group262 = new Group(code: 262, tasks: [], color: [order: 3])
+	@Shared Group group263 = new Group(code: 263, tasks: [], color: [order: 3])
+	@Shared Group group264 = new Group(code: 264, tasks: [], color: [order: 5])
+	@Shared Group group265 = new Group(code: 265, tasks: [], color: [order: 3])
+	@Shared Group group266 = new Group(code: 266, tasks: [], color: [order: 3])
+	@Shared Group group267 = new Group(code: 267, tasks: [], color: [order: 3])
+	@Shared Group group268 = new Group(code: 268, tasks: [], color: [order: 3])
+	@Shared Group group269 = new Group(code: 269, tasks: [], color: [order: 3])
+	@Shared Group group270 = new Group(code: 270, tasks: [], color: [order: 3])
+	@Shared Group group271 = new Group(code: 271, tasks: [], color: [order: 3])
+	@Shared Group group272 = new Group(code: 272, tasks: [], color: [order: 3])
+	@Shared Group group273 = new Group(code: 273, tasks: [], color: [order: 3])
+	@Shared Group group274 = new Group(code: 274, tasks: [], color: [order: 3])
+	@Shared Group group275 = new Group(code: 275, tasks: [], color: [order: 3])
+	@Shared Group group276 = new Group(code: 276, tasks: [], color: [order: 3])
+	@Shared Group group277 = new Group(code: 277, tasks: [], color: [order: 3])
+	@Shared Group group278 = new Group(code: 278, tasks: [], color: [order: 3])
+	@Shared Group group279 = new Group(code: 279, tasks: [], color: [order: 3])
+	@Shared Group group280 = new Group(code: 280, tasks: [], color: [order: 3])
+	@Shared Group group281 = new Group(code: 281, tasks: [], color: [order: 3])
+	@Shared Group group282 = new Group(code: 282, tasks: [], color: [order: 3])
+	@Shared Group group283 = new Group(code: 283, tasks: [], color: [order: 3])
+	@Shared Group group284 = new Group(code: 284, tasks: [], color: [order: 3])
+	@Shared Group group285 = new Group(code: 285, tasks: [], color: [order: 3])
+	@Shared Group group286 = new Group(code: 286, tasks: [], color: [order: 3])
+	@Shared Group group287 = new Group(code: 287, tasks: [], color: [order: 3])
+	@Shared Group group288 = new Group(code: 288, tasks: [], color: [order: 3])
+	@Shared Group group289 = new Group(code: 289, tasks: [], color: [order: 3])
+	@Shared Group group290 = new Group(code: 290, tasks: [], color: [order: 3])
+	@Shared Group group291 = new Group(code: 291, tasks: [], color: [order: 3])
+	@Shared Group group292 = new Group(code: 292, tasks: [], color: [order: 3])
+	@Shared Group group293 = new Group(code: 293, tasks: [], color: [order: 3])
+	@Shared Group group294 = new Group(code: 294, tasks: [], color: [order: 3])
+	@Shared Group group295 = new Group(code: 295, tasks: [], color: [order: 3])
+	@Shared Group group296 = new Group(code: 296, tasks: [], color: [order: 3])
+	@Shared Group group297 = new Group(code: 297, tasks: [], color: [order: 3])
+	@Shared Group group298 = new Group(code: 298, tasks: [], color: [order: 3])
+	@Shared Group group299 = new Group(code: 299, tasks: [], color: [order: 3])
+	@Shared Group group300 = new Group(code: 300, tasks: [], color: [order: 3])
+	@Shared Group group301 = new Group(code: 301, tasks: [], color: [order: 3])
+	@Shared Group group302 = new Group(code: 302, tasks: [], color: [order: 3])
+	@Shared Group group303 = new Group(code: 303, tasks: [], color: [order: 3])
+	@Shared Group group304 = new Group(code: 304, tasks: [], color: [order: 3])
+	@Shared Group group305 = new Group(code: 305, tasks: [], color: [order: 3])
+	@Shared Group group306 = new Group(code: 306, tasks: [], color: [order: 3])
+	@Shared Group group307 = new Group(code: 307, tasks: [], color: [order: 3])
+	@Shared Group group308 = new Group(code: 308, tasks: [], color: [order: 3])
+	@Shared Group group309 = new Group(code: 309, tasks: [], color: [order: 3])
+	@Shared Group group310 = new Group(code: 310, tasks: [], color: [order: 6])
+	@Shared Group group311 = new Group(code: 311, tasks: [], color: [order: 3])
+	@Shared Group group312 = new Group(code: 312, tasks: [], color: [order: 5])
+	@Shared Group group313 = new Group(code: 313, tasks: [], color: [order: 5])
+	@Shared Group group314 = new Group(code: 314, tasks: [], color: [order: 5])
+	@Shared Group group315 = new Group(code: 315, tasks: [], color: [order: 5])
+	@Shared Group group316 = new Group(code: 316, tasks: [], color: [order: 5])
+	@Shared Group group317 = new Group(code: 317, tasks: [], color: [order: 3])
 
 	void setupSpec() {
 		group1.tasks << task001
@@ -1242,119 +1056,6 @@ class PanelServiceSpec extends Specification {
 		group314.tasks << task076
 		group315.tasks << task329
 		group316.tasks << task330
-		group317.tasks << task332
-		group318.tasks << task334
-		group319.tasks << task335
-		group320.tasks << task336
-		group321.tasks << task362
-		group322.tasks << task337
-		group323.tasks << task338
-		group324.tasks << task074
-		group325.tasks << task192
-		group326.tasks << task193
-		group327.tasks << task118
-		group328.tasks << task090
-		group329.tasks << task340
-		group330.tasks << task341
-		group331.tasks << task342
-		group332.tasks << task343
-		group333.tasks << task344
-		group334.tasks << task345
-		group335.tasks << task346
-		group336.tasks << task347
-		group337.tasks << task355
-		group338.tasks << task363
-		group339.tasks << task364
-		group340.tasks << task365
-		group341.tasks << task366
-		group342.tasks << task367
-		group343.tasks << task369
-		group344.tasks << task370
-		group345.tasks << task371
-		group346.tasks << task372
-		group347.tasks << task373
-		group348.tasks << task374
-		group349.tasks << task375
-		group350.tasks << task376
-		group351.tasks << task377
-		group352.tasks << task378
-		group353.tasks << task379
-		group354.tasks << task368
-		group355.tasks << task380
-		group356.tasks << task381
-		group357.tasks << task437
-		group358.tasks << task382
-		group359.tasks << task429
-		group360.tasks << task427
-		group361.tasks << task029
-		group362.tasks << task387
-		group363.tasks << task100
-		group364.tasks << task101
-		group365.tasks << task417
-		group366.tasks << task420
-		group367.tasks << task421
-		group368.tasks << task422
-		group369.tasks << task423
-		group370.tasks << task424
-		group371.tasks << task425
-		group372.tasks << task909
-		group373.tasks << task910
-		group374.tasks << task911
-		group375.tasks << task912
-		group376.tasks << task913
-		group377.tasks << task914
-		group378.tasks << task915
-		group379.tasks << task916
-		group380.tasks << task917
-		group381.tasks << task901
-		group382.tasks << task902
-		group383.tasks << task903
-		group384.tasks << task904
-		group385.tasks << task905
-		group386.tasks << task906
-		group387.tasks << task907
-		group388.tasks << task908
-		group389.tasks << task008
-		group389.tasks << task010
-		group389.tasks << task006
-		group390.tasks << task008
-		group390.tasks << task010
-		group390.tasks << task006
-		group390.tasks << task009
-		group391.tasks << task076
-		group391.tasks << task008
-		group391.tasks << task010
-		group391.tasks << task006
-		group392.tasks << task103
-		group392.tasks << task301
-		group393.tasks << task103
-		group393.tasks << task328
-		group393.tasks << task105
-		group394.tasks << task019
-		group394.tasks << task109
-		group395.tasks << task021
-		group395.tasks << task019
-		group395.tasks << task109
-		group396.tasks << task019
-		group396.tasks << task109
-		group396.tasks << task277
-		group397.tasks << task409
-		group398.tasks << task187
-		group398.tasks << task007
-		group399.tasks << task188
-		group399.tasks << task007
-		group400.tasks << task112
-		group401.tasks << task150
-		group402.tasks << task272
-		group402.tasks << task150
-		group403.tasks << task419
-		group404.tasks << task013
-		group404.tasks << task012
-		group405.tasks << task151
-		group405.tasks << task012
-		group406.tasks << task150
-		group406.tasks << task012
-		group407.tasks << task426
 
 		task001.groups << group1
 		task004.groups << group1
@@ -1742,118 +1443,6 @@ class PanelServiceSpec extends Specification {
 		task329.groups << group315
 		task330.groups << group316
 		task332.groups << group317
-		task334.groups << group318
-		task335.groups << group319
-		task336.groups << group320
-		task362.groups << group321
-		task337.groups << group322
-		task338.groups << group323
-		task074.groups << group324
-		task192.groups << group325
-		task193.groups << group326
-		task118.groups << group327
-		task090.groups << group328
-		task340.groups << group329
-		task341.groups << group330
-		task342.groups << group331
-		task343.groups << group332
-		task344.groups << group333
-		task345.groups << group334
-		task346.groups << group335
-		task347.groups << group336
-		task355.groups << group337
-		task363.groups << group338
-		task364.groups << group339
-		task365.groups << group340
-		task366.groups << group341
-		task367.groups << group342
-		task369.groups << group343
-		task370.groups << group344
-		task371.groups << group345
-		task372.groups << group346
-		task373.groups << group347
-		task374.groups << group348
-		task375.groups << group349
-		task376.groups << group350
-		task377.groups << group351
-		task378.groups << group352
-		task379.groups << group353
-		task368.groups << group354
-		task380.groups << group355
-		task381.groups << group356
-		task437.groups << group357
-		task382.groups << group358
-		task429.groups << group359
-		task427.groups << group360
-		task029.groups << group361
-		task387.groups << group362
-		task100.groups << group363
-		task101.groups << group364
-		task417.groups << group365
-		task420.groups << group366
-		task421.groups << group367
-		task422.groups << group368
-		task423.groups << group369
-		task424.groups << group370
-		task425.groups << group371
-		task909.groups << group372
-		task910.groups << group373
-		task911.groups << group374
-		task912.groups << group375
-		task913.groups << group376
-		task914.groups << group377
-		task915.groups << group378
-		task916.groups << group379
-		task917.groups << group380
-		task901.groups << group381
-		task902.groups << group382
-		task903.groups << group383
-		task904.groups << group384
-		task905.groups << group385
-		task906.groups << group386
-		task907.groups << group387
-		task908.groups << group388
-		task008.groups << group389
-		task010.groups << group389
-		task006.groups << group389
-		task008.groups << group390
-		task010.groups << group390
-		task006.groups << group390
-		task009.groups << group390
-		task076.groups << group391
-		task008.groups << group391
-		task010.groups << group391
-		task006.groups << group391
-		task103.groups << group392
-		task301.groups << group392
-		task103.groups << group393
-		task328.groups << group393
-		task105.groups << group393
-		task019.groups << group394
-		task109.groups << group394
-		task021.groups << group395
-		task019.groups << group395
-		task109.groups << group395
-		task019.groups << group396
-		task109.groups << group396
-		task277.groups << group396
-		task409.groups << group397
-		task187.groups << group398
-		task007.groups << group398
-		task188.groups << group399
-		task007.groups << group399
-		task112.groups << group400
-		task150.groups << group401
-		task272.groups << group402
-		task150.groups << group402
-		task419.groups << group403
-		task013.groups << group404
-		task012.groups << group404
-		task151.groups << group405
-		task012.groups << group405
-		task150.groups << group406
-		task012.groups << group406
-		task426.groups << group407
 	}
 
 	// endregion
@@ -1871,12 +1460,14 @@ class PanelServiceSpec extends Specification {
 		schedulesDatabaseClient.getMechanics(date, true) >> dayMechanics
 
 		when:
-		Map<java.sql.Date, List<EmployeeSchedule>> daysMechanics = panelService.getDaysMechanics(date)
+		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.getDaysMechanics(date)
 
 		then:
 		daysMechanics.size() == 2
-		daysMechanics[new java.sql.Date(new Date(1567090800000).time)].size() == 2
-		daysMechanics[new java.sql.Date(new Date(1566939600000).time)].size() == 1
+		daysMechanics['2019-08-29']
+		daysMechanics['2019-08-29'].size() == 2
+		daysMechanics['2019-08-27']
+		daysMechanics['2019-08-27'].size() == 1
 	}
 
 	// endregion
@@ -1958,8 +1549,8 @@ class PanelServiceSpec extends Specification {
 
 		then:
 		groupUnits.size() == 2
-		groupUnits[0].group.code == 46
-		groupUnits[1].group.code == 53
+		groupUnits[0].group.code == 48
+		groupUnits[1].group.code == 52
 	}
 
 	void "test get order groups 5"() {
@@ -1975,8 +1566,8 @@ class PanelServiceSpec extends Specification {
 						new OrderLine(article: new Article(code: 99025)),
 						new OrderLine(article: new Article(code: 99026)),
 						new OrderLine(article: new Article(code: 99066)),
-						new OrderLine(article: new Article(code: 99086)),//
-						new OrderLine(article: new Article(code: 99112)),
+						new OrderLine(article: new Article(code: 99086)),
+						new OrderLine(article: new Article(code: 99112)),//
 						new OrderLine(article: new Article(code: 99151)),
 						new OrderLine(article: new Article(code: 99200)),
 						new OrderLine(article: new Article(code: 99330))
@@ -1993,15 +1584,15 @@ class PanelServiceSpec extends Specification {
 		then:
 		groupUnits.size() == 10
 		groupUnits[0].group.code == 1
-		groupUnits[1].group.code == 4
-		groupUnits[2].group.code == 5
-		groupUnits[3].group.code == 5
-		groupUnits[4].group.code == 5
-		groupUnits[5].group.code == 5
-		groupUnits[6].group.code == 5
-		groupUnits[7].group.code == 5
-		groupUnits[8].group.code == 5
-		groupUnits[9].group.code == 5
+		groupUnits[1].group.code == 60
+		groupUnits[2].group.code == 141
+		groupUnits[3].group.code == 134
+		groupUnits[4].group.code == 135
+		groupUnits[5].group.code == 113
+		groupUnits[6].group.code == 44
+		groupUnits[7].group.code == 31
+		groupUnits[8].group.code == 87
+		groupUnits[9].group.code == 316
 	}
 
 //	void "test get order groups one article one absorbable task"() {
@@ -2095,23 +1686,15 @@ class PanelServiceSpec extends Specification {
 		cards[0].order.number == order1Article.number
 		cards[0].group.code == group1.code
 		cards[0].duration == 10
-		!cards[0].linkedPrevious
-		!cards[0].linkedNext
 		cards[1].order.number == order4Articles.number
 		cards[1].group.code == group1.code
 		cards[1].duration == 10
-		!cards[1].linkedPrevious
-		cards[1].linkedNext == cards[2]
 		cards[2].order.number == order4Articles.number
 		cards[2].group.code == group2.code
 		cards[2].duration == 30
-		cards[2].linkedPrevious == cards[1]
-		cards[2].linkedNext == cards[3]
 		cards[3].order.number == order4Articles.number
 		cards[3].group.code == group3.code
 		cards[3].duration == 45
-		cards[3].linkedPrevious == cards[2]
-		!cards[3].linkedNext
 	}
 
 	void "test build order cards duration not found for group"() {
