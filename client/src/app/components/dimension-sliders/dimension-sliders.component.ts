@@ -9,16 +9,36 @@ import {TimeService} from "../../services/time.service";
 })
 export class DimensionSlidersComponent {
 
-	private min: number;
-	private max: number;
+	private _min: number;
+	private _max: number;
 
 	constructor(private timeService: TimeService) {
-		this.min = this.timeService.getMinWidthValue();
-		this.max = this.timeService.getMaxWidthValue();
+		this._min = this.timeService.getMinWidthValue();
+		this._max = this.timeService.getMaxWidthValue();
 	}
 
-	private updateWidth(value: number) {
-		this.timeService.setWidthValue(this.max - (value - this.min));
+	// region Getters / setters
+
+	get min(): number {
+		return this._min;
+	}
+
+	set min(value: number) {
+		this._min = value;
+	}
+
+	get max(): number {
+		return this._max;
+	}
+
+	set max(value: number) {
+		this._max = value;
+	}
+
+	// endregion
+
+	updateWidth(value: number) {
+		this.timeService.setWidthValue(this._max - (value - this._min));
 	}
 
 }

@@ -1,0 +1,18 @@
+task copyClientResources() {
+	group = 'build'
+	description = 'Copy client resources into server'
+	dependsOn(':client:build')
+	
+	doFirst {
+		copy {
+			from "${project(':client').projectDir}/dist/panel-client"
+			into "${project(':server').buildDir}/resources/main/static"
+		}
+	}
+}
+
+task assembleServerAndClient() {
+	group = 'build'
+	description = 'Build combined server & client JAR'
+	dependsOn([copyClientResources, ':server:shadowJar'])
+}

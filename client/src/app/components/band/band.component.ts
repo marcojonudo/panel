@@ -36,7 +36,7 @@ import {CardsGroup} from "../../objects/cards-group";
 export class BandComponent implements OnInit, OnDestroy {
 
 	private intervalsNumber: number;
-	private unassignedCardsGroups: CardsGroup[];
+	private _unassignedCardsGroups: CardsGroup[];
 
 	private unassignedCardsGroupsSubscription;
 
@@ -64,7 +64,7 @@ export class BandComponent implements OnInit, OnDestroy {
 			// this.unassignedCardsGroups = unassignedCardsGroups;
 			console.timeEnd('PUSH');
 
-			console.log('final unassigned', this.unassignedCardsGroups);
+			console.log('final unassigned', this._unassignedCardsGroups);
 			// this.unassignedCardsGroups.push(unassignedCardsGroups[unassignedCardsGroups.length-1]);
 			console.time('PUSH DETECT');
 			this.cdRef.detectChanges();
@@ -75,6 +75,18 @@ export class BandComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.unassignedCardsGroupsSubscription();
 	}
+
+	// region Getters / setters
+
+	get unassignedCardsGroups(): CardsGroup[] {
+		return this._unassignedCardsGroups;
+	}
+
+	set unassignedCardsGroups(value: CardsGroup[]) {
+		this._unassignedCardsGroups = value;
+	}
+
+	// endregion
 
 	check() {
 		console.log('checking band')

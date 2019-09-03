@@ -17,7 +17,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	private draggingSubscription: any;
 	private helperCardsGroupSubscription: any;
 
-	private helperCardsGroup: CardsGroup;
+	private _helperCardsGroup: CardsGroup;
 	private dragging: boolean;
 
 	constructor(
@@ -41,9 +41,9 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			/* Cuando se deja de arrastrar (dragging = false y helperCardsGroup = true), se elimina la ficha del origen. De esta
 			*  forma, se evitan problemas de parpadeos al modificar la propiedad 'visibility' para lograr los efectos
 			*  buscados */
-			if (!this.dragging && this.helperCardsGroup && this.cardPositionService.dropzone) {
+			if (!this.dragging && this._helperCardsGroup && this.cardPositionService.dropzone) {
 				console.time('[overlay] removeFromOrigin');
-				this.cardsService.removeFromOrigin(this.helperCardsGroup);
+				this.cardsService.removeFromOrigin(this._helperCardsGroup);
 				console.timeEnd('[overlay] removeFromOrigin');
 			}
 		});
@@ -55,7 +55,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			if (!helperCardsGroup && this.cardPositionService.dropzone) {
 				console.time('[overlay] updateTranslatedCards');
 				this.cardsService.updateTranslatedCards(
-					this.helperCardsGroup,
+					this._helperCardsGroup,
 					this.cardPositionService.dropzone.mechanic
 				);
 				console.timeEnd('[overlay] updateTranslatedCards');
@@ -70,6 +70,18 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		this.coordinatesSubscription.unsubscribe();
 		this.draggingSubscription.unsubscribe();
 	}
+
+	// region Getters / setters
+
+	get helperCardsGroup(): CardsGroup {
+		return this._helperCardsGroup;
+	}
+
+	set helperCardsGroup(value: CardsGroup) {
+		this._helperCardsGroup = value;
+	}
+
+	// endregion
 
 	get lineHeight$() {
 		return this.daysService.lineHeight$;

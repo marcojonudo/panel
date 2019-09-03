@@ -5,6 +5,11 @@ micronaut:
         port: 8083
         cors:
             enabled: true
+    router:
+        static-resources:
+            default:
+                mapping: /**
+                paths: [classpath:static]
 
 endpoints:
     beans:

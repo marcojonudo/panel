@@ -10,8 +10,7 @@ import {DaysService} from "../../services/days.service";
 })
 export class MainComponent implements AfterViewInit {
 
-	//TODO Cambiar tipo
-	private days: Date[];
+	private _days: Date[];
 	private itemSize: number;
 
 	private relativeContainer: boolean;
@@ -48,6 +47,18 @@ export class MainComponent implements AfterViewInit {
 	ngAfterViewInit(): void {
 		this.timeService.dropzoneWidth = this.schedulesContainer.nativeElement.offsetWidth - 180;
 	}
+
+	// region Getters / setters
+
+	get days(): Date[] {
+		return this._days;
+	}
+
+	set days(value: Date[]) {
+		this._days = value;
+	}
+
+	// endregion
 
 	get oneDayMode$() {
 		return this.daysService.oneDayMode$;
