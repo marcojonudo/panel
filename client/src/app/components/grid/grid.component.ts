@@ -12,6 +12,7 @@ import {Mechanic} from "../../objects/mechanic";
 export class GridComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
+	@Input() maxScheduleHours: number[];
 
 	private _mechanics: Mechanic[];
 

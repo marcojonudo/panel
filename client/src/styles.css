@@ -51,7 +51,7 @@ html, body {
 }
 
 .border-right-2 {
-	border-right: 2px solid #dee2e6;
+	border-right: 2px solid #dee2e6 !important;
 }
 
 .border-semi-dark {

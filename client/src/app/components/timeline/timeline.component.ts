@@ -1,5 +1,6 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {TimeService} from "../../services/time.service";
+import {DaysService} from "../../services/days.service";
 
 @Component({
 	selector: 'app-timeline',
@@ -9,18 +10,35 @@ import {TimeService} from "../../services/time.service";
 })
 export class TimelineComponent implements OnInit {
 
+	@Input() day: Date;
+	@Input() maxScheduleHours: number[];
+
 	private DISPLAY_MINUTES_THRESHOLD: number = 250;
 
-	private hours: number[];
+	private _hours: number[];
 	private quarters: string[];
 
-	constructor(private timeService: TimeService) {
-	}
+	constructor(private daysService: DaysService, private timeService: TimeService) {}
 
 	ngOnInit() {
-		this.hours = this.timeService.getHours();
-		this.quarters = this.timeService.getQuarters()
+		// this.daysService.oneDayMode$.subscribe(oneDayMode => {
+		// 	this.hours = oneDayMode ? this.timeService.getMaxDayScheduleHours(this.day) : this.timeService.maxDaysSchedulesHours;
+		// });
+		// this.hours = this.timeService.getMaxDayScheduleHours(this.day);
+		this.quarters = this.timeService.getQuarters();
 	}
+
+	// region Getters / setters
+
+	get hours(): number[] {
+		return this._hours;
+	}
+
+	set hours(value: number[]) {
+		this._hours = value;
+	}
+
+	// endregion
 
 	fitWidth() {
 		let a = this.timeService.getTotalTimeWidth() === this.timeService.minWidth;

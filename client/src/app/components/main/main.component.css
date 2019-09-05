@@ -1,3 +1,7 @@
+.assigned-orders-container {
+	height: calc(100% - 100px);
+}
+
 .cards-holder {
 	position: relative;
 }

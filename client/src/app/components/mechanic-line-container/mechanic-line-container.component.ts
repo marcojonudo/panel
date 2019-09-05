@@ -12,6 +12,7 @@ export class MechanicLineContainerComponent {
 	@Input() mechanic: Mechanic;
 	// @Input() cards: any[];
 	@Input() day: Date;
+	@Input() maxScheduleHours: number[];
 
 	check() {
 		console.log('checking mechanic line container', this.mechanic, this.day)

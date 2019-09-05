@@ -7,6 +7,7 @@ import {DaysService} from "../../services/days.service";
 import {Card} from "../../objects/card";
 import {ResizeEvent} from "angular-resizable-element";
 import {CardsGroup} from "../../objects/cards-group";
+import {UtilsService} from "../../services/utils.service";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -16,17 +17,24 @@ import {CardsGroup} from "../../objects/cards-group";
 })
 export class MechanicLineComponent implements OnInit, OnDestroy {
 
-	private hours: number[];
-	private quarters: string[];
+	@Input() maxScheduleHours: number[];
 
-	private assignedCards: any[];
+	private HOUR_WIDTH: number = 360;
+
+	// private _maxScheduleHours: number[];
+	private _hourPercentage: number[];
+	private schedulePercentage: number;
+	private schedulePercentages: number[];
+	private leftPercentage: number;
+	private leftPercentages: number[];
+	private quarters: string[];
 
 	private cardsSubscription: any;
 
 	@Input() mechanic: Mechanic;
 	@Input() day: Date;
 
-	private cardsGroups: CardsGroup[];
+	private _cardsGroups: CardsGroup[];
 
 	constructor(
 		private timeService: TimeService,
@@ -34,10 +42,13 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		private daysService: DaysService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.hours = this.timeService.getHours();
-		console.log('HOURS', this.hours);
 		this.quarters = this.timeService.getQuarters();
-		this.assignedCards = [{id: 6, width: 150, left: 180, top: 120}];
+		// this.hourPercentage = this.timeService.hourPercentage;
+		// this.daysService.oneDayMode$.subscribe(oneDayMode => {
+		// 	console.log('YYYYYYYYYYYYYY', oneDayMode);
+		// });
+
+
 	}
 
 	ngOnInit(): void {
@@ -47,11 +58,73 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 				this.cdRef.detectChanges();
 			});
 		}
+
+		// this.daysService.oneDayMode$.subscribe(oneDayMode => {
+		// 	const maxScheduleHours = oneDayMode ? this.timeService.getMaxDayScheduleHours(this.day) : this.timeService.maxDaysSchedulesHours;
+		// 	// this.hours = oneDayMode ? this.timeService.getMaxDayScheduleHours(this.day) : this.timeService.maxDaysSchedulesHours;
+		// });
+
+		this.schedulePercentage = UtilsService.calculateRelativePercentage(
+			this.mechanic.schedule.getAllMinutes(),
+			this.maxScheduleHours.length * 60
+		);
+
+		this.schedulePercentages = this.mechanic.schedule.minutes.map(slotMinutes => {
+			return UtilsService.calculateRelativePercentage(slotMinutes,this.maxScheduleHours.length * 60);
+		});
+		this.leftPercentage = UtilsService.calculateRelativePercentage(
+			UtilsService.getScheduleRefStartMinutes(this.mechanic.schedule.start, this.maxScheduleHours[0]),
+			this.maxScheduleHours.length * 60
+		);
+		this.leftPercentages = this.mechanic.schedule.minutes.map((slotMinutes, i) => {
+			return UtilsService.calculateRelativePercentage(
+				UtilsService.getScheduleRefStartMinutes(this.mechanic.schedule.thresholds[i*2], this.maxScheduleHours[0]),
+				this.maxScheduleHours.length * 60
+			)
+		});
+		console.log('PERCENTAGES IN LINE',
+			this.mechanic.schedule,
+			this.schedulePercentage,
+			this.schedulePercentages,
+			this.leftPercentage,
+			this.leftPercentages
+		);
+		// this.maxScheduleHours = this.timeService.getMaxDayScheduleHours(this.day);
+		// console.log('maxScheduleHours', this.maxScheduleHours);
+		this.cdRef.detectChanges();
 	}
 
 	ngOnDestroy(): void {
 		this.cardsSubscription.unsubscribe();
 	}
+
+	// region Getters / setters
+
+	// get maxScheduleHours(): number[] {
+	// 	return this._maxScheduleHours;
+	// }
+	//
+	// set maxScheduleHours(value: number[]) {
+	// 	this._maxScheduleHours = value;
+	// }
+
+	get cardsGroups(): CardsGroup[] {
+		return this._cardsGroups;
+	}
+
+	set cardsGroups(value: CardsGroup[]) {
+		this._cardsGroups = value;
+	}
+
+	// get hourPercentage(): number[] {
+	// 	return this._hourPercentage;
+	// }
+	//
+	// set hourPercentage(value: number[]) {
+	// 	this._hourPercentage = value;
+	// }
+
+	// endregion
 
 	trackByItem(index, item) {
 		return item;
@@ -62,7 +135,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	check() {
-		console.log('checking mechanic line', this.day, this.mechanic, this.cardsGroups);
+		console.log('checking mechanic line', this.day, this.mechanic, this._cardsGroups);
 	}
 
 }

@@ -1,7 +1,10 @@
 <div class="d-flex align-items-center mechanic-line-container"
 	 [style.height.px]="mechanic.height">
 	<app-mechanic-info [mechanic]="mechanic" class="mechanic-info-container"></app-mechanic-info>
-	<app-mechanic-line [day]="day" [mechanic]="mechanic" class="h-100 flex-grow-1"></app-mechanic-line>
+	<app-mechanic-line [day]="day"
+					   [mechanic]="mechanic"
+					   [maxScheduleHours]="maxScheduleHours"
+					   class="h-100 flex-grow-1"></app-mechanic-line>
 	<div appResizableLine [mechanic]="mechanic" class="w-100 resizable cursor-resize"></div>
 </div>
 <div>{{check()}}</div>

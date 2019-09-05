@@ -11,7 +11,7 @@ export class Mechanic {
 	lines: number;
 	height: number;
 
-	constructor(day: Date, position: string, personalData: any, schedule, lines: number) {
+	constructor(day: Date, position: string, personalData: any, schedule: any, lines: number) {
 		this.day = day;
 		this.position = position;
 		this.personalData = new PersonalData(personalData);

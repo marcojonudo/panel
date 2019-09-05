@@ -3,8 +3,9 @@
 	<div class="w-100 h-100">
 		<app-timeline-container
 			[day]="day"
+			[maxScheduleHours]="maxScheduleHours"
 			class="timeline-container-wrapper"></app-timeline-container>
-		<app-grid [day]="day"></app-grid>
+		<app-grid [day]="day" [maxScheduleHours]="maxScheduleHours"></app-grid>
 		<!--<app-grid [dayCards]="dayCards" [day]="day"></app-grid>-->
 	</div>
 </div>

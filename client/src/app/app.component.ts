@@ -5,6 +5,8 @@ import {HttpClient} from "@angular/common/http";
 import {CardsService} from "./services/cards.service";
 import {UtilsService} from "./services/utils.service";
 import {DaysService} from "./services/days.service";
+import {TimeService} from "./services/time.service";
+import {environment} from "../environments/environment";
 import {Mechanic} from "./objects/mechanic";
 
 @Component({
@@ -21,15 +23,17 @@ export class AppComponent implements AfterViewInit {
 	constructor(
 		private cdRef: ChangeDetectorRef,
 		private daysService: DaysService,
+		private timeService: TimeService,
 		private cardsService: CardsService,
 		private http: HttpClient
 	) {
 		this.loading = true;
-		this.http.get('http://localhost:8083/panel/get')
+		this.http.get(`${environment.serverUrl}/panel/get`)
 			.subscribe((data: any) => {
 				console.log(data);
-				// console.log(Object.keys(data.daysMechanics).map(a => UtilsService.parseDateFromString(a)));
-				daysService.init(this.parseDaysMechanics(data.daysMechanics));
+				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics);
+				daysService.init(daysMechanicsList);
+				timeService.init(daysMechanicsList);
 				cardsService.init(data.cards.map(card => new Card(card)));
 				this.loading = false;
 				this.cdRef.detectChanges();
@@ -54,8 +58,9 @@ export class AppComponent implements AfterViewInit {
 
 	parseDaysMechanics(daysMechanics: any) {
 		let daysMechanicsList = [];
-		for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
+		for (const dayString of Object.keys(daysMechanics)) {
 			const day = UtilsService.parseDateFromString(dayString);
+			const mechanics = daysMechanics[dayString];
 			daysMechanicsList.push(
 				{day: day, mechanics: mechanics.map(mechanic =>
 						new Mechanic(day, mechanic.panelPosition, mechanic.employee, mechanic.schedule, mechanic.lines)

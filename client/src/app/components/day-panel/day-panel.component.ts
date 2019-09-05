@@ -12,11 +12,12 @@ export class DayPanelComponent {
 
 	@Input() index: number;
 	@Input() day: Date;
+	@Input() maxScheduleHours: number[];
 
 	constructor() { }
 
 	checkDayPanel() {
-		console.log('checking day panel', this.day);
+		console.log('checking day panel', this.day, this.maxScheduleHours);
 	}
 
 }

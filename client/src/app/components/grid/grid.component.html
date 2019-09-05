@@ -1,5 +1,5 @@
 <div
-	class="w-100 d-flex flex-column grid"
+	class="w-100 h-100 d-flex flex-column grid"
 	cdkDropList
 	(cdkDropListDropped)="drop($event)">
 	<!--<app-mechanic-line-container-->
@@ -17,6 +17,7 @@
 		*ngFor="let mechanic of (mechanics | async)"
 		class="mechanic-line-container-wrapper"
 		[day]="day"
-		[mechanic]="mechanic"></app-mechanic-line-container>
+		[mechanic]="mechanic"
+		[maxScheduleHours]="maxScheduleHours"></app-mechanic-line-container>
 </div>
 <div>{{check()}}</div>

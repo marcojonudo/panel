@@ -1,6 +1,6 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
 	<div
-		class="row flex-grow-1">
+		class="row assigned-orders-container">
 		<div class="col h-100 padding-0 d-flex">
 			<div
 				appScrollable
@@ -8,11 +8,12 @@
 				<div
 					class="h-100"
 					#schedulesContainer
-					[style.width.%]="percentageWidth$ | async">
+					[style.width.%]="maxSchedulePercentage">
 					<app-day-panel
 						class="h-100 animated slideInRight"
 						[index]="i"
 						[day]="day"
+						[maxScheduleHours]="maxScheduleHours"
 						*ngFor="let day of days | days: (oneDayMode$ | async); trackBy: trackByDay; let i = index"></app-day-panel>
 				</div>
 			</div>

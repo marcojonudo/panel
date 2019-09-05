@@ -156,7 +156,6 @@ export class CardsService {
 		this.assignedDaysCardsGroups$ = {};
 
 		for (let dayTime in daysMechanics) {
-			console.log('dayTime', dayTime);
 			this.assignedDaysCardsGroups[dayTime] = {};
 			this.assignedDaysCardsGroupsSubjects[dayTime] = {};
 			this.assignedDaysCardsGroups$[dayTime] = {};

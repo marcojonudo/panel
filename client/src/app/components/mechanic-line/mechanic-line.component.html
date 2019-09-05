@@ -2,13 +2,21 @@
 	#dropzone
 	appDropzone
 	[mechanic]="mechanic"
-	class="h-100 d-flex mechanic-line">
-	<div class="h-100 w-100 d-flex" style="position: absolute; left: 0; top: 0">
-		<div *ngFor="let hour of hours; trackBy: trackByItem"
-			 class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">
-			<div *ngFor="let quarter of quarters; trackBy: trackByItem"
-				 class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>
+	class="h-100 mechanic-line">
+	<div class="h-100 d-flex schedule-line"
+		 *ngFor="let percentage of schedulePercentages; let i = index"
+		[ngStyle]="{'width.%': percentage, 'left.%': leftPercentages[i]}">
+		<div *ngFor="let quarter of mechanic.schedule.quarters[i]; trackBy: trackByItem"
+			 class="flex-grow-1 flex-basis-0 d-flex border-right border-semi-dark"
+			 [ngClass]="{'border-right-2': quarter == 45}">
+			<!--<div *ngFor="let quarter of quarters; trackBy: trackByItem"-->
+				 <!--class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>-->
 		</div>
+		<!--<div *ngFor="let hour of mechanic.schedule.hours; trackBy: trackByItem"-->
+			 <!--class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">-->
+			<!--<div *ngFor="let quarter of quarters; trackBy: trackByItem"-->
+				 <!--class="flex-grow-1 flex-basis-0 border-right border-semi-dark quarter"></div>-->
+		<!--</div>-->
 	</div>
 	<app-draggable-group
 		*ngFor="let cardsGroup of cardsGroups"

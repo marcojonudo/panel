@@ -105,4 +105,34 @@ export class UtilsService {
 		return groupList;
 	}
 
+	public static createArray(length: number) {
+		return Array(length).fill(0);
+	}
+
+	public static getScheduleHours(start: Date, end: Date): number[] {
+		const startHour = start.getHours();
+		const endHour = end.getHours() + (Math.ceil(end.getMinutes()/60) > 0 ? 1 : 0);
+		return Array(endHour - startHour).fill(0).map((x, i) => startHour + i);
+	}
+
+	public static getScheduleMinutes(start: Date, end: Date) {
+		return Math.round((end.getTime() - start.getTime()) / 60000);
+	}
+
+	public static getScheduleRefStartMinutes(start: Date, maxScheduleStartHour: number) {
+		const maxScheduleStart = new Date(start.getFullYear(), start.getMonth(), start.getDate(), maxScheduleStartHour);
+		return (start.getTime() - maxScheduleStart.getTime()) / 60000;
+	}
+
+	public static timeGreaterThan(time1: Date, time2: Date) {
+		time1.setFullYear(time2.getFullYear());
+		time1.setMonth(time2.getMonth());
+		time1.setDate(time2.getDate());
+		return time1 > time2;
+	}
+
+	public static calculateRelativePercentage(element: number, container: number) {
+		return (element * 100) / container;
+	}
+
 }

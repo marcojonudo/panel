@@ -9,12 +9,13 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 export class TimelineContainerComponent {
 
 	@Input() day: Date;
+	@Input() maxScheduleHours: number[];
 
 	constructor() {
 	}
 
 	check() {
-		console.log('checking timeline container', this.day)
+		console.log('checking timeline container', this.day, this.maxScheduleHours)
 	}
 
 }

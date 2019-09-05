@@ -137,7 +137,6 @@ export class DaysService {
 
 	initDays(daysMechanicsList: any) {
 		this.days = daysMechanicsList.map(entry => entry.day);
-		console.log(this.days[0].getDate());
 		this.sliceDays = this.days.length - 1;
 	}
 
