@@ -56,21 +56,11 @@ export class MainComponent implements AfterViewInit, OnDestroy {
 		this.relativeContainer = true;
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
-		// this.maxSchedulePercentage = this.timeService.maxDaysSchedulesPercentage;
 
-		// this.maxScheduleHoursSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
-		// 	this.maxSchedulePercentage = oneDayMode ?
-		// 		this.timeService.getMaxDaySchedulePercentage(new Date().setHours(0, 0, 0, 0)) : this.timeService.maxDaysSchedulesPercentage;
-		// });
-
-		// this.maxSchedulePercentage = this.timeService.maxSchedulePercentage;
 		this.maxScheduleHoursSubscription = this.timeService.maxScheduleHours$.subscribe(maxScheduleHours => {
 			this.maxScheduleHours = maxScheduleHours;
 			this.maxSchedulePercentage = this.timeService.getMaxDaySchedulePercentage(maxScheduleHours);
 		})
-		// this.timeService.percentageWidth$.subscribe(width => {
-		// 	this.width = 180 + width * 10;
-		// })
 	}
 
 	ngAfterViewInit(): void {
@@ -113,10 +103,10 @@ export class MainComponent implements AfterViewInit, OnDestroy {
 		return this.daysService.oneDayMode$;
 	}
 
-	// get percentageWidth$() {
-	// 	// console.log('PERCENTAGE WIDTH', Object.values(this.timeService.daysSchedulesHours)[0].length * 33);
-	// 	// return Object.values(this.timeService.daysSchedulesHours)[0].length * 33;
-	// 	return this.timeService.percentageWidth$;
+	// get widthPercentage$() {
+	// 	// console.log('PERCENTAGE WIDTH', Object.values(this.timeService.maxTodayScheduleHours)[0].length * 33);
+	// 	// return Object.values(this.timeService.maxTodayScheduleHours)[0].length * 33;
+	// 	return this.timeService.widthPercentage$;
 	// }
 
 	trackByDay(index, item) {

@@ -31,10 +31,13 @@ export class AppComponent implements AfterViewInit {
 		this.http.get(`${environment.serverUrl}/panel/get`)
 			.subscribe((data: any) => {
 				console.log(data);
+
 				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics);
 				daysService.init(daysMechanicsList);
-				timeService.init(daysMechanicsList);
+				timeService.init();
+
 				cardsService.init(data.cards.map(card => new Card(card)));
+
 				this.loading = false;
 				this.cdRef.detectChanges();
 			});

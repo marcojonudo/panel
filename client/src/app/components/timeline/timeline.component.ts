@@ -13,29 +13,54 @@ export class TimelineComponent implements OnInit {
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
 
-	private DISPLAY_MINUTES_THRESHOLD: number = 250;
+	private readonly _HOUR_PERCENTAGE_DISPLAY_MINUTES_THRESHOLD: number = 15;
 
-	private _hours: number[];
-	private quarters: string[];
+	private _quarters: string[];
+	private _widthPercentage: number;
+
+	private _widthPercentageSubscription: any;
 
 	constructor(private daysService: DaysService, private timeService: TimeService) {}
 
 	ngOnInit() {
-		// this.daysService.oneDayMode$.subscribe(oneDayMode => {
-		// 	this.hours = oneDayMode ? this.timeService.getMaxDayScheduleHours(this.day) : this.timeService.maxDaysSchedulesHours;
+		this.quarters = this.timeService.QUARTERS;
+
+		this.widthPercentageSubscription = this.timeService.widthPercentage$.subscribe(widthPercentage => {
+			this.widthPercentage = widthPercentage;
+		})
+		// this.maxScheduleHoursQuarters = [];
+		// this.maxScheduleHours.forEach(hour => {
+		// 	this.maxScheduleHoursQuarters.push(`${hour}:${this.timeService.QUARTERS[0]}`, ...this.timeService.QUARTERS.slice(1));
 		// });
-		// this.hours = this.timeService.getMaxDayScheduleHours(this.day);
-		this.quarters = this.timeService.getQuarters();
+		// this.maxScheduleHoursQuarters = this.maxScheduleHours.map(hour => {
+		// 	return {hour: hour, quarters: this.timeService.QUARTERS};
+		// });
 	}
 
 	// region Getters / setters
 
-	get hours(): number[] {
-		return this._hours;
+	get quarters(): string[] {
+		return this._quarters;
 	}
 
-	set hours(value: number[]) {
-		this._hours = value;
+	set quarters(value: string[]) {
+		this._quarters = value;
+	}
+
+	get widthPercentage(): number {
+		return this._widthPercentage;
+	}
+
+	set widthPercentage(value: number) {
+		this._widthPercentage = value;
+	}
+
+	get widthPercentageSubscription(): any {
+		return this._widthPercentageSubscription;
+	}
+
+	set widthPercentageSubscription(value: any) {
+		this._widthPercentageSubscription = value;
 	}
 
 	// endregion
@@ -45,12 +70,12 @@ export class TimelineComponent implements OnInit {
 		return this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
 	}
 
-	get percentageWidth$() {
-		return this.timeService.percentageWidth$
+	get widthPercentage$() {
+		return this.timeService.widthPercentage$
 	}
 
-	get displayMinutesThreshold() {
-		return this.DISPLAY_MINUTES_THRESHOLD;
+	get hourPercentageDisplayMinutesThreshold() {
+		return this._HOUR_PERCENTAGE_DISPLAY_MINUTES_THRESHOLD;
 	}
 
 	check() {

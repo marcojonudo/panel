@@ -21,10 +21,6 @@ mwlResizable {
 	left: 0;
 }
 
-.quarter:last-child {
-	border-right: none !important;
-}
-
 .dropzone-dragging {
 	background-color: #E7F1F7;
 }

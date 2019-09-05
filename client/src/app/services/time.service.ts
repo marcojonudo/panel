@@ -23,14 +23,15 @@ export class TimeService {
 	private readonly MINUTES_8: number = 480;
 	private readonly RIGHT_PANEL_WIDTH: number = 200;
 	private readonly FIT_HOURS_IN_SCREEN: number = 4;
+	readonly QUARTERS: string[] = ['00', '15', '30', '45'];
 
 	private widthValue: number;
 
-	private _daysSchedulesHours: number[];
+	private _today: Date;
+
+	private _maxTodayScheduleHours: number[];
 	private _maxDaysSchedulesHours: number[];
 	private _maxScheduleHours: number[];
-	private hours: number[];
-	private quarters: string[];
 
 	private _leftOffsetPercentage: number;
 	private _hourPercentage: number;
@@ -43,8 +44,8 @@ export class TimeService {
 
 	private _intervalsNumber: number;
 
-	private percentageWidthSubject: BehaviorSubject<number>;
-	private _percentageWidth$: Observable<number>;
+	private widthPercentageSubject: BehaviorSubject<number>;
+	private _widthPercentage$: Observable<number>;
 
 	private intervalWidthSubject: BehaviorSubject<number>;
 	private _intervalWidth$: Observable<number>;
@@ -55,19 +56,17 @@ export class TimeService {
 	private widthSubscription: any;
 
 	constructor(private daysService: DaysService) {
-		// this.minuteWidth = this.MINUTE_WIDTH_DEFAULT;
+		this.today = UtilsService.clearTime(new Date());
 		this.widthValue = this.SCROLLABLE_CONTAINER_WIDTH_MAX;
-		this.hours = Array(this.HOURS_NUMBER).fill(0).map((x, i) => this.START_HOUR + i);
-		this.quarters = ['00', '15', '30', '45'];
-		this.intervalsNumber = this.HOURS_NUMBER * this.quarters.length * this.INTERVALS_PER_QUARTER;
+		this.intervalsNumber = this.HOURS_NUMBER * this.QUARTERS.length * this.INTERVALS_PER_QUARTER;
 
 		this.percentageWidth = this.SCROLLABLE_CONTAINER_WIDTH_MAX;
 		[this.leftOffsetPercentage, this.hourPercentage, this.intervalPercentage] = this.calculateWidthPercentages(window.innerWidth);
 		console.log('Hour width:', this.hourPercentage, '%');
 		console.log('Interval width:', this.intervalPercentage, '%');
 
-		this.percentageWidthSubject = new BehaviorSubject<number>(this.hourPercentage);
-		this.percentageWidth$ = this.percentageWidthSubject.asObservable();
+		this.widthPercentageSubject = new BehaviorSubject<number>(this.hourPercentage);
+		this.widthPercentage$ = this.widthPercentageSubject.asObservable();
 
 		this.intervalWidthSubject = new BehaviorSubject<number>(0);
 		this.intervalWidth$ = this.intervalWidthSubject.asObservable();
@@ -78,55 +77,42 @@ export class TimeService {
 
 	// region Init
 
-	init(daysMechanicsList: any) {
-		this.initDaysSchedules(daysMechanicsList);
+	init() {
+		this.initDaysSchedules(this.daysService.daysMechanics);
 		this.initScheduleWidth();
 	}
 
-	initDaysSchedules(daysMechanicsList: any) {
+	initDaysSchedules(daysMechanics: any) {
 		let minDaysSchedules = new Date();
 		let maxDaysSchedules = new Date();
-		this.daysSchedulesHours = {};
-		console.log(daysMechanicsList);
-		for (let dayMechanics of daysMechanicsList) {
-			const [minSchedule, maxSchedule] = this.getScheduleLimits(dayMechanics.mechanics);
-			this.daysSchedulesHours[dayMechanics.day.getTime()] = UtilsService.getScheduleHours(minSchedule, maxSchedule);
+		for (let day in daysMechanics) {
+			const [minSchedule, maxSchedule] = this.getScheduleLimits(daysMechanics[day]);
+
+			if (parseInt(day) == this.today.getTime()) {
+				this.maxTodayScheduleHours = UtilsService.getScheduleHours(minSchedule, maxSchedule);
+			}
 
 			minDaysSchedules = UtilsService.timeGreaterThan(minDaysSchedules, minSchedule) ? minSchedule : minDaysSchedules;
 			maxDaysSchedules = UtilsService.timeGreaterThan(maxSchedule, maxDaysSchedules) ? maxSchedule : maxDaysSchedules;
 		}
 		this.maxDaysSchedulesHours = UtilsService.getScheduleHours(minDaysSchedules, maxDaysSchedules);
-		console.log('Days schedules', this.daysSchedulesHours);
-		console.log('Max days schedules hours', this.maxDaysSchedulesHours);
+
+		console.log('Max. today schedules hours', this.maxTodayScheduleHours);
+		console.log('Max. days schedules hours', this.maxDaysSchedulesHours);
 	}
 
 	private getScheduleLimits(mechanics: Mechanic[]) {
 		const minSchedule = new Date(Math.min(...mechanics.map(mechanic => mechanic.schedule.start.getTime())));
 		const maxSchedule = new Date(Math.max(...mechanics.map(mechanic => mechanic.schedule.end.getTime())));
-		// const minSchedule = new Date(Math.min(...mechanics.filter(mechanic =>
-		// 	mechanic.schedule.morningStart || mechanic.schedule.afternoonStart
-		// ).map(mechanic =>
-		// 	(mechanic.schedule.morningStart ? mechanic.schedule.morningStart : mechanic.schedule.afternoonStart).getTime()
-		// )));
-		// const maxSchedule = new Date(Math.max(...mechanics.filter(mechanic =>
-		// 	mechanic.schedule.afternoonEnd || mechanic.schedule.morningEnd
-		// ).map(mechanic =>
-		// 	(mechanic.schedule.afternoonEnd ? mechanic.schedule.afternoonEnd : mechanic.schedule.morningEnd).getTime()
-		// )));
 		return [minSchedule, maxSchedule];
 	}
 
 	initScheduleWidth() {
 		this.maxDaysSchedulesPercentage = this.leftOffsetPercentage + this.maxDaysSchedulesHours.length * this.hourPercentage;
 		console.log('Max schedule:', this.maxDaysSchedulesPercentage, '%');
-		// this.percentageWidthSubject = new BehaviorSubject<number>(260);
-		// this.percentageWidth$ = this.percentageWidthSubject.asObservable();
+
 		this.daysService.oneDayMode$.subscribe(oneDayMode => {
-			this.maxScheduleHours = oneDayMode ?
-				this.daysSchedulesHours[new Date().setHours(0, 0, 0, 0)] : this.maxDaysSchedulesHours;
-			console.log('ONE DAY MODE', oneDayMode, this.maxScheduleHours);
-			// this.maxSchedulePercentage = oneDayMode ?
-			// 	this.getMaxDaySchedulePercentage(new Date().setHours(0, 0, 0, 0)) : this.maxDaysSchedulesPercentage;
+			this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
 			this.maxScheduleHoursSubject.next(this.maxScheduleHours);
 		});
 	}
@@ -135,12 +121,20 @@ export class TimeService {
 
 	// region Getters / setters
 
-	get percentageWidth$(): Observable<number> {
-		return this._percentageWidth$;
+	get today(): Date {
+		return this._today;
 	}
 
-	set percentageWidth$(value: Observable<number>) {
-		this._percentageWidth$ = value;
+	set today(value: Date) {
+		this._today = value;
+	}
+
+	get widthPercentage$(): Observable<number> {
+		return this._widthPercentage$;
+	}
+
+	set widthPercentage$(value: Observable<number>) {
+		this._widthPercentage$ = value;
 	}
 
 	get percentageWidth(): number {
@@ -184,12 +178,12 @@ export class TimeService {
 		this._intervalsNumber = value;
 	}
 
-	get daysSchedulesHours(): any {
-		return this._daysSchedulesHours;
+	get maxTodayScheduleHours(): any {
+		return this._maxTodayScheduleHours;
 	}
 
-	set daysSchedulesHours(value: any) {
-		this._daysSchedulesHours = value;
+	set maxTodayScheduleHours(value: any) {
+		this._maxTodayScheduleHours = value;
 	}
 
 	get hourPercentage(): number {
@@ -258,16 +252,8 @@ export class TimeService {
 		return [leftOffsetPercentage, hourInGridPercentage, intervalInGridPercentage]
 	}
 
-	getMaxDayScheduleHours(day: Date) {
-		return this.daysSchedulesHours[day.getTime()];
-	}
-
 	getMaxDaySchedulePercentage(hours: number[]) {
 		return this.leftOffsetPercentage + hours.length * this.hourPercentage;
-	}
-
-	getQuarters() {
-		return this.quarters;
 	}
 
 	getTotalTimeWidth() {
@@ -283,7 +269,7 @@ export class TimeService {
 	}
 
 	setWidthValue(value: number) {
-		this.percentageWidthSubject.next(value);
+		this.widthPercentageSubject.next(value);
 	}
 
 	get minWidth() {
@@ -293,7 +279,7 @@ export class TimeService {
 	toggleFitWidth() {
 		this.widthValue = this.widthValue == this.SCROLLABLE_CONTAINER_WIDTH_MIN ?
 			this.SCROLLABLE_CONTAINER_WIDTH_MAX : this.SCROLLABLE_CONTAINER_WIDTH_MIN;
-		this.percentageWidthSubject.next(this.widthValue);
+		this.widthPercentageSubject.next(this.widthValue);
 	}
 
 	resize() {

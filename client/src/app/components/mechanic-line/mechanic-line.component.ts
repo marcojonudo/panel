@@ -27,7 +27,6 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	private schedulePercentages: number[];
 	private leftPercentage: number;
 	private leftPercentages: number[];
-	private quarters: string[];
 
 	private cardsSubscription: any;
 
@@ -41,15 +40,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		private cardsService: CardsService,
 		private daysService: DaysService,
 		private cdRef: ChangeDetectorRef
-	) {
-		this.quarters = this.timeService.getQuarters();
-		// this.hourPercentage = this.timeService.hourPercentage;
-		// this.daysService.oneDayMode$.subscribe(oneDayMode => {
-		// 	console.log('YYYYYYYYYYYYYY', oneDayMode);
-		// });
-
-
-	}
+	) {}
 
 	ngOnInit(): void {
 		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position]) {

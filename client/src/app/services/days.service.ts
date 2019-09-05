@@ -143,7 +143,8 @@ export class DaysService {
 	initDaysMechanics(daysMechanicsList: any) {
 		this.daysMechanics = {};
 		for (let dayMechanics of daysMechanicsList) {
-			this.daysMechanics[dayMechanics.day.getTime()] = UtilsService.sort(dayMechanics.mechanics, (m) => m.position);
+			this.daysMechanics[dayMechanics.day.getTime()] =
+				UtilsService.sort(dayMechanics.mechanics, (m) => m.position);
 		}
 	}
 

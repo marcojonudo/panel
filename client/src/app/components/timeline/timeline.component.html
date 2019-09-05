@@ -1,10 +1,10 @@
 <div class="d-flex h-100 timeline">
-	<div *ngFor="let hour of maxScheduleHours" class="flex-grow-1 flex-basis-0 d-flex border-right-2 border-semi-dark">
-		<div
-			*ngFor="let quarter of quarters; first as isFirst"
-			class="flex-grow-1 flex-basis-0 quarter"
-			[ngClass]="(percentageWidth$ | async) < displayMinutesThreshold ? 'align-center' : 'pl-1'">
-			<span *ngIf="isFirst">{{hour}}<span *ngIf="(percentageWidth$ | async) >= displayMinutesThreshold">:{{quarter}}</span></span>
+	<div *ngFor="let hour of maxScheduleHours" class="flex-grow-1 flex-basis-0 timeline-hour d-flex border-right-2 border-semi-dark">
+		<div *ngFor="let quarter of quarters; first as isFirst"
+			class="flex-grow-1 flex-basis-0 align-center border-right border-semi-dark"
+			[ngClass]="{'quarter': isFirst}">
+			<span *ngIf="isFirst">{{hour}}<span *ngIf="widthPercentage >= hourPercentageDisplayMinutesThreshold">:</span></span>
+			<span *ngIf="widthPercentage >= hourPercentageDisplayMinutesThreshold">{{quarter}}</span>
 		</div>
 	</div>
 </div>

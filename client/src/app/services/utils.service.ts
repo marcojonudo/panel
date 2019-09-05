@@ -135,4 +135,9 @@ export class UtilsService {
 		return (element * 100) / container;
 	}
 
+	public static clearTime(date: Date) {
+		date.setHours(0, 0, 0, 0);
+		return date;
+	}
+
 }
