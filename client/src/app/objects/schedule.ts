@@ -30,15 +30,10 @@ export class Schedule {
 		for (let i = 0; i < this.thresholds.length; i = i + 2) {
 			this.minutes.push(UtilsService.getScheduleMinutes(this.thresholds[i], this.thresholds[i+1]));
 			const startMinutes = this.thresholds[i].getMinutes();
-			this.quarters.push(UtilsService.createArray(this.minutes[i%2] / 15).map((elem, i) => {
+			this.quarters.push(UtilsService.createArray(this.minutes[i/2] / 15).map((elem, i) => {
 				return (startMinutes + 15 * i) % 60;
 			}));
 		}
-		// this.hours = UtilsService.getScheduleHours(this.start, this.end);
-	}
-
-	getAllMinutes() {
-		return this.minutes[0] + (this.minutes[1] ? this.minutes[1] : 0);
 	}
 
 }
