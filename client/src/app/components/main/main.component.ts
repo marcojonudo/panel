@@ -64,10 +64,11 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
 			this.oneDayMode = oneDayMode;
 			this.maxScheduleHours = this.timeService.getMaxScheduleHours(oneDayMode);
+			/* Después de actualizar el valor de hourPercentage en el método, se notifica al observador
+			*  hourPercentageSubscription, y ahí se calcula el maxSchedulePercentage */
 			this.timeService.calcHourPercentageFromHoursInGrid(
 				oneDayMode ? this.timeService.FIT_HOURS_IN_SCREEN : this.maxScheduleHours.length
 			);
-			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
 		});
 
 		this.hourPercentageSubscription = this.timeService.hourPercentage$.subscribe(hourPercentage => {

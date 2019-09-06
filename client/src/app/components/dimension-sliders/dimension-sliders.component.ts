@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnDestroy} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 
 @Component({
@@ -7,28 +7,37 @@ import {TimeService} from "../../services/time.service";
 	styleUrls: ['./dimension-sliders.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DimensionSlidersComponent implements OnDestroy {
+export class DimensionSlidersComponent implements OnInit, OnDestroy {
+
+	private readonly ZOOM_LEVELS: number = 4;
 
 	private _min: number;
 	private _max: number;
+	private _step: number;
+	private percentage: number;
 
-	private maxScheduleHoursSubscription: any;
+	private maxSchedulePercentageSubscription: any;
 
-	// private _maxSchedulePercentage: number;
-
-
-	constructor(private timeService: TimeService) {
-		// this.min = this.timeService.getMinWidthValue();
-		// this.max = this.timeService.getMaxWidthValue();
+	constructor(
+		private timeService: TimeService,
+		private cdRef: ChangeDetectorRef
+	) {
 		this.min = this.timeService.minPercentageValue;
-		// this.maxScheduleHoursSubscription = this.timeService.maxScheduleHours$.subscribe(maxScheduleHours => {
-		// 	console.log('aaaaaaaaaaaa', maxScheduleHours);
-		// 	this.max = this.timeService.calcSchedulePercentage(maxScheduleHours);
-		// });
+	}
+
+	ngOnInit(): void {
+		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(maxSchedulePercentage => {
+			if (!this.max) {
+				this.max = maxSchedulePercentage;
+			}
+			this.percentage = maxSchedulePercentage;
+			this.step = parseInt(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(2));
+			this.cdRef.detectChanges();
+		});
 	}
 
 	ngOnDestroy(): void {
-		this.maxScheduleHoursSubscription.unsubscribe();
+		this.maxSchedulePercentageSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -49,18 +58,18 @@ export class DimensionSlidersComponent implements OnDestroy {
 		this._max = value;
 	}
 
-	// get maxSchedulePercentage(): number {
-	// 	return this._maxSchedulePercentage;
-	// }
-	//
-	// set maxSchedulePercentage(value: number) {
-	// 	this._maxSchedulePercentage = value;
-	// }
+	get step(): number {
+		return this._step;
+	}
+
+	set step(value: number) {
+		this._step = value;
+	}
 
 	// endregion
 
-	updatePercentage(value: number) {
-		this.timeService.updatePercentage(this.max - (value - this.min));
+	updatePercentage() {
+		this.timeService.updatePercentage(this.percentage);
 	}
 
 }

@@ -1,4 +1,9 @@
-<!--<mat-slider [min]="min" [max]="max" [invert]="true" [step]="50" (input)="updateWidthValue($event)"></mat-slider>-->
-<!--<mat-slider [min]="min" [max]="max" [invert]="true" [step]="50"></mat-slider>-->
-<input type="range" [min]="min" [max]="max" step="1" #ref (input)="updatePercentage(ref.value)">
-<!--<div>{{testDimensionsSliders()}}</div>-->
+<div class="w-100 h-100 align-center">
+	<input id="percentage-slider"
+		   type="range"
+		   [min]="min"
+		   [max]="max"
+		   [step]="step"
+		   [(ngModel)]="percentage"
+		   (input)="updatePercentage()">
+</div>

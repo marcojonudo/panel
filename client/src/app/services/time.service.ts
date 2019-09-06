@@ -34,7 +34,7 @@ export class TimeService {
 
 	private _leftOffsetPercentage: number;
 	private _hourPercentage: number;
-	private _daysSchedulesPercentage: number;
+	private _maxSchedulePercentage: number;
 	// private _maxDaysSchedulesPercentage: number;
 	// private _percentageWidth: number;
 	// private _dropzoneWidth: number;
@@ -48,8 +48,8 @@ export class TimeService {
 	// private intervalWidthSubject: BehaviorSubject<number>;
 	// private _intervalWidth$: Observable<number>;
 
-	private maxScheduleHoursSubject: BehaviorSubject<number[]>;
-	private _maxScheduleHours$: Observable<number[]>;
+	private maxSchedulePercentageSubject: BehaviorSubject<number>;
+	private _maxSchedulePercentage$: Observable<number>;
 
 	private widthSubscription: any;
 
@@ -64,8 +64,8 @@ export class TimeService {
 		console.log('Interval width:', this.intervalPercentage, '%');
 
 		// TODO Se usa en dimensions sliders para actualizar el max value. Comprobar si es necesario.
-		this.maxScheduleHoursSubject = new BehaviorSubject<number[]>(this.maxScheduleHours);
-		this.maxScheduleHours$ = this.maxScheduleHoursSubject.asObservable();
+		this.maxSchedulePercentageSubject = new BehaviorSubject<number>(this.maxSchedulePercentage);
+		this.maxSchedulePercentage$ = this.maxSchedulePercentageSubject.asObservable();
 	}
 
 	// region Init
@@ -88,7 +88,7 @@ export class TimeService {
 			maxDaysSchedules = UtilsService.timeGreaterThan(maxSchedule, maxDaysSchedules) ? maxSchedule : maxDaysSchedules;
 		}
 		this.maxDaysSchedulesHours = UtilsService.getScheduleHours(minDaysSchedules, maxDaysSchedules);
-		this.maxScheduleHours = this.maxTodayScheduleHours;
+		this.maxScheduleHours = this.getMaxScheduleHours(true);
 
 		console.log('Max. today schedules hours', this.maxTodayScheduleHours);
 		console.log('Max. days schedules hours', this.maxDaysSchedulesHours);
@@ -142,12 +142,20 @@ export class TimeService {
 		this._maxScheduleHours = value;
 	}
 
-	get maxScheduleHours$(): Observable<number[]> {
-		return this._maxScheduleHours$;
+	get maxSchedulePercentage(): number {
+		return this._maxSchedulePercentage;
 	}
 
-	set maxScheduleHours$(value: Observable<number[]>) {
-		this._maxScheduleHours$ = value;
+	set maxSchedulePercentage(value: number) {
+		this._maxSchedulePercentage = value;
+	}
+
+	get maxSchedulePercentage$(): Observable<number> {
+		return this._maxSchedulePercentage$;
+	}
+
+	set maxSchedulePercentage$(value: Observable<number>) {
+		this._maxSchedulePercentage$ = value;
 	}
 
 	get leftOffsetPercentage(): number {
@@ -210,7 +218,9 @@ export class TimeService {
 	}
 
 	calcSchedulePercentage(hours: number[]): number {
-		return this.leftOffsetPercentage + hours.length * this.hourPercentage;
+		this.maxSchedulePercentage = this.leftOffsetPercentage + hours.length * this.hourPercentage;
+		this.maxSchedulePercentageSubject.next(this.maxSchedulePercentage);
+		return this.maxSchedulePercentage;
 	}
 
 	updatePercentage(value: number) {

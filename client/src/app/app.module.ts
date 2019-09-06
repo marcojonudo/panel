@@ -41,7 +41,8 @@ import {HelperDraggableGroupComponent} from './components/helper-draggable-group
 import {ResizableLineDirective} from './directives/resizable-line.directive';
 import {ResizableCardDirective} from './directives/resizable-card.directive';
 import {HttpClientModule} from "@angular/common/http";
-import { SpinnerComponent } from './components/spinner/spinner.component';
+import {SpinnerComponent} from './components/spinner/spinner.component';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
 	declarations: [
@@ -81,7 +82,8 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
 		BrowserAnimationsModule,
 		AngularDraggableModule,
 		OverlayModule,
-		HttpClientModule
+		HttpClientModule,
+		FormsModule
 	],
 	providers: [
 		TimeService,

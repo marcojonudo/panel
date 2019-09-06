@@ -1,5 +1,102 @@
 /*@import "../../../assets/css/material-style-deeppurple-amber.css";*/
 
-mat-slider {
-	width: 100px;
+#percentage-slider {
+	width: 90%;
+	-webkit-appearance: none;
+	background: transparent;
 }
+
+#percentage-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+}
+
+#percentage-slider:focus {
+	outline: none;
+}
+
+#percentage-slider::-ms-track {
+	width: 100%;
+	cursor: pointer;
+	background: transparent;
+	border-color: transparent;
+	color: transparent;
+}
+
+#percentage-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	border: 1px solid #000000;
+	height: 16px;
+	width: 16px;
+	border-radius: 100%;
+	background: #ffffff;
+	cursor: pointer;
+	margin-top: -7px;
+	transition: background-color .2s;
+}
+
+#percentage-slider:active::-webkit-slider-thumb {
+	background-color: #74A5FF;
+}
+
+#percentage-slider:active::-moz-range-thumb {
+	background-color: #74A5FF;
+}
+
+#percentage-slider::-moz-range-thumb {
+	border: 1px solid #000000;
+	height: 16px;
+	width: 16px;
+	border-radius: 100%;
+	background: #ffffff;
+	cursor: pointer;
+	transition: background-color .2s;
+}
+
+#percentage-slider::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 2px;
+	cursor: pointer;
+	background: #595959;
+	border-radius: 2px;
+	/*border: 0.2px solid #010101;*/
+}
+
+#percentage-slider:focus::-webkit-slider-runnable-track {
+	background: #595959;
+}
+
+#percentage-slider::-moz-range-track {
+	width: 100%;
+	height: 2px;
+	cursor: pointer;
+	background: #595959;
+	border-radius: 2px;
+}
+
+/*#percentage-slider::-ms-track {*/
+	/*width: 100%;*/
+	/*height: 8.4px;*/
+	/*cursor: pointer;*/
+	/*background: transparent;*/
+	/*border-color: transparent;*/
+	/*border-width: 16px 0;*/
+	/*color: transparent;*/
+/*}*/
+/*#percentage-slider::-ms-fill-lower {*/
+	/*background: #2a6495;*/
+	/*border: 0.2px solid #010101;*/
+	/*border-radius: 2.6px;*/
+	/*box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;*/
+/*}*/
+/*#percentage-slider:focus::-ms-fill-lower {*/
+	/*background: #3071a9;*/
+/*}*/
+/*#percentage-slider::-ms-fill-upper {*/
+	/*background: #3071a9;*/
+	/*border: 0.2px solid #010101;*/
+	/*border-radius: 2.6px;*/
+	/*box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;*/
+/*}*/
+/*#percentage-slider:focus::-ms-fill-upper {*/
+	/*background: #367ebd;*/
+/*}*/
