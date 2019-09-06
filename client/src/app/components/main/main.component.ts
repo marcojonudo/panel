@@ -45,7 +45,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	// private hide: boolean;
 
-	@ViewChild('schedulesContainer', {static: true}) schedulesContainer: ElementRef;
+	// @ViewChild('schedulesContainer', {static: true}) schedulesContainer: ElementRef;
 
 	constructor(
 		private daysService: DaysService,
@@ -59,9 +59,15 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
 
-		this.maxScheduleHoursSubscription = this.timeService.maxScheduleHours$.subscribe(maxScheduleHours => {
-			this.maxScheduleHours = maxScheduleHours;
-			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(maxScheduleHours);
+		// this.maxScheduleHoursSubscription = this.timeService.maxScheduleHours$.subscribe(maxScheduleHours => {
+		// 	this.maxScheduleHours = maxScheduleHours;
+		// 	this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(maxScheduleHours);
+		// });
+		this.daysService.oneDayMode$.subscribe(oneDayMode => {
+			this.maxScheduleHours = this.timeService.getMaxScheduleHours(oneDayMode);
+			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
+			// this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
+			// this.maxScheduleHoursSubject.next(this.maxScheduleHours);
 		});
 	}
 

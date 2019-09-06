@@ -35,7 +35,6 @@ import {CardsGroup} from "../../objects/cards-group";
 })
 export class BandComponent implements OnInit, OnDestroy {
 
-	private intervalsNumber: number;
 	private _unassignedCardsGroups: CardsGroup[];
 
 	private unassignedCardsGroupsSubscription;
@@ -46,7 +45,6 @@ export class BandComponent implements OnInit, OnDestroy {
 		private cardsService: CardsService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.intervalsNumber = this.timeService.intervalsNumber;
 		this.unassignedCardsGroups = [];
 	}
 

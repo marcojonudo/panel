@@ -22,9 +22,9 @@ export class ToolsButtonsComponent {
 		// ];
 	}
 
-	fitTime() {
-		this.timeService.toggleFitWidth();
-	}
+	// fitTime() {
+	// 	this.timeService.toggleFitWidth();
+	// }
 
 	toggleDayMode() {
 		this.daysService.toggleDayMode();

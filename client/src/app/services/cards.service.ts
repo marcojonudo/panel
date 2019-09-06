@@ -107,10 +107,10 @@ export class CardsService {
 		this.unassignedCardsGroupsSubject = new BehaviorSubject<any>(this.unassignedCardsGroups);
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
-		this.widthSubscription = this.timeService.intervalWidth$.subscribe(() => {
-			this.initDimensions();
-			this.notifyAll();
-		});
+		// this.widthSubscription = this.timeService.intervalWidth$.subscribe(() => {
+		// 	this.initDimensions();
+		// 	this.notifyAll();
+		// });
 
 		console.log('Cards', this.cards);
 		console.log('Unassigned cards groups', this.unassignedCardsGroups);

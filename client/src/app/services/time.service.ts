@@ -10,11 +10,10 @@ import {DaysService} from "./days.service";
 })
 export class TimeService {
 
-	private readonly SCROLLABLE_CONTAINER_WIDTH_MAX: number = 350; // (%)
 	private readonly _MIN_PERCENTAGE_VALUE: number = 100; // (%)
 
 	private readonly START_HOUR: number = 8;
-	private readonly HOURS_NUMBER: number = 5;
+	// private readonly HOURS_NUMBER: number = 5;
 	private readonly MINUTES_PER_HOUR: number = 60;
 	private readonly QUARTERS_PER_HOUR: number = 4;
 	private readonly INTERVALS_PER_QUARTER: number = 3;
@@ -36,8 +35,7 @@ export class TimeService {
 	private _leftOffsetPercentage: number;
 	private _hourPercentage: number;
 	private _daysSchedulesPercentage: number;
-	private _maxDaysSchedulesPercentage: number;
-	private _maxSchedulePercentage: number;
+	// private _maxDaysSchedulesPercentage: number;
 	// private _percentageWidth: number;
 	// private _dropzoneWidth: number;
 	private _intervalPercentage: number;
@@ -47,8 +45,8 @@ export class TimeService {
 	private hourPercentageSubject: BehaviorSubject<number>;
 	private _hourPercentage$: Observable<number>;
 
-	private intervalWidthSubject: BehaviorSubject<number>;
-	private _intervalWidth$: Observable<number>;
+	// private intervalWidthSubject: BehaviorSubject<number>;
+	// private _intervalWidth$: Observable<number>;
 
 	private maxScheduleHoursSubject: BehaviorSubject<number[]>;
 	private _maxScheduleHours$: Observable<number[]>;
@@ -57,11 +55,7 @@ export class TimeService {
 
 	constructor(private daysService: DaysService) {
 		this.today = UtilsService.clearTime(new Date());
-		this.widthValue = this.SCROLLABLE_CONTAINER_WIDTH_MAX;
-		this.intervalsNumber = this.HOURS_NUMBER * this.QUARTERS.length * this.INTERVALS_PER_QUARTER;
 
-		// this.percentageWidth = this.SCROLLABLE_CONTAINER_WIDTH_MAX;
-		// [this.leftOffsetPercentage, this.hourPercentage, this.intervalPercentage] = this.calculateWidthPercentages(window.innerWidth);
 		this.initPercentages();
 		console.log('Hour width:', this.hourPercentage, '%');
 		console.log('Interval width:', this.intervalPercentage, '%');
@@ -69,9 +63,7 @@ export class TimeService {
 		this.hourPercentageSubject = new BehaviorSubject<number>(this.hourPercentage);
 		this.hourPercentage$ = this.hourPercentageSubject.asObservable();
 
-		this.intervalWidthSubject = new BehaviorSubject<number>(0);
-		this.intervalWidth$ = this.intervalWidthSubject.asObservable();
-
+		// TODO Se usa en dimensions sliders para actualizar el max value. Comprobar si es necesario.
 		this.maxScheduleHoursSubject = new BehaviorSubject<number[]>([]);
 		this.maxScheduleHours$ = this.maxScheduleHoursSubject.asObservable();
 	}
@@ -80,7 +72,6 @@ export class TimeService {
 
 	init() {
 		this.initDaysSchedules(this.daysService.daysMechanics);
-		this.initScheduleWidth();
 	}
 
 	initDaysSchedules(daysMechanics: any) {
@@ -108,20 +99,10 @@ export class TimeService {
 		return [minSchedule, maxSchedule];
 	}
 
-	initScheduleWidth() {
-		this.maxDaysSchedulesPercentage = this.leftOffsetPercentage + this.maxDaysSchedulesHours.length * this.hourPercentage;
-
-		this.daysService.oneDayMode$.subscribe(oneDayMode => {
-			this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
-			this.maxScheduleHoursSubject.next(this.maxScheduleHours);
-		});
-	}
-
 	initPercentages(): void {
 		const gridWidth = window.innerWidth - this.RIGHT_PANEL_WIDTH;
 		this.leftOffsetPercentage = (this.LEFT_OFFSET * 100) / gridWidth;
 		this.initWidthPercentages(this.FIT_HOURS_IN_SCREEN);
-		// return [leftOffsetPercentage, hourInGridPercentage, intervalInGridPercentage]
 	}
 
 	initWidthPercentages(hoursInGrid: number) {
@@ -141,69 +122,12 @@ export class TimeService {
 		this._today = value;
 	}
 
-	get hourPercentage$(): Observable<number> {
-		return this._hourPercentage$;
-	}
-
-	set hourPercentage$(value: Observable<number>) {
-		this._hourPercentage$ = value;
-	}
-
-	// get percentageWidth(): number {
-	// 	return this._percentageWidth;
-	// }
-	//
-	// set percentageWidth(value: number) {
-	// 	this._percentageWidth = value;
-	// }
-
-	get intervalWidth$(): Observable<number> {
-		return this._intervalWidth$;
-	}
-
-	set intervalWidth$(value: Observable<number>) {
-		this._intervalWidth$ = value;
-	}
-
-	// get dropzoneWidth(): number {
-	// 	return this._dropzoneWidth;
-	// }
-	//
-	// set dropzoneWidth(value: number) {
-	// 	this._dropzoneWidth = value;
-	// 	this.resize()
-	// }
-
-	get intervalPercentage(): number {
-		return this._intervalPercentage;
-	}
-
-	set intervalPercentage(value: number) {
-		this._intervalPercentage = value;
-	}
-
-	get intervalsNumber(): number {
-		return this._intervalsNumber;
-	}
-
-	set intervalsNumber(value: number) {
-		this._intervalsNumber = value;
-	}
-
-	get maxTodayScheduleHours(): any {
+	get maxTodayScheduleHours(): number[] {
 		return this._maxTodayScheduleHours;
 	}
 
-	set maxTodayScheduleHours(value: any) {
+	set maxTodayScheduleHours(value: number[]) {
 		this._maxTodayScheduleHours = value;
-	}
-
-	get hourPercentage(): number {
-		return this._hourPercentage;
-	}
-
-	set hourPercentage(value: number) {
-		this._hourPercentage = value;
 	}
 
 	get maxDaysSchedulesHours(): number[] {
@@ -214,28 +138,12 @@ export class TimeService {
 		this._maxDaysSchedulesHours = value;
 	}
 
-	get maxDaysSchedulesPercentage(): number {
-		return this._maxDaysSchedulesPercentage;
+	get maxScheduleHours(): number[] {
+		return this._maxScheduleHours;
 	}
 
-	set maxDaysSchedulesPercentage(value: number) {
-		this._maxDaysSchedulesPercentage = value;
-	}
-
-	get leftOffsetPercentage(): number {
-		return this._leftOffsetPercentage;
-	}
-
-	set leftOffsetPercentage(value: number) {
-		this._leftOffsetPercentage = value;
-	}
-
-	get maxSchedulePercentage(): number {
-		return this._maxSchedulePercentage;
-	}
-
-	set maxSchedulePercentage(value: number) {
-		this._maxSchedulePercentage = value;
+	set maxScheduleHours(value: number[]) {
+		this._maxScheduleHours = value;
 	}
 
 	get maxScheduleHours$(): Observable<number[]> {
@@ -246,23 +154,49 @@ export class TimeService {
 		this._maxScheduleHours$ = value;
 	}
 
-	get maxScheduleHours(): number[] {
-		return this._maxScheduleHours;
+	get leftOffsetPercentage(): number {
+		return this._leftOffsetPercentage;
 	}
 
-	set maxScheduleHours(value: number[]) {
-		this._maxScheduleHours = value;
+	set leftOffsetPercentage(value: number) {
+		this._leftOffsetPercentage = value;
+	}
+
+	get hourPercentage(): number {
+		return this._hourPercentage;
+	}
+
+	set hourPercentage(value: number) {
+		this._hourPercentage = value;
+	}
+
+	get intervalPercentage(): number {
+		return this._intervalPercentage;
+	}
+
+	set intervalPercentage(value: number) {
+		this._intervalPercentage = value;
+	}
+
+	get hourPercentage$(): Observable<number> {
+		return this._hourPercentage$;
+	}
+
+	set hourPercentage$(value: Observable<number>) {
+		this._hourPercentage$ = value;
+	}
+
+	get minPercentageValue() {
+		return this._MIN_PERCENTAGE_VALUE;
 	}
 
 	// endregion
 
-	// private calculateWidthPercentages(windowWidth) {
-	// 	const gridWidth = windowWidth - this.RIGHT_PANEL_WIDTH;
-	// 	const leftOffsetPercentage = (this.LEFT_OFFSET * 100) / gridWidth;
-	// 	const hourInGridPercentage = (100 - leftOffsetPercentage) / this.FIT_HOURS_IN_SCREEN;
-	// 	const intervalInGridPercentage = hourInGridPercentage / (this.QUARTERS_PER_HOUR * this.INTERVALS_PER_QUARTER);
-	// 	return [leftOffsetPercentage, hourInGridPercentage, intervalInGridPercentage]
-	// }
+	// region Width percentage
+
+	getMaxScheduleHours(oneDayMode: boolean): number[] {
+		return oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
+	}
 
 	calcSchedulePercentage(hours: number[]): number {
 		return this.leftOffsetPercentage + hours.length * this.hourPercentage;
@@ -272,42 +206,12 @@ export class TimeService {
 		return (maxSchedulePercentage - this.leftOffsetPercentage) / this.maxScheduleHours.length;
 	}
 
-	getTotalTimeWidth() {
-		return this.widthValue;
-	}
-
-	// getMaxWidthValue() {
-	// 	return this.SCROLLABLE_CONTAINER_WIDTH_MAX;
-	// }
-	//
-	// getMinWidthValue() {
-	// 	return this.SCROLLABLE_CONTAINER_WIDTH_MIN;
-	// }
-
 	updatePercentage(value: number) {
 		this.hourPercentage = this.calcHourPercentage(value);
 		this.hourPercentageSubject.next(this.hourPercentage);
 	}
 
-	get minPercentageValue() {
-		return this._MIN_PERCENTAGE_VALUE;
-	}
-
-	toggleFitWidth() {
-		this.widthValue = this.widthValue == this.minPercentageValue ?
-			this.SCROLLABLE_CONTAINER_WIDTH_MAX : this.minPercentageValue;
-		this.hourPercentageSubject.next(this.widthValue);
-	}
-
-	resize() {
-		// const width = (this.dropzoneWidth + 180) * (this.percentageWidth/100) - 180;
-		// this.intervalPercentage = this.dropzoneWidth / this.intervalsNumber;
-		// this.intervalWidthSubject.next(this.intervalPercentage);
-
-		// this.cardsService.initDimensions()
-		// console.log('calculate', dropzoneWidth, this.intervalsNumber);
-		// this._intervalPercentage = dropzoneWidth / this.intervalsNumber;
-	}
+	// endregion
 
 	/* ---- LEFT ---- */
 
