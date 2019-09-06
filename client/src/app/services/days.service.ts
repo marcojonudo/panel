@@ -141,9 +141,9 @@ export class DaysService {
 
 	toggleDayMode() {
 		this.oneDayMode = !this.oneDayMode;
-		this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
+		// this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
 		this.oneDayModeSubject.next(this.oneDayMode);
-		this.lineHeightSubject.next(this.lineHeight);
+		// this.lineHeightSubject.next(this.lineHeight);
 	}
 
 	get lineHeightDefault() {

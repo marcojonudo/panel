@@ -22,7 +22,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	private itemSize: number;
 
 	private _oneDayMode: boolean;
-
 	private _maxSchedulePercentage: number;
 	private _maxScheduleHours: number[];
 
@@ -63,16 +62,15 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
-			console.log('RECEIVING ONE DAY MODE IN MAIN', oneDayMode);
 			this.oneDayMode = oneDayMode;
 			this.maxScheduleHours = this.timeService.getMaxScheduleHours(oneDayMode);
+			this.timeService.calcHourPercentageFromHoursInGrid(
+				oneDayMode ? this.timeService.FIT_HOURS_IN_SCREEN : this.maxScheduleHours.length
+			);
 			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
-			console.log(this.maxScheduleHours, this.maxSchedulePercentage);
-			this.cdRef.detectChanges();
 		});
 
 		this.hourPercentageSubscription = this.timeService.hourPercentage$.subscribe(hourPercentage => {
-			console.log('RECEIVING HOUR PERCENTAGE IN MAIN');
 			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
 			this.cdRef.detectChanges();
 		});

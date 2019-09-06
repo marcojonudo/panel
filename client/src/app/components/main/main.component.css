@@ -2,7 +2,7 @@
 	height: calc(100% - 100px);
 }
 
-.cards-holder {
+.panel-container {
 	position: relative;
 }
 
