@@ -19,7 +19,7 @@ export class DaysService {
 
 	private _daysMechanics: any;
 
-	private dayModeSubject: BehaviorSubject<boolean>;
+	private oneDayModeSubject: BehaviorSubject<boolean>;
 	private _oneDayMode$: Observable<boolean>;
 
 	private lineHeightSubject: BehaviorSubject<number>;
@@ -29,38 +29,14 @@ export class DaysService {
 	private _daysMechanics$: any;
 
 	constructor() {
-		// this.days = [
-		// 	UtilsService.parseDateFromString('2019-06-25'),
-		// 	UtilsService.parseDateFromString('2019-06-26'),
-		// 	UtilsService.parseDateFromString('2019-06-27'),
-		// 	UtilsService.parseDateFromString('2019-06-28')
-		// ];
-
 		this.oneDayMode = true;
-		this._lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
+		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 
-		this.dayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);
-		this.oneDayMode$ = this.dayModeSubject.asObservable();
+		this.oneDayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);
+		this.oneDayMode$ = this.oneDayModeSubject.asObservable();
 
 		this.lineHeightSubject = new BehaviorSubject<number>(this._lineHeight);
 		this.lineHeight$ = this.lineHeightSubject.asObservable();
-
-		// this.mechanics = [
-		// 	new Mechanic('2019-06-25', 'A', 2),
-		// 	new Mechanic('2019-06-25', 'B', 2),
-		// 	new Mechanic('2019-06-25', 'C', 2),
-		// 	new Mechanic('2019-06-25', 'D', 2),
-		// 	new Mechanic('2019-06-26', 'A', 2),
-		// 	new Mechanic('2019-06-26', 'B', 2),
-		// 	new Mechanic('2019-06-26', 'C', 2),
-		// 	new Mechanic('2019-06-27', 'A', 2),
-		// 	new Mechanic('2019-06-27', 'B', 2),
-		// 	new Mechanic('2019-06-27', 'C', 2),
-		// 	new Mechanic('2019-06-27', 'D', 2),
-		// 	new Mechanic('2019-06-27', 'E', 2)
-		// ];
-		// this.daysMechanics = this.initDaysMechanics(this.mechanics);
-
 	}
 
 	// region Getters / setters
@@ -165,9 +141,9 @@ export class DaysService {
 
 	toggleDayMode() {
 		this.oneDayMode = !this.oneDayMode;
-		this._lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
-		this.dayModeSubject.next(this.oneDayMode);
-		this.lineHeightSubject.next(this._lineHeight);
+		this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
+		this.oneDayModeSubject.next(this.oneDayMode);
+		this.lineHeightSubject.next(this.lineHeight);
 	}
 
 	get lineHeightDefault() {

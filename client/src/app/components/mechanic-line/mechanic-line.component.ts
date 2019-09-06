@@ -17,15 +17,13 @@ import {UtilsService} from "../../services/utils.service";
 })
 export class MechanicLineComponent implements OnInit, OnDestroy {
 
+	@Input() mechanic: Mechanic;
+	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
 
-	private _schedulePercentages: number[];
 	private _leftPercentages: number[];
 
 	private cardsSubscription: any;
-
-	@Input() mechanic: Mechanic;
-	@Input() day: Date;
 
 	private _cardsGroups: CardsGroup[];
 
@@ -43,17 +41,6 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 				this.cdRef.detectChanges();
 			});
 		}
-
-		this.schedulePercentages = this.mechanic.schedule.minutes.map(slotMinutes => {
-			return UtilsService.calculateRelativePercentage(slotMinutes,this.maxScheduleHours.length * 60);
-		});
-		this.leftPercentages = this.mechanic.schedule.minutes.map((slotMinutes, i) => {
-			return UtilsService.calculateRelativePercentage(
-				UtilsService.getScheduleRefStartMinutes(this.mechanic.schedule.thresholds[i*2], this.maxScheduleHours[0]),
-				this.maxScheduleHours.length * 60
-			)
-		});
-		this.cdRef.detectChanges();
 	}
 
 	ngOnDestroy(): void {
@@ -78,15 +65,22 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		this._leftPercentages = value;
 	}
 
-	get schedulePercentages(): number[] {
-		return this._schedulePercentages;
-	}
-
-	set schedulePercentages(value: number[]) {
-		this._schedulePercentages = value;
-	}
-
 	// endregion
+
+	getSchedulePercentages() {
+		return this.mechanic.schedule.minutes.map(slotMinutes => {
+			return UtilsService.calculateRelativePercentage(slotMinutes,this.maxScheduleHours.length * 60);
+		});
+	}
+
+	getLeftPercentages() {
+		return this.leftPercentages ? this.leftPercentages : this.mechanic.schedule.minutes.map((slotMinutes, i) => {
+			return UtilsService.calculateRelativePercentage(
+				UtilsService.getScheduleRefStartMinutes(this.mechanic.schedule.thresholds[i*2], this.maxScheduleHours[0]),
+				this.maxScheduleHours.length * 60
+			)
+		});
+	}
 
 	trackByItem(index, item) {
 		return item;
@@ -97,7 +91,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	check() {
-		console.log('checking mechanic line', this.day, this.mechanic, this._cardsGroups);
+		console.log('checking mechanic line', this.maxScheduleHours);
 	}
 
 }

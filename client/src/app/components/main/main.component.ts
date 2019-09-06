@@ -21,7 +21,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _days: Date[];
 	private itemSize: number;
 
-	private width: number;
+	private _oneDayMode: boolean;
+
 	private _maxSchedulePercentage: number;
 	private _maxScheduleHours: number[];
 
@@ -30,7 +31,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private scrollTop: number;
 	// private _scrollLeft: number;
 
-	private maxScheduleHoursSubscription: any;
+	private oneDayModeSubscription: any;
 	private hourPercentageSubscription: any;
 
 	// private clickedCardSubject;
@@ -58,32 +59,28 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.relativeContainer = true;
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
-
-		// this.maxScheduleHoursSubscription = this.timeService.maxScheduleHours$.subscribe(maxScheduleHours => {
-		// 	this.maxScheduleHours = maxScheduleHours;
-		// 	this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(maxScheduleHours);
-		// });
-		this.daysService.oneDayMode$.subscribe(oneDayMode => {
-			this.maxScheduleHours = this.timeService.getMaxScheduleHours(oneDayMode);
-			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
-			// this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
-			// this.maxScheduleHoursSubject.next(this.maxScheduleHours);
-		});
 	}
 
 	ngOnInit(): void {
+		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
+			console.log('RECEIVING ONE DAY MODE IN MAIN', oneDayMode);
+			this.oneDayMode = oneDayMode;
+			this.maxScheduleHours = this.timeService.getMaxScheduleHours(oneDayMode);
+			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
+			console.log(this.maxScheduleHours, this.maxSchedulePercentage);
+			this.cdRef.detectChanges();
+		});
+
 		this.hourPercentageSubscription = this.timeService.hourPercentage$.subscribe(hourPercentage => {
+			console.log('RECEIVING HOUR PERCENTAGE IN MAIN');
 			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
 			this.cdRef.detectChanges();
 		});
 	}
 
-	// ngAfterViewInit(): void {
-	// 	this.timeService.dropzoneWidth = this.schedulesContainer.nativeElement.offsetWidth - 180;
-	// }
-
 	ngOnDestroy(): void {
-		this.maxScheduleHoursSubscription.unsubscribe();
+		this.oneDayModeSubscription.unsubscribe();
+		this.hourPercentageSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -94,6 +91,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set days(value: Date[]) {
 		this._days = value;
+	}
+
+	get oneDayMode(): boolean {
+		return this._oneDayMode;
+	}
+
+	set oneDayMode(value: boolean) {
+		this._oneDayMode = value;
 	}
 
 	get maxSchedulePercentage(): number {
@@ -113,10 +118,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
-
-	get oneDayMode$() {
-		return this.daysService.oneDayMode$;
-	}
 
 	// get hourPercentage$() {
 	// 	// console.log('PERCENTAGE WIDTH', Object.values(this.timeService.maxTodayScheduleHours)[0].length * 33);

@@ -82,7 +82,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
 
 	check() {
-		console.log('------ Timeline')
+		console.log('checking timeline', this.maxScheduleHours);
 	}
 
 }
