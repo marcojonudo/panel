@@ -19,14 +19,8 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 
 	@Input() maxScheduleHours: number[];
 
-	private HOUR_WIDTH: number = 360;
-
-	// private _maxScheduleHours: number[];
-	private _hourPercentage: number[];
-	private schedulePercentage: number;
-	private schedulePercentages: number[];
-	private leftPercentage: number;
-	private leftPercentages: number[];
+	private _schedulePercentages: number[];
+	private _leftPercentages: number[];
 
 	private cardsSubscription: any;
 
@@ -50,38 +44,15 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 			});
 		}
 
-		// this.daysService.oneDayMode$.subscribe(oneDayMode => {
-		// 	const maxScheduleHours = oneDayMode ? this.timeService.getMaxDayScheduleHours(this.day) : this.timeService.maxDaysSchedulesHours;
-		// 	// this.hours = oneDayMode ? this.timeService.getMaxDayScheduleHours(this.day) : this.timeService.maxDaysSchedulesHours;
-		// });
-
-		this.schedulePercentage = UtilsService.calculateRelativePercentage(
-			this.mechanic.schedule.getAllMinutes(),
-			this.maxScheduleHours.length * 60
-		);
-
 		this.schedulePercentages = this.mechanic.schedule.minutes.map(slotMinutes => {
 			return UtilsService.calculateRelativePercentage(slotMinutes,this.maxScheduleHours.length * 60);
 		});
-		this.leftPercentage = UtilsService.calculateRelativePercentage(
-			UtilsService.getScheduleRefStartMinutes(this.mechanic.schedule.start, this.maxScheduleHours[0]),
-			this.maxScheduleHours.length * 60
-		);
 		this.leftPercentages = this.mechanic.schedule.minutes.map((slotMinutes, i) => {
 			return UtilsService.calculateRelativePercentage(
 				UtilsService.getScheduleRefStartMinutes(this.mechanic.schedule.thresholds[i*2], this.maxScheduleHours[0]),
 				this.maxScheduleHours.length * 60
 			)
 		});
-		console.log('PERCENTAGES IN LINE',
-			this.mechanic.schedule,
-			this.schedulePercentage,
-			this.schedulePercentages,
-			this.leftPercentage,
-			this.leftPercentages
-		);
-		// this.maxScheduleHours = this.timeService.getMaxDayScheduleHours(this.day);
-		// console.log('maxScheduleHours', this.maxScheduleHours);
 		this.cdRef.detectChanges();
 	}
 
@@ -91,14 +62,6 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 
 	// region Getters / setters
 
-	// get maxScheduleHours(): number[] {
-	// 	return this._maxScheduleHours;
-	// }
-	//
-	// set maxScheduleHours(value: number[]) {
-	// 	this._maxScheduleHours = value;
-	// }
-
 	get cardsGroups(): CardsGroup[] {
 		return this._cardsGroups;
 	}
@@ -107,13 +70,21 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		this._cardsGroups = value;
 	}
 
-	// get hourPercentage(): number[] {
-	// 	return this._hourPercentage;
-	// }
-	//
-	// set hourPercentage(value: number[]) {
-	// 	this._hourPercentage = value;
-	// }
+	get leftPercentages(): number[] {
+		return this._leftPercentages;
+	}
+
+	set leftPercentages(value: number[]) {
+		this._leftPercentages = value;
+	}
+
+	get schedulePercentages(): number[] {
+		return this._schedulePercentages;
+	}
+
+	set schedulePercentages(value: number[]) {
+		this._schedulePercentages = value;
+	}
 
 	// endregion
 

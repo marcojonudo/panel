@@ -15,6 +15,6 @@ export class ToolsPanelComponent implements OnInit {
 	}
 
 	checkToolsPanel() {
-		console.log('-- Tools');
+		console.log('checking tools');
 	}
 }

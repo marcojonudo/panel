@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
 
@@ -8,7 +8,7 @@ import {DaysService} from "../../services/days.service";
 	styleUrls: ['./timeline.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent implements OnInit {
+export class TimelineComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
@@ -20,21 +20,23 @@ export class TimelineComponent implements OnInit {
 
 	private _widthPercentageSubscription: any;
 
-	constructor(private daysService: DaysService, private timeService: TimeService) {}
+	constructor(
+		private daysService: DaysService,
+		private timeService: TimeService,
+		private cdRef: ChangeDetectorRef
+	) {}
 
-	ngOnInit() {
+	ngOnInit(): void {
 		this.quarters = this.timeService.QUARTERS;
 
-		this.widthPercentageSubscription = this.timeService.widthPercentage$.subscribe(widthPercentage => {
+		this.widthPercentageSubscription = this.timeService.hourPercentage$.subscribe(widthPercentage => {
 			this.widthPercentage = widthPercentage;
+			this.cdRef.detectChanges();
 		})
-		// this.maxScheduleHoursQuarters = [];
-		// this.maxScheduleHours.forEach(hour => {
-		// 	this.maxScheduleHoursQuarters.push(`${hour}:${this.timeService.QUARTERS[0]}`, ...this.timeService.QUARTERS.slice(1));
-		// });
-		// this.maxScheduleHoursQuarters = this.maxScheduleHours.map(hour => {
-		// 	return {hour: hour, quarters: this.timeService.QUARTERS};
-		// });
+	}
+
+	ngOnDestroy(): void {
+		this.widthPercentageSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -63,20 +65,21 @@ export class TimelineComponent implements OnInit {
 		this._widthPercentageSubscription = value;
 	}
 
-	// endregion
-
-	fitWidth() {
-		let a = this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
-		return this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
-	}
-
-	get widthPercentage$() {
-		return this.timeService.widthPercentage$
-	}
-
 	get hourPercentageDisplayMinutesThreshold() {
 		return this._HOUR_PERCENTAGE_DISPLAY_MINUTES_THRESHOLD;
 	}
+
+	// endregion
+
+	// fitWidth() {
+	// 	let a = this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
+	// 	return this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
+	// }
+	//
+	// get hourPercentage$() {
+	// 	return this.timeService.hourPercentage$
+	// }
+
 
 	check() {
 		console.log('------ Timeline')

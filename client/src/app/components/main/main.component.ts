@@ -1,9 +1,9 @@
 import {
 	AfterViewInit,
-	ChangeDetectionStrategy,
+	ChangeDetectionStrategy, ChangeDetectorRef,
 	Component,
 	ElementRef,
-	OnDestroy,
+	OnDestroy, OnInit,
 	Renderer2,
 	ViewChild
 } from '@angular/core';
@@ -16,7 +16,7 @@ import {DaysService} from "../../services/days.service";
 	styleUrls: ['./main.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MainComponent implements AfterViewInit, OnDestroy {
+export class MainComponent implements OnInit, OnDestroy {
 
 	private _days: Date[];
 	private itemSize: number;
@@ -31,6 +31,7 @@ export class MainComponent implements AfterViewInit, OnDestroy {
 	// private _scrollLeft: number;
 
 	private maxScheduleHoursSubscription: any;
+	private hourPercentageSubscription: any;
 
 	// private clickedCardSubject;
 	// private clickedCard$: Observable<boolean>;
@@ -48,7 +49,8 @@ export class MainComponent implements AfterViewInit, OnDestroy {
 
 	constructor(
 		private daysService: DaysService,
-		private timeService: TimeService
+		private timeService: TimeService,
+		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.daysService.days;
 		// this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
@@ -59,13 +61,20 @@ export class MainComponent implements AfterViewInit, OnDestroy {
 
 		this.maxScheduleHoursSubscription = this.timeService.maxScheduleHours$.subscribe(maxScheduleHours => {
 			this.maxScheduleHours = maxScheduleHours;
-			this.maxSchedulePercentage = this.timeService.getMaxDaySchedulePercentage(maxScheduleHours);
-		})
+			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(maxScheduleHours);
+		});
 	}
 
-	ngAfterViewInit(): void {
-		this.timeService.dropzoneWidth = this.schedulesContainer.nativeElement.offsetWidth - 180;
+	ngOnInit(): void {
+		this.hourPercentageSubscription = this.timeService.hourPercentage$.subscribe(hourPercentage => {
+			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
+			this.cdRef.detectChanges();
+		});
 	}
+
+	// ngAfterViewInit(): void {
+	// 	this.timeService.dropzoneWidth = this.schedulesContainer.nativeElement.offsetWidth - 180;
+	// }
 
 	ngOnDestroy(): void {
 		this.maxScheduleHoursSubscription.unsubscribe();
@@ -103,10 +112,10 @@ export class MainComponent implements AfterViewInit, OnDestroy {
 		return this.daysService.oneDayMode$;
 	}
 
-	// get widthPercentage$() {
+	// get hourPercentage$() {
 	// 	// console.log('PERCENTAGE WIDTH', Object.values(this.timeService.maxTodayScheduleHours)[0].length * 33);
 	// 	// return Object.values(this.timeService.maxTodayScheduleHours)[0].length * 33;
-	// 	return this.timeService.widthPercentage$;
+	// 	return this.timeService.hourPercentage$;
 	// }
 
 	trackByDay(index, item) {

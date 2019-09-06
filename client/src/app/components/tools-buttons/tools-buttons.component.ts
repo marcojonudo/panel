@@ -14,14 +14,12 @@ export class ToolsButtonsComponent {
 
 	constructor(
 		private timeService: TimeService,
-		private daysService: DaysService) {
+		private daysService: DaysService
+	) {
 		// this.buttons = [
 		//   { icon: 'fas fa-arrows-alt-h', action: this.fitTime },
 		//   { icon: 'fas fa-binoculars', action: this.toggleView }
 		// ];
-	}
-
-	ngOnInit() {
 	}
 
 	fitTime() {
