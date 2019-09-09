@@ -13,7 +13,6 @@ export class TimeService {
 	private readonly _MIN_PERCENTAGE_VALUE: number = 100; // (%)
 
 	private readonly START_HOUR: number = 8;
-	// private readonly HOURS_NUMBER: number = 5;
 	private readonly MINUTES_PER_HOUR: number = 60;
 	private readonly QUARTERS_PER_HOUR: number = 4;
 	private readonly INTERVALS_PER_QUARTER: number = 3;
@@ -24,8 +23,6 @@ export class TimeService {
 	readonly FIT_HOURS_IN_SCREEN: number = 4;
 	readonly QUARTERS: string[] = ['00', '15', '30', '45'];
 
-	private widthValue: number;
-
 	private _today: Date;
 
 	private _maxTodayScheduleHours: number[];
@@ -34,44 +31,44 @@ export class TimeService {
 
 	private _leftOffsetPercentage: number;
 	private _hourPercentage: number;
+	private _defaultHourPercentage: number;
 	private _maxSchedulePercentage: number;
-	// private _maxDaysSchedulesPercentage: number;
-	// private _percentageWidth: number;
-	// private _dropzoneWidth: number;
+	private _maxScheduleMaxPercentage: number;
 	private _intervalPercentage: number;
-
-	private _intervalsNumber: number;
-
-	private hourPercentageSubject: BehaviorSubject<number>;
-	private _hourPercentage$: Observable<number>;
-
-	// private intervalWidthSubject: BehaviorSubject<number>;
-	// private _intervalWidth$: Observable<number>;
 
 	private maxSchedulePercentageSubject: BehaviorSubject<number>;
 	private _maxSchedulePercentage$: Observable<number>;
 
-	private widthSubscription: any;
+	private maxScheduleMaxPercentageSubject: BehaviorSubject<number>;
+	private _maxScheduleMaxPercentage$: Observable<number>;
 
 	constructor(private daysService: DaysService) {
+		// TODO Evitar error cuando no hay horario en today
 		this.today = UtilsService.clearTime(new Date());
 
-		this.hourPercentageSubject = new BehaviorSubject<number>(this.hourPercentage);
-		this.hourPercentage$ = this.hourPercentageSubject.asObservable();
-
+		/* Antes de cargar la información de los horarios, se pueden calcular los porcentajes que ocupan el hueco
+		*  izquierdo (los 180px de la info del mecánico) y la hora (4 por defecto en el hueco del grid) */
 		this.initPercentages();
-		console.log('Hour width:', this.hourPercentage, '%');
-		console.log('Interval width:', this.intervalPercentage, '%');
 
-		// TODO Se usa en dimensions sliders para actualizar el max value. Comprobar si es necesario.
 		this.maxSchedulePercentageSubject = new BehaviorSubject<number>(this.maxSchedulePercentage);
 		this.maxSchedulePercentage$ = this.maxSchedulePercentageSubject.asObservable();
+
+		/* Observer usado para notificar al slider cuál es el valor máximo de zoom posible */
+		this.maxScheduleMaxPercentageSubject = new BehaviorSubject<number>(this.maxScheduleMaxPercentage);
+		this.maxScheduleMaxPercentage$ = this.maxScheduleMaxPercentageSubject.asObservable();
 	}
 
 	// region Init
 
+	initPercentages(): void {
+		const gridWidth = window.innerWidth - this.RIGHT_PANEL_WIDTH;
+		this.leftOffsetPercentage = (this.LEFT_OFFSET * 100) / gridWidth;
+		this.calcWidthPercentages();
+	}
+
 	init() {
 		this.initDaysSchedules(this.daysService.daysMechanics);
+		this.initMaxSchedule();
 	}
 
 	initDaysSchedules(daysMechanics: any) {
@@ -88,7 +85,6 @@ export class TimeService {
 			maxDaysSchedules = UtilsService.timeGreaterThan(maxSchedule, maxDaysSchedules) ? maxSchedule : maxDaysSchedules;
 		}
 		this.maxDaysSchedulesHours = UtilsService.getScheduleHours(minDaysSchedules, maxDaysSchedules);
-		this.maxScheduleHours = this.getMaxScheduleHours(true);
 
 		console.log('Max. today schedules hours', this.maxTodayScheduleHours);
 		console.log('Max. days schedules hours', this.maxDaysSchedulesHours);
@@ -100,10 +96,12 @@ export class TimeService {
 		return [minSchedule, maxSchedule];
 	}
 
-	initPercentages(): void {
-		const gridWidth = window.innerWidth - this.RIGHT_PANEL_WIDTH;
-		this.leftOffsetPercentage = (this.LEFT_OFFSET * 100) / gridWidth;
-		this.calcWidthPercentages(this.FIT_HOURS_IN_SCREEN);
+	initMaxSchedule(): void {
+		this.updateMaxSchedule(true);
+		this.maxSchedulePercentage = this.calcSchedulePercentage(this.maxScheduleHours, this.defaultHourPercentage);
+
+		console.log('MAXIMAX', this.maxSchedulePercentage, this.maxScheduleMaxPercentage);
+		this.maxSchedulePercentageSubject.next(this.maxSchedulePercentage);
 	}
 
 	// endregion
@@ -182,50 +180,72 @@ export class TimeService {
 		this._intervalPercentage = value;
 	}
 
-	get hourPercentage$(): Observable<number> {
-		return this._hourPercentage$;
-	}
-
-	set hourPercentage$(value: Observable<number>) {
-		this._hourPercentage$ = value;
-	}
-
 	get minPercentageValue() {
 		return this._MIN_PERCENTAGE_VALUE;
+	}
+
+	get maxScheduleMaxPercentage$(): Observable<number> {
+		return this._maxScheduleMaxPercentage$;
+	}
+
+	set maxScheduleMaxPercentage$(value: Observable<number>) {
+		this._maxScheduleMaxPercentage$ = value;
+	}
+
+	get maxScheduleMaxPercentage(): number {
+		return this._maxScheduleMaxPercentage;
+	}
+
+	set maxScheduleMaxPercentage(value: number) {
+		this._maxScheduleMaxPercentage = value;
+	}
+
+	get defaultHourPercentage(): number {
+		return this._defaultHourPercentage;
+	}
+
+	set defaultHourPercentage(value: number) {
+		this._defaultHourPercentage = value;
 	}
 
 	// endregion
 
 	// region Width percentage
 
-	calcWidthPercentages(hoursInGrid: number) {
-		this.calcHourPercentageFromHoursInGrid(hoursInGrid);
+	calcWidthPercentages() {
+		this.calcHourPercentageFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.intervalPercentage = this.hourPercentage / (this.QUARTERS_PER_HOUR * this.INTERVALS_PER_QUARTER);
 	}
 
 	calcHourPercentageFromHoursInGrid(hoursInGrid: number): void {
-		this.hourPercentage = (100 - this.leftOffsetPercentage) / hoursInGrid;
-		this.hourPercentageSubject.next(this.hourPercentage);
+		this.defaultHourPercentage = (100 - this.leftOffsetPercentage) / hoursInGrid;
+		this.hourPercentage = this.defaultHourPercentage;
+	}
+
+	updateMaxSchedule(oneDayMode: boolean): number[] {
+		this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
+		this.maxScheduleMaxPercentage = this.calcSchedulePercentage(this.maxScheduleHours, this.defaultHourPercentage);
+
+		this.maxScheduleMaxPercentageSubject.next(this.maxScheduleMaxPercentage);
+		return this.maxScheduleHours;
+	}
+
+	calcSchedulePercentage(hours: number[], hourPercentage: number): number {
+		return this.leftOffsetPercentage + hours.length * hourPercentage;
+	}
+
+	calcMaxSchedulePercentage(oneDayMode: boolean): void {
+		this.updateMaxSchedulePercentage(oneDayMode ? this.maxScheduleMaxPercentage : 100);
+	}
+
+	updateMaxSchedulePercentage(value: number) {
+		this.maxSchedulePercentage = value;
+		this.hourPercentage = this.calcHourPercentageFromMaxSchedulePercentage(value);
+		this.maxSchedulePercentageSubject.next(this.maxSchedulePercentage);
 	}
 
 	calcHourPercentageFromMaxSchedulePercentage(maxSchedulePercentage: number): number {
 		return (maxSchedulePercentage - this.leftOffsetPercentage) / this.maxScheduleHours.length;
-	}
-
-	getMaxScheduleHours(oneDayMode: boolean): number[] {
-		this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
-		return this.maxScheduleHours;
-	}
-
-	calcSchedulePercentage(hours: number[]): number {
-		this.maxSchedulePercentage = this.leftOffsetPercentage + hours.length * this.hourPercentage;
-		this.maxSchedulePercentageSubject.next(this.maxSchedulePercentage);
-		return this.maxSchedulePercentage;
-	}
-
-	updatePercentage(value: number) {
-		this.hourPercentage = this.calcHourPercentageFromMaxSchedulePercentage(value);
-		this.hourPercentageSubject.next(this.hourPercentage);
 	}
 
 	// endregion

@@ -31,7 +31,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	// private _scrollLeft: number;
 
 	private oneDayModeSubscription: any;
-	private hourPercentageSubscription: any;
+	private maxSchedulePercentageSubscription: any;
 
 	// private clickedCardSubject;
 	// private clickedCard$: Observable<boolean>;
@@ -63,23 +63,21 @@ export class MainComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
 			this.oneDayMode = oneDayMode;
-			this.maxScheduleHours = this.timeService.getMaxScheduleHours(oneDayMode);
-			/* Después de actualizar el valor de hourPercentage en el método, se notifica al observador
-			*  hourPercentageSubscription, y ahí se calcula el maxSchedulePercentage */
-			this.timeService.calcHourPercentageFromHoursInGrid(
-				oneDayMode ? this.timeService.FIT_HOURS_IN_SCREEN : this.maxScheduleHours.length
-			);
+			this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
+			this.timeService.calcMaxSchedulePercentage(oneDayMode);
 		});
-
-		this.hourPercentageSubscription = this.timeService.hourPercentage$.subscribe(hourPercentage => {
-			this.maxSchedulePercentage = this.timeService.calcSchedulePercentage(this.maxScheduleHours);
+		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(maxSchedulePercentage => {
+			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxSchedulePercentage directamente
+			*  del valor retornado por calcMaxSchedulePercentage, porque esa cifra también se puede calcular a partir
+			*  del slider */
+			this.maxSchedulePercentage = maxSchedulePercentage;
 			this.cdRef.detectChanges();
-		});
+		})
 	}
 
 	ngOnDestroy(): void {
 		this.oneDayModeSubscription.unsubscribe();
-		this.hourPercentageSubscription.unsubscribe();
+		this.maxSchedulePercentageSubscription.unsubscribe();
 	}
 
 	// region Getters / setters

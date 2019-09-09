@@ -17,6 +17,7 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 	private percentage: number;
 
 	private maxSchedulePercentageSubscription: any;
+	private maxScheduleMaxPercentageSubscription: any;
 
 	constructor(
 		private timeService: TimeService,
@@ -27,17 +28,21 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(maxSchedulePercentage => {
-			if (!this.max) {
-				this.max = maxSchedulePercentage;
-			}
 			this.percentage = maxSchedulePercentage;
-			this.step = parseInt(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(2));
+			this.cdRef.detectChanges();
+		});
+		this.maxScheduleMaxPercentageSubscription = this.timeService.maxScheduleMaxPercentage$.subscribe(maxScheduleMaxPercentage => {
+			this.max = maxScheduleMaxPercentage;
+			/* Se limitan los decimales porque con el número por defecto, el step no llega al max y en el slider se
+			*  muestra la bola en un punto medio del eje */
+			this.step = parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(5));
 			this.cdRef.detectChanges();
 		});
 	}
 
 	ngOnDestroy(): void {
 		this.maxSchedulePercentageSubscription.unsubscribe();
+		this.maxScheduleMaxPercentageSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -69,7 +74,7 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 	// endregion
 
 	updatePercentage() {
-		this.timeService.updatePercentage(this.percentage);
+		this.timeService.updateMaxSchedulePercentage(this.percentage);
 	}
 
 }

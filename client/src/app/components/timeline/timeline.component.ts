@@ -16,9 +16,9 @@ export class TimelineComponent implements OnInit, OnDestroy {
 	private readonly _HOUR_PERCENTAGE_DISPLAY_MINUTES_THRESHOLD: number = 15;
 
 	private _quarters: string[];
-	private _widthPercentage: number;
+	private _hourPercentage: number;
 
-	private _widthPercentageSubscription: any;
+	private _maxSchedulePercentageSubscription: any;
 
 	constructor(
 		private daysService: DaysService,
@@ -29,14 +29,14 @@ export class TimelineComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.quarters = this.timeService.QUARTERS;
 
-		this.widthPercentageSubscription = this.timeService.hourPercentage$.subscribe(widthPercentage => {
-			this.widthPercentage = widthPercentage;
+		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(maxSchedulePercentage => {
+			this.hourPercentage = this.timeService.calcHourPercentageFromMaxSchedulePercentage(maxSchedulePercentage);
 			this.cdRef.detectChanges();
 		})
 	}
 
 	ngOnDestroy(): void {
-		this.widthPercentageSubscription.unsubscribe();
+		this.maxSchedulePercentageSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -49,37 +49,27 @@ export class TimelineComponent implements OnInit, OnDestroy {
 		this._quarters = value;
 	}
 
-	get widthPercentage(): number {
-		return this._widthPercentage;
+	get hourPercentage(): number {
+		return this._hourPercentage;
 	}
 
-	set widthPercentage(value: number) {
-		this._widthPercentage = value;
+	set hourPercentage(value: number) {
+		this._hourPercentage = value;
 	}
 
-	get widthPercentageSubscription(): any {
-		return this._widthPercentageSubscription;
+	get maxSchedulePercentageSubscription(): any {
+		return this._maxSchedulePercentageSubscription;
 	}
 
-	set widthPercentageSubscription(value: any) {
-		this._widthPercentageSubscription = value;
+	set maxSchedulePercentageSubscription(value: any) {
+		this._maxSchedulePercentageSubscription = value;
 	}
 
-	get hourPercentageDisplayMinutesThreshold() {
+	get hourPercentageDisplayMinutesThreshold(): number {
 		return this._HOUR_PERCENTAGE_DISPLAY_MINUTES_THRESHOLD;
 	}
 
 	// endregion
-
-	// fitWidth() {
-	// 	let a = this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
-	// 	return this.timeService.getTotalTimeWidth() === this.timeService.minWidth;
-	// }
-	//
-	// get hourPercentage$() {
-	// 	return this.timeService.hourPercentage$
-	// }
-
 
 	check() {
 		console.log('checking timeline', this.maxScheduleHours);
