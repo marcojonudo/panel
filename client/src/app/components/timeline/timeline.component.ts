@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-timeline',
@@ -72,7 +73,9 @@ export class TimelineComponent implements OnInit, OnDestroy {
 	// endregion
 
 	check() {
-		console.log('checking timeline', this.maxScheduleHours);
+		if (Constants.CHECK) {
+			console.log('checking timeline', this.maxScheduleHours);
+		}
 	}
 
 }

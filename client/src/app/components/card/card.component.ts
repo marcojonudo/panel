@@ -2,6 +2,7 @@ import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, In
 import {Card} from "../../objects/card";
 import {DaysService} from "../../services/days.service";
 import {ChangeDetection} from "@angular/cli/lib/config/schema";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-card',
@@ -23,7 +24,9 @@ export class CardComponent
 	// }
 
 	check() {
-		console.log('checking card', this.card, this.card.width);
+		if (Constants.CHECK) {
+			console.log('checking card', this.card, this.card.width);
+		}
 	}
 
 }

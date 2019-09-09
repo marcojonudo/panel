@@ -1,6 +1,7 @@
 import {AfterViewInit, ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {DaysService} from "../../services/days.service";
 import {CardsService} from "../../services/cards.service";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -18,7 +19,9 @@ export class MechanicInfoComponent {
 	}
 
 	check() {
-		console.log('checking mechanic info')
+		if (Constants.CHECK) {
+			console.log('checking mechanic info')
+		}
 	}
 
 	get oneDayMode$() {

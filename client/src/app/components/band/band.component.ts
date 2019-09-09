@@ -7,6 +7,7 @@ import {CardsService} from "../../services/cards.service";
 import {Card} from "../../objects/card";
 import {UtilsService} from "../../services/utils.service";
 import {CardsGroup} from "../../objects/cards-group";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-band',
@@ -62,7 +63,7 @@ export class BandComponent implements OnInit, OnDestroy {
 			// this.unassignedCardsGroups = unassignedCardsGroups;
 			console.timeEnd('PUSH');
 
-			console.log('final unassigned', this._unassignedCardsGroups);
+			console.log('final unassigned', this.unassignedCardsGroups);
 			// this.unassignedCardsGroups.push(unassignedCardsGroups[unassignedCardsGroups.length-1]);
 			console.time('PUSH DETECT');
 			this.cdRef.detectChanges();
@@ -87,7 +88,9 @@ export class BandComponent implements OnInit, OnDestroy {
 	// endregion
 
 	check() {
-		console.log('checking band')
+		if (Constants.CHECK) {
+			console.log('checking band')
+		}
 	}
 
 	trackById(index, item) {

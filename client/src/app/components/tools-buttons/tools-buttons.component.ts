@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-tools-buttons',
@@ -31,7 +32,9 @@ export class ToolsButtonsComponent {
 	}
 
 	testButtons() {
-		console.log('checking test buttons');
+		if (Constants.CHECK) {
+			console.log('checking test buttons');
+		}
 	}
 
 }

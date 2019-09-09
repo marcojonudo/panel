@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@ang
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {DaysService} from "../../services/days.service";
 import {Mechanic} from "../../objects/mechanic";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-grid',
@@ -50,7 +51,9 @@ export class GridComponent implements OnInit, OnDestroy {
 	}
 
 	check() {
-		console.log('checking grid');
+		if (Constants.CHECK) {
+			console.log('checking grid');
+		}
 	}
 
 }

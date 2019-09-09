@@ -1,4 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-timeline-container',
@@ -15,7 +16,9 @@ export class TimelineContainerComponent {
 	}
 
 	check() {
-		console.log('checking timeline container', this.day, this.maxScheduleHours)
+		if (Constants.CHECK) {
+			console.log('checking timeline container', this.day, this.maxScheduleHours)
+		}
 	}
 
 }

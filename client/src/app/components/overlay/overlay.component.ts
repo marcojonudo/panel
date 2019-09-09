@@ -4,6 +4,7 @@ import {Card} from "../../objects/card";
 import {DaysService} from "../../services/days.service";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-overlay',
@@ -88,7 +89,9 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	}
 
 	check(): void {
-		console.log('checking overlay');
+		if (Constants.CHECK) {
+			console.log('checking overlay');
+		}
 	}
 
 	updateCard() {

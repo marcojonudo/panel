@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-main',
@@ -127,7 +128,9 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	check() {
-		console.log('checking main');
+		if (Constants.CHECK) {
+			console.log('checking main');
+		}
 	}
 
 }

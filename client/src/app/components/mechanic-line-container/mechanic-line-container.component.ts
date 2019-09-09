@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -15,6 +16,8 @@ export class MechanicLineContainerComponent {
 	@Input() maxScheduleHours: number[];
 
 	check() {
-		console.log('checking mechanic line container', this.mechanic, this.day)
+		if (Constants.CHECK) {
+			console.log('checking mechanic line container', this.mechanic, this.day)
+		}
 	}
 }

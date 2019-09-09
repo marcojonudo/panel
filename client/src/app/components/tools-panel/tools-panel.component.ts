@@ -1,4 +1,5 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-tools-panel',
@@ -15,6 +16,8 @@ export class ToolsPanelComponent implements OnInit {
 	}
 
 	checkToolsPanel() {
-		console.log('checking tools');
+		if (Constants.CHECK) {
+			console.log('checking tools');
+		}
 	}
 }

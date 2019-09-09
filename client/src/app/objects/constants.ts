@@ -13,4 +13,5 @@ export class Constants {
 	};
 	public static MORNING = 'MORNING';
 	public static AFTERNOON = 'AFTERNOON';
+	public static CHECK: boolean = false;
 }

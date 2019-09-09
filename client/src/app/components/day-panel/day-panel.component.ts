@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, Input,} from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-day-panel',
@@ -17,7 +18,9 @@ export class DayPanelComponent {
 	constructor() { }
 
 	checkDayPanel() {
-		console.log('checking day panel', this.day, this.maxScheduleHours);
+		if (Constants.CHECK) {
+			console.log('checking day panel', this.day, this.maxScheduleHours);
+		}
 	}
 
 }

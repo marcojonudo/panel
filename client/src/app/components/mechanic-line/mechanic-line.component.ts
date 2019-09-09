@@ -8,6 +8,7 @@ import {Card} from "../../objects/card";
 import {ResizeEvent} from "angular-resizable-element";
 import {CardsGroup} from "../../objects/cards-group";
 import {UtilsService} from "../../services/utils.service";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -91,7 +92,9 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	check() {
-		console.log('checking mechanic line', this.maxScheduleHours);
+		if (Constants.CHECK) {
+			console.log('checking mechanic line', this.maxScheduleHours);
+		}
 	}
 
 }

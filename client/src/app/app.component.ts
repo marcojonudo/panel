@@ -8,6 +8,7 @@ import {DaysService} from "./services/days.service";
 import {TimeService} from "./services/time.service";
 import {environment} from "../environments/environment";
 import {Mechanic} from "./objects/mechanic";
+import {Constants} from "./objects/constants";
 
 @Component({
 	selector: 'app-root',
@@ -75,7 +76,9 @@ export class AppComponent implements AfterViewInit {
 	}
 
 	check() {
-		console.log('checking app component');
+		if (Constants.CHECK) {
+			console.log('checking app component');
+		}
 	}
 
 }
