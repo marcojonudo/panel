@@ -44,7 +44,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			*  buscados */
 			if (!this.dragging && this._helperCardsGroup && this.cardPositionService.dropzone) {
 				console.time('[overlay] removeFromOrigin');
-				this.cardsService.removeFromOrigin(this._helperCardsGroup);
+				this.cardsService.removeFromOrigin(this.helperCardsGroup);
 				console.timeEnd('[overlay] removeFromOrigin');
 			}
 		});
@@ -55,8 +55,9 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			*  ejecutan las operaciones necesarias para actualizar la ficha */
 			if (!helperCardsGroup && this.cardPositionService.dropzone) {
 				console.time('[overlay] updateTranslatedCards');
+				console.log('[overlay] updateTranslatedCards');
 				this.cardsService.updateTranslatedCards(
-					this._helperCardsGroup,
+					this.helperCardsGroup,
 					this.cardPositionService.dropzone.mechanic
 				);
 				console.timeEnd('[overlay] updateTranslatedCards');

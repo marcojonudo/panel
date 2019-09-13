@@ -29,7 +29,7 @@ export class CardsService {
 	private assignedDaysCardsGroupsSubjects: any;
 	private _assignedDaysCardsGroups$: any;
 
-	private widthSubscription: any;
+	private maxSchedulePercentageSubscription: any;
 
 	constructor(
 		private daysService: DaysService,
@@ -107,10 +107,10 @@ export class CardsService {
 		this.unassignedCardsGroupsSubject = new BehaviorSubject<any>(this.unassignedCardsGroups);
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
-		// this.widthSubscription = this.timeService.intervalWidth$.subscribe(() => {
-		// 	this.initDimensions();
-		// 	this.notifyAll();
-		// });
+		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(() => {
+			this.initDimensions();
+			// this.notifyAll();
+		});
 
 		console.log('Cards', this.cards);
 		console.log('Unassigned cards groups', this.unassignedCardsGroups);
@@ -237,7 +237,7 @@ export class CardsService {
 			);
 			console.timeEnd('[cardsService] assignedDaysCards.next()');
 		} else {
-			const cardsGroupIndex = this.unassignedCardsGroups.indexOf(cardsGroup);
+			const cardsGroupIndex = this.unassignedCardsGroups.findIndex(group => group.id == cardsGroup.id);
 			this.unassignedCardsGroups.splice(cardsGroupIndex, 1);
 
 			console.log('[cardsService] unassignedCards.next()');

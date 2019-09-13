@@ -51,23 +51,24 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((unassignedCardsGroups: CardsGroup[]) => {
-			console.time('PUSH');
-			// const cards = unassignedCardsGroups.filter(cardsGroup =>
-			// 	this.unassignedCardsGroups.map(group => group.id).indexOf(cardsGroup.id) < 0
-			// );
-			// if (cards.length) {
-			// 	this.unassignedCardsGroups.push(...cards);
-			// } else {
-			this.unassignedCardsGroups = unassignedCardsGroups;
-			// }
-			// this.unassignedCardsGroups = unassignedCardsGroups;
-			console.timeEnd('PUSH');
+			if (!this.unassignedCardsGroups.length) {
+				this.unassignedCardsGroups = unassignedCardsGroups;
+			} else {
+				const removedGroupIndex = this.unassignedCardsGroups.findIndex(group =>
+					!unassignedCardsGroups.find(g => g.id == group.id)
+				);
+				/* this.unassignedCardsGroups tiene un grupo que no tiene unassignedCardsGroup; es decir, se ha
+				*  sacado un grupo de la cinta */
+				if (removedGroupIndex > -1) {
+					this.unassignedCardsGroups.splice(removedGroupIndex, 1);
+				} else {
+					/* Si no falta sobra niguna ficha en this.unassignedCardsGroup, significa que unassigendCardsGroups
+					*  tiene una nueva; es decir, se ha soltado un grupo en la cinta (última posición) */
+					this.unassignedCardsGroups.push(unassignedCardsGroups[unassignedCardsGroups.length - 1]);
+				}
+			}
 
-			console.log('final unassigned', this.unassignedCardsGroups);
-			// this.unassignedCardsGroups.push(unassignedCardsGroups[unassignedCardsGroups.length-1]);
-			console.time('PUSH DETECT');
 			this.cdRef.detectChanges();
-			console.timeEnd('PUSH DETECT');
 		});
 	}
 
