@@ -36,6 +36,7 @@ export class TimeService {
 	private _maxSchedulePercentage: number;
 	private _maxScheduleMaxPercentage: number;
 	private _intervalPercentage: number;
+	private _intervalWidth: number;
 
 	private maxSchedulePercentageSubject: BehaviorSubject<number>;
 	private _maxSchedulePercentage$: Observable<number>;
@@ -64,7 +65,7 @@ export class TimeService {
 	initPercentages(): void {
 		this.gridWidth = window.innerWidth - this.RIGHT_PANEL_WIDTH;
 		this.leftOffsetPercentage = (this.LEFT_OFFSET * 100) / this.gridWidth;
-		this.calcWidthPercentages();
+		this.calcWidthValues();
 	}
 
 	init() {
@@ -188,6 +189,14 @@ export class TimeService {
 		this._intervalPercentage = value;
 	}
 
+	get intervalWidth(): number {
+		return this._intervalWidth;
+	}
+
+	set intervalWidth(value: number) {
+		this._intervalWidth = value;
+	}
+
 	get minPercentageValue() {
 		return this._MIN_PERCENTAGE_VALUE;
 	}
@@ -220,9 +229,10 @@ export class TimeService {
 
 	// region Width percentage
 
-	calcWidthPercentages() {
+	calcWidthValues() {
 		this.calcHourPercentageFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.intervalPercentage = this.hourPercentage / (this.QUARTERS_PER_HOUR * this.INTERVALS_PER_QUARTER);
+		this.intervalWidth = this.convertPercentageToPx(this.intervalPercentage);
 	}
 
 	calcHourPercentageFromHoursInGrid(hoursInGrid: number): void {
@@ -262,7 +272,7 @@ export class TimeService {
 
 	// endregion
 
-	/* ---- LEFT ---- */
+	// region Left
 
 	calculateLeft(start: Date) {
 		const relativeMinutes = this.getRelativeMinutes(start);
@@ -280,6 +290,8 @@ export class TimeService {
 		return this.START_HOUR * this.MINUTES_PER_HOUR;
 	}
 
+	// endregion
+
 	/* ---- START ---- */
 
 	calculateStart(left: number, day: Date): Date {
@@ -292,15 +304,17 @@ export class TimeService {
 		return this.MINUTES_8 + this.MINUTES_PER_INTERVAL * intervalsNumber;
 	}
 
-	/* ---- WIDTH ---- */
+	// region Width
 
 	calculateWidth(duration: number): number {
-		return this.getIntervalsNumberFromDuration(duration) * this.convertPercentageToPx(this.intervalPercentage);
+		return this.getIntervalsNumberFromDuration(duration) * this.intervalWidth;
 	}
 
 	private getIntervalsNumberFromDuration(duration: number) {
 		return duration / this.MINUTES_PER_INTERVAL;
 	}
+
+	// endregion
 
 	/* ---- DURATION ---- */
 

@@ -125,7 +125,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 				const mechanic = this.cardPositionService.dropzone.mechanic;
 				this.position = this.cardPositionService.handleLinePosition(
 					this.position,
-					this.timeService.intervalPercentage,
+					this.timeService.intervalWidth,
 					this.cardsService.getAssignedCards(mechanic.day, mechanic.position)
 				);
 			} else if (this.cardsGroup.cards[0].mechanicCode) { /* Si se suelta una ficha asignada en la bandeja inferior */
