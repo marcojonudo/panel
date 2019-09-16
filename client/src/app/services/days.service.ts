@@ -4,6 +4,7 @@ import {Observable} from "rxjs/internal/Observable";
 import {Mechanic} from "../objects/mechanic";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
+import {Subject} from "rxjs/internal/Subject";
 
 @Injectable({
 	providedIn: 'root'
@@ -19,7 +20,7 @@ export class DaysService {
 
 	private _daysMechanics: any;
 
-	private oneDayModeSubject: BehaviorSubject<boolean>;
+	private oneDayModeSubject: Subject<boolean>;
 	private _oneDayMode$: Observable<boolean>;
 
 	private lineHeightSubject: BehaviorSubject<number>;
@@ -32,7 +33,7 @@ export class DaysService {
 		this.oneDayMode = true;
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 
-		this.oneDayModeSubject = new BehaviorSubject<boolean>(this.oneDayMode);
+		this.oneDayModeSubject = new Subject<boolean>();
 		this.oneDayMode$ = this.oneDayModeSubject.asObservable();
 
 		this.lineHeightSubject = new BehaviorSubject<number>(this._lineHeight);

@@ -6,8 +6,7 @@ import {Constants} from "../../objects/constants";
 @Component({
 	selector: 'app-draggable-group',
 	templateUrl: './draggable-group.component.html',
-	styleUrls: ['./draggable-group.component.css'],
-	changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ['./draggable-group.component.css']
 })
 export class DraggableGroupComponent {
 

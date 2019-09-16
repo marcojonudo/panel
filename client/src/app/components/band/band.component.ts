@@ -50,17 +50,19 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
+		this.unassignedCardsGroups = this.cardsService.unassignedCardsGroups;
 		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((unassignedCardsGroups: CardsGroup[]) => {
-			if (!this.unassignedCardsGroups.length) {
-				this.unassignedCardsGroups = unassignedCardsGroups;
+			const removedGroupIndex = this.unassignedCardsGroups.findIndex(group =>
+				!unassignedCardsGroups.find(g => g.id == group.id)
+			);
+			/* this.unassignedCardsGroups tiene un grupo que no tiene unassignedCardsGroup; es decir, se ha
+			*  sacado un grupo de la cinta */
+			if (removedGroupIndex > -1) {
+				this.unassignedCardsGroups.splice(removedGroupIndex, 1);
 			} else {
-				const removedGroupIndex = this.unassignedCardsGroups.findIndex(group =>
-					!unassignedCardsGroups.find(g => g.id == group.id)
-				);
-				/* this.unassignedCardsGroups tiene un grupo que no tiene unassignedCardsGroup; es decir, se ha
-				*  sacado un grupo de la cinta */
-				if (removedGroupIndex > -1) {
-					this.unassignedCardsGroups.splice(removedGroupIndex, 1);
+				/* Si la longitud es la misma, es que se ha modificado el zoom (ancho) del grid y de las fichas */
+				if (this.unassignedCardsGroups.length === unassignedCardsGroups.length) {
+					this.unassignedCardsGroups = unassignedCardsGroups;
 				} else {
 					/* Si no falta sobra niguna ficha en this.unassignedCardsGroup, significa que unassigendCardsGroups
 					*  tiene una nueva; es decir, se ha soltado un grupo en la cinta (última posición) */
@@ -68,7 +70,10 @@ export class BandComponent implements OnInit, OnDestroy {
 				}
 			}
 
+			console.log('DETECT UNASSIGNED CHANGES');
+			console.time('DETECT UNASSIGNED CHANGES');
 			this.cdRef.detectChanges();
+			console.timeEnd('DETECT UNASSIGNED CHANGES');
 		});
 	}
 

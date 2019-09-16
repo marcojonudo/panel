@@ -54,6 +54,9 @@ export class MainComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.daysService.days;
+
+		this.oneDayMode = true;
+		this.maxScheduleHours = this.timeService.updateMaxSchedule(this.oneDayMode);
 		// this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
 
 		this.relativeContainer = true;

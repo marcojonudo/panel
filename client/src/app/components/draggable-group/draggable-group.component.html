@@ -4,6 +4,7 @@
 	class="h-100 d-flex draggable">
 	<app-card
 		*ngFor="let card of cardsGroup.cards"
-		[card]="card"></app-card>
+		[card]="card"
+		[width]="card.width"></app-card>
 </div>
 <div>{{check()}}</div>

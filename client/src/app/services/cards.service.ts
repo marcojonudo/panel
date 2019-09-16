@@ -10,6 +10,7 @@ import {Order} from "../objects/order";
 
 import {CardsGroup} from "../objects/cards-group";
 import {HttpClient} from "@angular/common/http";
+import {Subject} from "rxjs/internal/Subject";
 
 @Injectable({
 	providedIn: 'root'
@@ -18,12 +19,12 @@ export class CardsService {
 
 	private cards: Card[];
 	private unassignedCards: Card[];
-	private unassignedCardsGroups: CardsGroup[];
+	private _unassignedCardsGroups: CardsGroup[];
 	private assignedCards: Card[];
 	private assignedCardsGroups: CardsGroup[];
 	private assignedDaysCardsGroups: any;
 
-	private unassignedCardsGroupsSubject: BehaviorSubject<any>;
+	private unassignedCardsGroupsSubject: Subject<any>;
 	private _unassignedCardsGroups$: Observable<any>;
 
 	private assignedDaysCardsGroupsSubjects: any;
@@ -74,6 +75,14 @@ export class CardsService {
 
 	// region Getters / setters
 
+	get unassignedCardsGroups(): CardsGroup[] {
+		return this._unassignedCardsGroups;
+	}
+
+	set unassignedCardsGroups(value: CardsGroup[]) {
+		this._unassignedCardsGroups = value;
+	}
+
 	get unassignedCardsGroups$(): Observable<any> {
 		return this._unassignedCardsGroups$;
 	}
@@ -104,12 +113,12 @@ export class CardsService {
 		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
 		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, this.daysService.daysMechanics);
 
-		this.unassignedCardsGroupsSubject = new BehaviorSubject<any>(this.unassignedCardsGroups);
+		this.unassignedCardsGroupsSubject = new Subject<any>();
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
-		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(() => {
+		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe((value) => {
 			this.initDimensions();
-			// this.notifyAll();
+			this.notifyAll();
 		});
 
 		console.log('Cards', this.cards);
@@ -194,8 +203,10 @@ export class CardsService {
 	}
 
 	private initDimensions() {
-		this.unassignedCardsGroups = this.unassignedCardsGroups.map((cardsGroup: CardsGroup) => {
-			return this.initCardsGroupDimensions(cardsGroup, false);
+		this.unassignedCardsGroups.forEach((cardsGroup: CardsGroup) => {
+			cardsGroup.cards.forEach((card) => {
+				card.width = this.calculateWidth(card.duration);
+			});
 		});
 		for (let dayTime in this.assignedDaysCardsGroups) {
 			for (let mechanic in this.assignedDaysCardsGroups[dayTime]) {
@@ -238,7 +249,7 @@ export class CardsService {
 			console.timeEnd('[cardsService] assignedDaysCards.next()');
 		} else {
 			const cardsGroupIndex = this.unassignedCardsGroups.findIndex(group => group.id == cardsGroup.id);
-			this.unassignedCardsGroups.splice(cardsGroupIndex, 1);
+			this.unassignedCardsGroups = this.unassignedCardsGroups.filter((g, i) => i != cardsGroupIndex);
 
 			console.log('[cardsService] unassignedCards.next()');
 			console.time('[cardsService] unassignedCards.next()');

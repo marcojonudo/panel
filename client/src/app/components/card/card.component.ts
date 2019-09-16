@@ -10,10 +10,10 @@ import {Constants} from "../../objects/constants";
 	styleUrls: ['./card.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CardComponent
-{
+export class CardComponent {
 
 	@Input() card: Card;
+	@Input() width: number;
 
 	constructor(
 		private cdRef: ChangeDetectorRef

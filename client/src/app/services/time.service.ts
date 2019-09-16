@@ -231,7 +231,11 @@ export class TimeService {
 
 	calcWidthValues() {
 		this.calcHourPercentageFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
-		this.intervalPercentage = this.hourPercentage / (this.QUARTERS_PER_HOUR * this.INTERVALS_PER_QUARTER);
+		this.calcIntervalValues(this.hourPercentage);
+	}
+
+	calcIntervalValues(hourPercentage: number) {
+		this.intervalPercentage = hourPercentage / (this.QUARTERS_PER_HOUR * this.INTERVALS_PER_QUARTER);
 		this.intervalWidth = this.convertPercentageToPx(this.intervalPercentage);
 	}
 
@@ -259,6 +263,7 @@ export class TimeService {
 	updateMaxSchedulePercentage(value: number) {
 		this.maxSchedulePercentage = value;
 		this.hourPercentage = this.calcHourPercentageFromMaxSchedulePercentage(value);
+		this.calcIntervalValues(this.hourPercentage);
 		this.maxSchedulePercentageSubject.next(this.maxSchedulePercentage);
 	}
 
