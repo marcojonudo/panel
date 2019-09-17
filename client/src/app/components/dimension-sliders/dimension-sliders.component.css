@@ -1,9 +1,19 @@
-/*@import "../../../assets/css/material-style-deeppurple-amber.css";*/
+#slider-container {
+	position: relative;
+}
 
 #percentage-slider {
-	width: 90%;
+	width: 100px;
+	position: absolute;
+	top: 50px;
+	margin-top: 1rem;
 	-webkit-appearance: none;
 	background: transparent;
+	-webkit-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+	transform: rotate(270deg);
 }
 
 #percentage-slider::-webkit-slider-thumb {

@@ -20,6 +20,7 @@ export class TimeService {
 	private readonly LEFT_OFFSET: number = 180;
 	private readonly MINUTES_8: number = 480;
 	private readonly RIGHT_PANEL_WIDTH: number = 200;
+	private readonly TOOLS_BAR_WIDTH: number = 30;
 	readonly FIT_HOURS_IN_SCREEN: number = 4;
 	readonly QUARTERS: string[] = ['00', '15', '30', '45'];
 
@@ -63,7 +64,7 @@ export class TimeService {
 	// region Init
 
 	initPercentages(): void {
-		this.gridWidth = window.innerWidth - this.RIGHT_PANEL_WIDTH;
+		this.gridWidth = window.innerWidth - this.RIGHT_PANEL_WIDTH - this.TOOLS_BAR_WIDTH;
 		this.leftOffsetPercentage = (this.LEFT_OFFSET * 100) / this.gridWidth;
 		this.calcWidthValues();
 	}

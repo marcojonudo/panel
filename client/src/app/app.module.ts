@@ -11,9 +11,8 @@ import {MechanicInfoComponent} from './components/mechanic-info/mechanic-info.co
 import {MechanicLineContainerComponent} from './components/mechanic-line-container/mechanic-line-container.component';
 import {TimelineContainerComponent} from './components/timeline-container/timeline-container.component';
 
-import {ToolsPanelComponent} from './components/tools-panel/tools-panel.component';
+import {DayInfoPanelComponent} from './components/day-info-panel/day-info-panel.component';
 import {AppointmentsPanelComponent} from './components/appointments-panel/appointments-panel.component';
-import {ToolsButtonsComponent} from './components/tools-buttons/tools-buttons.component';
 import {DayPanelComponent} from './components/day-panel/day-panel.component';
 import {DimensionSlidersComponent} from './components/dimension-sliders/dimension-sliders.component';
 
@@ -43,6 +42,7 @@ import {ResizableCardDirective} from './directives/resizable-card.directive';
 import {HttpClientModule} from "@angular/common/http";
 import {SpinnerComponent} from './components/spinner/spinner.component';
 import {FormsModule} from "@angular/forms";
+import {ToolsBarComponent} from './components/tools-bar/tools-bar.component';
 
 @NgModule({
 	declarations: [
@@ -54,9 +54,8 @@ import {FormsModule} from "@angular/forms";
 		MechanicInfoComponent,
 		MechanicLineContainerComponent,
 		TimelineContainerComponent,
-		ToolsPanelComponent,
+		DayInfoPanelComponent,
 		AppointmentsPanelComponent,
-		ToolsButtonsComponent,
 		DayPanelComponent,
 		DimensionSlidersComponent,
 		DaysPipe,
@@ -72,7 +71,8 @@ import {FormsModule} from "@angular/forms";
 		HelperDraggableGroupComponent,
 		ResizableLineDirective,
 		ResizableCardDirective,
-		SpinnerComponent
+		SpinnerComponent,
+		ToolsBarComponent
 	],
 	imports: [
 		BrowserModule,

@@ -2,12 +2,12 @@ import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 
 @Component({
-	selector: 'app-tools-panel',
-	templateUrl: './tools-panel.component.html',
-	styleUrls: ['./tools-panel.component.css'],
+	selector: 'app-day-info-panel',
+	templateUrl: './day-info-panel.component.html',
+	styleUrls: ['./day-info-panel.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToolsPanelComponent implements OnInit {
+export class DayInfoPanelComponent implements OnInit {
 
 	constructor() {
 	}
@@ -15,7 +15,7 @@ export class ToolsPanelComponent implements OnInit {
 	ngOnInit() {
 	}
 
-	checkToolsPanel() {
+	checkDayInfoPanel() {
 		if (Constants.CHECK) {
 			console.log('checking tools');
 		}
