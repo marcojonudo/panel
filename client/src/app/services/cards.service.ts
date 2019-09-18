@@ -124,8 +124,8 @@ export class CardsService {
 		this.unassignedCardsGroupsSubject = new Subject<any>();
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
-		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe((value) => {
-			this.initDimensions();
+		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(() => {
+			this.updateDimensions();
 			this.notifyAll();
 		});
 
@@ -209,7 +209,7 @@ export class CardsService {
 		return cards.find(groupCard => groupCard.linkedPrevId == card.id || groupCard.linkedNextId == card.id)
 	}
 
-	private initDimensions() {
+	private updateDimensions() {
 		this.unassignedCardsGroups.forEach((cardsGroup: CardsGroup) => {
 			cardsGroup.cards.forEach((card) => {
 				card.width = this.calculateWidth(card.duration);
@@ -217,25 +217,14 @@ export class CardsService {
 		});
 		for (let dayTime in this.assignedDaysCardsGroups) {
 			for (let mechanic in this.assignedDaysCardsGroups[dayTime]) {
-				this.assignedDaysCardsGroups[dayTime][mechanic] = this.assignedDaysCardsGroups[dayTime][mechanic].map((cardsGroup: CardsGroup) => {
-					return this.initCardsGroupDimensions(cardsGroup, true);
+				this.assignedDaysCardsGroups[dayTime][mechanic].forEach((cardsGroup: CardsGroup) => {
+					cardsGroup.cards.forEach((card: Card) => {
+						card.width = this.calculateWidth(card.duration);
+					});
+					cardsGroup.left = this.calculateLeft(cardsGroup.cards[0].start);
 				});
 			}
 		}
-	}
-
-	private initCardsGroupDimensions(cardsGroup: CardsGroup, calculateLeft: boolean) {
-		let newCardsGroup = cardsGroup.clone();
-		newCardsGroup.cards.forEach((card) => {
-			card.width = this.calculateWidth(card.duration);
-		});
-
-		if (calculateLeft) {
-			// const start = UtilsService.parseTimeFromString(newCardsGroup.cards[0].start);
-			newCardsGroup.left = this.calculateLeft(newCardsGroup.cards[0].start);
-			// newCardsGroup.start = newCardsGroup.cards[0].start;
-		}
-		return newCardsGroup;
 	}
 
 	// endregion

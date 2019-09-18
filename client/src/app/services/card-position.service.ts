@@ -147,15 +147,15 @@ export class CardPositionService {
 
 	// region Handle position updates
 
-	handleLinePosition(lastPosition: Coordinates, intervalWidth: number, daysMechanicCardsGroups: CardsGroup[]): Coordinates {
+	handleLinePosition(lastPosition: Coordinates, intervalWidth: number, dayMechanicCardsGroups: CardsGroup[]): Coordinates {
 		/* La posición se redondea a los múltiplos de 5 minutos */
 		let position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth);
 		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
 		*  cuenta a la hora de identificar las fichas solapadas */
-		this.updateDimensionsProperties(this.helperCardsGroup, position, this.scrollLeft);
+		this.updateDimensionsProperties(this.helperCardsGroup, position);
 
 		/* Se gestionan los movimientos de fichas solapadas */
-		this.handleOverlappedMovements(this.helperCardsGroup, daysMechanicCardsGroups, this.scrollLeft);
+		this.handleOverlappedMovements(this.helperCardsGroup, dayMechanicCardsGroups, this.scrollLeft);
 
 		/* Se define la nueva posición, una vez tenidas en cuenta las fichas solapadas, para completar la transición
 		*  en la directiva draggable */
@@ -172,14 +172,14 @@ export class CardPositionService {
 		return new Coordinates(x, y, line);
 	}
 
-	private updateDimensionsProperties(cardsGroup: CardsGroup, position: Coordinates, scrollLeft: number): void {
+	private updateDimensionsProperties(cardsGroup: CardsGroup, position: Coordinates): void {
 		cardsGroup.left = this.absolutePositionToLeft(position.x);
 		cardsGroup.cards.forEach(card => card.line = position.line);
 	}
 
-	private handleOverlappedMovements(cardsGroup: CardsGroup, daysMechanicCardsGroups: CardsGroup[], scrollLeft: number): void {
+	private handleOverlappedMovements(cardsGroup: CardsGroup, dayMechanicCardsGroups: CardsGroup[], scrollLeft: number): void {
 		/* Se obtienen las fichas solapadas */
-		const overlappedCardsGroups = this.findOverlappedCardsGroups(cardsGroup, daysMechanicCardsGroups);
+		const overlappedCardsGroups = this.findOverlappedCardsGroups(cardsGroup, dayMechanicCardsGroups);
 
 		/* Para saber si la ficha soltada está a la izquierda, derecha o entre dos fichas, se ordenan según la
 		*  propiedad 'left' */
@@ -195,7 +195,7 @@ export class CardPositionService {
 		*  y se repite la gestión para fichas solapadas */
 		const checkNewOverlapped = allCardsGroups.slice(allCardsGroups.indexOf(cardsGroup)+1);
 		if (checkNewOverlapped.length) {
-			checkNewOverlapped.forEach(group => this.handleOverlappedMovements(group, daysMechanicCardsGroups, scrollLeft));
+			checkNewOverlapped.forEach(group => this.handleOverlappedMovements(group, dayMechanicCardsGroups, scrollLeft));
 		}
 	}
 

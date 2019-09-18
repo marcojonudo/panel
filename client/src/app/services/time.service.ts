@@ -307,7 +307,8 @@ export class TimeService {
 	}
 
 	private getRelativeMinutesFromIntervals(intervalsNumber: number): number {
-		return this.MINUTES_8 + this.MINUTES_PER_INTERVAL * intervalsNumber;
+		const scheduleStartMinutes = this.maxScheduleHours[0] * 60;
+		return scheduleStartMinutes + this.MINUTES_PER_INTERVAL * intervalsNumber;
 	}
 
 	// region Width
@@ -334,7 +335,7 @@ export class TimeService {
 
 
 	getIntervalsNumberFromDimensionValue(value: number) {
-		return value / this.intervalPercentage;
+		return Math.round(value / this.intervalWidth);
 	}
 
 }
