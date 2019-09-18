@@ -148,6 +148,8 @@ export class CardPositionService {
 	// region Handle position updates
 
 	handleLinePosition(lastPosition: Coordinates, intervalWidth: number, dayMechanicCardsGroups: CardsGroup[]): Coordinates {
+		/* Se comprueba si el lateral izquierdo del grupo está fuera de la dropzone */
+		this.handleGroupOutsideDropzone(lastPosition);
 		/* La posición se redondea a los múltiplos de 5 minutos */
 		let position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth);
 		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
@@ -161,6 +163,15 @@ export class CardPositionService {
 		*  en la directiva draggable */
 		position.x = this.leftToAbsolutePosition(this.helperCardsGroup.left);
 		return position;
+	}
+
+	private handleGroupOutsideDropzone(position: Coordinates, dropzone: DropzoneInfo = this.dropzone) {
+		/* Si la coordenada x está fuera de la dropzone, se le asigna el valor izquierdo de la misma, más una cifra.
+		*  Esta cifra permite que a la hora de redondear en el método roundLastPosition, la ficha quede dentro de la
+		*  dropzone, en lugar de justo a la izquierda */
+		if (position.x < dropzone.rect.x) {
+			position.x = dropzone.rect.x + 5;
+		}
 	}
 
 	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {

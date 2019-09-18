@@ -42,7 +42,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			/* Cuando se deja de arrastrar (dragging = false y helperCardsGroup = true), se elimina la ficha del origen. De esta
 			*  forma, se evitan problemas de parpadeos al modificar la propiedad 'visibility' para lograr los efectos
 			*  buscados */
-			if (!this.dragging && this._helperCardsGroup && this.cardPositionService.dropzone) {
+			if (!this.dragging && this.helperCardsGroup && this.cardPositionService.dropzone) {
 				this.cardsService.removeFromOrigin(this.helperCardsGroup);
 			}
 		});

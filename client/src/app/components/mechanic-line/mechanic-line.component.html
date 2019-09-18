@@ -1,9 +1,8 @@
 <div
-	#dropzone
-	appDropzone
-	[mechanic]="mechanic"
 	class="h-100 mechanic-line">
 	<div class="h-100 d-flex schedule-line"
+		 appDropzone
+		 [mechanic]="mechanic"
 		 *ngFor="let percentage of getSchedulePercentages(); let i = index"
 		[ngStyle]="{'width.%': percentage, 'left.%': getLeftPercentages()[i]}">
 		<div *ngFor="let quarter of mechanic.schedule.quarters[i]; trackBy: trackByItem"
