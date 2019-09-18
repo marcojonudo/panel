@@ -284,7 +284,7 @@ export class TimeService {
 		const relativeMinutes = this.getRelativeMinutes(start);
 		const relativeIntervals = this.getIntervalsNumberFromDuration(relativeMinutes);
 
-		return relativeIntervals * this.intervalPercentage;
+		return relativeIntervals * this.intervalWidth;
 	}
 
 	private getRelativeMinutes(time: Date) {
@@ -293,7 +293,7 @@ export class TimeService {
 	}
 
 	private getStartScheduleMinutes() {
-		return this.START_HOUR * this.MINUTES_PER_HOUR;
+		return this.maxScheduleHours[0] * this.MINUTES_PER_HOUR;
 	}
 
 	// endregion
@@ -307,8 +307,7 @@ export class TimeService {
 	}
 
 	private getRelativeMinutesFromIntervals(intervalsNumber: number): number {
-		const scheduleStartMinutes = this.maxScheduleHours[0] * 60;
-		return scheduleStartMinutes + this.MINUTES_PER_INTERVAL * intervalsNumber;
+		return this.getStartScheduleMinutes() + this.MINUTES_PER_INTERVAL * intervalsNumber;
 	}
 
 	// region Width

@@ -188,7 +188,7 @@ export class CardPositionService {
 			(cardsGroup) => cardsGroup.left
 		);
 		/* Se actualizan los valores relacionados con la posicion (left y start) */
-		this.updatePositionProperties(allCardsGroups, this.dropzone.mechanic.day, scrollLeft);
+		this.updatePositionProperties(allCardsGroups, this.dropzone.mechanic.day);
 
 		/* Si la ficha soltada desplaza otras hacia la derecha, también se debe comprobar si estas, a su vez, se
 		*  solapan con otras. Para ello, de la lista completa se obtienen aquellas que estén a la derecha de la soltada,
@@ -228,7 +228,7 @@ export class CardPositionService {
 		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
 	}
 
-	private updatePositionProperties(cardsGroups: CardsGroup[], day: Date, scrollLeft: number) {
+	private updatePositionProperties(cardsGroups: CardsGroup[], day: Date) {
 		cardsGroups.forEach((cardsGroup, index) => {
 			const width = this.findCardsGroupsWidth(cardsGroups.slice(0, index));
 			cardsGroup.left = cardsGroups[0].left + width;
