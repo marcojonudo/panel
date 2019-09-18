@@ -27,5 +27,5 @@ mwlResizable {
 
 .assigned-card {
 	position: absolute;
-	transition: transform 0.25s ease-in-out;
+	/*transition: transform 0.95s ease-in-out;*/
 }
