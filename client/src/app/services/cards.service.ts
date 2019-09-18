@@ -22,7 +22,7 @@ export class CardsService {
 	private _unassignedCardsGroups: CardsGroup[];
 	private assignedCards: Card[];
 	private assignedCardsGroups: CardsGroup[];
-	private assignedDaysCardsGroups: any;
+	private _assignedDaysCardsGroups: any;
 
 	private unassignedCardsGroupsSubject: Subject<any>;
 	private _unassignedCardsGroups$: Observable<any>;
@@ -89,6 +89,14 @@ export class CardsService {
 
 	set unassignedCardsGroups$(value: Observable<any>) {
 		this._unassignedCardsGroups$ = value;
+	}
+
+	get assignedDaysCardsGroups(): any {
+		return this._assignedDaysCardsGroups;
+	}
+
+	set assignedDaysCardsGroups(value: any) {
+		this._assignedDaysCardsGroups = value;
 	}
 
 	get assignedDaysCardsGroups$(): any {
@@ -170,12 +178,11 @@ export class CardsService {
 			this.assignedDaysCardsGroups$[dayTime] = {};
 
 			for (let mechanic of daysMechanics[dayTime]) {
-				const cardsGroup = assignedCardsGroups.filter(cardsGroup => {
+				this.assignedDaysCardsGroups[dayTime][mechanic.position] = assignedCardsGroups.filter(cardsGroup => {
 					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.position
 				});
-				this.assignedDaysCardsGroups[dayTime][mechanic.position] = cardsGroup;
 
-				const subject = new BehaviorSubject<any>(cardsGroup);
+				const subject = new Subject<any>();
 				const observable = subject.asObservable();
 				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic.position] = subject;
 				this.assignedDaysCardsGroups$[dayTime][mechanic.position] = observable;
@@ -251,10 +258,7 @@ export class CardsService {
 			const cardsGroupIndex = this.unassignedCardsGroups.findIndex(group => group.id == cardsGroup.id);
 			this.unassignedCardsGroups = this.unassignedCardsGroups.filter((g, i) => i != cardsGroupIndex);
 
-			console.log('[cardsService] unassignedCards.next()');
-			console.time('[cardsService] unassignedCards.next()');
 			this.notifyUnassigned();
-			console.timeEnd('[cardsService] unassignedCards.next()');
 		}
 	}
 
@@ -268,7 +272,6 @@ export class CardsService {
 			this.resetCardsGroup(cardsGroup);
 		}
 
-		console.log(cardsGroup);
 		this.addToDestiny(newMechanic, cardsGroup);
 	}
 
@@ -289,17 +292,37 @@ export class CardsService {
 
 	private addToDestiny(newMechanic: Mechanic, cardsGroup: CardsGroup): void {
 		if (newMechanic) {
-			this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.position].push(cardsGroup);
-			console.log('notifyAssigned');
-			console.time('notifyAssigned');
+			this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.position] =
+				this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.position].concat(cardsGroup);
 			this.notifyAssigned(newMechanic.day, newMechanic.position);
-			console.timeEnd('notifyAssigned');
 		} else {
 			this.unassignedCardsGroups.push(cardsGroup);
-			console.time('notifyUnassigned');
 			this.notifyUnassigned();
-			console.timeEnd('notifyUnassigned');
 		}
+	}
+
+	handleCardsGroupsListUpdate(cardsGroups: CardsGroup[], newCardsGroups: CardsGroup[]): CardsGroup[] {
+		const removedGroupIndex = cardsGroups.findIndex(group =>
+			!newCardsGroups.find(g => g.id == group.id)
+		);
+
+		let replacedCardsGroups;
+		/* this.unassignedCardsGroups tiene un grupo que no tiene unassignedCardsGroup; es decir, se ha
+		*  sacado un grupo de la cinta */
+		if (removedGroupIndex > -1) {
+			cardsGroups.splice(removedGroupIndex, 1);
+		} else {
+			/* Si la longitud es la misma, es que se ha modificado el zoom (ancho) del grid y de las fichas */
+			if (cardsGroups.length == newCardsGroups.length) {
+				replacedCardsGroups = newCardsGroups;
+			} else {
+				/* Si no falta sobra niguna ficha en this.unassignedCardsGroup, significa que unassigendCardsGroups
+				*  tiene una nueva; es decir, se ha soltado un grupo en la cinta (última posición) */
+				cardsGroups.push(newCardsGroups[newCardsGroups.length - 1]);
+			}
+		}
+
+		return replacedCardsGroups;
 	}
 
 	// endregion

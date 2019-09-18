@@ -36,7 +36,6 @@ export class DropzoneDirective implements OnInit {
 	) {	}
 
 	ngOnInit() {
-		// this.dropzone = new DropzoneInfo(this.mechanic, this.element.nativeElement.getBoundingClientRect(), this.element);
 		this.cardPositionService.dragging$.subscribe(dragging => {
 			if (dragging) {
 				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));

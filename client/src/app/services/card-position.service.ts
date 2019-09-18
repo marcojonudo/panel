@@ -20,7 +20,7 @@ export class CardPositionService {
 	private _dragging: boolean;
 	private _dropzone: DropzoneInfo;
 	private _scrollLeft: number;
-	private _scrollTop: number;
+	private _relativeScrollTop: number;
 	private _position: Coordinates;
 	private _helperCardsGroup: CardsGroup;
 
@@ -38,7 +38,7 @@ export class CardPositionService {
 		private daysService: DaysService
 	) {
 		this.scrollLeft = 0;
-		this.scrollTop = 0;
+		this.relativeScrollTop = 0;
 
 		this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
 		this.coordinates$ = this.coordinatesSubject.asObservable();
@@ -116,12 +116,12 @@ export class CardPositionService {
 		this._scrollLeft = value;
 	}
 
-	get scrollTop(): number {
-		return this._scrollTop;
+	get relativeScrollTop(): number {
+		return this._relativeScrollTop;
 	}
 
-	set scrollTop(value: number) {
-		this._scrollTop = value;
+	set relativeScrollTop(value: number) {
+		this._relativeScrollTop = value;
 	}
 
 	// endregion
@@ -149,7 +149,7 @@ export class CardPositionService {
 
 	handleLinePosition(lastPosition: Coordinates, intervalWidth: number, daysMechanicCardsGroups: CardsGroup[]): Coordinates {
 		/* La posición se redondea a los múltiplos de 5 minutos */
-		let position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth, this.scrollLeft);
+		let position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth);
 		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
 		*  cuenta a la hora de identificar las fichas solapadas */
 		this.updateDimensionsProperties(this.helperCardsGroup, position, this.scrollLeft);
@@ -163,12 +163,12 @@ export class CardPositionService {
 		return position;
 	}
 
-	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number, scrollLeft: number): Coordinates {
+	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {
 		const leftIntervals = Math.floor(this.absolutePositionToLeft(position.x) / intervalWidth);
 		const x = this.leftToAbsolutePosition(leftIntervals * intervalWidth);
 
-		const line = Math.round((position.y - rect.top) / this.daysService.lineHeight);
-		const y = rect.top + line * this.daysService.lineHeight;
+		const line = Math.abs(Math.round((position.y - this.getLineTop(rect.top)) / this.daysService.lineHeight));
+		const y = this.getLineTop(rect.top) + line * this.daysService.lineHeight;
 		return new Coordinates(x, y, line);
 	}
 
@@ -246,7 +246,7 @@ export class CardPositionService {
 	// endregion
 
 	/* La posición del cursor en pantalla cuenta el eje de las X desde el inicio de la misma. Sin embargo, para hacer
-	 * cálculos relativos al horario (con comienzo a las 8), se deben restar los 180px de ancho que tiene la info del
+	 * cálculos relativos al horario, se deben restar los 180px de ancho que tiene la info del
 	 * mecánico */
 	absolutePositionToLeft(value: number, scrollLeft: number = this.scrollLeft): number {
 		return value + scrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
@@ -254,6 +254,10 @@ export class CardPositionService {
 
 	leftToAbsolutePosition(value: number, scrollLeft: number = this.scrollLeft): number {
 		return value - scrollLeft + Constants.VALUE.MECHANIC_INFO_WIDTH;
+	}
+
+	getLineTop(top: number, relativeScrollTop: number = this.relativeScrollTop) {
+		return top - relativeScrollTop;
 	}
 
 }

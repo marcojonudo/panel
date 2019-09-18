@@ -66,6 +66,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.cdRef.detectChanges();
 
 		this.startPosition = new Coordinates(this.cardRect.left, this.cardRect.top);
+		this.position = new Coordinates(this.cardRect.left, this.cardRect.top);
 		this.cardPositionService.emitPosition(this.startPosition);
 
 		this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
@@ -100,13 +101,9 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		 * Debe ir antes de la emisión de la helper card, para evitar parpadeos en las fichas al añadirlas en el destino
 		 * antes de eliminarlas del origen, de ahí el uso de la variable emitHelperCardsGroup (sólo para el caso de arrastrar
 		 * la ficha a la bandeja desde una línea */
-		console.time('emitDragging');
 		this.cardPositionService.emitDragging(this.dragging);
-		console.timeEnd('emitDragging');
 		if (emitHelperCard) {
-			console.time('emitHelperCardsGroup');
 			this.cardPositionService.emitHelperCardsGroup(undefined);
-			console.timeEnd('emitHelperCardsGroup');
 		}
 
 		this.pointerMoveListener();

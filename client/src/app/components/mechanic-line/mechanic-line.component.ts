@@ -33,13 +33,22 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		private cardsService: CardsService,
 		private daysService: DaysService,
 		private cdRef: ChangeDetectorRef
-	) {}
+	) {
+		this.cardsGroups = [];
+	}
 
 	ngOnInit(): void {
+		this.cardsGroups = this.cardsService.assignedDaysCardsGroups[this.day.getTime()][this.mechanic.position];
 		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position]) {
-			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position].subscribe(cardsGroup => {
-				this.cardsGroups = cardsGroup;
+			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position].subscribe(cardsGroups => {
+				const replacedCardsGroups = this.cardsService.handleCardsGroupsListUpdate(this.cardsGroups, cardsGroups);
+				if (replacedCardsGroups) {
+					this.cardsGroups = replacedCardsGroups;
+				}
+
+				console.time('Detect assigned changes');
 				this.cdRef.detectChanges();
+				console.timeEnd('Detect assigned changes');
 			});
 		}
 	}

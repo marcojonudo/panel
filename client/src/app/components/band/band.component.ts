@@ -52,28 +52,14 @@ export class BandComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.unassignedCardsGroups = this.cardsService.unassignedCardsGroups;
 		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((unassignedCardsGroups: CardsGroup[]) => {
-			const removedGroupIndex = this.unassignedCardsGroups.findIndex(group =>
-				!unassignedCardsGroups.find(g => g.id == group.id)
-			);
-			/* this.unassignedCardsGroups tiene un grupo que no tiene unassignedCardsGroup; es decir, se ha
-			*  sacado un grupo de la cinta */
-			if (removedGroupIndex > -1) {
-				this.unassignedCardsGroups.splice(removedGroupIndex, 1);
-			} else {
-				/* Si la longitud es la misma, es que se ha modificado el zoom (ancho) del grid y de las fichas */
-				if (this.unassignedCardsGroups.length === unassignedCardsGroups.length) {
-					this.unassignedCardsGroups = unassignedCardsGroups;
-				} else {
-					/* Si no falta sobra niguna ficha en this.unassignedCardsGroup, significa que unassigendCardsGroups
-					*  tiene una nueva; es decir, se ha soltado un grupo en la cinta (última posición) */
-					this.unassignedCardsGroups.push(unassignedCardsGroups[unassignedCardsGroups.length - 1]);
-				}
+			const replacedCardsGroups =
+				this.cardsService.handleCardsGroupsListUpdate(this.unassignedCardsGroups, unassignedCardsGroups);
+			if (replacedCardsGroups) {
+				this.unassignedCardsGroups = replacedCardsGroups;
 			}
-
-			console.log('DETECT UNASSIGNED CHANGES');
-			console.time('DETECT UNASSIGNED CHANGES');
+			console.time('Detect unassigned changes');
 			this.cdRef.detectChanges();
-			console.timeEnd('DETECT UNASSIGNED CHANGES');
+			console.timeEnd('Detect unassigned changes');
 		});
 	}
 
