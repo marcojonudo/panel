@@ -13,10 +13,12 @@
 	<app-draggable-group
 		*ngFor="let cardsGroup of cardsGroups"
 		class="assigned-card"
+		[ngClass]="{'hidden': hide}"
 		[ngStyle]="{
 			'height.px': lineHeight$ | async,
 			'transform': 'translateX(' + cardsGroup.left + 'px) translateY(' + cardsGroup.cards[0].line * 100 + '%)'
 		}"
+		(hide)="hideGroup($event)"
 		[cardsGroup]="cardsGroup">
 	</app-draggable-group>
 </div>

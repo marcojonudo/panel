@@ -1,7 +1,8 @@
 <div
 	appDraggable
 	[cardsGroup]="cardsGroup"
-	class="h-100 d-flex draggable">
+	class="h-100 d-flex draggable"
+	(hide)="hideComponent($event)">
 	<app-card
 		*ngFor="let card of cardsGroup.cards"
 		[card]="card"

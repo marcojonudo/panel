@@ -28,6 +28,8 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 
 	private _cardsGroups: CardsGroup[];
 
+	private _hide: boolean;
+
 	constructor(
 		private timeService: TimeService,
 		private cardsService: CardsService,
@@ -35,6 +37,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.cardsGroups = [];
+		this.hide = false;
 	}
 
 	ngOnInit(): void {
@@ -75,6 +78,18 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		this._leftPercentages = value;
 	}
 
+	get hide(): boolean {
+		return this._hide;
+	}
+
+	set hide(value: boolean) {
+		this._hide = value;
+	}
+
+	get lineHeight$() {
+		return this.daysService.lineHeight$;
+	}
+
 	// endregion
 
 	getSchedulePercentages() {
@@ -92,12 +107,13 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	trackByItem(index, item) {
-		return item;
+	hideGroup(hide) {
+		this.hide = hide;
+		this.cdRef.detectChanges();
 	}
 
-	get lineHeight$() {
-		return this.daysService.lineHeight$;
+	trackByItem(index, item) {
+		return item;
 	}
 
 	check() {

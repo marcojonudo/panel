@@ -29,3 +29,7 @@ mwlResizable {
 	position: absolute;
 	/*transition: transform 0.95s ease-in-out;*/
 }
+
+.hidden {
+	z-index: -1;
+}
