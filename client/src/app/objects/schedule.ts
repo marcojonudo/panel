@@ -1,5 +1,4 @@
 import {UtilsService} from "../services/utils.service";
-import {Constants} from "./constants";
 
 export class Schedule {
 

@@ -14,25 +14,25 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 	private _min: number;
 	private _max: number;
 	private _step: number;
-	private percentage: number;
+	private width: number;
 
-	private maxSchedulePercentageSubscription: any;
-	private maxScheduleMaxPercentageSubscription: any;
+	private maxScheduleWidthSubscription: any;
+	private maxScheduleMaxWidthSubscription: any;
 
 	constructor(
 		private timeService: TimeService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.min = this.timeService.minPercentageValue;
+		this.min = this.timeService.gridWidth;
 	}
 
 	ngOnInit(): void {
-		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(maxSchedulePercentage => {
-			this.percentage = maxSchedulePercentage;
+		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
+			this.width = maxScheduleWidth;
 			this.cdRef.detectChanges();
 		});
-		this.maxScheduleMaxPercentageSubscription = this.timeService.maxScheduleMaxPercentage$.subscribe(maxScheduleMaxPercentage => {
-			this.max = maxScheduleMaxPercentage;
+		this.maxScheduleMaxWidthSubscription = this.timeService.maxScheduleMaxWidth$.subscribe(maxScheduleMaxWidth => {
+			this.max = maxScheduleMaxWidth;
 			/* Se limitan los decimales porque con el número por defecto, el step no llega al max y en el slider se
 			*  muestra la bola en un punto medio del eje */
 			this.step = parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));
@@ -41,8 +41,8 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.maxSchedulePercentageSubscription.unsubscribe();
-		this.maxScheduleMaxPercentageSubscription.unsubscribe();
+		this.maxScheduleWidthSubscription.unsubscribe();
+		this.maxScheduleMaxWidthSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -73,8 +73,8 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 
 	// endregion
 
-	updatePercentage() {
-		this.timeService.updateMaxSchedulePercentage(this.percentage);
+	updateWidth() {
+		this.timeService.updateMaxScheduleWidth(this.width);
 	}
 
 }

@@ -119,20 +119,11 @@ export class UtilsService {
 		return Math.round((end.getTime() - start.getTime()) / 60000);
 	}
 
-	public static getScheduleRefStartMinutes(start: Date, maxScheduleStartHour: number) {
-		const maxScheduleStart = new Date(start.getFullYear(), start.getMonth(), start.getDate(), maxScheduleStartHour);
-		return (start.getTime() - maxScheduleStart.getTime()) / 60000;
-	}
-
 	public static timeGreaterThan(time1: Date, time2: Date) {
 		time1.setFullYear(time2.getFullYear());
 		time1.setMonth(time2.getMonth());
 		time1.setDate(time2.getDate());
 		return time1 > time2;
-	}
-
-	public static calculateRelativePercentage(element: number, container: number) {
-		return (element * 100) / container;
 	}
 
 	public static clearTime(date: Date) {

@@ -35,7 +35,7 @@ export class AppComponent implements AfterViewInit {
 
 				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics);
 				daysService.init(daysMechanicsList);
-				timeService.init();
+				timeService.init(this.daysService.daysMechanics);
 
 				cardsService.init(data.cards.map(card => new Card(card)));
 

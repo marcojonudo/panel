@@ -49,7 +49,7 @@ export class ResizableCardDirective {
 
 		this.cardsService.updateCardDuration(
 			this.card,
-			this.timeService.intervalPercentage * Math.round(this.card.width/this.timeService.intervalPercentage)
+			this.card.width
 		);
 
 		this.cdRef.detectChanges();

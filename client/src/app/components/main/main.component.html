@@ -4,10 +4,11 @@
 		<div class="col h-100 padding-0 d-flex">
 			<div
 				appScrollable
-				class="flex-grow-1 h-100 panel-container padding-0 overflow-auto">
+				class="flex-grow-1 h-100 panel-container padding-0 overflow-scroll"
+				[ngClass]="{'width-0-scrollbar': !displayScrollbar}">
 				<div
 					class="h-100"
-					[style.width.%]="maxSchedulePercentage">
+					[style.width.px]="maxScheduleWidth">
 					<app-day-panel
 						class="animated slideInRight"
 						[index]="i"

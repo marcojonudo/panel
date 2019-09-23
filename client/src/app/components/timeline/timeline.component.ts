@@ -14,12 +14,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
 
-	private readonly _HOUR_PERCENTAGE_DISPLAY_MINUTES_THRESHOLD: number = 15;
+	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 2500;
 
+	private _displayMinutes: boolean;
 	private _quarters: string[];
-	private _hourPercentage: number;
 
-	private _maxSchedulePercentageSubscription: any;
+	private _maxScheduleWidthSubscription: any;
 
 	constructor(
 		private daysService: DaysService,
@@ -30,17 +30,25 @@ export class TimelineComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.quarters = this.timeService.QUARTERS;
 
-		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(maxSchedulePercentage => {
-			this.hourPercentage = this.timeService.calcHourPercentageFromMaxSchedulePercentage(maxSchedulePercentage);
+		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
+			this.displayMinutes = maxScheduleWidth > this.MAX_SCHEDULE_WIDTH_THRESHOLD;
 			this.cdRef.detectChanges();
 		})
 	}
 
 	ngOnDestroy(): void {
-		this.maxSchedulePercentageSubscription.unsubscribe();
+		this.maxScheduleWidthSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
+
+	get displayMinutes(): boolean {
+		return this._displayMinutes;
+	}
+
+	set displayMinutes(value: boolean) {
+		this._displayMinutes = value;
+	}
 
 	get quarters(): string[] {
 		return this._quarters;
@@ -50,24 +58,16 @@ export class TimelineComponent implements OnInit, OnDestroy {
 		this._quarters = value;
 	}
 
-	get hourPercentage(): number {
-		return this._hourPercentage;
+	get maxScheduleWidthSubscription(): any {
+		return this._maxScheduleWidthSubscription;
 	}
 
-	set hourPercentage(value: number) {
-		this._hourPercentage = value;
+	set maxScheduleWidthSubscription(value: any) {
+		this._maxScheduleWidthSubscription = value;
 	}
 
-	get maxSchedulePercentageSubscription(): any {
-		return this._maxSchedulePercentageSubscription;
-	}
-
-	set maxSchedulePercentageSubscription(value: any) {
-		this._maxSchedulePercentageSubscription = value;
-	}
-
-	get hourPercentageDisplayMinutesThreshold(): number {
-		return this._HOUR_PERCENTAGE_DISPLAY_MINUTES_THRESHOLD;
+	get quarterWidth() {
+		return (this.timeService.intervalWidth * 3).toFixed(2);
 	}
 
 	// endregion

@@ -30,7 +30,7 @@ export class CardsService {
 	private assignedDaysCardsGroupsSubjects: any;
 	private _assignedDaysCardsGroups$: any;
 
-	private maxSchedulePercentageSubscription: any;
+	private maxScheduleWidthSubscription: any;
 
 	constructor(
 		private daysService: DaysService,
@@ -124,7 +124,7 @@ export class CardsService {
 		this.unassignedCardsGroupsSubject = new Subject<any>();
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
-		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(() => {
+		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
 			this.updateDimensions();
 			this.notifyAll();
 		});

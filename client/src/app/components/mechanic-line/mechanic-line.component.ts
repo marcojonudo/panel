@@ -1,13 +1,9 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit,} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {TimeService} from "../../services/time.service";
-import {Draggable, Droppable} from "@shopify/draggable"
 import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
 import {DaysService} from "../../services/days.service";
-import {Card} from "../../objects/card";
-import {ResizeEvent} from "angular-resizable-element";
 import {CardsGroup} from "../../objects/cards-group";
-import {UtilsService} from "../../services/utils.service";
 import {Constants} from "../../objects/constants";
 
 @Component({
@@ -22,13 +18,13 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
 
-	private _leftPercentages: number[];
-
 	private cardsSubscription: any;
 
 	private _cardsGroups: CardsGroup[];
 
 	private _hide: boolean;
+
+	private quarterBackground: any;
 
 	constructor(
 		private timeService: TimeService,
@@ -38,6 +34,12 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	) {
 		this.cardsGroups = [];
 		this.hide = false;
+		this.quarterBackground = {
+			0: 1,
+			15: 1,
+			30: 1,
+			45: 2
+		}
 	}
 
 	ngOnInit(): void {
@@ -70,14 +72,6 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		this._cardsGroups = value;
 	}
 
-	get leftPercentages(): number[] {
-		return this._leftPercentages;
-	}
-
-	set leftPercentages(value: number[]) {
-		this._leftPercentages = value;
-	}
-
 	get hide(): boolean {
 		return this._hide;
 	}
@@ -90,21 +84,42 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		return this.daysService.lineHeight$;
 	}
 
-	// endregion
-
-	getSchedulePercentages() {
-		return this.mechanic.schedule.minutes.map(slotMinutes => {
-			return UtilsService.calculateRelativePercentage(slotMinutes,this.maxScheduleHours.length * 60);
-		});
+	get quarterWidth(): number {
+		/* El navegador redondea a 2 decimales, por lo que se hace lo mismo que las distancias sean equivalentes */
+		return +(this.timeService.intervalWidth * 3).toFixed(2);
 	}
 
-	getLeftPercentages() {
-		return this.leftPercentages ? this.leftPercentages : this.mechanic.schedule.minutes.map((slotMinutes, i) => {
-			return UtilsService.calculateRelativePercentage(
-				UtilsService.getScheduleRefStartMinutes(this.mechanic.schedule.thresholds[i*2], this.maxScheduleHours[0]),
-				this.maxScheduleHours.length * 60
-			)
-		});
+	// endregion
+
+	calcScheduleWidth(duration: number): number {
+		return this.timeService.calculateWidth(duration);
+	}
+
+	calcScheduleLeft(start: Date): number {
+		return this.timeService.calculateLeft(start);
+	}
+
+	calcScheduleLineBackground(quarters: number[]): any {
+		return `repeating-linear-gradient(
+			to right,
+			#e1e1e1,
+			#e1e1e1 ${this.quarterWidth-this.quarterBackground[quarters[0]]}px,
+			#a2a2a2 ${this.quarterWidth-this.quarterBackground[quarters[0]]}px,
+			#a2a2a2 ${this.quarterWidth}px,
+			#e1e1e1 ${this.quarterWidth}px,
+			#e1e1e1 ${this.quarterWidth*2-this.quarterBackground[quarters[1]]}px,
+			#a2a2a2 ${this.quarterWidth*2-this.quarterBackground[quarters[1]]}px,
+			#a2a2a2 ${this.quarterWidth*2}px,
+			#e1e1e1 ${this.quarterWidth*2}px,
+			#e1e1e1 ${this.quarterWidth*3-this.quarterBackground[quarters[2]]}px,
+			#a2a2a2 ${this.quarterWidth*3-this.quarterBackground[quarters[2]]}px,
+			#a2a2a2 ${this.quarterWidth*3}px,
+			#e1e1e1 ${this.quarterWidth*3}px,
+			#e1e1e1 ${this.quarterWidth*4-this.quarterBackground[quarters[3]]}px,
+			#a2a2a2 ${this.quarterWidth*4-this.quarterBackground[quarters[3]]}px,
+			#a2a2a2 ${this.quarterWidth*4}px
+		)`;
+
 	}
 
 	hideGroup(hide) {

@@ -21,9 +21,10 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _days: Date[];
 	private itemSize: number;
+	private _displayScrollbar: boolean;
 
 	private _oneDayMode: boolean;
-	private _maxSchedulePercentage: number;
+	private _maxScheduleWidth: number;
 	private _maxScheduleHours: number[];
 
 	private relativeContainer: boolean;
@@ -32,7 +33,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	// private _scrollLeft: number;
 
 	private oneDayModeSubscription: any;
-	private maxSchedulePercentageSubscription: any;
+	private maxScheduleWidthSubscription: any;
 
 	// private clickedCardSubject;
 	// private clickedCard$: Observable<boolean>;
@@ -68,20 +69,30 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
 			this.oneDayMode = oneDayMode;
 			this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
-			this.timeService.calcMaxSchedulePercentage(oneDayMode);
+			this.timeService.calcMaxScheduleWidth(oneDayMode);
 		});
-		this.maxSchedulePercentageSubscription = this.timeService.maxSchedulePercentage$.subscribe(maxSchedulePercentage => {
-			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxSchedulePercentage directamente
-			*  del valor retornado por calcMaxSchedulePercentage, porque esa cifra también se puede calcular a partir
+		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
+			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
+			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
 			*  del slider */
-			this.maxSchedulePercentage = maxSchedulePercentage;
+			this.maxScheduleWidth = maxScheduleWidth;
+			this.cdRef.detectChanges();
+		});
+
+		/* Observer utilizado para determinar si es necesario mostrar o no la scrollbar */
+		this.daysService.lineHeight$.subscribe((lineHeight: number) => {
+			this.displayScrollbar = this.daysService.checkDisplayScrollbar(
+				this.timeService.gridHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
+				this.timeService.today,
+				lineHeight
+			);
 			this.cdRef.detectChanges();
 		})
 	}
 
 	ngOnDestroy(): void {
 		this.oneDayModeSubscription.unsubscribe();
-		this.maxSchedulePercentageSubscription.unsubscribe();
+		this.maxScheduleWidthSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -94,6 +105,14 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._days = value;
 	}
 
+	get displayScrollbar(): boolean {
+		return this._displayScrollbar;
+	}
+
+	set displayScrollbar(value: boolean) {
+		this._displayScrollbar = value;
+	}
+
 	get oneDayMode(): boolean {
 		return this._oneDayMode;
 	}
@@ -102,12 +121,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._oneDayMode = value;
 	}
 
-	get maxSchedulePercentage(): number {
-		return this._maxSchedulePercentage;
+	get maxScheduleWidth(): number {
+		return this._maxScheduleWidth;
 	}
 
-	set maxSchedulePercentage(value: number) {
-		this._maxSchedulePercentage = value;
+	set maxScheduleWidth(value: number) {
+		this._maxScheduleWidth = value;
 	}
 
 	get maxScheduleHours(): number[] {
@@ -119,12 +138,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
-
-	// get hourPercentage$() {
-	// 	// console.log('PERCENTAGE WIDTH', Object.values(this.timeService.maxTodayScheduleHours)[0].length * 33);
-	// 	// return Object.values(this.timeService.maxTodayScheduleHours)[0].length * 33;
-	// 	return this.timeService.hourPercentage$;
-	// }
 
 	trackByDay(index, item) {
 		return item

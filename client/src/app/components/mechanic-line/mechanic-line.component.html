@@ -3,11 +3,14 @@
 	<div class="h-100 d-flex schedule-line"
 		 appDropzone
 		 [mechanic]="mechanic"
-		 *ngFor="let percentage of getSchedulePercentages(); let i = index"
-		[ngStyle]="{'width.%': percentage, 'left.%': getLeftPercentages()[i]}">
+		 *ngFor="let duration of mechanic.schedule.minutes; let i = index"
+		 [ngStyle]="{
+		 	'width.px': calcScheduleWidth(duration),
+		 	'left.px': calcScheduleLeft(mechanic.schedule.thresholds[i*2]),
+		 	'background': calcScheduleLineBackground(mechanic.schedule.quarters[i])
+		}">
 		<div *ngFor="let quarter of mechanic.schedule.quarters[i]; trackBy: trackByItem"
-			 class="flex-grow-1 flex-basis-0 d-flex border-right border-semi-dark"
-			 [ngClass]="{'border-right-2': quarter == 45}">
+			 class="flex-grow-1 flex-basis-0 d-flex quarter">
 		</div>
 	</div>
 	<app-draggable-group

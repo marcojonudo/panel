@@ -5,15 +5,20 @@ import {Mechanic} from "../objects/mechanic";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Subject} from "rxjs/internal/Subject";
+import {TimeService} from "./time.service";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class DaysService {
 
+	private readonly MECHANIC_BOTTOM_MARGIN: number = 10;
+	private readonly TIMELINE_HEIGHT: number = 30;
+
 	private oneDayMode: boolean;
 	private _lineHeight: number;
 	private sliceDays: number;
+	// private _displayScrollbar: boolean;
 
 	private _days: Date[];
 	private _mechanics: Mechanic[];
@@ -145,6 +150,22 @@ export class DaysService {
 		// this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
 		this.oneDayModeSubject.next(this.oneDayMode);
 		// this.lineHeightSubject.next(this.lineHeight);
+	}
+
+	checkDisplayScrollbar(
+		gridHeight: number,
+		today: Date,
+		lineHeight: number,
+		daysMechanics: any = this.daysMechanics,
+		oneDayMode: boolean = this.oneDayMode
+	): boolean {
+		const mechanics = oneDayMode ? daysMechanics[today.getTime()] : [].concat(...Object.values(daysMechanics));
+		const mechanicsHeight =
+			UtilsService.sum(mechanics, 'lines') * lineHeight +
+			mechanics.length * (this.MECHANIC_BOTTOM_MARGIN + 4) +
+			this.TIMELINE_HEIGHT
+		;
+		return gridHeight < mechanicsHeight;
 	}
 
 	get lineHeightDefault() {
