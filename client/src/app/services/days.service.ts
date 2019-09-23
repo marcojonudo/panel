@@ -155,7 +155,7 @@ export class DaysService {
 	checkDisplayScrollbar(
 		gridHeight: number,
 		today: Date,
-		lineHeight: number,
+		lineHeight: number = this.lineHeight,
 		daysMechanics: any = this.daysMechanics,
 		oneDayMode: boolean = this.oneDayMode
 	): boolean {

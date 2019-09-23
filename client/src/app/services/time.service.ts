@@ -43,13 +43,11 @@ export class TimeService {
 	private maxScheduleMaxWidthSubject: BehaviorSubject<number>;
 	private _maxScheduleMaxWidth$: Observable<number>;
 
-	constructor() {
+	constructor(
+		private daysService: DaysService
+	) {
 		// TODO Evitar error cuando no hay horario en today
 		this.today = UtilsService.clearTime(new Date());
-
-		/* Antes de cargar la información de los horarios, se pueden calcular los porcentajes que ocupan el hueco
-		*  izquierdo (los 180px de la info del mecánico) y la hora (4 por defecto en el hueco del grid) */
-		this.initWidthValues();
 
 		this.maxScheduleWidthSubject = new BehaviorSubject<number>(this.maxScheduleWidth);
 		this.maxScheduleWidth$ = this.maxScheduleWidthSubject.asObservable();
@@ -61,15 +59,16 @@ export class TimeService {
 
 	// region Init
 
-	initWidthValues(): void {
-		// TODO Modificar scrollbarsize
-		this.gridWidth = window.innerWidth - this.RIGHT_PANEL_WIDTH - this.TOOLS_BAR_WIDTH - this.SCROLLBAR_SIZE;
-		this.minWidth = this.gridWidth - this.LEFT_OFFSET;
-		this.gridHeight = window.innerHeight - this.UNASSIGNED_BAR_HEIGHT;
-		this.calcWidthValues();
-	}
-
 	init(daysMechanics: any) {
+		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
+		this.gridHeight = this.calcGridHeight();
+		const displayScrollbar = this.daysService.checkDisplayScrollbar(this.gridHeight, this.today);
+
+		this.gridWidth = this.calcGridWidth(displayScrollbar);
+		this.minWidth = this.gridWidth - this.LEFT_OFFSET;
+
+		this.calcWidthValues();
+
 		this.initDaysSchedules(daysMechanics);
 		this.initMaxSchedule();
 	}
@@ -105,6 +104,18 @@ export class TimeService {
 
 		console.log('Max. schedule width:', this.maxScheduleWidth);
 		this.maxScheduleWidthSubject.next(this.maxScheduleWidth);
+	}
+
+	// endregion
+
+	// region Grid dimensions
+
+	calcGridHeight(scrollbar: boolean = true): number {
+		return window.innerHeight - this.UNASSIGNED_BAR_HEIGHT - (scrollbar ? this.SCROLLBAR_SIZE : 0);
+	}
+
+	calcGridWidth(scrollbar: boolean = true): number {
+		return window.innerWidth - this.RIGHT_PANEL_WIDTH - this.TOOLS_BAR_WIDTH - (scrollbar ? this.SCROLLBAR_SIZE : 0);
 	}
 
 	// endregion
@@ -225,7 +236,7 @@ export class TimeService {
 
 	// endregion
 
-	// region Width percentage
+	// region Width
 
 	calcWidthValues() {
 		this.calcHourWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
@@ -272,6 +283,14 @@ export class TimeService {
 		return (maxScheduleWidth - leftOffset) / maxScheduleHours.length;
 	}
 
+	calculateWidth(duration: number): number {
+		return this.getIntervalsNumberFromDuration(duration) * this.intervalWidth;
+	}
+
+	private getIntervalsNumberFromDuration(duration: number) {
+		return duration / this.MINUTES_PER_INTERVAL;
+	}
+
 	// endregion
 
 	// region Left
@@ -294,7 +313,7 @@ export class TimeService {
 
 	// endregion
 
-	/* ---- START ---- */
+	// region Start
 
 	calculateStart(left: number, day: Date): Date {
 		const intervals = this.getIntervalsNumberFromDimensionValue(left);
@@ -306,19 +325,9 @@ export class TimeService {
 		return this.getStartScheduleMinutes() + this.MINUTES_PER_INTERVAL * intervalsNumber;
 	}
 
-	// region Width
-
-	calculateWidth(duration: number): number {
-		return this.getIntervalsNumberFromDuration(duration) * this.intervalWidth;
-	}
-
-	private getIntervalsNumberFromDuration(duration: number) {
-		return duration / this.MINUTES_PER_INTERVAL;
-	}
-
 	// endregion
 
-	/* ---- DURATION ---- */
+	// region Duration
 
 	calculateDuration(width: number): number {
 		return this.getIntervalsNumberFromWidth(width) * this.MINUTES_PER_INTERVAL;
@@ -328,9 +337,10 @@ export class TimeService {
 		return Math.round(width / this.intervalWidth);
 	}
 
-
 	getIntervalsNumberFromDimensionValue(value: number) {
 		return Math.round(value / this.intervalWidth);
 	}
+
+	// endregion
 
 }
