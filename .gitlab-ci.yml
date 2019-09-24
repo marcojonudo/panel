@@ -1,0 +1,161 @@
+#image: alpine
+
+stages:
+    - build
+    - assemble
+    - versioning
+    - tagging
+    - docker
+#    - deploy
+
+#variables:
+#    SCRIPTS_REPO: https://gitlab.com/marco_fv/ci-scripts
+#before_script:
+#    - ls
+#    - echo $SCRIPTS_REPO
+#    - mkdir test
+#    - export SCRIPTS_DIR=test
+#    - echo $SCRIPTS_DIR
+#    - git clone -q --depth 1 "$SCRIPTS_REPO" "$SCRIPTS_DIR"
+#    - ls
+
+build:backend:
+    stage: build
+    image: gradle:alpine
+    variables:
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    tags:
+        - sidesman2
+    script:
+        - gradle --build-cache :server:build
+    cache:
+        key: "$CI_COMMIT_REF_NAME"
+        policy: push
+        paths:
+            - build
+            - .gradle
+    only:
+        - branches
+
+build:frontend:
+    stage: build
+    image: gradle:latest
+    script:
+        - gradle --build-cache buildAndCopyClientResources
+    artifacts:
+        paths:
+            - server/build/resources/client/static
+        expire_in: 1 hour
+    cache:
+        paths:
+            - node_modules/
+    only:
+        - branches
+
+assemble:jar:
+    stage: assemble
+    image: gradle:alpine
+    variables:
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    tags:
+        - sidesman2
+    dependencies:
+        - build:frontend
+    script:
+        - gradle --build-cache :server:shadowJar
+    artifacts:
+        paths:
+            - server/build/libs/*.jar
+        expire_in: 1 hour
+    cache:
+        key: "$CI_COMMIT_REF_NAME"
+        policy: push
+        paths:
+            - build
+            - .gradle
+    only:
+        - branches
+
+get-version:dev:
+    stage: versioning
+    tags:
+        - gitlab-org
+    before_script:
+        - chmod +x ./gitlab-ci-scripts/getDevVersion.sh
+    script:
+        - echo $CURRENT_VERSION
+        - ./gitlab-ci-scripts/getDevVersion.sh > version
+    artifacts:
+        paths:
+            - version
+        expire_in: 1 hour
+    only:
+        - branches
+    except:
+        - master
+#        - development
+
+get-version:merge-request:
+    stage: versioning
+    tags:
+        - gitlab-org
+    before_script:
+        - chmod +x ./gitlab-ci-scripts/getMergeRequestVersion.sh
+    script:
+        - echo $CURRENT_VERSION
+        - ./gitlab-ci-scripts/getMergeRequestVersion.sh > version
+    artifacts:
+        paths:
+            - version
+        expire_in: 1 hour
+    only:
+        - merge_requests
+
+tagging:git:
+    stage: tagging
+    tags:
+        - gitlab-org
+    dependencies:
+        - get-version:dev
+        - get-version:merge-request
+    before_script:
+        - CURRENT_VERSION=$(git describe --tags)
+        - PROJECT_VERSION=$(cat ./version)
+        - echo Updating from $CURRENT_VERSION to $PROJECT_VERSION
+        - chmod +x ./gitlab-ci-scripts/gitTag.sh
+    script:
+        - ./gitlab-ci-scripts/gitTag.sh
+    only:
+        - merge_requests
+        - branches
+
+build:docker:
+    stage: docker
+    image: docker:latest
+    services:
+        - docker:dind
+    dependencies:
+        - assemble:jar
+        - get-version:dev
+        - get-version:merge-request
+    before_script:
+        - chmod +x ./gitlab-ci-scripts/docker.sh
+    script:
+        - ./gitlab-ci-scripts/docker.sh
+    only:
+        - branches
+
+#deploy-containers:
+#    stage: deploy
+#    image: docker:latest
+#    services:
+#        - docker:dind
+#    tags:
+#        - sidesman2
+#    variables:
+#        DOCKER_HOST: tcp://sidesman2:2375
+#    script:
+#        - docker stack deploy -c docker-compose.yml -c compose-prod.yml test
+#    when: manual
+#    only:
+#        - branches

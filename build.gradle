@@ -11,19 +11,26 @@ task copyClientResources() {
 
 	doFirst {
 		copy {
-			from "${client.projectDir}/dist/panel-client"
-			into "${server.buildDir}/resources/main/static"
+			from "${client.projectDir}/dist/client"
+			into "${server.buildDir}/resources/client/static"
 		}
 	}
+}
+
+task buildAndCopyClientResources() {
+	group = 'build'
+	description = 'Build and copy client resources into server'
+	dependsOn(getTask(client, 'build'))
+	dependsOn(copyClientResources)
+	copyClientResources.mustRunAfter(getTask(client, 'build'))
 }
 
 task assembleServerAndClient() {
 	group = 'build'
 	description = 'Build server and client and generate executable JAR'
-	dependsOn(getTask(client, 'build'))
-	dependsOn(copyClientResources)
+	dependsOn(buildAndCopyClientResources)
 	dependsOn(getTask(server, 'shadowJar'))
-	getTask(server, 'shadowJar').mustRunAfter(copyClientResources.mustRunAfter(getTask(client, 'build')))
+	getTask(server, 'shadowJar').mustRunAfter(buildAndCopyClientResources)
 }
 
 task runAll() {

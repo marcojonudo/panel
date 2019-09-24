@@ -8,9 +8,9 @@ node {
 }
 
 task start(type: NpmTask, dependsOn: 'npmInstall') {
-  group = 'application'
-  description = 'Run the client app'
-  args = ['run', 'start']
+	group = 'application'
+	description = 'Run the client app'
+	args = ['run', 'start']
 }
 
 task buildDev(type: NpmTask, dependsOn: 'npmInstall') {
@@ -23,6 +23,12 @@ task build(type: NpmTask, dependsOn: 'npmInstall') {
 	group = 'build'
 	description = 'Compile client side assets for production'
 	args = ['run', 'build', '--prod']
+}
+
+task buildWatch(type: NpmTask, dependsOn: 'npmInstall') {
+	group = 'application'
+	description = 'Builds and watches the client side assets for rebuilding'
+	args = ['run', 'buildWatch']
 }
 
 task test(type: NpmTask, dependsOn: 'npmInstall') {
