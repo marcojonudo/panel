@@ -1,25 +1,6 @@
 <div
 	class="d-flex h-100 timeline"
-	[ngStyle]="{
-		background: 'repeating-linear-gradient(' +
-					'to right,' +
-					'#ffffff,' +
-					'#ffffff ' + (quarterWidth-1) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth-1) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth) + 'px,' +
-					'#ffffff ' + (quarterWidth) + 'px,' +
-					'#ffffff ' + (quarterWidth*2-1) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth*2-1) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth*2) + 'px,' +
-					'#ffffff ' + (quarterWidth*2) + 'px,' +
-					'#ffffff ' + (quarterWidth*3-1) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth*3-1) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth*3) + 'px,' +
-					'#ffffff ' + (quarterWidth*3) + 'px,' +
-					'#ffffff ' + (quarterWidth*4-2) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth*4-2) + 'px,' +
-					'#a2a2a2 ' + (quarterWidth*4) + 'px)'
-		}">
+	[ngStyle]="{background: background}">
 	<div *ngFor="let hour of maxScheduleHours" class="flex-grow-1 flex-basis-0 timeline-hour d-flex">
 		<div *ngFor="let quarter of quarters; first as isFirst"
 			class="flex-grow-1 flex-basis-0 align-center"

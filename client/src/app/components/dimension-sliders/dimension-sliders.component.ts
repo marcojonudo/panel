@@ -14,7 +14,7 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 	private _min: number;
 	private _max: number;
 	private _step: number;
-	private width: number;
+	private _width: number;
 
 	private maxScheduleWidthSubscription: any;
 	private maxScheduleMaxWidthSubscription: any;
@@ -69,6 +69,14 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 
 	set step(value: number) {
 		this._step = value;
+	}
+
+	get width(): number {
+		return this._width;
+	}
+
+	set width(value: number) {
+		this._width = value;
 	}
 
 	// endregion
