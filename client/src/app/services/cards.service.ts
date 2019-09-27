@@ -237,12 +237,11 @@ export class CardsService {
 			const cardsGroupIndex = this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].indexOf(cardsGroup);
 			this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode].splice(cardsGroupIndex, 1);
 
-			console.log('[cardsService] assignedDaysCards.next()');
-			console.time('[cardsService] assignedDaysCards.next()');
+			// console.time('[cardsService] assignedDaysCards.next()');
 			this.assignedDaysCardsGroupsSubjects[card.day.getTime()][card.mechanicCode].next(
 				this.assignedDaysCardsGroups[card.day.getTime()][card.mechanicCode]
 			);
-			console.timeEnd('[cardsService] assignedDaysCards.next()');
+			// console.timeEnd('[cardsService] assignedDaysCards.next()');
 		} else {
 			const cardsGroupIndex = this.unassignedCardsGroups.findIndex(group => group.id == cardsGroup.id);
 			this.unassignedCardsGroups = this.unassignedCardsGroups.filter((g, i) => i != cardsGroupIndex);

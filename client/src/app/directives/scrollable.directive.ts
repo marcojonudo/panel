@@ -21,8 +21,6 @@ export class ScrollableDirective implements OnInit {
 
 	private updateScrollTop: boolean;
 	private updateScrollLeft: boolean;
-	// private updatedScrollTop: boolean;
-	// private updatedScrollLeft: boolean;
 
 	private scrollTop: number;
 	private scrollLeft: number;
@@ -47,9 +45,6 @@ export class ScrollableDirective implements OnInit {
 
 		this.updateScrollTop = true;
 		this.updateScrollTop = true;
-
-		// this.updatedScrollTop = false;
-		// this.updatedScrollLeft = false;
 	}
 
 	ngOnInit() {
@@ -69,15 +64,8 @@ export class ScrollableDirective implements OnInit {
 				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
 			} else {
 				this.dragging = false;
-				// if (this.updatedScrollTop) {
 				this.cardPositionService.relativeScrollTop = 0;
-					// this.updatedScrollTop = false;
-				// }
-				// if (this.updatedScrollLeft) {
-				// 	console.log('Setting relativeScrollLeft to 0');
 				this.cardPositionService.relativeScrollLeft = 0;
-					// this.updatedScrollLeft = false
-				// }
 				if (this.pointerMoveListener) {
 					this.pointerMoveListener();
 				}
@@ -123,37 +111,15 @@ export class ScrollableDirective implements OnInit {
 			if (this.updateScrollLeft) {
 				this.setPositionScrollLeft(event.target.scrollLeft, true);
 				this.updateScrollLeft = false;
-				// console.log('Setting LEFT', this.cardPositionService.relativeScrollLeft, this.cardPositionService.relativeScrollTop);
 			}
 			if (this.updateScrollTop) {
 				this.setPositionScrollTop(event.target.scrollTop, true);
 				this.updateScrollTop = false;
-				// console.log('Setting TOP', this.cardPositionService.relativeScrollLeft, this.cardPositionService.relativeScrollTop);
 			}
 		} else {
 			this.setPositionScrollLeft(event.target.scrollLeft, false);
 			this.setPositionScrollTop(event.target.scrollTop, false);
-			// console.log('Setting all', this.cardPositionService.relativeScrollLeft, this.cardPositionService.relativeScrollTop);
 		}
-		// if (this.updateScrollLeft) {
-		// 	// const scrollLeft = event.target.scrollLeft;
-		// 	this.setPositionScrollLeft(event.target.scrollLeft);
-		//
-		// 	// console.log('scroll', scrollLeft, this.lastScrollLeft, scrollLeft - this.lastScrollLeft);
-		// 	// this.cardPositionService.scrollLeft = scrollLeft;
-		// 	// this.cardPositionService.relativeScrollLeft = scrollLeft - this.lastScrollLeft;
-		// 	// this.scrollLeft = scrollLeft;
-		//
-		// 	this.updateScrollLeft = false;
-		// }
-		// if (this.updateScrollTop) {
-		// 	const scrollTop = event.target.scrollTop;
-		//
-		// 	this.cardPositionService.relativeScrollTop = scrollTop - this.lastScrollTop;
-		// 	this.scrollTop = scrollTop;
-		//
-		// 	this.updateScrollTop = false;
-		// }
 	}
 
 	setPositionScrollLeft(scrollLeft: number, setRelative: boolean) {

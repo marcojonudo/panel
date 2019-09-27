@@ -342,7 +342,7 @@ export class CardPositionService {
 		dayMechanicCardsGroups: CardsGroup[]
 	): CardsGroup[] {
 		dayMechanicCardsGroups = dayMechanicCardsGroups.filter(group =>
-			group.cards[0].line == line && group != cardsGroup
+			group.cards[0].line == line && group.id != cardsGroup.id
 		);
 		let newCardsMinutes = this.getDurationArray(
 			this.timeService.calculateStart(cardsGroup.left, new Date()),
