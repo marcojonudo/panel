@@ -22,7 +22,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 
 	private _cardsGroups: CardsGroup[];
 
-	private _hide: boolean;
+	private _hiddenCardsGroup: CardsGroup;
 
 	private quarterBackground: any;
 
@@ -33,7 +33,6 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.cardsGroups = [];
-		this.hide = false;
 		this.quarterBackground = {
 			0: 1,
 			15: 1,
@@ -71,12 +70,12 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		this._cardsGroups = value;
 	}
 
-	get hide(): boolean {
-		return this._hide;
+	get hiddenCardsGroup(): CardsGroup {
+		return this._hiddenCardsGroup;
 	}
 
-	set hide(value: boolean) {
-		this._hide = value;
+	set hiddenCardsGroup(value: CardsGroup) {
+		this._hiddenCardsGroup = value;
 	}
 
 	get lineHeight$() {
@@ -121,9 +120,13 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 
 	}
 
-	hideGroup(hide) {
-		this.hide = hide;
+	setHiddenCardsGroup(cardsGroup: CardsGroup): void {
+		this.hiddenCardsGroup = cardsGroup;
 		this.cdRef.detectChanges();
+	}
+
+	checkHideGroup(groupId: number): boolean {
+		return this.hiddenCardsGroup ? this.hiddenCardsGroup.id == groupId : false;
 	}
 
 	trackByItem(index, item) {

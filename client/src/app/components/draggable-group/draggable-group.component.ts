@@ -15,10 +15,10 @@ import {Constants} from "../../objects/constants";
 export class DraggableGroupComponent {
 
 	@Input() cardsGroup: CardsGroup;
-	@Output() hide: EventEmitter<boolean>;
+	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
 	constructor() {
-		this.hide = new EventEmitter<boolean>();
+		this.hiddenCardsGroup = new EventEmitter();
 	}
 
 	check(): void {
@@ -27,11 +27,11 @@ export class DraggableGroupComponent {
 		}
 	}
 
-	hideComponent(hide: boolean) {
+	emitHiddenCardsGroup(cardsGroup: CardsGroup) {
 		/* En el caso de líneas de mecánicos, ocultar la ficha consiste en asignar un z-index negativo al host, en
 		*  lugar de operar sobre el template. De esta forma, se evitan problemas con el onMouseMove del dropzone (al
 		*  estar la ficha encima, aunque oculta, no se lanzaba el evento) */
-		this.hide.emit(hide);
+		this.hiddenCardsGroup.emit(cardsGroup);
 	}
 
 }

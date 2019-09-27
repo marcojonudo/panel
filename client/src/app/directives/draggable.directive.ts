@@ -24,7 +24,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 	// @Input() card: Card;
 	@Input() cardsGroup: CardsGroup;
-	@Output() hide: EventEmitter<boolean>;
+	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
 	private cardRect;
 
@@ -48,7 +48,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.dragging = false;
-		this.hide = new EventEmitter();
+		this.hiddenCardsGroup = new EventEmitter();
 
 		this.position = new Coordinates(0, 0);
 	}
@@ -66,7 +66,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.dragging = true;
 		/* Permite asignar la clase declarada mediante @HostBinding */
 		this.cdRef.detectChanges();
-		this.hide.emit(this.dragging);
+		this.hiddenCardsGroup.emit(this.cardsGroup);
 
 		this.startPosition = new Coordinates(this.cardRect.left, this.cardRect.top);
 		this.position = new Coordinates(this.cardRect.left, this.cardRect.top);
@@ -93,7 +93,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		// console.time('onPointerUp');
 		this.dragging = false;
 		this.cdRef.detectChanges();
-		this.hide.emit(this.dragging);
+		this.hiddenCardsGroup.emit(undefined);
 
 		/* Si emitHelperCard es true, se emite el evento inmediatamente en lugar de al terminar la transición en
 		*  overlay. Significa que la ficha se soltó en la barra inferior */
