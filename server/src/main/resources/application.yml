@@ -31,6 +31,8 @@ endpoints:
         enabled: true
         sensitive: false
 
+host.ip: ${HOST_IP:localhost}
+
 #endpoints:
 #    server-database-resolver:
 #        host: http://localhost

@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 @Singleton
 @CompileStatic
-@Client("http://localhost:8082/schedules")
+@Client("http://${host.ip}:8082/schedules")
 @Header(name = "database", value = "cubo")
 interface SchedulesDatabaseClient extends SchedulesDatabaseApi {
 
