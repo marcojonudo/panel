@@ -9,9 +9,9 @@
 		 	'left.px': calcScheduleLeft(mechanic.schedule.thresholds[i*2]),
 		 	'background': calcScheduleLineBackground(mechanic.schedule.quarters[i])
 		}">
-		<div *ngFor="let quarter of mechanic.schedule.quarters[i]; trackBy: trackByItem"
-			 class="flex-grow-1 flex-basis-0 d-flex quarter">
-		</div>
+		<!--<div *ngFor="let quarter of mechanic.schedule.quarters[i]; trackBy: trackByItem"-->
+			 <!--class="flex-grow-1 flex-basis-0 d-flex quarter">-->
+		<!--</div>-->
 	</div>
 	<app-draggable-group
 		*ngFor="let cardsGroup of cardsGroups"

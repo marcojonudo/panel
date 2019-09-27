@@ -57,9 +57,9 @@ export class BandComponent implements OnInit, OnDestroy {
 			if (replacedCardsGroups) {
 				this.unassignedCardsGroups = replacedCardsGroups;
 			}
-			console.time('Detect unassigned changes');
+			// console.time('Detect unassigned changes');
 			this.cdRef.detectChanges();
-			console.timeEnd('Detect unassigned changes');
+			// console.timeEnd('Detect unassigned changes');
 		});
 	}
 

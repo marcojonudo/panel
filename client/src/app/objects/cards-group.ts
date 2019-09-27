@@ -53,7 +53,7 @@ export class CardsGroup {
 	// endregion
 
 	clone(): CardsGroup {
-		let newCardsGroup = new CardsGroup(this.cards);
+		const newCardsGroup = new CardsGroup(this.cards);
 		newCardsGroup.left = this.left;
 		return newCardsGroup;
 	}

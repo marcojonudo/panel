@@ -4,6 +4,7 @@ import {Observable} from "rxjs/internal/Observable";
 import {UtilsService} from "./utils.service";
 import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
+import {CardsGroup} from "../objects/cards-group";
 
 @Injectable({
 	providedIn: 'root'
@@ -331,6 +332,10 @@ export class TimeService {
 
 	calculateDuration(width: number): number {
 		return this.getIntervalsNumberFromWidth(width) * this.MINUTES_PER_INTERVAL;
+	}
+
+	calcDuration(cardsGroup: CardsGroup): number {
+		return UtilsService.sum(cardsGroup.cards, 'duration');
 	}
 
 	private getIntervalsNumberFromWidth(width: number) {

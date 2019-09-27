@@ -82,6 +82,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		/* Observer utilizado para determinar si es necesario mostrar o no la scrollbar */
 		this.daysService.lineHeight$.subscribe((lineHeight: number) => {
 			this.displayScrollbar = this.daysService.checkDisplayScrollbar(
+				//TODO Modificar comparación de maxScheduleWidth
 				this.timeService.gridHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
 				this.timeService.today,
 				lineHeight

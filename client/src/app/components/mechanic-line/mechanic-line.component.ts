@@ -50,10 +50,9 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 				if (replacedCardsGroups) {
 					this.cardsGroups = replacedCardsGroups;
 				}
-
-				console.time('Detect assigned changes');
+				// console.time('Detect assigned changes');
 				this.cdRef.detectChanges();
-				console.timeEnd('Detect assigned changes');
+				// console.timeEnd('Detect assigned changes');
 			});
 		}
 	}

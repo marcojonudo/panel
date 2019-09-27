@@ -62,7 +62,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	}
 
 	onPointerDown(event: PointerEvent): void {
-		console.time('onPointerDown');
+		// console.time('onPointerDown');
 		this.dragging = true;
 		/* Permite asignar la clase declarada mediante @HostBinding */
 		this.cdRef.detectChanges();
@@ -78,7 +78,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 		this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
 		this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
-		console.timeEnd('onPointerDown');
+		// console.timeEnd('onPointerDown');
 	}
 
 	onPointerMove(event: PointerEvent): void {
@@ -90,7 +90,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	}
 
 	onPointerUp(): void {
-		console.time('onPointerUp');
+		// console.time('onPointerUp');
 		this.dragging = false;
 		this.cdRef.detectChanges();
 		this.hide.emit(this.dragging);
@@ -112,7 +112,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 		this.pointerMoveListener();
 		this.pointerUpListener();
-		console.timeEnd('onPointerUp');
+		// console.timeEnd('onPointerUp');
 	}
 
 	private handleDestinyPosition(): boolean {
@@ -129,6 +129,13 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 					this.timeService.intervalWidth,
 					this.cardsService.getAssignedCards(mechanic.day, mechanic.position)
 				);
+				/* Si la posición se devuelve a null, significa que no se cumplen los requisitos para depositar la
+				 * ficha: básicamente, que no cabe en el hueco (el horario es más pequeño, al desplazar las solapadas
+				 * no caben...) */
+				if (!this.position) {
+					console.log('A LA MIERDA!!!');
+					this.handleReturnStartPosition();
+				}
 			} else if (this.cardsGroup.cards[0].mechanicCode) { /* Si se suelta una ficha asignada en la bandeja inferior */
 				emitHelperCard = true;
 			} else { /* Si se suelta en la bandeja inferior sin haber salido de la misma */
