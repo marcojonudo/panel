@@ -277,8 +277,12 @@ export class CardPositionService {
 		const leftIntervals = Math.floor(this.absolutePositionToLeft(position.x) / intervalWidth);
 		const x = this.leftToAbsolutePosition(leftIntervals * intervalWidth);
 
-		const line = Math.abs(Math.round((position.y - this.getLineTop(rect.top)) / this.daysService.lineHeight));
-		const y = this.getLineTop(rect.top) + line * this.daysService.lineHeight;
+		const line = Math.abs(
+			Math.round(
+				(this.absolutePositionToTop(position.y) - this.dropzoneAbsolutePositionToTop(rect.top)) / this.daysService.lineHeight
+			)
+		);
+		const y = this.dropzoneTopToAbsolutePosition(rect.top) + line * this.daysService.lineHeight;
 		return new Coordinates(x, y, line);
 	}
 
@@ -394,10 +398,12 @@ export class CardPositionService {
 
 	// endregion
 
+	// region Absolute / relative positions
+
 	/* La posición del cursor en pantalla cuenta el eje de las X desde el inicio de la misma. Sin embargo, para hacer
 	 * cálculos relativos al horario, se deben restar los 180px de ancho que tiene la info del
 	 * mecánico */
-	absolutePositionToLeft(
+	private absolutePositionToLeft(
 		value: number,
 		initialScrollLeft: number = this.initialScrollLeft,
 		scrollLeft: number = this.scrollLeft,
@@ -406,14 +412,14 @@ export class CardPositionService {
 		return value + (relativeScrollLeft != 0 ? initialScrollLeft + relativeScrollLeft : scrollLeft) - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	dropzoneAbsolutePositionToLeft(
+	private dropzoneAbsolutePositionToLeft(
 		value: number,
 		initialScrollLeft: number = this.initialScrollLeft
 	): number {
 		return value + initialScrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	leftToAbsolutePosition(
+	private leftToAbsolutePosition(
 		value: number,
 		initialScrollLeft: number = this.initialScrollLeft,
 		scrollLeft: number = this.scrollLeft,
@@ -422,12 +428,29 @@ export class CardPositionService {
 		return value - (relativeScrollLeft != 0 ? initialScrollLeft + relativeScrollLeft : scrollLeft) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	getLineTop(
-		top: number,
+	private absolutePositionToTop(
+		value: number,
+		initialScrollTop: number = this.initialScrollTop,
 		scrollTop: number = this.scrollTop,
 		relativeScrollTop: number = this.relativeScrollTop
-	) {
-		return top - (relativeScrollTop != 0 ? relativeScrollTop : scrollTop);
+	): number {
+		return value + (relativeScrollTop != 0 ? initialScrollTop + relativeScrollTop : scrollTop);
 	}
+
+	private dropzoneAbsolutePositionToTop(
+		value: number,
+		initialScrollTop: number = this.initialScrollTop
+	): number {
+		return value + initialScrollTop;
+	}
+
+	private dropzoneTopToAbsolutePosition(
+		top: number,
+		relativeScrollTop: number = this.relativeScrollTop
+	) {
+		return top - relativeScrollTop;
+	}
+
+	// endregion
 
 }

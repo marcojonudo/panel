@@ -132,7 +132,7 @@ export class ScrollableDirective implements OnInit {
 
 	setPositionScrollTop(scrollTop: number, setRelative: boolean) {
 		this.scrollTop = scrollTop;
-		this.cardPositionService.scrollTop = this.scrollTop - this.lastScrollTop;
+		this.cardPositionService.scrollTop = this.scrollTop;
 		if (setRelative) {
 			this.cardPositionService.relativeScrollTop = this.scrollTop - this.lastScrollTop;
 		}
