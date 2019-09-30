@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
+import panel.pogos.CompleteInfo
 import panel.pogos.UpdateCards
 import panel.utils.Constants
 import utils.pogos.fviberi.Article
@@ -13,6 +14,7 @@ import utils.pogos.fviberi.Order
 import utils.pogos.panel.Card
 import utils.pogos.panel.Group
 import utils.pogos.panel.GroupUnits
+import utils.pogos.panel.JobLineType
 import utils.pogos.panel.Task
 import utils.pogos.schedules.EmployeeSchedule
 
@@ -36,7 +38,8 @@ class PanelService {
 		this.schedulesDatabaseClient = schedulesDatabaseClient
 	}
 
-	Map getPanelInfo(Date day = new Date()) {
+	CompleteInfo getPanelInfo(Date day = new Date()) {
+		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes().collect { (JobLineType) it }
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
@@ -46,7 +49,7 @@ class PanelService {
 
 		UpdateCards updateCards = syncOrders(orders, dayCards)
 		List<Card> cards = saveCards(updateCards)
-		return [daysMechanics: daysMechanics, cards: cards + updateCards.sameCards]
+		return new CompleteInfo(daysMechanics, jobLineTypes, cards + updateCards.sameCards)
 	}
 
 	// region Mechanics

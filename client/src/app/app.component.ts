@@ -9,6 +9,7 @@ import {TimeService} from "./services/time.service";
 import {environment} from "../environments/environment";
 import {Mechanic} from "./objects/mechanic";
 import {Constants} from "./objects/constants";
+import {CommonService} from "./services/common.service";
 
 @Component({
 	selector: 'app-root',
@@ -26,6 +27,7 @@ export class AppComponent implements AfterViewInit {
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private cardsService: CardsService,
+		private commonService: CommonService,
 		private http: HttpClient
 	) {
 		this.loading = true;
@@ -33,11 +35,13 @@ export class AppComponent implements AfterViewInit {
 			.subscribe((data: any) => {
 				console.log(data);
 
-				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics);
-				daysService.init(daysMechanicsList);
-				timeService.init(this.daysService.daysMechanics);
+				this.commonService.init(data.jobLineTypes);
 
-				cardsService.init(data.cards.map(card => new Card(card)));
+				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics);
+				this.daysService.init(daysMechanicsList);
+				this.timeService.init(this.daysService.daysMechanics);
+
+				this.cardsService.init(data.cards.map(card => new Card(card)));
 
 				this.loading = false;
 				this.cdRef.detectChanges();

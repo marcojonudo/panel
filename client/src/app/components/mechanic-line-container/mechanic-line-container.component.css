@@ -10,7 +10,7 @@
 	position: sticky;
 	left: 0;
 	z-index: 2;
-	height: 76px;
+	background-color: #ffffff;
 }
 
 .resizable {

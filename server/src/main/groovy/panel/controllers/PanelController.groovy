@@ -3,6 +3,7 @@ package panel.controllers
 import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import panel.pogos.CompleteInfo
 import panel.services.PanelService
 
 @CompileStatic
@@ -16,8 +17,8 @@ class PanelController {
 	}
 
 	@Get("/get")
-	Map get() {
-		Map panelInfo = panelService.getPanelInfo()
+	CompleteInfo get() {
+		CompleteInfo panelInfo = panelService.getPanelInfo()
 		return panelInfo
 	}
 

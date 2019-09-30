@@ -15,6 +15,14 @@ export class MechanicLineContainerComponent {
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
 
+	// region Getters / setters
+
+	get mechanicInfoWidth() {
+		return Constants.VALUE.MECHANIC_INFO_WIDTH;
+	}
+
+	// endregion
+
 	check() {
 		if (Constants.CHECK) {
 			console.log('checking mechanic line container', this.mechanic, this.day)

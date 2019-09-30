@@ -17,7 +17,6 @@ import {DayPanelComponent} from './components/day-panel/day-panel.component';
 import {DimensionSlidersComponent} from './components/dimension-sliders/dimension-sliders.component';
 
 import {TimeService} from "./services/time.service";
-import {DaysPanelsService} from "./services/days-panels.service";
 
 import {DaysPipe} from './pipes/days.pipe'
 
@@ -86,8 +85,7 @@ import {ToolsBarComponent} from './components/tools-bar/tools-bar.component';
 		FormsModule
 	],
 	providers: [
-		TimeService,
-		DaysPanelsService
+		TimeService
 	],
 	bootstrap: [AppComponent]
 })

@@ -22,6 +22,9 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	@Get("/cards")
 	List<Map> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day)
 
+	@Get("/jobLineTypes")
+	List<Map> getJobLineTypes()
+
 	@Post("/durations")
 	Map<Integer, List<Map>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 
