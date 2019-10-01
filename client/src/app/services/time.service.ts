@@ -266,7 +266,7 @@ export class TimeService {
 	}
 
 	calcMaxScheduleWidth(oneDayMode: boolean): void {
-		this.updateMaxScheduleWidth(oneDayMode ? this.maxScheduleMaxWidth : 100);
+		this.updateMaxScheduleWidth(oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth);
 	}
 
 	updateMaxScheduleWidth(value: number) {

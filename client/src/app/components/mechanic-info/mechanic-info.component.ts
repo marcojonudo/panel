@@ -28,6 +28,7 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
+			// TODO Añadir detectChanges
 			this.oneDayMode = oneDayMode;
 		})
 	}
