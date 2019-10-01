@@ -11,16 +11,12 @@
 	overflow: hidden;
 }
 
-.ability-container {
-	padding: 2px;
-}
-
-.ability {
-	width: 23px;
-	height: 23px;
-	background-color: yellow;
+.skill {
+	width: 27px;
+	height: 27px;
 	font-size: .6em;
 	font-weight: bold;
+	background-color: #e1e1e1;
 }
 
 .mechanic-position {

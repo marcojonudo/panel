@@ -71,7 +71,14 @@ export class AppComponent implements AfterViewInit {
 			const mechanics = daysMechanics[dayString];
 			daysMechanicsList.push(
 				{day: day, mechanics: mechanics.map(mechanic =>
-						new Mechanic(day, mechanic.panelPosition, mechanic.employee, mechanic.schedule, mechanic.lines)
+						new Mechanic(
+							day,
+							mechanic.panelPosition,
+							mechanic.employee,
+							mechanic.schedule,
+							mechanic.lines,
+							this.commonService.highlightedSkills
+						)
 					)
 				}
 			);

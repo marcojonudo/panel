@@ -14,4 +14,9 @@ export class Constants {
 	public static MORNING = 'MORNING';
 	public static AFTERNOON = 'AFTERNOON';
 	public static CHECK: boolean = false;
+	public static SKILL_EXPERTISE_LEVEL: any = {
+		LOW: 1,
+		MEDIUM: 2,
+		HIGH: 3
+	}
 }

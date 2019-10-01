@@ -11,19 +11,11 @@
 			</option>
 		</select>
 	</div>
-	<div class="w-75 h-75 d-flex flex-wrap">
-		<div class="w-100 d-flex justify-content-around align-items-center">
-			<div class="rounded-circle ability align-center">N</div>
-			<div class="rounded-circle ability align-center">AC</div>
-			<div class="rounded-circle ability align-center">AL</div>
-			<div class="rounded-circle ability align-center">FR</div>
-		</div>
-		<div class="w-100 d-flex justify-content-around align-items-center">
-			<div class="rounded-circle ability align-center">AM</div>
-			<div class="rounded-circle ability align-center">DIS</div>
-			<div class="rounded-circle ability align-center">ENG</div>
-			<div class="rounded-circle ability align-center">AA</div>
-		</div>
+	<div class="w-75 h-75 d-flex flex-wrap align-items-center justify-content-between">
+		<div
+			*ngFor="let skill of mechanic.highlightedSkills"
+			class="rounded-circle skill align-center"
+			[ngStyle]="getSkillColorObject(skill)">{{skill.code}}</div>
 	</div>
 	<div class="w-25 h-75 d-flex flex-wrap">
 		<div class="w-100 h-65 align-center mechanic-position" (click)="test()">{{mechanic.position}}</div>

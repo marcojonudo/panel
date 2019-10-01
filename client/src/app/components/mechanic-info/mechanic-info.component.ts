@@ -4,6 +4,7 @@ import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
 import {JobLineType} from "../../objects/job-line-type";
 import {CommonService} from "../../services/common.service";
+import {Skill} from "../../objects/skill";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -46,6 +47,11 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
+
+	getSkillColorObject(skill: Skill): any {
+		return skill.expertise && skill.expertise != Constants.SKILL_EXPERTISE_LEVEL.LOW ?
+			{'background-color': skill.backgroundColor, 'color': skill.color} : undefined;
+	}
 
 	test(type: string) {
 		console.log('test', type);
