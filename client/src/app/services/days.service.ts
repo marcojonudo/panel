@@ -21,7 +21,6 @@ export class DaysService {
 	// private _displayScrollbar: boolean;
 
 	private _days: Date[];
-	private _mechanics: Mechanic[];
 
 	private _daysMechanics: any;
 
@@ -61,14 +60,6 @@ export class DaysService {
 
 	set days(value: Date[]) {
 		this._days = value;
-	}
-
-	get mechanics() {
-		return this._mechanics;
-	}
-
-	set mechanics(mechanics: Mechanic[]) {
-		this._mechanics = mechanics
 	}
 
 	get lineHeight$(): Observable<number> {
@@ -135,7 +126,7 @@ export class DaysService {
 		this.daysMechanics$ = {};
 
 		for (let dayTime in daysMechanics) {
-			const subject = new BehaviorSubject<Mechanic[]>(daysMechanics[dayTime]);
+			const subject = new Subject<Mechanic[]>();
 			const observable = subject.asObservable();
 
 			this.daysMechanicsSubjects[dayTime] = subject;
@@ -168,17 +159,16 @@ export class DaysService {
 		return gridHeight < mechanicsHeight;
 	}
 
-	get lineHeightDefault() {
-		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
-	}
-
-	get lineHeightNarrow() {
-		return Constants.VALUE.LINE_HEIGHT_NARROW;
-	}
-
 	updateMechanicLines(mechanic: Mechanic): void {
 		mechanic.lines = Math.round(mechanic.height / this.lineHeight);
 		console.log(mechanic);
+	}
+
+	removeMechanic(day: Date, position: string) {
+		this.daysMechanics[day.getTime()] = this.daysMechanics[day.getTime()].filter(mechanic => {
+			return mechanic.position != position;
+		});
+		this.daysMechanicsSubjects[day.getTime()].next(this.daysMechanics[day.getTime()]);
 	}
 
 }

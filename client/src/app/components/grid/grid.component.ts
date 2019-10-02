@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {DaysService} from "../../services/days.service";
 import {Mechanic} from "../../objects/mechanic";
@@ -20,27 +20,43 @@ export class GridComponent implements OnInit, OnDestroy {
 	private mechanicsSubscription: any;
 
 	constructor(
-		private daysService: DaysService
-	) {
-	}
+		private daysService: DaysService,
+		private cdRef: ChangeDetectorRef
+	) {}
 
 	ngOnInit(): void {
-		// this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()].subscribe(mechanics => {
-		// 	this.mechanics = mechanics;
-		// });
+		this.mechanics = this.daysService.daysMechanics[this.day.getTime()];
+		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()].subscribe(mechanics => {
+			const removedMechanicIndex = this.mechanics.findIndex(mechanic =>
+				!mechanics.find(m => m.position == mechanic.position)
+			);
+			let prevPosition = this.mechanics[removedMechanicIndex].position;
+			this.mechanics.splice(removedMechanicIndex, 1);
+
+			for (let i = removedMechanicIndex; i < this.mechanics.length; i++) {
+				const newPosition = this.mechanics[i].position;
+				this.mechanics[i].position = prevPosition;
+				prevPosition = newPosition;
+			}
+			this.cdRef.detectChanges();
+		});
 	}
 
 	ngOnDestroy(): void {
-		// this.mechanicasSubscription.unsubscribe();
+		this.mechanicsSubscription.unsubscribe();
 	}
 
+	// region Getters / setters
+
 	get mechanics(): Mechanic[] {
-		return this.daysService.daysMechanics$[this.day.getTime()];
+		return this._mechanics;
 	}
 
 	set mechanics(value: Mechanic[]) {
 		this._mechanics = value;
 	}
+
+	// endregion
 
 	drop(event: CdkDragDrop<string[]>) {
 		moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);

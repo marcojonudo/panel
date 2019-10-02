@@ -14,10 +14,11 @@
 	<!--[style.height.px]="(oneDayMode$ | async) ? lineHeightDefault : lineHeightNarrow"-->
 	<!--[mechanic]="mechanic"></app-mechanic-line-container>-->
 	<app-mechanic-line-container
-		*ngFor="let mechanic of (mechanics | async)"
+		*ngFor="let mechanic of mechanics"
 		class="mechanic-line-container-wrapper"
 		[day]="day"
 		[mechanic]="mechanic"
+		[position]="mechanic.position"
 		[maxScheduleHours]="maxScheduleHours"></app-mechanic-line-container>
 </div>
 <div>{{check()}}</div>

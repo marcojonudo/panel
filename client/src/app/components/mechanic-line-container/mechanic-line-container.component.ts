@@ -11,6 +11,7 @@ import {Constants} from "../../objects/constants";
 export class MechanicLineContainerComponent {
 
 	@Input() mechanic: Mechanic;
+	@Input() position: string;
 	// @Input() cards: any[];
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];

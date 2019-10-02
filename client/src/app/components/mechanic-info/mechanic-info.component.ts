@@ -14,7 +14,9 @@ import {Skill} from "../../objects/skill";
 })
 export class MechanicInfoComponent implements OnInit, OnDestroy {
 
+	@Input() day: Date;
 	@Input() mechanic: Mechanic;
+	@Input() position: string;
 
 	private oneDayMode: boolean;
 	private oneDayModeSubscription: any;
@@ -52,6 +54,10 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	getSkillColorObject(skill: Skill): any {
 		return skill.expertise && skill.expertise != Constants.SKILL_EXPERTISE_LEVEL.LOW ?
 			{'background-color': skill.backgroundColor, 'color': skill.color} : undefined;
+	}
+
+	removeMechanic(position: string) {
+		this.daysService.removeMechanic(this.day, position);
 	}
 
 	test(type: string) {
