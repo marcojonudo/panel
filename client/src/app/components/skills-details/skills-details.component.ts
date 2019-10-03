@@ -34,7 +34,7 @@ export class SkillsDetailsComponent implements OnInit {
 			this.skills = skills;
 			this.skillsPanelWidth = this.skills.length ? this.DEFAULT_WIDTH : 0;
 			this.cdRef.detectChanges();
-		})
+		});
 	}
 
 	// region Getters / setters

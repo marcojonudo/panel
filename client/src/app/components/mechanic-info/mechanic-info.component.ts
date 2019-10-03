@@ -18,6 +18,8 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	@Input() mechanic: Mechanic;
 	@Input() position: string;
 
+	private skillsSubscription: any;
+
 	private _oneDayMode: boolean;
 	private oneDayModeSubscription: any;
 	private _highlightMechanic: boolean;
@@ -35,11 +37,18 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
 			// TODO Añadir detectChanges
 			this.oneDayMode = oneDayMode;
-		})
+		});
+		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
+			if (!(skills.length && this.mechanic.skills == skills)) {
+				this.highlightMechanic = false;
+				this.cdRef.detectChanges();
+			}
+		});
 	}
 
 	ngOnDestroy(): void {
 		this.oneDayModeSubscription.unsubscribe();
+		this.skillsSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -80,8 +89,8 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	}
 
 	showSkills(skills: Skill[]) {
-		this.highlightMechanic = true;
-		this.commonService.emitSkills(skills);
+		this.highlightMechanic = !this.highlightMechanic;
+		this.commonService.emitSkills(this.highlightMechanic ? skills : []);
 		this.cdRef.detectChanges();
 	}
 
