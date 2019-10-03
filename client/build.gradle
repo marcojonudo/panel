@@ -16,13 +16,13 @@ task start(type: NpmTask, dependsOn: 'npmInstall') {
 task buildDev(type: NpmTask, dependsOn: 'npmInstall') {
 	group = 'build'
 	description = 'Compile client side assets for development'
-	args = ['run', 'build']
+	args = ['run', 'buildDev']
 }
 
 task build(type: NpmTask, dependsOn: 'npmInstall') {
 	group = 'build'
 	description = 'Compile client side assets for production'
-	args = ['run', 'build', '--prod']
+	args = ['run', 'build']
 }
 
 task buildWatch(type: NpmTask, dependsOn: 'npmInstall') {
