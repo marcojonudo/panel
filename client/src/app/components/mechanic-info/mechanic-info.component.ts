@@ -18,9 +18,9 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	@Input() mechanic: Mechanic;
 	@Input() position: string;
 
-	private oneDayMode: boolean;
+	private _oneDayMode: boolean;
 	private oneDayModeSubscription: any;
-	private highlightMechanic: boolean;
+	private _highlightMechanic: boolean;
 
 	constructor(
 		private daysService: DaysService,
@@ -43,6 +43,22 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	}
 
 	// region Getters / setters
+
+	get oneDayMode(): boolean {
+		return this._oneDayMode;
+	}
+
+	set oneDayMode(value: boolean) {
+		this._oneDayMode = value;
+	}
+
+	get highlightMechanic(): boolean {
+		return this._highlightMechanic;
+	}
+
+	set highlightMechanic(value: boolean) {
+		this._highlightMechanic = value;
+	}
 
 	get jobLineTypes(): JobLineType[] {
 		return this.commonService.jobLineTypes;

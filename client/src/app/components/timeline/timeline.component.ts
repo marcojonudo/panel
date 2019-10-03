@@ -30,20 +30,20 @@ export class TimelineComponent implements OnInit, OnDestroy {
 	) {
 		this.background = `repeating-linear-gradient(
 			to right,
-			#e1e1e1,
-			#e1e1e1 ${this.quarterWidth - 1}px,
+			#ffffff,
+			#ffffff ${this.quarterWidth - 1}px,
 			#a2a2a2 ${this.quarterWidth - 1}px,
 			#a2a2a2 ${this.quarterWidth}px,
-			#e1e1e1 ${this.quarterWidth}px,
-			#e1e1e1 ${this.quarterWidth*2-1}px,
+			#ffffff ${this.quarterWidth}px,
+			#ffffff ${this.quarterWidth*2-1}px,
 			#a2a2a2 ${this.quarterWidth*2-1}px,
 			#a2a2a2 ${this.quarterWidth*2}px,
-			#e1e1e1 ${this.quarterWidth*2}px,
-			#e1e1e1 ${this.quarterWidth*3-1}px,
+			#ffffff ${this.quarterWidth*2}px,
+			#ffffff ${this.quarterWidth*3-1}px,
 			#a2a2a2 ${this.quarterWidth*3-1}px,
 			#a2a2a2 ${this.quarterWidth*3}px,
-			#e1e1e1 ${this.quarterWidth*3}px,
-			#e1e1e1 ${this.quarterWidth*4-2}px,
+			#ffffff ${this.quarterWidth*3}px,
+			#ffffff ${this.quarterWidth*4-2}px,
 			#a2a2a2 ${this.quarterWidth*4-2}px,
 			#a2a2a2 ${this.quarterWidth*4}px
 		)`;
@@ -89,7 +89,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 	}
 
 	get quarterWidth(): number {
-		return parseInt((this.timeService.intervalWidth * 3).toFixed(2));
+		return parseFloat((this.timeService.intervalWidth * 3).toFixed(2));
 	}
 
 	get background(): string {
