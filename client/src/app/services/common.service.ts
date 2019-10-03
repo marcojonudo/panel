@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import {JobLineType} from "../objects/job-line-type";
 import {Skill} from "../objects/skill";
+import {Observable} from "rxjs/internal/Observable";
+import {Subject} from "rxjs/internal/Subject";
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +11,9 @@ export class CommonService {
 
 	private _jobLineTypes: JobLineType[];
 	private _highlightedSkills: Skill[];
+
+	private skillsSubject: Subject<Skill[]>;
+	private _skills$: Observable<Skill[]>;
 
 	constructor() {
 		this.highlightedSkills = [
@@ -21,6 +26,9 @@ export class CommonService {
 			new Skill({name: 'Otras op. pesadas', code: 'ENG', backgroundColor: '#0000FF', color: '#FFFFFF'}),
 			new Skill({name: 'Aire acondicionado', code: 'AA', backgroundColor: '#000000', color: '#FFFFFF'})
 		];
+
+		this.skillsSubject = new Subject<Skill[]>();
+		this.skills$ = this.skillsSubject.asObservable();
 	}
 
 	// region Init
@@ -32,7 +40,7 @@ export class CommonService {
 
 	// endregion
 
-	// Getters / setters
+	// region Getters / setters
 
 	get jobLineTypes(): JobLineType[] {
 		return this._jobLineTypes;
@@ -50,6 +58,18 @@ export class CommonService {
 		this._highlightedSkills = value;
 	}
 
+	get skills$(): Observable<Skill[]> {
+		return this._skills$;
+	}
+
+	set skills$(value: Observable<Skill[]>) {
+		this._skills$ = value;
+	}
+
 	// endregion
+
+	emitSkills(skills: Skill[]): void {
+		this.skillsSubject.next(skills);
+	}
 
 }

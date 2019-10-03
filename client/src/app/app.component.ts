@@ -37,7 +37,7 @@ export class AppComponent implements AfterViewInit {
 
 				this.commonService.init(data.jobLineTypes);
 
-				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics);
+				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics, data.skills);
 				this.daysService.init(daysMechanicsList);
 				this.timeService.init(this.daysService.daysMechanics);
 
@@ -64,7 +64,7 @@ export class AppComponent implements AfterViewInit {
 
 	// endregion
 
-	parseDaysMechanics(daysMechanics: any) {
+	parseDaysMechanics(daysMechanics: any, skills: any[]) {
 		let daysMechanicsList = [];
 		for (const dayString of Object.keys(daysMechanics)) {
 			const day = UtilsService.parseDateFromString(dayString);
@@ -77,6 +77,7 @@ export class AppComponent implements AfterViewInit {
 							mechanic.employee,
 							mechanic.schedule,
 							mechanic.lines,
+							skills,
 							this.commonService.highlightedSkills
 						)
 					)

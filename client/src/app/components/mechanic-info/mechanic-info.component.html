@@ -11,7 +11,9 @@
 			</option>
 		</select>
 	</div>
-	<div class="w-75 h-75 d-flex flex-wrap align-items-center justify-content-between">
+	<div
+		class="w-75 h-75 d-flex flex-wrap align-items-center justify-content-between"
+		(click)="showSkills(mechanic.skills)">
 		<div
 			*ngFor="let skill of mechanic.highlightedSkills"
 			class="rounded-circle skill align-center"

@@ -60,6 +60,10 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		this.daysService.removeMechanic(this.day, position);
 	}
 
+	showSkills(skills: Skill[]) {
+		this.commonService.emitSkills(skills);
+	}
+
 	test(type: string) {
 		console.log('test', type);
 	}

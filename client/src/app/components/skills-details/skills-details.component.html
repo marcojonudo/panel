@@ -1,0 +1,16 @@
+<div class="h-100"
+	 [ngClass]="{'border-left-2 border-semi-dark': skillsPanelWidth != 0}"
+	 [style.width.px]="skillsPanelWidth">
+
+	<div class="w-100 h-100 d-flex flex-column skills-container">
+		<div *ngFor="let skill of skills" class="h-auto">
+			<div class="parent-skill pl-1 pt-1 pb-1 border-bottom">{{skill.name}}</div>
+			<div *ngFor="let child of skill.children" class="child-skill pl-2 border-bottom d-flex align-items-center">
+				<div class="mr-auto">{{child.name}}</div>
+				<div
+					class="rounded-circle skill-expertise-color mr-1"
+					[style.background-color]="getSkillExpertiseColor(child)"></div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,17 @@
+.skills-container {
+	overflow-y: auto;
+}
+
+.parent-skill {
+	font-weight: bold;
+	background-color: #e1e1e1;
+}
+
+.child-skill {
+	font-size: .9em;
+}
+
+.skill-expertise-color {
+	width: 15px;
+	height: 15px;
+}

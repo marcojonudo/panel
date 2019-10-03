@@ -6,17 +6,15 @@ import org.slf4j.LoggerFactory
 import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
+import panel.clients.skills.SkillsDatabaseClient
 import panel.pogos.CompleteInfo
 import panel.pogos.UpdateCards
 import panel.utils.Constants
 import utils.pogos.fviberi.Article
 import utils.pogos.fviberi.Order
-import utils.pogos.panel.Card
-import utils.pogos.panel.Group
-import utils.pogos.panel.GroupUnits
-import utils.pogos.panel.JobLineType
-import utils.pogos.panel.Task
+import utils.pogos.panel.*
 import utils.pogos.schedules.EmployeeSchedule
+import utils.pogos.skills.Skill
 
 import javax.inject.Singleton
 
@@ -29,17 +27,22 @@ class PanelService {
 	PanelDatabaseClient panelDatabaseClient
 	FviberiDatabaseClient fviberiDatabaseClient
 	SchedulesDatabaseClient schedulesDatabaseClient
+	SkillsDatabaseClient skillsDatabaseClient
 
 	PanelService(PanelDatabaseClient panelDatabaseClient,
 	             FviberiDatabaseClient fviberiDatabaseClient,
-	             SchedulesDatabaseClient schedulesDatabaseClient) {
+	             SchedulesDatabaseClient schedulesDatabaseClient,
+	             SkillsDatabaseClient skillsDatabaseClient
+	) {
 		this.panelDatabaseClient = panelDatabaseClient
 		this.fviberiDatabaseClient = fviberiDatabaseClient
 		this.schedulesDatabaseClient = schedulesDatabaseClient
+		this.skillsDatabaseClient = skillsDatabaseClient
 	}
 
 	CompleteInfo getPanelInfo(Date day = new Date()) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes().collect { (JobLineType) it }
+		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills().collect { (Skill) it }
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
@@ -49,7 +52,7 @@ class PanelService {
 
 		UpdateCards updateCards = syncOrders(orders, dayCards)
 		List<Card> cards = saveCards(updateCards)
-		return new CompleteInfo(daysMechanics, jobLineTypes, cards + updateCards.sameCards)
+		return new CompleteInfo(daysMechanics, skills, jobLineTypes, cards + updateCards.sameCards)
 	}
 
 	// region Mechanics

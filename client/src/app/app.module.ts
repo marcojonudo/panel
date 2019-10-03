@@ -42,6 +42,7 @@ import {HttpClientModule} from "@angular/common/http";
 import {SpinnerComponent} from './components/spinner/spinner.component';
 import {FormsModule} from "@angular/forms";
 import {ToolsBarComponent} from './components/tools-bar/tools-bar.component';
+import {SkillsDetailsComponent} from './components/skills-details/skills-details.component';
 
 @NgModule({
 	declarations: [
@@ -71,7 +72,8 @@ import {ToolsBarComponent} from './components/tools-bar/tools-bar.component';
 		ResizableLineDirective,
 		ResizableCardDirective,
 		SpinnerComponent,
-		ToolsBarComponent
+		ToolsBarComponent,
+		SkillsDetailsComponent
 	],
 	imports: [
 		BrowserModule,
