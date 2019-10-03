@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DaysService} from "../../services/days.service";
 import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
@@ -20,12 +20,15 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 
 	private oneDayMode: boolean;
 	private oneDayModeSubscription: any;
+	private highlightMechanic: boolean;
 
 	constructor(
 		private daysService: DaysService,
-		private commonService: CommonService
+		private commonService: CommonService,
+		private cdRef: ChangeDetectorRef
 	) {
 		this.oneDayMode = true;
+		this.highlightMechanic = false;
 	}
 
 	ngOnInit(): void {
@@ -61,11 +64,9 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	}
 
 	showSkills(skills: Skill[]) {
+		this.highlightMechanic = true;
 		this.commonService.emitSkills(skills);
-	}
-
-	test(type: string) {
-		console.log('test', type);
+		this.cdRef.detectChanges();
 	}
 
 	check() {

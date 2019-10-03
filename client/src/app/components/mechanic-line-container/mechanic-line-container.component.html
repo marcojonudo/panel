@@ -1,10 +1,15 @@
 <div class="d-flex align-items-center mechanic-line-container"
 	 [style.height.px]="mechanic.height">
-	<div
-		class="h-100 mechanic-info-container d-flex align-items-center border-right-2 border-semi-dark"
-		[style.width.px]="mechanicInfoWidth">
-		<app-mechanic-info [day]="day" [mechanic]="mechanic" [position]="position"></app-mechanic-info>
-	</div>
+	<!--<div-->
+		<!--class="h-100 mechanic-info-container d-flex align-items-center border-right-2 border-semi-dark"-->
+		<!--[style.width.px]="mechanicInfoWidth">-->
+		<app-mechanic-info
+			class="h-100 mechanic-info-container"
+			[style.width.px]="mechanicInfoWidth"
+			[day]="day"
+			[mechanic]="mechanic"
+			[position]="position"></app-mechanic-info>
+	<!--</div>-->
 	<app-mechanic-line [day]="day"
 					   [mechanic]="mechanic"
 					   [maxScheduleHours]="maxScheduleHours"

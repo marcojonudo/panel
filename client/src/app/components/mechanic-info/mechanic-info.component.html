@@ -1,50 +1,54 @@
 <div
-	*ngIf="oneDayMode; else minLayout"
-	class="d-flex flex-wrap mechanic-info default-width"
-	[style.height.px]="defaultHeight">
-	<div class="w-75 h-25 d-flex align-items-center mechanic-name pl-1">{{mechanic.personalData.completeName}}</div>
-	<div class="w-25 h-25">
-		<select class="w-100 h-100 align-center job-line-type-select" (change)="test($event.target.value)">
-			<option></option>
-			<option *ngFor="let jobLineType of jobLineTypes" value="{{jobLineType.code}}">
-				{{jobLineType.code}}
-			</option>
-		</select>
-	</div>
+	class="h-100 d-flex align-items-center border-right-2 border-semi-dark"
+	[ngClass]="{'mechanic-info-highlight': highlightMechanic}">
 	<div
-		class="w-75 h-75 d-flex flex-wrap align-items-center justify-content-between"
-		(click)="showSkills(mechanic.skills)">
+		*ngIf="oneDayMode; else minLayout"
+		class="d-flex flex-wrap"
+		[style.height.px]="defaultHeight">
+		<div class="w-75 h-25 d-flex align-items-center mechanic-name pl-1">{{mechanic.personalData.completeName}}</div>
+		<div class="w-25 h-25">
+			<select class="w-100 h-100 align-center job-line-type-select" (change)="test($event.target.value)">
+				<option></option>
+				<option *ngFor="let jobLineType of jobLineTypes" value="{{jobLineType.code}}">
+					{{jobLineType.code}}
+				</option>
+			</select>
+		</div>
 		<div
-			*ngFor="let skill of mechanic.highlightedSkills"
-			class="rounded-circle skill align-center"
-			[ngStyle]="getSkillColorObject(skill)">{{skill.code}}</div>
+			class="w-75 h-75 d-flex flex-wrap align-items-center justify-content-between"
+			(click)="showSkills(mechanic.skills)">
+			<div
+				*ngFor="let skill of mechanic.highlightedSkills"
+				class="rounded-circle skill align-center"
+				[ngStyle]="getSkillColorObject(skill)">{{skill.code}}</div>
+		</div>
+		<div class="w-25 h-75 d-flex flex-wrap">
+			<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
+			<div class="w-50 h-35 align-center" (click)="removeMechanic(mechanic.position)"><i class="far fa-trash-alt"></i></div>
+			<div class="w-50 h-35 align-center"><i class="fas fa-arrows-alt-v"></i></div>
+		</div>
 	</div>
-	<div class="w-25 h-75 d-flex flex-wrap">
-		<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
-		<div class="w-50 h-35 align-center" (click)="removeMechanic(mechanic.position)"><i class="far fa-trash-alt"></i></div>
-		<div class="w-50 h-35 align-center"><i class="fas fa-arrows-alt-v"></i></div>
-	</div>
+	<ng-template #minLayout>
+		<div class="h-100 d-flex">
+			<div class="w-50 h-100">
+				<div class="w-100 h-50 d-flex align-items-center pl-1">{{mechanic.personalData.name}}</div>
+				<div class="w-100 h-50 pl-1">S</div>
+			</div>
+			<div class="w-50 h-100 d-flex flex-wrap">
+				<div class="w-100 d-flex justify-content-around align-items-center">
+					<div class="rounded-circle ability align-center">N</div>
+					<div class="rounded-circle ability align-center">AC</div>
+					<div class="rounded-circle ability align-center">AL</div>
+					<div class="rounded-circle ability align-center">FR</div>
+				</div>
+				<div class="w-100 d-flex justify-content-around align-items-center">
+					<div class="rounded-circle ability align-center">AM</div>
+					<div class="rounded-circle ability align-center">DIS</div>
+					<div class="rounded-circle ability align-center">ENG</div>
+					<div class="rounded-circle ability align-center">AA</div>
+				</div>
+			</div>
+		</div>
+	</ng-template>
 </div>
-<ng-template #minLayout>
-	<div class="h-100 d-flex mechanic-info default-width">
-		<div class="w-50 h-100">
-			<div class="w-100 h-50 d-flex align-items-center pl-1">{{mechanic.personalData.name}}</div>
-			<div class="w-100 h-50 pl-1">S</div>
-		</div>
-		<div class="w-50 h-100 d-flex flex-wrap">
-			<div class="w-100 d-flex justify-content-around align-items-center">
-				<div class="rounded-circle ability align-center">N</div>
-				<div class="rounded-circle ability align-center">AC</div>
-				<div class="rounded-circle ability align-center">AL</div>
-				<div class="rounded-circle ability align-center">FR</div>
-			</div>
-			<div class="w-100 d-flex justify-content-around align-items-center">
-				<div class="rounded-circle ability align-center">AM</div>
-				<div class="rounded-circle ability align-center">DIS</div>
-				<div class="rounded-circle ability align-center">ENG</div>
-				<div class="rounded-circle ability align-center">AA</div>
-			</div>
-		</div>
-	</div>
-</ng-template>
 <div>{{check()}}</div>
