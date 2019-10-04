@@ -56,7 +56,7 @@ class PanelServiceSpec extends Specification {
 	@Shared
 	Order order4Articles = new Order(
 			number: 1,
-			timeInfo: [new OrderTime(shortCode: 'C1')],
+			timeInfo: new OrderTime(shortCode: 'C1'),
 			lines: [
 					new OrderLine(article: new Article(code: 99026)),
 					new OrderLine(article: new Article(code: 99066)),
@@ -69,7 +69,7 @@ class PanelServiceSpec extends Specification {
 	@Shared
 	Order order1Article = new Order(
 			number: 2,
-			timeInfo: [new OrderTime(shortCode: 'C2')],
+			timeInfo: new OrderTime(shortCode: 'C2'),
 			lines: [
 					new OrderLine(article: new Article(code: 1))
 			],
@@ -1513,7 +1513,7 @@ class PanelServiceSpec extends Specification {
 		given: // Articles 99108 and 99273 form group 38
 		Order order = new Order(
 				number: 1,
-				timeInfo: [new OrderTime(shortCode: 'C1')],
+				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
 						new OrderLine(article: new Article(code: 99108)),
 						new OrderLine(article: new Article(code: 99273)),
@@ -1535,7 +1535,7 @@ class PanelServiceSpec extends Specification {
 		given: // Now order doesn't have 99273 and 99108 forms group 36
 		Order order = new Order(
 				number: 1,
-				timeInfo: [new OrderTime(shortCode: 'C1')],
+				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
 						new OrderLine(article: new Article(code: 99108)),
 						new OrderLine(article: new Article(code: 99086)),
@@ -1558,7 +1558,7 @@ class PanelServiceSpec extends Specification {
 		given:
 		Order order = new Order(
 				number: 1,
-				timeInfo: [new OrderTime(shortCode: 'C1')],
+				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
 						new OrderLine(article: new Article(code: 99086)),
 						new OrderLine(article: new Article(code: 99021)),
@@ -1580,7 +1580,7 @@ class PanelServiceSpec extends Specification {
 		given:
 		Order order = new Order(
 				number: 1,
-				timeInfo: [new OrderTime(shortCode: 'C1')],
+				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
 						new OrderLine(article: new Article(code: 99001)),//
 						new OrderLine(article: new Article(code: 99004)),//
