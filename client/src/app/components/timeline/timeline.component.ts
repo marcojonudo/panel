@@ -21,33 +21,11 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
 	private _maxScheduleWidthSubscription: any;
 
-	private _background: string;
-
 	constructor(
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private cdRef: ChangeDetectorRef
-	) {
-		this.background = `repeating-linear-gradient(
-			to right,
-			#ffffff,
-			#ffffff ${this.quarterWidth - 1}px,
-			#a2a2a2 ${this.quarterWidth - 1}px,
-			#a2a2a2 ${this.quarterWidth}px,
-			#ffffff ${this.quarterWidth}px,
-			#ffffff ${this.quarterWidth*2-1}px,
-			#a2a2a2 ${this.quarterWidth*2-1}px,
-			#a2a2a2 ${this.quarterWidth*2}px,
-			#ffffff ${this.quarterWidth*2}px,
-			#ffffff ${this.quarterWidth*3-1}px,
-			#a2a2a2 ${this.quarterWidth*3-1}px,
-			#a2a2a2 ${this.quarterWidth*3}px,
-			#ffffff ${this.quarterWidth*3}px,
-			#ffffff ${this.quarterWidth*4-2}px,
-			#a2a2a2 ${this.quarterWidth*4-2}px,
-			#a2a2a2 ${this.quarterWidth*4}px
-		)`;
-	}
+	) {	}
 
 	ngOnInit(): void {
 		this.quarters = this.timeService.QUARTERS;
@@ -92,15 +70,29 @@ export class TimelineComponent implements OnInit, OnDestroy {
 		return parseFloat((this.timeService.intervalWidth * 3).toFixed(2));
 	}
 
-	get background(): string {
-		return this._background;
-	}
-
-	set background(value: string) {
-		this._background = value;
-	}
-
 	// endregion
+
+	calcTimelineBackground(): string {
+		return `repeating-linear-gradient(
+			to right,
+			#ffffff,
+			#ffffff ${this.quarterWidth - 1}px,
+			#a2a2a2 ${this.quarterWidth - 1}px,
+			#a2a2a2 ${this.quarterWidth}px,
+			#ffffff ${this.quarterWidth}px,
+			#ffffff ${this.quarterWidth*2 - 1}px,
+			#a2a2a2 ${this.quarterWidth*2 - 1}px,
+			#a2a2a2 ${this.quarterWidth*2}px,
+			#ffffff ${this.quarterWidth*2}px,
+			#ffffff ${this.quarterWidth*3 - 1}px,
+			#a2a2a2 ${this.quarterWidth*3 - 1}px,
+			#a2a2a2 ${this.quarterWidth*3}px,
+			#ffffff ${this.quarterWidth*3}px,
+			#ffffff ${this.quarterWidth*4 - 2}px,
+			#a2a2a2 ${this.quarterWidth*4 - 2}px,
+			#a2a2a2 ${this.quarterWidth*4}px
+		)`;
+	}
 
 	check() {
 		if (Constants.CHECK) {

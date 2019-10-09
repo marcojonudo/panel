@@ -1,6 +1,6 @@
 <div
 	class="d-flex h-100 timeline"
-	[ngStyle]="{background: background}">
+	[ngStyle]="{background: calcTimelineBackground()}">
 	<div *ngFor="let hour of maxScheduleHours" class="flex-grow-1 flex-basis-0 timeline-hour d-flex">
 		<div *ngFor="let quarter of quarters; first as isFirst"
 			class="flex-grow-1 flex-basis-0 align-center"
