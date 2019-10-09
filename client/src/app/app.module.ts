@@ -92,4 +92,15 @@ import {SkillsDetailsComponent} from './components/skills-details/skills-details
 	bootstrap: [AppComponent]
 })
 export class AppModule {
+
+	constructor() {
+		this.overrideDateToJSON();
+	}
+
+	private overrideDateToJSON() {
+		Date.prototype.toJSON = function() {
+			return this.getTime();
+		};
+	}
+
 }
