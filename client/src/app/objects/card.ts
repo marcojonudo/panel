@@ -7,42 +7,18 @@ export class Card {
 	day: Date;
 	mechanicCode: string;
 
-	private _start: Date;
-	private _duration: number;
+	start: Date;
+	duration: number;
 	end: string;
 	line: number;
 
 	left: number;
-	private _width: number;
+	width: number;
 
-	private _order: Order;
+	order: Order;
 
-	private _linkedNextId: number;
-	private _linkedPrevId: number;
-
-	// constructor(
-	// 	id: number,
-	// 	day: string,
-	// 	mechanicCode: string,
-	// 	start: string,
-	// 	duration: number,
-	// 	end: string,
-	// 	line: number,
-	// 	order: Order,
-	// 	linkedPrevId: number,
-	// 	linkedNextId: number
-	// ) {
-	// 	this.id = id;
-	// 	this.day = day ? UtilsService.parseDateFromString(day) : undefined;
-	// 	this.mechanicCode = mechanicCode;
-	// 	this.start = start ? UtilsService.parseDateFromCompleteString(`${day} ${start}`) : undefined;
-	// 	this.duration = duration;
-	// 	this.end = end;
-	// 	this.line = line;
-	// 	this.order = order;
-	// 	this.linkedPrevId = linkedPrevId;
-	// 	this.linkedNextId = linkedNextId;
-	// }
+	linkedNextId: number;
+	linkedPrevId: number;
 
 	constructor(card: any) {
 		this.id = card.id;
@@ -57,63 +33,8 @@ export class Card {
 		this.linkedNextId = card.linkedNextId;
 	}
 
-	// region Getters / setters
+	format() {
 
-	get start(): Date {
-		return this._start;
-	}
-
-	set start(value: Date) {
-		this._start = value;
-	}
-
-	get duration(): number {
-		return this._duration;
-	}
-
-	set duration(value: number) {
-		this._duration = value;
-	}
-
-	get width(): number {
-		return this._width;
-	}
-
-	set width(value: number) {
-		this._width = value;
-	}
-
-	get order(): Order {
-		return this._order;
-	}
-
-	set order(value: Order) {
-		this._order = value;
-	}
-
-	get linkedPrevId(): number {
-		return this._linkedPrevId;
-	}
-
-	set linkedPrevId(value: number) {
-		this._linkedPrevId = value;
-	}
-	get linkedNextId(): number {
-		return this._linkedNextId;
-	}
-
-	set linkedNextId(value: number) {
-		this._linkedNextId = value;
-	}
-
-	// endregion
-
-	clone() {
-		// let card = new Card(this.id, undefined, this.mechanicCode, undefined, this.duration, this.end,
-		// 					this.line, this.order, this.linkedPrevId, this.linkedNextId);
-		// card.day = this.day;
-		// card.start = this.start;
-		// return card;
 	}
 
 }

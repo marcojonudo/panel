@@ -387,12 +387,12 @@ export class CardPositionService {
 
 			group.cards.forEach((card, index) => {
 				card.line = line;
-				card.start = this.timeService.calculateStart(
-					group.left + UtilsService.sum(group.cards.slice(0, index), 'duration'),
+				card.start = this.timeService.calculateStartFromLeftDuration(
+					group.left,
+					UtilsService.sum(group.cards.slice(0, index), 'duration'),
 					day
 				);
 			});
-
 		});
 	}
 

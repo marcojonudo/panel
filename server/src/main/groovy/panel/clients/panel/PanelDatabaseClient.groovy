@@ -40,4 +40,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	@Delete("/cards")
 	List<Map> deleteCards(@Body List<Long> ids)
 
+	@Put("/position")
+	List<Map> updateCardsPosition(@Body List<Map<String, Object>> cards)
+
 }

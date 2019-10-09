@@ -288,7 +288,7 @@ export class TimeService {
 		return this.getIntervalsNumberFromDuration(duration) * this.intervalWidth;
 	}
 
-	private getIntervalsNumberFromDuration(duration: number) {
+	private getIntervalsNumberFromDuration(duration: number): number {
 		return duration / this.MINUTES_PER_INTERVAL;
 	}
 
@@ -319,6 +319,13 @@ export class TimeService {
 	calculateStart(left: number, day: Date): Date {
 		const intervals = this.getIntervalsNumberFromDimensionValue(left);
 		const minutes = this.getRelativeMinutesFromIntervals(intervals);
+		return UtilsService.parseTimeFromMinutes(minutes, day);
+	}
+
+	calculateStartFromLeftDuration(leftWidth: number, leftCardsDuration: number, day: Date): Date {
+		const leftIntervals = this.getIntervalsNumberFromDimensionValue(leftWidth);
+		const leftCardsIntervals = this.getIntervalsNumberFromDuration(leftCardsDuration);
+		const minutes = this.getRelativeMinutesFromIntervals(leftIntervals + leftCardsIntervals);
 		return UtilsService.parseTimeFromMinutes(minutes, day);
 	}
 

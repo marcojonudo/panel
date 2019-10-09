@@ -11,6 +11,7 @@ import {Order} from "../objects/order";
 import {CardsGroup} from "../objects/cards-group";
 import {HttpClient} from "@angular/common/http";
 import {Subject} from "rxjs/internal/Subject";
+import {environment} from "../../environments/environment";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,42 +37,7 @@ export class CardsService {
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private http: HttpClient
-	) {
-		// this.http.get('http://localhost:8083/panel/get')
-		// 	.subscribe((data: any) => {
-		// 		console.log(data);
-		// 		const cards = data.cards.map(card => {
-		// 			return new Card(card);
-		// 		});
-		// 		this.init(cards);
-		// 	});
-		// this.cards = [
-		// 	new Card(1, undefined, undefined, undefined, 30, undefined, undefined, new Order(1), undefined, undefined),
-		// 	new Card(2, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
-		// 	new Card(14, undefined, undefined, undefined, 15, undefined, undefined, new Order(1), undefined, undefined),
-		// 	new Card(3, undefined, undefined, undefined, 60, undefined, undefined, new Order(2), undefined, undefined),
-		// 	new Card(4, undefined, undefined, undefined, 45, undefined, undefined, new Order(3), undefined, undefined),
-		// 	new Card(15, undefined, undefined, undefined, 60, undefined, undefined, new Order(3), undefined, undefined),
-		// 	new Card(16, undefined, undefined, undefined, 50, undefined, undefined, new Order(12), undefined, undefined),
-		// 	new Card(17, undefined, undefined, undefined, 40, undefined, undefined, new Order(13), undefined, undefined),
-		// 	new Card(18, undefined, undefined, undefined, 45, undefined, undefined, new Order(14), undefined, undefined),
-		// 	new Card(19, undefined, undefined, undefined, 25, undefined, undefined, new Order(15), undefined, undefined),
-		// 	new Card(20, undefined, undefined, undefined, 20, undefined, undefined, new Order(16), undefined, undefined),
-		// 	new Card(21, undefined, undefined, undefined, 35, undefined, undefined, new Order(17), undefined, undefined),
-		// 	new Card(22, undefined, undefined, undefined, 15, undefined, undefined, new Order(18), undefined, undefined),
-		// 	new Card(23, undefined, undefined, undefined, 30, undefined, undefined, new Order(19), undefined, undefined),
-		// 	new Card(5, "2019-06-25", "A", '09:00:00', 30, '09:30:00', 0, new Order(4), undefined, 6),
-		// 	new Card(6, "2019-06-25", "A", '09:30:00', 15, '09:45:00', 0, new Order(4), 5, undefined),
-		// 	new Card(7, "2019-06-25", "A", '10:00:00', 30, '10:45:00', 1, new Order(5), undefined, undefined),
-		// 	new Card(8, "2019-06-25", "A", '11:30:00', 15, '11:45:00', 0, new Order(6), undefined, undefined),
-		// 	new Card(9, "2019-06-25", "A", '12:00:00', 30, '12:30:00', 1, new Order(7), undefined, undefined),
-		// 	new Card(10, "2019-06-25", "B", '09:00:00', 30, '09:30:00', 1, new Order(8), undefined, undefined),
-		// 	new Card(11, "2019-06-26", "C", '09:00:00', 30, '09:30:00', 1, new Order(9), undefined, undefined),
-		// 	new Card(12, "2019-06-27", "A", '09:00:00', 30, '09:30:00', 0, new Order(10), undefined, undefined),
-		// 	new Card(13, "2019-06-27", "D", '09:00:00', 30, '09:30:00', 1, new Order(11), undefined, undefined),
-		// ];
-		// this.cards = [];
-	}
+	) {	}
 
 	// region Getters / setters
 
@@ -261,6 +227,7 @@ export class CardsService {
 		}
 
 		this.addToDestiny(newMechanic, cardsGroup);
+		this.http.put(`${environment.serverUrl}/panel/cards/position`, cardsGroup.cards).subscribe();
 	}
 
 	private resetCardsGroup(cardsGroup: CardsGroup) {
