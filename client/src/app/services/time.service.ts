@@ -237,18 +237,22 @@ export class TimeService {
 
 	// endregion
 
-	// region Width
+	// region Grid width values
 
-	calcWidthValues() {
+	private calcWidthValues() {
 		this.calcHourWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.calcIntervalWidth(this.hourWidth);
 	}
 
-	calcIntervalWidth(hourWidth: number) {
+	private calcIntervalWidth(hourWidth: number) {
 		this.intervalWidth = hourWidth / (this.QUARTERS_PER_HOUR * this.INTERVALS_PER_QUARTER);
 	}
 
-	calcHourWidthFromHoursInGrid(hoursInGrid: number, gridWidth: number = this.gridWidth, leftOffset = this.LEFT_OFFSET): void {
+	private calcHourWidthFromHoursInGrid(
+		hoursInGrid: number,
+		gridWidth: number = this.gridWidth,
+		leftOffset = this.LEFT_OFFSET
+	): void {
 		this.defaultHourWidth = (gridWidth - leftOffset) / hoursInGrid;
 		this.hourWidth = this.defaultHourWidth;
 	}
@@ -261,7 +265,7 @@ export class TimeService {
 		return this.maxScheduleHours;
 	}
 
-	calcScheduleWidth(hours: number[], hourWidth: number, leftOffset: number = this.LEFT_OFFSET): number {
+	private calcScheduleWidth(hours: number[], hourWidth: number, leftOffset: number = this.LEFT_OFFSET): number {
 		return leftOffset + hours.length * hourWidth;
 	}
 
@@ -284,73 +288,67 @@ export class TimeService {
 		return (maxScheduleWidth - leftOffset) / maxScheduleHours.length;
 	}
 
-	calculateWidth(duration: number): number {
-		return this.getIntervalsNumberFromDuration(duration) * this.intervalWidth;
-	}
-
-	private getIntervalsNumberFromDuration(duration: number): number {
-		return duration / this.MINUTES_PER_INTERVAL;
-	}
-
 	// endregion
 
-	// region Left
+	// region Convert to dimensions
 
-	calculateLeft(start: Date) {
-		const relativeMinutes = this.getRelativeMinutes(start);
+	calcWidth(duration: number): number {
+		/* Se obtiene el número de intervalos que ocupan los minutos de duración */
+		const durationIntervals = this.getIntervalsNumberFromDuration(duration);
+		/* Se retorna el ancho en px */
+		return durationIntervals * this.intervalWidth;
+	}
+
+	calcLeft(start: Date) {
+		/* Se obtienen los minutos desde el inicio del horario, hasta start */
+		const relativeMinutes = this.getRelativeMinutesFromStart(start);
+		/* Se obtiene el número de intervalos correspondiente a los minutos */
 		const relativeIntervals = this.getIntervalsNumberFromDuration(relativeMinutes);
-
+		/* Se retorna el ancho en px */
 		return relativeIntervals * this.intervalWidth;
 	}
 
-	private getRelativeMinutes(time: Date) {
-		const minutes = time.getHours() * 60 + time.getMinutes();
-		return minutes - this.getStartScheduleMinutes();
-	}
-
-	private getStartScheduleMinutes() {
-		return this.maxScheduleHours[0] * this.MINUTES_PER_HOUR;
-	}
-
 	// endregion
 
-	// region Start
+	// region Convert to properties
 
-	calculateStart(left: number, day: Date): Date {
-		const intervals = this.getIntervalsNumberFromDimensionValue(left);
+	calcStart(left: number, day: Date): Date {
+		const intervals = this.getIntervalsNumberFromWidth(left);
 		const minutes = this.getRelativeMinutesFromIntervals(intervals);
 		return UtilsService.parseTimeFromMinutes(minutes, day);
 	}
 
-	calculateStartFromLeftDuration(leftWidth: number, leftCardsDuration: number, day: Date): Date {
-		const leftIntervals = this.getIntervalsNumberFromDimensionValue(leftWidth);
-		const leftCardsIntervals = this.getIntervalsNumberFromDuration(leftCardsDuration);
-		const minutes = this.getRelativeMinutesFromIntervals(leftIntervals + leftCardsIntervals);
-		return UtilsService.parseTimeFromMinutes(minutes, day);
+	calcDurationFromWidth(width: number): number {
+		return this.getIntervalsNumberFromWidth(width) * this.MINUTES_PER_INTERVAL;
+	}
+
+	calcDurationFromCardsGroup(cardsGroup: CardsGroup): number {
+		return UtilsService.sum(cardsGroup.cards, 'duration');
+	}
+
+	// endregion
+
+	// region Auxiliary methods
+
+	private getRelativeMinutesFromStart(time: Date) {
+		const minutes = time.getHours() * 60 + time.getMinutes();
+		return minutes - this.getStartScheduleMinutes();
 	}
 
 	private getRelativeMinutesFromIntervals(intervalsNumber: number): number {
 		return this.getStartScheduleMinutes() + this.MINUTES_PER_INTERVAL * intervalsNumber;
 	}
 
-	// endregion
-
-	// region Duration
-
-	calculateDuration(width: number): number {
-		return this.getIntervalsNumberFromWidth(width) * this.MINUTES_PER_INTERVAL;
+	private getStartScheduleMinutes() {
+		return this.maxScheduleHours[0] * this.MINUTES_PER_HOUR;
 	}
 
-	calcDuration(cardsGroup: CardsGroup): number {
-		return UtilsService.sum(cardsGroup.cards, 'duration');
+	private getIntervalsNumberFromDuration(duration: number): number {
+		return duration / this.MINUTES_PER_INTERVAL;
 	}
 
 	private getIntervalsNumberFromWidth(width: number) {
 		return Math.round(width / this.intervalWidth);
-	}
-
-	getIntervalsNumberFromDimensionValue(value: number) {
-		return Math.round(value / this.intervalWidth);
 	}
 
 	// endregion

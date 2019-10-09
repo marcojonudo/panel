@@ -63,7 +63,7 @@ export class CardsGroup {
 	// 		/* La ficha se clona por el mismo motivo. El componente card-component recibe una ficha, pero no
 	// 		*  detecta cambios si se modifica únicamente una propiedad, ya que la referencia es la misma */
 	// 		let newCard = card.clone();
-	// 		newCard.width = this.calculateWidth(card.duration);
+	// 		newCard.width = this.calcWidth(card.duration);
 	// 		return newCard;
 	// 	});
 	// }

@@ -178,16 +178,16 @@ export class CardsService {
 	private updateDimensions() {
 		this.unassignedCardsGroups.forEach((cardsGroup: CardsGroup) => {
 			cardsGroup.cards.forEach((card) => {
-				card.width = this.calculateWidth(card.duration);
+				card.width = this.timeService.calcWidth(card.duration);
 			});
 		});
 		for (let dayTime in this.assignedDaysCardsGroups) {
 			for (let mechanic in this.assignedDaysCardsGroups[dayTime]) {
 				this.assignedDaysCardsGroups[dayTime][mechanic].forEach((cardsGroup: CardsGroup) => {
 					cardsGroup.cards.forEach((card: Card) => {
-						card.width = this.calculateWidth(card.duration);
+						card.width = this.timeService.calcWidth(card.duration);
 					});
-					cardsGroup.left = this.calculateLeft(cardsGroup.cards[0].start);
+					cardsGroup.left = this.timeService.calcLeft(cardsGroup.cards[0].start);
 				});
 			}
 		}
@@ -286,27 +286,7 @@ export class CardsService {
 
 	updateCardDuration(card: Card, width: number): void {
 		card.width = width;
-		card.duration = this.timeService.calculateDuration(card.width);
-	}
-
-	// endregion
-
-	// region Update properties
-
-	private calculateLeft(start: Date) {
-		return this.timeService.calculateLeft(start);
-	}
-
-	private calculateStart(left: number, day: Date): Date {
-		return this.timeService.calculateStart(left, day);
-	}
-
-	private calculateWidth(duration: number): number {
-		return this.timeService.calculateWidth(duration);
-	}
-
-	calculateDuration(width: number): number {
-		return this.timeService.calculateDuration(width);
+		card.duration = this.timeService.calcDurationFromWidth(card.width);
 	}
 
 	// endregion

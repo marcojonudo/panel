@@ -233,7 +233,7 @@ export class CardPositionService {
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
 		return cardsGroups.find(group => {
-			const duration = this.timeService.calculateWidth(this.timeService.calcDuration(group));
+			const duration = this.timeService.calcWidth(this.timeService.calcDurationFromCardsGroup(group));
 			return this.checkOutsideLeft(group.left, dropzoneLeft) ||
 				this.checkOutsideRight(group.left + duration, dropzoneRight)
 		});
@@ -245,7 +245,7 @@ export class CardPositionService {
 		dropzone: DropzoneInfo = this.dropzone
 	): Coordinates {
 		const leftX = this.absolutePositionToLeft(position.x);
-		const duration = this.timeService.calculateWidth(this.timeService.calcDuration(cardsGroup));
+		const duration = this.timeService.calcWidth(this.timeService.calcDurationFromCardsGroup(cardsGroup));
 		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.rect.x);
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
@@ -331,7 +331,6 @@ export class CardPositionService {
 			/* Si no se encuentra ningún grupo que, después de gestionarse el solapamiento, esté fuera del horario,
 			*  se actualizan las propiedades en los grupos originales */
 			if (!groupOutsideDropzone) {
-				console.log('UPDATING');
 				/* Se actualizan los valores relacionados con la posicion (left y start) */
 				this.updatePositionProperties(overlappedCardsGroups, clonedOverlappedGroups, line, dropzone.mechanic.day);
 			}
@@ -349,7 +348,7 @@ export class CardPositionService {
 			group.cards[0].line == line && group.id != cardsGroup.id
 		);
 		let newCardsMinutes = this.getDurationArray(
-			this.timeService.calculateStart(cardsGroup.left, new Date()),
+			this.timeService.calcStart(cardsGroup.left, new Date()),
 			cardsGroup.cards
 		);
 		newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);
@@ -386,10 +385,10 @@ export class CardPositionService {
 			group.left = clonedGroup.left;
 
 			group.cards.forEach((card, index) => {
+				const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 				card.line = line;
-				card.start = this.timeService.calculateStartFromLeftDuration(
-					group.left,
-					UtilsService.sum(group.cards.slice(0, index), 'duration'),
+				card.start = this.timeService.calcStart(
+					group.left + this.timeService.calcWidth(leftCardsDuration),
 					day
 				);
 			});
