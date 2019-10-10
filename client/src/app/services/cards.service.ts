@@ -287,6 +287,7 @@ export class CardsService {
 	updateCardDuration(card: Card, width: number): void {
 		card.width = width;
 		card.duration = this.timeService.calcDurationFromWidth(card.width);
+		this.http.put(`${environment.serverUrl}/panel/cards/duration`, card).subscribe();
 	}
 
 	// endregion

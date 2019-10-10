@@ -40,7 +40,7 @@ export class DaysService {
 		this.oneDayModeSubject = new Subject<boolean>();
 		this.oneDayMode$ = this.oneDayModeSubject.asObservable();
 
-		this.lineHeightSubject = new BehaviorSubject<number>(this._lineHeight);
+		this.lineHeightSubject = new BehaviorSubject<number>(this.lineHeight);
 		this.lineHeight$ = this.lineHeightSubject.asObservable();
 	}
 

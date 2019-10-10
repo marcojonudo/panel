@@ -32,4 +32,9 @@ class PanelController {
 		panelDatabaseClient.updateCardsPosition(cards)
 	}
 
+	@Put("/cards/duration")
+	void updatePosition(@Body Map<String, Object> card) {
+		panelDatabaseClient.updateCardDuration(card)
+	}
+
 }
