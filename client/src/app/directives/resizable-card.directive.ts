@@ -37,22 +37,20 @@ export class ResizableCardDirective {
 	}
 
 	onPointerMove(event: PointerEvent): void {
-		this.card.width += event.clientX - this.lastX;
-		this.cdRef.detectChanges();
-
-		this.lastX = event.clientX;
+		const diff = event.clientX - this.lastX;
+		if (Math.abs(diff) >= this.timeService.intervalWidth &&
+			!(diff < 0 && this.card.width == this.timeService.intervalWidth)) {
+			this.card.width += this.timeService.intervalWidth * Math.sign(diff);
+			this.lastX = event.clientX;
+			this.cdRef.detectChanges();
+		}
 	}
 
 	onPointerUp(): void {
 		this.pointerMoveListener();
 		this.pointerUpListener();
 
-		this.cardsService.updateCardDuration(
-			this.card,
-			this.card.width
-		);
-
-		this.cdRef.detectChanges();
+		this.cardsService.updateCardDuration(this.card, this.card.width);
 	}
 
 }
