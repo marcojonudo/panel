@@ -46,7 +46,7 @@ class PanelService {
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-		List<Order> orders = fviberiDatabaseClient.getOrders(new Date(), Constants.ORDERS_QUERY_STATES).collect { (Order) it }
+		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES).collect { (Order) it }
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 		List<Card> dayCards = panelDatabaseClient.getCards(day).collect { (Card) it }
 
@@ -115,8 +115,12 @@ class PanelService {
 					List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks.articleCode }
 					return group.tasks.size() == commonTasks.size()
 				}
-				selectedGroupsInfo << new GroupUnits(selectedGroup, getOrderGroupUnits(order, selectedGroup))
-				processedTasks += selectedGroup.tasks
+				if (selectedGroup) {
+					selectedGroupsInfo << new GroupUnits(selectedGroup, getOrderGroupUnits(order, selectedGroup))
+					processedTasks += selectedGroup.tasks
+				} else {
+					LOG.warn("[$task.articleCode]$orderTasks.articleCode Group not found for task")
+				}
 			}
 		}
 		return selectedGroupsInfo

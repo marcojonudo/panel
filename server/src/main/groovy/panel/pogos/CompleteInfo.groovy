@@ -1,5 +1,6 @@
 package panel.pogos
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
 import utils.pogos.panel.Card
 import utils.pogos.panel.JobLineType
@@ -12,6 +13,7 @@ class CompleteInfo {
 	Map<String, List<EmployeeSchedule>> daysMechanics
 	List<Skill> skills
 	List<JobLineType> jobLineTypes
+	@JsonInclude
 	List<Card> cards
 
 	CompleteInfo(

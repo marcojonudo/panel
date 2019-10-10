@@ -10,6 +10,9 @@ micronaut:
             default:
                 mapping: /**
                 paths: [classpath:static]
+    http:
+        client:
+            read-timeout: 30s
 
 endpoints:
     beans:
