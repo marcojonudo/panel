@@ -47,6 +47,7 @@ export class CardPositionService {
 		this.initialScrollLeft = 0;
 		this.initialScrollTop = 0;
 		this.scrollLeft = 0;
+		this.scrollTop = 0;
 		this.relativeScrollLeft = 0;
 		this.relativeScrollTop = 0;
 
