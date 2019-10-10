@@ -127,7 +127,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 				this.position = this.cardPositionService.handleLinePosition(
 					this.position,
 					this.timeService.intervalWidth,
-					this.cardsService.getAssignedCards(mechanic.day, mechanic.panelPosition)
+					this.cardsService.getAssignedCards(mechanic.day, mechanic.code)
 				);
 				/* Si la posición se devuelve a null, significa que no se cumplen los requisitos para depositar la
 				 * ficha: básicamente, que no cabe en el hueco (el horario es más pequeño, al desplazar las solapadas

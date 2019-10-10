@@ -7,6 +7,7 @@ import {CommonService} from "../services/common.service";
 export class Mechanic {
 
 	day: Date;
+	code: string;
 	panelPosition: string;
 	personalData: PersonalData;
 	skills: Skill[];
@@ -25,6 +26,7 @@ export class Mechanic {
 		highlightedSkills: Skill[]
 	) {
 		this.day = day;
+		this.code = employee.code;
 		this.panelPosition = position;
 		this.personalData = new PersonalData(employee);
 		this.skills = skills.map(skill => {

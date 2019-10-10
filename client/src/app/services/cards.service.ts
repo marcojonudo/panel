@@ -144,14 +144,14 @@ export class CardsService {
 			this.assignedDaysCardsGroups$[dayTime] = {};
 
 			for (let mechanic of daysMechanics[dayTime]) {
-				this.assignedDaysCardsGroups[dayTime][mechanic.panelPosition] = assignedCardsGroups.filter(cardsGroup => {
-					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.panelPosition
+				this.assignedDaysCardsGroups[dayTime][mechanic.code] = assignedCardsGroups.filter(cardsGroup => {
+					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.code
 				});
 
 				const subject = new Subject<any>();
 				const observable = subject.asObservable();
-				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic.panelPosition] = subject;
-				this.assignedDaysCardsGroups$[dayTime][mechanic.panelPosition] = observable;
+				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic.code] = subject;
+				this.assignedDaysCardsGroups$[dayTime][mechanic.code] = observable;
 			}
 		}
 	}
@@ -220,7 +220,7 @@ export class CardsService {
 		if (newMechanic) {
 			cardsGroup.cards.forEach(card => {
 				card.day = newMechanic.day;
-				card.mechanicCode = newMechanic.panelPosition;
+				card.mechanicCode = newMechanic.code;
 			});
 		} else {
 			this.resetCardsGroup(cardsGroup);
@@ -247,9 +247,9 @@ export class CardsService {
 
 	private addToDestiny(newMechanic: Mechanic, cardsGroup: CardsGroup): void {
 		if (newMechanic) {
-			this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.panelPosition] =
-				this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.panelPosition].concat(cardsGroup);
-			this.notifyAssigned(newMechanic.day, newMechanic.panelPosition);
+			this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.code] =
+				this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.code].concat(cardsGroup);
+			this.notifyAssigned(newMechanic.day, newMechanic.code);
 		} else {
 			this.unassignedCardsGroups.push(cardsGroup);
 			this.notifyUnassigned();
@@ -317,19 +317,12 @@ export class CardsService {
 
 	// endregion
 
-	private findCardsDuration(cards: Card[]): number {
-		return cards.map(card => card.duration).reduce((a, b) => a + b, 0);
-	}
-
-	private findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
-		let cards = [];
-		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
-		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
-	}
-
-
 	getAssignedCards(day: Date, mechanicCode: string) {
 		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
 	}
+
+	// private getLineCards(day: Date, position: string, line: number): Card[] {
+	// 	return this.assignedDaysCardsGroups[]
+	// }
 
 }
