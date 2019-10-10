@@ -5,6 +5,7 @@ import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Header
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
 import panel.utils.Constants
@@ -23,5 +24,8 @@ interface SchedulesDatabaseClient extends SchedulesDatabaseApi {
 
 	@Get("/employeesSchedulesPosition")
 	List<Map> updateEmployeesSchedulesPosition(@Body List<EmployeeSchedule> employeesSchedules)
+
+	@Put("/mechanic/lines")
+	void updateMechanicLines(@Body Map<String, Object> mechanic)
 
 }

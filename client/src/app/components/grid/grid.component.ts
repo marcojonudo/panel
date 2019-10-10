@@ -28,14 +28,14 @@ export class GridComponent implements OnInit, OnDestroy {
 		this.mechanics = this.daysService.daysMechanics[this.day.getTime()];
 		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()].subscribe(mechanics => {
 			const removedMechanicIndex = this.mechanics.findIndex(mechanic =>
-				!mechanics.find(m => m.position == mechanic.position)
+				!mechanics.find(m => m.panelPosition == mechanic.panelPosition)
 			);
-			let prevPosition = this.mechanics[removedMechanicIndex].position;
+			let prevPosition = this.mechanics[removedMechanicIndex].panelPosition;
 			this.mechanics.splice(removedMechanicIndex, 1);
 
 			for (let i = removedMechanicIndex; i < this.mechanics.length; i++) {
-				const newPosition = this.mechanics[i].position;
-				this.mechanics[i].position = prevPosition;
+				const newPosition = this.mechanics[i].panelPosition;
+				this.mechanics[i].panelPosition = prevPosition;
 				prevPosition = newPosition;
 			}
 			this.cdRef.detectChanges();

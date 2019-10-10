@@ -6,6 +6,8 @@ import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Subject} from "rxjs/internal/Subject";
 import {TimeService} from "./time.service";
+import {environment} from "../../environments/environment";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
 	providedIn: 'root'
@@ -33,7 +35,7 @@ export class DaysService {
 	private daysMechanicsSubjects: any;
 	private _daysMechanics$: any;
 
-	constructor() {
+	constructor(private http: HttpClient) {
 		this.oneDayMode = true;
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 
@@ -117,7 +119,7 @@ export class DaysService {
 		this.daysMechanics = {};
 		for (let dayMechanics of daysMechanicsList) {
 			this.daysMechanics[dayMechanics.day.getTime()] =
-				UtilsService.sort(dayMechanics.mechanics, (m) => m.position);
+				UtilsService.sort(dayMechanics.mechanics, (m) => m.panelPosition);
 		}
 	}
 
@@ -161,12 +163,12 @@ export class DaysService {
 
 	updateMechanicLines(mechanic: Mechanic): void {
 		mechanic.lines = Math.round(mechanic.height / this.lineHeight);
-		console.log(mechanic);
+		this.http.put(`${environment.serverUrl}/panel/mechanic/lines`, mechanic).subscribe();
 	}
 
 	removeMechanic(day: Date, position: string) {
 		this.daysMechanics[day.getTime()] = this.daysMechanics[day.getTime()].filter(mechanic => {
-			return mechanic.position != position;
+			return mechanic.panelPosition != position;
 		});
 		this.daysMechanicsSubjects[day.getTime()].next(this.daysMechanics[day.getTime()]);
 	}

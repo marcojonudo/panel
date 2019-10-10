@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Put
 import panel.clients.panel.PanelDatabaseClient
+import panel.clients.schedules.SchedulesDatabaseClient
 import panel.pogos.CompleteInfo
 import panel.services.PanelService
 
@@ -15,10 +16,16 @@ class PanelController {
 
 	private final PanelService panelService
 	private final PanelDatabaseClient panelDatabaseClient
+	private final SchedulesDatabaseClient schedulesDatabaseClient
 
-	PanelController(PanelService panelService, PanelDatabaseClient panelDatabaseClient) {
+	PanelController(
+			PanelService panelService,
+			PanelDatabaseClient panelDatabaseClient,
+			SchedulesDatabaseClient schedulesDatabaseClient
+	) {
 		this.panelService = panelService
 		this.panelDatabaseClient = panelDatabaseClient
+		this.schedulesDatabaseClient = schedulesDatabaseClient
 	}
 
 	@Get("/get")
@@ -35,6 +42,12 @@ class PanelController {
 	@Put("/cards/duration")
 	void updatePosition(@Body Map<String, Object> card) {
 		panelDatabaseClient.updateCardDuration(card)
+	}
+
+	@Put("/mechanic/lines")
+	void updateMechanicLines(@Body Map<String, Object> mechanic) {
+//		int a = 1
+		schedulesDatabaseClient.updateMechanicLines(mechanic)
 	}
 
 }

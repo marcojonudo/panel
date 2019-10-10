@@ -127,13 +127,12 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 				this.position = this.cardPositionService.handleLinePosition(
 					this.position,
 					this.timeService.intervalWidth,
-					this.cardsService.getAssignedCards(mechanic.day, mechanic.position)
+					this.cardsService.getAssignedCards(mechanic.day, mechanic.panelPosition)
 				);
 				/* Si la posición se devuelve a null, significa que no se cumplen los requisitos para depositar la
 				 * ficha: básicamente, que no cabe en el hueco (el horario es más pequeño, al desplazar las solapadas
 				 * no caben...) */
 				if (!this.position) {
-					console.log('A LA MIERDA!!!');
 					this.handleReturnStartPosition();
 				}
 			} else if (this.cardsGroup.cards[0].mechanicCode) { /* Si se suelta una ficha asignada en la bandeja inferior */

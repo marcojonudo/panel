@@ -21,5 +21,6 @@ interface PanelDatabaseApi {
 	List<Map> updateCards(@Body List<Card> cards)
 	List<Map> deleteCards(@Body List<Long> ids)
 	List<Map> updateCardsPosition(@Body List<Map<String, Object>> cards)
+	Map updateCardDuration(@Body Map<String, Object> card)
 
 }

@@ -144,14 +144,14 @@ export class CardsService {
 			this.assignedDaysCardsGroups$[dayTime] = {};
 
 			for (let mechanic of daysMechanics[dayTime]) {
-				this.assignedDaysCardsGroups[dayTime][mechanic.position] = assignedCardsGroups.filter(cardsGroup => {
-					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.position
+				this.assignedDaysCardsGroups[dayTime][mechanic.panelPosition] = assignedCardsGroups.filter(cardsGroup => {
+					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.panelPosition
 				});
 
 				const subject = new Subject<any>();
 				const observable = subject.asObservable();
-				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic.position] = subject;
-				this.assignedDaysCardsGroups$[dayTime][mechanic.position] = observable;
+				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic.panelPosition] = subject;
+				this.assignedDaysCardsGroups$[dayTime][mechanic.panelPosition] = observable;
 			}
 		}
 	}
@@ -220,7 +220,7 @@ export class CardsService {
 		if (newMechanic) {
 			cardsGroup.cards.forEach(card => {
 				card.day = newMechanic.day;
-				card.mechanicCode = newMechanic.position;
+				card.mechanicCode = newMechanic.panelPosition;
 			});
 		} else {
 			this.resetCardsGroup(cardsGroup);
@@ -247,9 +247,9 @@ export class CardsService {
 
 	private addToDestiny(newMechanic: Mechanic, cardsGroup: CardsGroup): void {
 		if (newMechanic) {
-			this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.position] =
-				this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.position].concat(cardsGroup);
-			this.notifyAssigned(newMechanic.day, newMechanic.position);
+			this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.panelPosition] =
+				this.assignedDaysCardsGroups[newMechanic.day.getTime()][newMechanic.panelPosition].concat(cardsGroup);
+			this.notifyAssigned(newMechanic.day, newMechanic.panelPosition);
 		} else {
 			this.unassignedCardsGroups.push(cardsGroup);
 			this.notifyUnassigned();

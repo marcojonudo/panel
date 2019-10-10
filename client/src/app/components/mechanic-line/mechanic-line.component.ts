@@ -42,9 +42,9 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.cardsGroups = this.cardsService.assignedDaysCardsGroups[this.day.getTime()][this.mechanic.position];
-		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position]) {
-			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.position].subscribe(cardsGroups => {
+		this.cardsGroups = this.cardsService.assignedDaysCardsGroups[this.day.getTime()][this.mechanic.panelPosition];
+		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.panelPosition]) {
+			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.panelPosition].subscribe(cardsGroups => {
 				const replacedCardsGroups = this.cardsService.handleCardsGroupsListUpdate(this.cardsGroups, cardsGroups);
 				if (replacedCardsGroups) {
 					this.cardsGroups = replacedCardsGroups;

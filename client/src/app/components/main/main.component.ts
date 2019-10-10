@@ -30,24 +30,9 @@ export class MainComponent implements OnInit, OnDestroy {
 	private relativeContainer: boolean;
 	private scrollLeft: number;
 	private scrollTop: number;
-	// private _scrollLeft: number;
 
 	private oneDayModeSubscription: any;
 	private maxScheduleWidthSubscription: any;
-
-	// private clickedCardSubject;
-	// private clickedCard$: Observable<boolean>;
-	// private startPosition;
-
-	// private unassignedCardsDays: any;
-	// private assignedCards: any[];
-	// private testList: any[];
-
-	// private position: any;
-
-	// private hide: boolean;
-
-	// @ViewChild('schedulesContainer', {static: true}) schedulesContainer: ElementRef;
 
 	constructor(
 		private daysService: DaysService,

@@ -20,7 +20,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<Map> getTasks(@QueryValue List<Integer> articles)
 
 	@Get("/cards")
-	List<Map> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day)
+	List<Map> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
 
 	@Get("/jobLineTypes")
 	List<Map> getJobLineTypes()
@@ -40,10 +40,10 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	@Delete("/cards")
 	List<Map> deleteCards(@Body List<Long> ids)
 
-	@Put("/position")
+	@Put("/cards/position")
 	List<Map> updateCardsPosition(@Body List<Map<String, Object>> cards)
 
-	@Put("/duration")
+	@Put("/cards/duration")
 	Map updateCardDuration(@Body Map<String, Object> card)
 
 }
