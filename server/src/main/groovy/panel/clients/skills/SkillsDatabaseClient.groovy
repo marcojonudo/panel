@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Singleton
 @CompileStatic
-@Client("http://localhost:8082/panel")
+@Client("http://\${host.ip}:8082/panel")
 @Header(name = "database", value = "cubo")
 interface SkillsDatabaseClient extends PanelDatabaseApi {
 
