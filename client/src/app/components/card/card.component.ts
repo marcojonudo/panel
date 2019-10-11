@@ -15,13 +15,23 @@ export class CardComponent {
 	@Input() card: Card;
 	@Input() width: number;
 
-	constructor(
-		private cdRef: ChangeDetectorRef
-	) { }
+	private CARD_STATE_COLOR: any;
+
+	constructor() {
+		this.CARD_STATE_COLOR = {
+			P: '#FF0000',
+			E: '#008000',
+			A: '#0CC4D6'
+		}
+	}
 
 	// ngAfterViewInit(): void {
 		// this.cdRef.detach();
 	// }
+
+	getOrderStateColor(state: string): string {
+		return this.CARD_STATE_COLOR[state];
+	}
 
 	check() {
 		if (Constants.CHECK) {

@@ -15,7 +15,6 @@
 .resizable {
 	position: absolute;
 	bottom: 0;
-	background-color: yellow;
 	height: 3px;
 }
 

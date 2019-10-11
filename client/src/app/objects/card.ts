@@ -1,5 +1,6 @@
 import {Order} from "./order";
 import {UtilsService} from "../services/utils.service";
+import {Group} from "./group";
 
 export class Card {
 
@@ -15,6 +16,8 @@ export class Card {
 	left: number;
 	width: number;
 
+	group: Group;
+
 	order: Order;
 
 	linkedNextId: number;
@@ -28,13 +31,10 @@ export class Card {
 		this.duration = card.duration;
 		this.end = card.end;
 		this.line = card.line;
+		this.group = new Group(card.group);
 		this.order = new Order(card.order);
 		this.linkedPrevId = card.linkedPrevId;
 		this.linkedNextId = card.linkedNextId;
-	}
-
-	format() {
-
 	}
 
 }

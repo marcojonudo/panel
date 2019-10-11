@@ -1,12 +1,39 @@
 .panel-card {
-	background-color: blue;
-	color: white;
+	position: relative;
+	background-color: #ffffff;
+	color: #000000;
+	border: 1px solid #d5d5d5;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	font-size: 9px;
 }
 
 .resizable {
 	transition: width .1s !important;
 }
 
+.resizable-card-handler {
+	position: absolute;
+	right: 0;
+	height: 100%;
+	width: 3px;
+}
+
 .cursor-resize {
 	cursor: col-resize;
+}
+
+.card-state-indicator {
+	width: 10px;
+	height: 10px;
+	-webkit-border-radius: 100%;
+	-moz-border-radius: 100%;
+	border-radius: 100%;
+}
+
+.card-bottom-section {
+	-webkit-border-radius: 0 0 5px 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
 }
