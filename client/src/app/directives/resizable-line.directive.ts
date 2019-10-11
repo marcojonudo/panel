@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
 import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "../services/days.service";
+import {CardsService} from "../services/cards.service";
 
 @Directive({
   selector: '[appResizableLine]'
@@ -14,12 +15,14 @@ export class ResizableLineDirective implements OnInit {
 	private pointerUpListener;
 
 	private lastY: number;
+	private line: number;
 
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
-		private cdRef: ChangeDetectorRef,
-		private daysService: DaysService
+		private daysService: DaysService,
+		private cardsService: CardsService,
+		private cdRef: ChangeDetectorRef
 	) { }
 
 	ngOnInit(): void {
@@ -29,6 +32,7 @@ export class ResizableLineDirective implements OnInit {
 	onPointerDown(event: PointerEvent): void {
 		event.stopPropagation();
 		this.lastY = event.clientY;
+		this.line = this.mechanic.lines;
 
 		this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
 		this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
@@ -40,9 +44,16 @@ export class ResizableLineDirective implements OnInit {
 		*  el número de ellas más allá de 2 */
 		if (Math.abs(diff) >= this.daysService.lineHeight &&
 			!(diff < 0 && this.mechanic.height == this.daysService.lineHeight*2)) {
-			this.mechanic.height += this.daysService.lineHeight * Math.sign(diff);
-			this.lastY = event.clientY;
-			this.cdRef.detectChanges();
+			const nextLine = this.line + Math.sign(diff);
+			const lineCards = this.cardsService.getLineCards(this.mechanic.day, this.mechanic.code, nextLine);
+
+			/* Sólo se actualiza la altura si no hay fichas asignadas para la línea */
+			if (!lineCards.length) {
+				this.line = this.line + Math.sign(diff);
+				this.mechanic.height += this.daysService.lineHeight * Math.sign(diff);
+				this.lastY = event.clientY;
+				this.cdRef.detectChanges();
+			}
 		}
 	}
 

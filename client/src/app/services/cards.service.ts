@@ -321,8 +321,8 @@ export class CardsService {
 		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
 	}
 
-	// private getLineCards(day: Date, position: string, line: number): Card[] {
-	// 	return this.assignedDaysCardsGroups[]
-	// }
+	getLineCards(day: Date, mechanicCode: string, line: number): Card[] {
+		return this.getAssignedCards(day, mechanicCode).filter(cardsGroup => cardsGroup.cards[0].line == line);
+	}
 
 }

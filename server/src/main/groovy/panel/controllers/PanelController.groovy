@@ -46,7 +46,6 @@ class PanelController {
 
 	@Put("/mechanic/lines")
 	void updateMechanicLines(@Body Map<String, Object> mechanic) {
-//		int a = 1
 		schedulesDatabaseClient.updateMechanicLines(mechanic)
 	}
 
