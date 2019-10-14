@@ -392,6 +392,7 @@ export class CardPositionService {
 					group.left + this.timeService.calcWidth(leftCardsDuration),
 					day
 				);
+				card.end = UtilsService.addMinutes(card.start, card.duration);
 			});
 		});
 	}
