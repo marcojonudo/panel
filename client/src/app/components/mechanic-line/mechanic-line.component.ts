@@ -5,6 +5,7 @@ import {Mechanic} from "../../objects/mechanic";
 import {DaysService} from "../../services/days.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
+import {CardUpdate} from "../../objects/update-cards/card-update";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -44,14 +45,10 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.cardsGroups = this.cardsService.assignedDaysCardsGroups[this.day.getTime()][this.mechanic.code];
 		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.code]) {
-			this.cardsSubscription = this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.code].subscribe(cardsGroups => {
-				const replacedCardsGroups = this.cardsService.handleCardsGroupsListUpdate(this.cardsGroups, cardsGroups);
-				if (replacedCardsGroups) {
-					this.cardsGroups = replacedCardsGroups;
-				}
-				// console.time('Detect assigned changes');
+			this.cardsSubscription =
+				this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.code].subscribe((cardUpdate: CardUpdate) => {
+				cardUpdate.update(this.cardsGroups);
 				this.cdRef.detectChanges();
-				// console.timeEnd('Detect assigned changes');
 			});
 		}
 	}

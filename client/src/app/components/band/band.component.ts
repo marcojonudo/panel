@@ -1,13 +1,11 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit,} from '@angular/core';
 import {TimeService} from "../../services/time.service";
-import {animate, animateChild, query, stagger, style, transition, trigger} from "@angular/animations";
 import {Draggable, Droppable} from "@shopify/draggable"
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
-import {Card} from "../../objects/card";
-import {UtilsService} from "../../services/utils.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
+import {CardUpdate} from "../../objects/update-cards/card-update";
 
 @Component({
 	selector: 'app-band',
@@ -51,15 +49,9 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.unassignedCardsGroups = this.cardsService.unassignedCardsGroups;
-		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((unassignedCardsGroups: CardsGroup[]) => {
-			const replacedCardsGroups =
-				this.cardsService.handleCardsGroupsListUpdate(this.unassignedCardsGroups, unassignedCardsGroups);
-			if (replacedCardsGroups) {
-				this.unassignedCardsGroups = replacedCardsGroups;
-			}
-			// console.time('Detect unassigned changes');
+		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((cardUpdate: CardUpdate) => {
+			cardUpdate.update(this.unassignedCardsGroups);
 			this.cdRef.detectChanges();
-			// console.timeEnd('Detect unassigned changes');
 		});
 	}
 
