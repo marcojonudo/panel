@@ -1,3 +1,7 @@
+i {
+	cursor: pointer;
+}
+
 .panel-card {
 	position: relative;
 	background-color: #ffffff;
@@ -15,8 +19,8 @@
 
 .resizable-card-handler {
 	position: absolute;
+	top: 0;
 	right: 0;
-	height: 100%;
 	width: 3px;
 }
 
@@ -36,4 +40,15 @@
 	-webkit-border-radius: 0 0 5px 5px;
 	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
+}
+
+.link-cards-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+}
+
+.link-handler {
+	transform:rotate(-45deg)
 }

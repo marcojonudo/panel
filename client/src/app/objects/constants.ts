@@ -11,12 +11,14 @@ export class Constants {
 		LINE_HEIGHT_NARROW: 25,
 		MECHANIC_INFO_WIDTH: 180
 	};
-	public static MORNING = 'MORNING';
-	public static AFTERNOON = 'AFTERNOON';
-	public static CHECK: boolean = false;
-	public static SKILL_EXPERTISE_LEVEL: any = {
+	public static readonly CHECK: boolean = false;
+	public static readonly SKILL_EXPERTISE_LEVEL: any = {
 		LOW: 1,
 		MEDIUM: 2,
 		HIGH: 3
-	}
+	};
+	public static readonly NEXT_CARD_DIRECTION: any = {
+		LEFT: 'LEFT',
+		RIGHT: 'RIGTH'
+	};
 }

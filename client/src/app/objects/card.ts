@@ -10,7 +10,7 @@ export class Card {
 
 	start: Date;
 	duration: number;
-	end: string;
+	end: Date;
 	line: number;
 
 	left: number;
@@ -21,7 +21,7 @@ export class Card {
 	order: Order;
 
 	linkedNextId: number;
-	linkedPrevId: number;
+	linkedPreviousId: number;
 
 	constructor(card: any) {
 		this.id = card.id;
@@ -29,11 +29,11 @@ export class Card {
 		this.mechanicCode = card.mechanicCode;
 		this.start = card.start ? UtilsService.parseCompleteDate(this.day, card.start) : undefined;
 		this.duration = card.duration;
-		this.end = card.end;
+		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : undefined;
 		this.line = card.line;
 		this.group = new Group(card.group);
 		this.order = new Order(card.order);
-		this.linkedPrevId = card.linkedPrevId;
+		this.linkedPreviousId = card.linkedPreviousId;
 		this.linkedNextId = card.linkedNextId;
 	}
 

@@ -45,7 +45,7 @@ export class ResizableLineDirective implements OnInit {
 		if (Math.abs(diff) >= this.daysService.lineHeight &&
 			!(diff < 0 && this.mechanic.height == this.daysService.lineHeight*2)) {
 			const nextLine = this.line + Math.sign(diff);
-			const lineCards = this.cardsService.getLineCards(this.mechanic.day, this.mechanic.code, nextLine);
+			const lineCards = this.cardsService.findLineCards(this.mechanic.day, this.mechanic.code, nextLine);
 
 			/* Sólo se actualiza la altura si no hay fichas asignadas para la línea */
 			if (!lineCards.length) {

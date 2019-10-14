@@ -116,13 +116,8 @@ export class CardsService {
 	}
 
 	private findLinkedCards(cards: Card[], card: Card, linkedCards: Card[]): Card[] {
-		if (card.linkedPrevId) {
-			const linkedPrevCard = cards.find(c => c.id == card.linkedPrevId);
-			linkedCards.push(linkedPrevCard);
-			this.findLinkedCards(cards, linkedPrevCard, linkedCards);
-		}
 		if (card.linkedNextId) {
-			const linkedNextCard = cards.find(c => c.id == card.linkedNextId);
+			const linkedNextCard = cards.find(c => c.linkedPreviousId == card.id);
 			linkedCards.push(linkedNextCard);
 			this.findLinkedCards(cards, linkedNextCard, linkedCards);
 		}
@@ -172,7 +167,7 @@ export class CardsService {
 	}
 
 	private cardInGroup(cards: Card[], card: Card) {
-		return cards.find(groupCard => groupCard.linkedPrevId == card.id || groupCard.linkedNextId == card.id)
+		return cards.find(groupCard => groupCard.linkedPreviousId == card.id || groupCard.linkedNextId == card.id)
 	}
 
 	private updateDimensions() {
@@ -321,8 +316,44 @@ export class CardsService {
 		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
 	}
 
-	getLineCards(day: Date, mechanicCode: string, line: number): Card[] {
-		return this.getAssignedCards(day, mechanicCode).filter(cardsGroup => cardsGroup.cards[0].line == line);
+	findLineCards(day: Date, mechanicCode: string, line: number): Card[] {
+		const groups = this.getAssignedCards(day, mechanicCode).filter(group => group.cards[0].line == line);
+		return [].concat(...groups.map(group => group.cards));
+	}
+
+	getLeftAssignedNextCard(day: Date, mechanicCode: string, line: number, start: Date): Card {
+		return this.findLineCards(day, mechanicCode, line).find(card => card.end.getTime() == start.getTime());
+	}
+
+	//TODO actualizar end y start al mover
+	getRightAssignedNextCard(day: Date, mechanicCode: string, line: number, end: Date): Card {
+		return this.findLineCards(day, mechanicCode, line).find(card => card.start.getTime() == end.getTime());
+	}
+
+	findUnassignedNextCard(id: number, direction: string): Card {
+		const group = this.findUnassignedCardGroup(id);
+		const cardIndex = group.cards.findIndex(card => card.id == id);
+		if (direction == 'LEFT') {
+			return cardIndex > 0 ? group.cards[cardIndex-1] : undefined;
+		} else {
+			return cardIndex < group.cards.length-1 ? group.cards[cardIndex+1] : undefined;
+		}
+	}
+
+	private findUnassignedCardGroup(cardId: number): CardsGroup {
+		return this.unassignedCardsGroups.find(group => {
+			return group.cards.find(card => card.id == cardId) != undefined;
+		});
+	}
+
+
+
+
+
+	getLinkedPreviousCard(day: Date, mechanicCode: string, previousId: number) {
+		return this.getAssignedCards(day, mechanicCode).find(cardsGroup => {
+			return cardsGroup.cards.find(card => card.id == previousId)
+		}).cards.find(card => card.id == previousId);
 	}
 
 }

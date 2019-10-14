@@ -22,7 +22,8 @@ import {CardsService} from "../services/cards.service";
 })
 export class DraggableDirective implements OnInit, AfterViewChecked {
 
-	// @Input() card: Card;
+	private readonly AVOID_DRAG_ID: string = 'link-handler';
+
 	@Input() cardsGroup: CardsGroup;
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
@@ -62,26 +63,29 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	}
 
 	onPointerDown(event: PointerEvent): void {
-		// console.time('onPointerDown');
-		this.dragging = true;
-		/* Permite asignar la clase declarada mediante @HostBinding */
-		this.cdRef.detectChanges();
-		this.hiddenCardsGroup.emit(this.cardsGroup);
+		if (!(<HTMLElement> event.target).id.includes(this.AVOID_DRAG_ID)) {
+			// console.time('onPointerDown');
+			this.dragging = true;
+			/* Permite asignar la clase declarada mediante @HostBinding */
+			this.cdRef.detectChanges();
+			this.hiddenCardsGroup.emit(this.cardsGroup);
 
-		this.startPosition = new Coordinates(this.cardRect.left, this.cardRect.top);
-		this.position = new Coordinates(this.cardRect.left, this.cardRect.top);
-		this.cardPositionService.emitPosition(this.startPosition);
+			this.startPosition = new Coordinates(this.cardRect.left, this.cardRect.top);
+			this.position = new Coordinates(this.cardRect.left, this.cardRect.top);
+			this.cardPositionService.emitPosition(this.startPosition);
 
-		this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
-		this.cardPositionService.emitHelperCardsGroup(this.cardsGroup);
-		this.cardPositionService.emitDragging(true);
+			this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
+			this.cardPositionService.emitHelperCardsGroup(this.cardsGroup);
+			this.cardPositionService.emitDragging(true);
 
-		this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
-		this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
-		// console.timeEnd('onPointerDown');
+			this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
+			this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
+			// console.timeEnd('onPointerDown');
+		}
 	}
 
 	onPointerMove(event: PointerEvent): void {
+		// TODO Revisar cuando se hace clic y suelta, sin el onPointerMove
 		if (this.dragging) {
 			this.position.x = this.startPosition.x + event.clientX - this.startEventCoordinates.x;
 			this.position.y = this.startPosition.y + event.clientY - this.startEventCoordinates.y;

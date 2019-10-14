@@ -1,8 +1,11 @@
-import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	Component,
+	Input,
+} from '@angular/core';
 import {Card} from "../../objects/card";
-import {DaysService} from "../../services/days.service";
-import {ChangeDetection} from "@angular/cli/lib/config/schema";
 import {Constants} from "../../objects/constants";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
 	selector: 'app-card',
@@ -15,9 +18,11 @@ export class CardComponent {
 	@Input() card: Card;
 	@Input() width: number;
 
-	private CARD_STATE_COLOR: any;
+	private readonly CARD_STATE_COLOR: any;
 
-	constructor() {
+	constructor(
+		private cardsService: CardsService,
+	) {
 		this.CARD_STATE_COLOR = {
 			P: '#FF0000',
 			E: '#008000',
@@ -25,12 +30,37 @@ export class CardComponent {
 		}
 	}
 
-	// ngAfterViewInit(): void {
-		// this.cdRef.detach();
-	// }
-
 	getOrderStateColor(state: string): string {
 		return this.CARD_STATE_COLOR[state];
+	}
+
+	// region Link handlers
+
+	checkShowLeftLinkHandler(card: Card, direction: string = Constants.NEXT_CARD_DIRECTION.LEFT): boolean {
+		const leftCard = card.start ?
+			this.cardsService.getLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.start) :
+			this.cardsService.findUnassignedNextCard(card.id, direction);
+		return leftCard != undefined;
+	}
+
+	checkShowRightLinkHandler(card: Card, direction: string = Constants.NEXT_CARD_DIRECTION.RIGHT): boolean {
+		const rightCard = card.start ?
+			this.cardsService.getRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.end) :
+			this.cardsService.findUnassignedNextCard(card.id, direction);
+		return rightCard != undefined;
+	}
+
+	// endregion
+
+
+
+	linkPrevious(card: Card, previousId: number): void {
+		console.log('LINK PREVIOUS ID');
+		if (previousId) {
+			card.linkedPreviousId = undefined;
+			const previousCard = this.cardsService.getLinkedPreviousCard(card.day, card.mechanicCode, previousId);
+			console.log(previousCard);
+		}
 	}
 
 	check() {

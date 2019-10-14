@@ -6,6 +6,8 @@ import {Card} from "../objects/card";
 })
 export class UtilsService {
 
+	// region Date
+
 	public static parseTimeFromString(time: string): Date {
 		const info = time.split(":");
 		let date = new Date();
@@ -37,13 +39,6 @@ export class UtilsService {
 		return new Date(day.getFullYear(), day.getMonth(), day.getDate(), +timeInfo[0], +timeInfo[1], +timeInfo[2]);
 	}
 
-	public static parseDateFromCompleteString(date: string): Date {
-		const info = date.split(' ');
-		const dateInfo = info[0].split('-');
-		const timeInfo = info[1].split(':');
-		return new Date(+dateInfo[0], +dateInfo[1], +dateInfo[2], +timeInfo[0], +timeInfo[1], +timeInfo[2]);
-	}
-
 	public static getTotalMinutes(time: Date): number {
 		return time.getHours() * 60 + time.getMinutes();
 	}
@@ -51,6 +46,20 @@ export class UtilsService {
 	public static addMinutes(date: Date, minutes: number): Date {
 		return new Date(date.getTime() + minutes*60000);
 	}
+
+	public static timeGreaterThan(time1: Date, time2: Date) {
+		time1.setFullYear(time2.getFullYear());
+		time1.setMonth(time2.getMonth());
+		time1.setDate(time2.getDate());
+		return time1 > time2;
+	}
+
+	public static clearTime(date: Date) {
+		date.setHours(0, 0, 0, 0);
+		return date;
+	}
+
+	// endregion
 
 	public static createMinutesArray(from: number, to: number): number[] {
 		const length = (to - from) / 5;
@@ -81,30 +90,6 @@ export class UtilsService {
 		return array.filter(item => property(item) == value);
 	}
 
-	public static groupBy(array: any[], property: any) {
-		let grouped = {};
-		for (let item of array) {
-			if (!grouped[property(item)]) {
-				grouped[property(item)] = []
-			}
-			grouped[property(item)].push(item);
-		}
-		return grouped;
-	}
-
-	public static groupList(array: any[], property: any) {
-		let groupList = [];
-		for (let item of array) {
-			const index = groupList.findIndex(list => list && property(list[0]) == property(item));
-			if (index == -1) {
-				groupList.push([item]);
-			} else {
-				groupList[index].push(item);
-			}
-		}
-		return groupList;
-	}
-
 	public static createArray(length: number) {
 		return Array(length).fill(0);
 	}
@@ -117,18 +102,6 @@ export class UtilsService {
 
 	public static getScheduleMinutes(start: Date, end: Date) {
 		return Math.round((end.getTime() - start.getTime()) / 60000);
-	}
-
-	public static timeGreaterThan(time1: Date, time2: Date) {
-		time1.setFullYear(time2.getFullYear());
-		time1.setMonth(time2.getMonth());
-		time1.setDate(time2.getDate());
-		return time1 > time2;
-	}
-
-	public static clearTime(date: Date) {
-		date.setHours(0, 0, 0, 0);
-		return date;
 	}
 
 }
