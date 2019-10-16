@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Card} from "../../objects/card";
-import {CardPositionService} from "../../services/card-position.service";
 import {Constants} from "../../objects/constants";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
 	selector: 'app-helper-card',
@@ -13,7 +13,27 @@ export class HelperCardComponent {
 
 	@Input() card: Card;
 
-	constructor() {}
+	private readonly CARD_STATE_COLOR: any;
+
+	constructor(private cardsService: CardsService) {
+		this.CARD_STATE_COLOR = {
+			P: '#FF0000',
+			E: '#008000',
+			A: '#0CC4D6'
+		};
+	}
+
+	getOrderStateColor(state: string): string {
+		return this.CARD_STATE_COLOR[state];
+	}
+
+	checkShowLeftLinkHandler(card: Card, direction: string = Constants.NEXT_CARD_DIRECTION.LEFT): boolean {
+		return this.cardsService.findLeftNextCard(card, direction) != undefined;
+	}
+
+	checkShowRightLinkHandler(card: Card, direction: string = Constants.NEXT_CARD_DIRECTION.RIGHT): boolean {
+		return this.cardsService.findRightNextCard(card, direction) != undefined;
+	}
 
 	check(): void {
 		if (Constants.CHECK) {
