@@ -1,12 +1,9 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
 import {Card} from "../objects/card";
 import {Mechanic} from "../objects/mechanic";
 import {TimeService} from "./time.service";
-import {UtilsService} from "./utils.service";
 import {DaysService} from "./days.service";
-import {Order} from "../objects/order";
 
 import {CardsGroup} from "../objects/cards-group";
 import {HttpClient} from "@angular/common/http";
@@ -409,10 +406,13 @@ export class CardsService {
 		group.removeCards(cardIndex+offset, group.cards.length - (cardIndex+offset));
 
 		this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup);
+		this.http.put(
+			`${environment.serverUrl}/panel/cards/links`,
+			[group.cards[group.cards.length-1], newGroup.cards[0]]
+		).subscribe();
 	}
 
 	linkPrevious(card: Card): void {
-		//TODO Revisar movida al mover fichas, que vuelven a su posicion original
 		const cardsGroups =
 			card.start ? this.findLineGroups(card.day, card.mechanicCode, card.line) : this.unassignedCardsGroups;
 		const group = this.findCardsGroup(cardsGroups, card.id);
@@ -423,6 +423,10 @@ export class CardsService {
 
 		leftGroup.addCards(group.cards);
 		this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, group);
+		this.http.put(
+			`${environment.serverUrl}/panel/cards/links`,
+			leftGroup.cards
+		).subscribe();
 	}
 
 	linkNext(card: Card): void {
@@ -436,6 +440,10 @@ export class CardsService {
 
 		group.addCards(rightGroup.cards);
 		this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, rightGroup);
+		this.http.put(
+			`${environment.serverUrl}/panel/cards/links`,
+			group.cards
+		).subscribe();
 	}
 
 	// endregion

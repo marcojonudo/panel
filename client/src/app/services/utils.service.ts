@@ -70,7 +70,7 @@ export class UtilsService {
 		return array;
 	}
 
-	public static sort(array: any[], property: any) {
+	public static sort(array: any[], property: any): any[] {
 		return array.sort((a, b) => {
 			if (property(a) < property(b)) {
 				return -1;

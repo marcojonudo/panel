@@ -148,8 +148,6 @@ class PanelService {
 			Order order = orders.find { it.number == orderNumber }
 			if (groupsUnits.duration) {
 				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
-//					Card linkedPrevious = ordersCards && ordersCards.last()?.order?.number == order.number ?
-//							ordersCards.last() : null
 					ordersCards << new Card(order, groupUnits.group, groupUnits.units[0], groupUnits.duration)
 				}
 			} else {
@@ -388,7 +386,7 @@ class PanelService {
 			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
 			* para poder relacionar los IDS enlazados */
 			relateCardsIds(cards)
-			panelDatabaseClient.updateCardsLinks(cards)
+			panelDatabaseClient.updateCardsLinks(cards.collect { it.properties })
 		}
 		if (updateCards.updatedCards) {
 			cards += panelDatabaseClient.updateCards(updateCards.updatedCards).collect { (Card) it }

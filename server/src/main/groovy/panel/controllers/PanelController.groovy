@@ -44,6 +44,11 @@ class PanelController {
 		panelDatabaseClient.updateCardDuration(card)
 	}
 
+	@Put("/cards/links")
+	void updateLinks(@Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.updateCardsLinks(cards)
+	}
+
 	@Put("/mechanic/lines")
 	void updateMechanicLines(@Body Map<String, Object> mechanic) {
 		schedulesDatabaseClient.updateMechanicLines(mechanic)

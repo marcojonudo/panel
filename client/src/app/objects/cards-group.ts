@@ -1,4 +1,5 @@
 import {Card} from "./card";
+import {UtilsService} from "../services/utils.service";
 
 export class CardsGroup {
 
@@ -105,6 +106,8 @@ export class CardsGroup {
 
 	addCard(card: Card): void {
 		this.cards.push(card);
+		this.cards = UtilsService.sort(this.cards, (c) => c.start);
+		this.id = this.cards[0].id;
 		this.end = card.end;
 	}
 

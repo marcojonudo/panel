@@ -35,7 +35,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<Map> updateCards(@Body List<Card> cards)
 
 	@Put("/cardsLinks")
-	List<Map> updateCardsLinks(@Body List<Card> cards)
+	void updateCardsLinks(@Body List<Map<String, Object>> cards)
 
 	@Delete("/cards")
 	List<Map> deleteCards(@Body List<Long> ids)
