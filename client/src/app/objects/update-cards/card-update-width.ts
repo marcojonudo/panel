@@ -3,10 +3,10 @@ import {CardUpdate} from "./card-update";
 
 export class CardUpdateWidth implements CardUpdate {
 
-	newGroups: CardsGroup[];
+	newGroup: CardsGroup;
 
-	constructor(newGroups: CardsGroup[]) {
-		this.newGroups = newGroups;
+	constructor(newGroup: CardsGroup = undefined) {
+		this.newGroup = newGroup;
 	}
 
 	/* En el caso de la modificación de ancho, no es necesario actualizar propiedades ya que se detecta el cambio

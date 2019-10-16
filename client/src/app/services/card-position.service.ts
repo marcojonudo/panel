@@ -381,7 +381,7 @@ export class CardPositionService {
 	}
 
 	private updatePositionProperties(groups: CardsGroup[], clonedGroups: CardsGroup[], line: number, day: Date) {
-		groups.forEach((group, index) => {
+		groups.forEach(group => {
 			const clonedGroup = clonedGroups.find(g => g.id == group.id);
 			group.left = clonedGroup.left;
 
@@ -394,6 +394,9 @@ export class CardPositionService {
 				);
 				card.end = UtilsService.addMinutes(card.start, card.duration);
 			});
+			group.line = line;
+			group.start = group.cards[0].start;
+			group.end = group.cards[group.cards.length-1].end;
 		});
 	}
 

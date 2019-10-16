@@ -32,14 +32,14 @@
 		</div>
 	</div>
 	<div class="w-100 h-100 d-flex justify-content-between align-items-center link-cards-container">
-		<div (click)="linkPrevious(card, card.linkedPreviousId)">
+		<div (click)="handleLinkPrevious(card)">
 			<i
 				id="left-link-handler"
 				class="fas fa-magnet"
 				*ngIf="checkShowLeftLinkHandler(card)"
 				[ngClass]="card.linkedPreviousId ? 'fa-rotate-270' : 'fa-rotate-90'"></i>
 		</div>
-		<div (click)="linkPrevious(card, card.linkedPreviousId)">
+		<div (click)="handleLinkNext(card)">
 			<i
 				id="right-link-handler"
 				class="fas fa-magnet"

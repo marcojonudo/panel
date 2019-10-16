@@ -21,17 +21,17 @@ export class DraggableGroupComponent {
 		this.hiddenCardsGroup = new EventEmitter();
 	}
 
-	check(): void {
-		if (Constants.CHECK) {
-			console.log('checking draggable group', this.cardsGroup.cards);
-		}
-	}
-
 	emitHiddenCardsGroup(cardsGroup: CardsGroup) {
 		/* En el caso de líneas de mecánicos, ocultar la ficha consiste en asignar un z-index negativo al host, en
 		*  lugar de operar sobre el template. De esta forma, se evitan problemas con el onMouseMove del dropzone (al
 		*  estar la ficha encima, aunque oculta, no se lanzaba el evento) */
 		this.hiddenCardsGroup.emit(cardsGroup);
+	}
+
+	check(): void {
+		if (Constants.CHECK) {
+			console.log('checking draggable group', this.cardsGroup.cards[0].order.code);
+		}
 	}
 
 }

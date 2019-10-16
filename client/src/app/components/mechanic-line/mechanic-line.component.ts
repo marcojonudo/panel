@@ -47,8 +47,8 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.code]) {
 			this.cardsSubscription =
 				this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.code].subscribe((cardUpdate: CardUpdate) => {
-				cardUpdate.update(this.cardsGroups);
-				this.cdRef.detectChanges();
+					cardUpdate.update(this.cardsGroups);
+					this.cdRef.detectChanges();
 			});
 		}
 	}

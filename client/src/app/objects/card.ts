@@ -23,6 +23,9 @@ export class Card {
 	linkedNextId: number;
 	linkedPreviousId: number;
 
+	possibleLinkedNextId: boolean;
+	possibleLinkedPreviousId: boolean;
+
 	constructor(card: any) {
 		this.id = card.id;
 		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;

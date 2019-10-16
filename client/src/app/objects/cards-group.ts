@@ -6,14 +6,22 @@ export class CardsGroup {
 
 	private _id: number;
 
+	private _lastStart: Date;
 	private _start: Date;
 	private _left: number;
+	private _lastEnd: Date;
+	private _end: Date;
 
-	constructor(
-		cards: Card[]
-	) {
+	private _lastLine: number;
+	private _line: number;
+
+	constructor(cards: Card[], left: number = undefined) {
 		this.cards = cards;
 		this.id = this.cards[0].id;
+		this.start = this.cards[0].start;
+		this.end = this.cards[this.cards.length-1].end;
+		this.line = this.cards[0].line;
+		this.left = left;
 	}
 
 	// region Getters / setters
@@ -39,6 +47,7 @@ export class CardsGroup {
 	}
 
 	set start(value: Date) {
+		this.lastStart = this.start;
 		this._start = value;
 	}
 
@@ -50,7 +59,59 @@ export class CardsGroup {
 		this._left = value;
 	}
 
+	get line(): number {
+		return this._line;
+	}
+
+	set line(value: number) {
+		this.lastLine = this.line;
+		this._line = value;
+	}
+
+	get end(): Date {
+		return this._end;
+	}
+
+	set end(value: Date) {
+		this.lastEnd = this.end;
+		this._end = value;
+	}
+
+	get lastLine(): number {
+		return this._lastLine;
+	}
+
+	set lastLine(value: number) {
+		this._lastLine = value;
+	}
+
+	get lastEnd(): Date {
+		return this._lastEnd;
+	}
+
+	set lastEnd(value: Date) {
+		this._lastEnd = value;
+	}
+
+	get lastStart(): Date {
+		return this._lastStart;
+	}
+
+	set lastStart(value: Date) {
+		this._lastStart = value;
+	}
+
 	// endregion
+
+	addCard(card: Card): void {
+		this.cards.push(card);
+		this.end = card.end;
+	}
+
+	addCards(cards: Card[]): void {
+		this.cards = this.cards.concat(cards);
+		this.end = cards[cards.length-1].end;
+	}
 
 	clone(): CardsGroup {
 		const newCardsGroup = new CardsGroup(this.cards);
@@ -58,14 +119,10 @@ export class CardsGroup {
 		return newCardsGroup;
 	}
 
-	// cloneCards(): void {
-	// 	this.cards = this.cards.map((card) => {
-	// 		/* La ficha se clona por el mismo motivo. El componente card-component recibe una ficha, pero no
-	// 		*  detecta cambios si se modifica únicamente una propiedad, ya que la referencia es la misma */
-	// 		let newCard = card.clone();
-	// 		newCard.width = this.calcWidth(card.duration);
-	// 		return newCard;
-	// 	});
-	// }
+	removeCards(fromIndex, toIndex): void {
+		this.cards.splice(fromIndex, toIndex);
+		this.id = this.cards[0].id;
+		this.end = this.cards[this.cards.length-1].end;
+	}
 
 }
