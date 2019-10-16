@@ -344,22 +344,26 @@ export class CardsService {
 
 	findLeftNextCard(card: Card, direction: string): Card {
 		return card.start ?
-			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.start) :
+			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
 			this.findUnassignedNextCard(card.id, direction);
 	}
 
 	findRightNextCard(card: Card, direction: string): Card {
 		return card.start ?
-			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.end) :
+			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
 			this.findUnassignedNextCard(card.id, direction);
 	}
 
-	private findLeftAssignedNextCard(day: Date, mechanicCode: string, line: number, start: Date): Card {
-		return this.findLineCards(day, mechanicCode, line).find(card => card.end.getTime() == start.getTime());
+	private findLeftAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, start: Date): Card {
+		return this.findLineCards(day, mechanicCode, line).find(card => {
+			return card.order.number == orderNumber &&card.end.getTime() == start.getTime()
+		});
 	}
 
-	findRightAssignedNextCard(day: Date, mechanicCode: string, line: number, end: Date): Card {
-		return this.findLineCards(day, mechanicCode, line).find(card => card.start.getTime() == end.getTime());
+	private findRightAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, end: Date): Card {
+		return this.findLineCards(day, mechanicCode, line).find(card => {
+			return card.order.number == orderNumber && card.start.getTime() == end.getTime()
+		});
 	}
 
 	findUnassignedNextCard(id: number, direction: string): Card {
