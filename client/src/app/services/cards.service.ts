@@ -14,6 +14,7 @@ import {CardUpdateAdd} from "../objects/update-cards/card-update-add";
 import {CardUpdateRemove} from "../objects/update-cards/card-update-remove";
 import {CardUpdateWidth} from "../objects/update-cards/card-update-width";
 import {Constants} from "../objects/constants";
+import {UtilsService} from "./utils.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -104,12 +105,13 @@ export class CardsService {
 	}
 
 	private initGroupedUnassignedCards(unassignedCards: Card[]): CardsGroup[] {
+		UtilsService.sort(unassignedCards, (c) => c.order.code);
 		let groups = [];
 		let processedCards = [];
 		for (let card of unassignedCards) {
 			const processed = processedCards.indexOf(card) > -1;
 			if (!processed) {
-				const linkedCards = this.findLinkedCards(unassignedCards, card, [card]);
+				const linkedCards = this.findAllLinkedCards(unassignedCards, card);
 				groups.push(new CardsGroup(linkedCards));
 				processedCards = processedCards.concat(linkedCards);
 			}
@@ -117,17 +119,43 @@ export class CardsService {
 		return groups;
 	}
 
-	private findLinkedCards(cards: Card[], card: Card, linkedCards: Card[]): Card[] {
-		if (card.linkedNextId) {
-			const linkedNextCard = cards.find(c => c.linkedPreviousId == card.id);
-			linkedCards.push(linkedNextCard);
-			this.findLinkedCards(cards, linkedNextCard, linkedCards);
+	private initAssignedCardsGroups(assignedCards: Card[]) {
+		let groups: CardsGroup[] = [];
+		let processedCards = [];
+		for (let card of assignedCards) {
+			const alreadyProcessedCard = processedCards.find(c => c.id == card.id);
+			if (!alreadyProcessedCard) {
+				const linkedCards = this.findAllLinkedCards(assignedCards, card);
+				groups.push(new CardsGroup(linkedCards));
+				processedCards = processedCards.concat(linkedCards);
+			}
+		}
+
+		return groups;
+	}
+
+	private findAllLinkedCards(cards: Card[], card: Card): Card[] {
+		const linkedCards = this.findPreviousCards(cards, card, [card]).concat(this.findNextCards(cards,card));
+		UtilsService.sort(linkedCards, (c) => c.start);
+		return linkedCards;
+	}
+
+	private findPreviousCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
+		if (card.linkedPreviousId) {
+			const previousCard = cards.find(c => c.id == card.linkedPreviousId);
+			linkedCards.push(previousCard);
+			this.findPreviousCards(cards, previousCard, linkedCards);
 		}
 		return linkedCards;
 	}
 
-	private initAssignedCardsGroups(assignedCards: Card[]) {
-		return this.getGroupedCards(assignedCards);
+	private findNextCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
+		if (card.linkedNextId) {
+			const nextCard = cards.find(c => c.id == card.linkedNextId);
+			linkedCards.push(nextCard);
+			this.findNextCards(cards, nextCard, linkedCards);
+		}
+		return linkedCards;
 	}
 
 	private initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: any): any {
@@ -153,23 +181,10 @@ export class CardsService {
 		}
 	}
 
-	private getGroupedCards(cards: Card[]) {
-		let groupedCards: CardsGroup[] = [];
-		for (let card of cards) {
-			const index = groupedCards.findIndex(cardsGroup =>
-				cardsGroup.cards && this.cardInGroup(cardsGroup.cards, card) != undefined
-			);
-			if (index == -1) {
-				groupedCards.push(new CardsGroup([card]))
-			} else {
-				groupedCards[index].addCard(card);
-			}
-		}
-		return groupedCards;
-	}
-
-	private cardInGroup(cards: Card[], card: Card) {
-		return cards.find(groupCard => groupCard.linkedPreviousId == card.id || groupCard.linkedNextId == card.id)
+	private cardInGroup(cards: Card[], card: Card): boolean {
+		return cards.find(groupCard =>
+			groupCard.linkedPreviousId == card.id || groupCard.linkedNextId == card.id
+		) != undefined;
 	}
 
 	private updateDimensions() {
@@ -207,10 +222,7 @@ export class CardsService {
 
 			this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, cardsGroup);
 		} else {
-			const cardsGroupIndex = this.unassignedCardsGroups.findIndex(group => group.id == cardsGroup.id);
-			this.unassignedCardsGroups = this.unassignedCardsGroups.filter((g, i) => i != cardsGroupIndex);
-			const cardUpdateRemove = new CardUpdateRemove(cardsGroup);
-			this.notifyUnassigned(cardUpdateRemove);
+			this.handleRemoveUnassignedCardsGroup(cardsGroup);
 		}
 	}
 
@@ -282,26 +294,48 @@ export class CardsService {
 	// region Global cards map
 
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
-		this.addCardsGroup(day, mechanicCode, group);
+		this.addAssignedCardsGroup(day, mechanicCode, group);
 		this.notifyAssigned(day, mechanicCode, new CardUpdateAdd(group));
 	}
 
 	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
-		this.removeCardsGroup(day, mechanicCode, group);
+		this.removeAssignedCardsGroup(day, mechanicCode, group);
 		this.notifyAssigned(day, mechanicCode, new CardUpdateRemove(group));
 	}
 
-	addCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+	handleAddUnassignedCardsGroup(group: CardsGroup): void {
+		this.addUnassignedCardsGroup(group);
+		this.notifyUnassigned(new CardUpdateAdd(group));
+	}
+
+	handleRemoveUnassignedCardsGroup(group: CardsGroup): void {
+		this.removeUnassignedCardsGroup(group);
+		this.notifyUnassigned(new CardUpdateRemove(group));
+	}
+
+	private addAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		/* Se usa concat en lugar de push para que no modifique el array original, y se actualice antes de tiempo en
 		*  mechanic-line.component. Haciendo el push, el array cardsGroups del mechanic-line.component se actualiza aquí
 		*  en lugar de en el propio componente */
 		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
-			this.assignedDaysCardsGroups[day.getTime()][mechanicCode].concat([group]);
+			UtilsService.sort(
+				this.assignedDaysCardsGroups[day.getTime()][mechanicCode].concat([group]),
+				(g) => g.start
+			);
 	}
 
-	removeCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+	private removeAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
 			this.assignedDaysCardsGroups[day.getTime()][mechanicCode].filter(g => g.id != group.id);
+	}
+
+	private addUnassignedCardsGroup(group: CardsGroup): void {
+		this.unassignedCardsGroups = this.unassignedCardsGroups.concat([group]);
+		UtilsService.sort(this.unassignedCardsGroups, (g) => g.cards[0].order.code);
+	}
+
+	private removeUnassignedCardsGroup(group: CardsGroup): void {
+		this.unassignedCardsGroups = this.unassignedCardsGroups.filter(g => g.id != group.id);
 	}
 
 	// endregion
@@ -316,7 +350,164 @@ export class CardsService {
 
 	// endregion
 
-	// region Find cards (groups)
+	// region Link handlers checks
+
+	findLeftNextCard(card: Card, direction: string): Card {
+		return card.start ?
+			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
+			this.findLeftUnassignedNextCard(card.id);
+	}
+
+	findRightNextCard(card: Card, direction: string): Card {
+		return card.start ?
+			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
+			this.findRightUnassignedNextCard(card.id);
+	}
+
+	private findLeftAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, start: Date): Card {
+		return this.findLineCards(day, mechanicCode, line).find(card => {
+			return card.order.number == orderNumber && card.end.getTime() == start.getTime()
+		});
+	}
+
+	private findRightAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, end: Date): Card {
+		return this.findLineCards(day, mechanicCode, line).find(card => {
+			return card.order.number == orderNumber && card.start.getTime() == end.getTime()
+		});
+	}
+
+	private findLeftUnassignedNextCard(id: number): Card {
+		const group = this.findCardGroup(this.unassignedCardsGroups, id);
+		const cardIndex = group.cards.findIndex(card => card.id == id);
+		if (cardIndex > 0) {
+			return group.cards[cardIndex-1];
+		} else {
+			const leftGroup = this.findLeftGroup(this.unassignedCardsGroups, group.id);
+			if (!leftGroup || leftGroup.cards[0].order.number != group.cards[0].order.number) {
+				return undefined;
+			}
+			return leftGroup.cards[leftGroup.cards.length-1];
+		}
+	}
+
+	private findRightUnassignedNextCard(id: number): Card {
+		const group = this.findCardGroup(this.unassignedCardsGroups, id);
+		const cardIndex = group.cards.findIndex(card => card.id == id);
+		if (cardIndex < group.cards.length-1) {
+			return group.cards[cardIndex+1];
+		} else {
+			const rightGroup = this.findRightGroup(this.unassignedCardsGroups, group.id);
+			if (!rightGroup || rightGroup.cards[0].order.number != group.cards[0].order.number) {
+				return undefined;
+			}
+			return rightGroup.cards[0];
+		}
+	}
+
+	// endregion
+
+	// region Link handlers actions
+
+	unlink(card: Card, direction: string): void {
+		let findGroups, createGroup, handleUpdate;
+		if (card.start) {
+			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
+			createGroup = (cards, group, cardIndex, offset) => new CardsGroup(cards, this.timeService.calcLeft(group.cards[cardIndex+offset].start));
+			handleUpdate = (newGroup) => this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup)
+		} else {
+			findGroups = () => this.unassignedCardsGroups;
+			createGroup = (cards) => new CardsGroup(cards);
+			handleUpdate = (newGroup) => this.handleAddUnassignedCardsGroup(newGroup)
+		}
+
+		/* Se obtienen los grupos de la línea o sin asignar, y a continuación el grupo al que pertence la ficha */
+		const cardsGroups = findGroups();
+		const group = this.findCardGroup(cardsGroups, card.id);
+
+		/* Se actualizan las propiedades de las fichas */
+		const cardIndex = group.cards.findIndex(c => c.id == card.id);
+		let offset = this.updateLinks(card, group, cardIndex, direction);
+
+		/* Se definen los nuevos grupos, tanto el nuevo como la actualización de fichas del antiguo */
+		const newGroup = createGroup(
+			group.cards.slice(cardIndex+offset, group.cards.length),
+			group, cardIndex, offset
+		);
+		group.removeCards(cardIndex+offset, group.cards.length - (cardIndex+offset));
+
+		handleUpdate(newGroup);
+		this.http.put(
+			`${environment.serverUrl}/panel/cards/links`,
+			[group.cards[group.cards.length-1], newGroup.cards[0]]
+		).subscribe();
+	}
+
+	updateLinks(card: Card, group: CardsGroup, cardIndex: number, direction: string): number {
+		let offset;
+		if (direction == Constants.NEXT_CARD_DIRECTION.RIGHT) {
+			card.linkedNextId = undefined;
+			group.cards[cardIndex+1].linkedPreviousId = undefined;
+			offset = 1;
+		} else {
+			card.linkedPreviousId = undefined;
+			group.cards[cardIndex-1].linkedNextId = undefined;
+			offset = 0;
+		}
+		return offset;
+	}
+
+	linkPrevious(card: Card): void {
+		let findGroups, handleUpdate;
+		if (card.start) {
+			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
+			handleUpdate = (group) => this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, group)
+		} else {
+			findGroups = () => this.unassignedCardsGroups;
+			handleUpdate = (group) => this.handleRemoveUnassignedCardsGroup(group)
+		}
+
+		const groups = findGroups();
+		const group = this.findCardGroup(groups, card.id);
+		const leftGroup = this.findLeftGroup(groups, group.id);
+
+		leftGroup.cards[leftGroup.cards.length-1].linkedNextId = card.id;
+		card.linkedPreviousId = leftGroup.cards[leftGroup.cards.length-1].id;
+
+		leftGroup.addCards(group.cards);
+		handleUpdate(group);
+		this.http.put(
+			`${environment.serverUrl}/panel/cards/links`,
+			leftGroup.cards
+		).subscribe();
+	}
+
+	linkNext(card: Card): void {
+		let findGroups, handleUpdate;
+		if (card.start) {
+			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
+			handleUpdate = (group) => this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, group)
+		} else {
+			findGroups = () => this.unassignedCardsGroups;
+			handleUpdate = (group) => this.handleRemoveUnassignedCardsGroup(group)
+		}
+		const groups = findGroups();
+		const group = this.findCardGroup(groups, card.id);
+		const rightGroup = this.findRightGroup(groups, group.id);
+
+		rightGroup.cards[0].linkedPreviousId = card.id;
+		card.linkedNextId = rightGroup.cards[0].id;
+
+		group.addCards(rightGroup.cards);
+		handleUpdate(rightGroup);
+		this.http.put(
+			`${environment.serverUrl}/panel/cards/links`,
+			group.cards
+		).subscribe();
+	}
+
+	// endregion
+
+	// region Find cards and groups
 
 	getAssignedCards(day: Date, mechanicCode: string) {
 		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
@@ -331,119 +522,25 @@ export class CardsService {
 		return [].concat(...groups.map(group => group.cards));
 	}
 
-	private findCardsGroup(groups: CardsGroup[], cardId: number): CardsGroup {
+	private findCardGroup(groups: CardsGroup[], cardId: number): CardsGroup {
 		return groups.find(group => group.cards.find(card => card.id == cardId) != undefined);
 	}
 
-	// endregion
-
-	// region Link handlers
-
-	findLeftNextCard(card: Card, direction: string): Card {
-		return card.start ?
-			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
-			this.findUnassignedNextCard(card.id, direction);
+	findLeftGroup(groups: CardsGroup[], groupId): CardsGroup {
+		const groupIndex = groups.findIndex(g => g.id == groupId);
+		return groupIndex > -1 && groupIndex > 0 ? groups[groupIndex-1] : undefined;
 	}
 
-	findRightNextCard(card: Card, direction: string): Card {
-		return card.start ?
-			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
-			this.findUnassignedNextCard(card.id, direction);
+	findRightGroup(groups: CardsGroup[], groupId): CardsGroup {
+		const groupIndex = groups.findIndex(g => g.id == groupId);
+		return groupIndex > -1 && groupIndex < groups.length-1 ? groups[groupIndex+1] : undefined;
 	}
 
-	private findLeftAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, start: Date): Card {
-		return this.findLineCards(day, mechanicCode, line).find(card => {
-			return card.order.number == orderNumber &&card.end.getTime() == start.getTime()
-		});
-	}
+	findLeftCard(cardId: number): void {
 
-	private findRightAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, end: Date): Card {
-		return this.findLineCards(day, mechanicCode, line).find(card => {
-			return card.order.number == orderNumber && card.start.getTime() == end.getTime()
-		});
-	}
-
-	findUnassignedNextCard(id: number, direction: string): Card {
-		const group = this.findUnassignedCardGroup(id);
-		const cardIndex = group.cards.findIndex(card => card.id == id);
-		if (direction == Constants.NEXT_CARD_DIRECTION.LEFT) {
-			return cardIndex > 0 ? group.cards[cardIndex-1] : undefined;
-		} else {
-			return cardIndex < group.cards.length-1 ? group.cards[cardIndex+1] : undefined;
-		}
-	}
-
-	private findUnassignedCardGroup(cardId: number): CardsGroup {
-		return this.unassignedCardsGroups.find(group => {
-			return group.cards.find(card => card.id == cardId) != undefined;
-		});
-	}
-
-	unlink(card: Card, direction: string): void {
-		/* Se obtienen los grupos de la línea o sin asignar, y a continuación el grupo al que pertence la ficha */
-		const cardsGroups =
-			card.start ? this.findLineGroups(card.day, card.mechanicCode, card.line) : this.unassignedCardsGroups;
-		const group = this.findCardsGroup(cardsGroups, card.id);
-
-		/* Se actualizan las propiedades de las fichas */
-		let offset;
-		const cardIndex = group.cards.findIndex(c => c.id == card.id);
-		if (direction == Constants.NEXT_CARD_DIRECTION.RIGHT) {
-			card.linkedNextId = undefined;
-			group.cards[cardIndex+1].linkedPreviousId = undefined;
-			offset = 1;
-		} else {
-			card.linkedPreviousId = undefined;
-			group.cards[cardIndex-1].linkedNextId = undefined;
-			offset = 0;
-		}
-
-		/* Se definen los nuevos grupos, tanto el nuevo como la actualización de fichas del antiguo */
-		const newGroup = new CardsGroup(
-			group.cards.slice(cardIndex+offset, group.cards.length),
-			this.timeService.calcLeft(group.cards[cardIndex+offset].start)
-		);
-		group.removeCards(cardIndex+offset, group.cards.length - (cardIndex+offset));
-
-		this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup);
-		this.http.put(
-			`${environment.serverUrl}/panel/cards/links`,
-			[group.cards[group.cards.length-1], newGroup.cards[0]]
-		).subscribe();
-	}
-
-	linkPrevious(card: Card): void {
-		const cardsGroups =
-			card.start ? this.findLineGroups(card.day, card.mechanicCode, card.line) : this.unassignedCardsGroups;
-		const group = this.findCardsGroup(cardsGroups, card.id);
-		const leftGroup = cardsGroups.find(group => group.end.getTime() == card.start.getTime());
-
-		leftGroup.cards[leftGroup.cards.length-1].linkedNextId = card.id;
-		card.linkedPreviousId = leftGroup.cards[leftGroup.cards.length-1].id;
-
-		leftGroup.addCards(group.cards);
-		this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, group);
-		this.http.put(
-			`${environment.serverUrl}/panel/cards/links`,
-			leftGroup.cards
-		).subscribe();
-	}
-
-	linkNext(card: Card): void {
-		const cardsGroups =
-			card.start ? this.findLineGroups(card.day, card.mechanicCode, card.line) : this.unassignedCardsGroups;
-		const group = this.findCardsGroup(cardsGroups, card.id);
-		const rightGroup = cardsGroups.find(group => group.start.getTime() == card.end.getTime());
-
-		rightGroup.cards[0].linkedPreviousId = card.id;
-		card.linkedNextId = rightGroup.cards[0].id;
-
-		group.addCards(rightGroup.cards);
-		this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, rightGroup);
-		this.http.put(
-			`${environment.serverUrl}/panel/cards/links`,
-			group.cards
-		).subscribe();
+		// const leftGroup = this.findLeftGroup(this.unassignedCardsGroups, group.id);
+		// return leftGroup && leftGroup.cards[0].order.number == group.cards[0].order.number ?
+		// 	leftGroup.cards[leftGroup.cards.length-1] : undefined;
 	}
 
 	// endregion

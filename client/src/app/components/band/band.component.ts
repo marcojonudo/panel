@@ -6,6 +6,7 @@ import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
 import {CardUpdate} from "../../objects/update-cards/card-update";
+import {UtilsService} from "../../services/utils.service";
 
 @Component({
 	selector: 'app-band',
@@ -51,6 +52,7 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.unassignedCardsGroups = this.cardsService.unassignedCardsGroups;
 		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((cardUpdate: CardUpdate) => {
 			cardUpdate.update(this.unassignedCardsGroups);
+			UtilsService.sort(this.unassignedCardsGroups, (g) => g.cards[0].order.code);
 			this.cdRef.detectChanges();
 		});
 	}
@@ -70,6 +72,11 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
+
+	checkMarginBetweenGroups(group: CardsGroup, index: number): boolean {
+		return index < this.unassignedCardsGroups.length-1 &&
+			group.cards[0].order.number != this.unassignedCardsGroups[index+1].cards[0].order.number;
+	}
 
 	check() {
 		if (Constants.CHECK) {

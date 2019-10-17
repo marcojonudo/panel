@@ -8,8 +8,9 @@
 		appDropzone
 		class="align-items-center flex-grow-1 unassigned-orders-cards-container d-flex pl-3">
 		<app-draggable-group
-			*ngFor="let cardsGroup of unassignedCardsGroups"
-			class="mr-2 cards-height"
+			*ngFor="let cardsGroup of unassignedCardsGroups; let i = index"
+			class="cards-height"
+			[ngClass]="{'mr-2': checkMarginBetweenGroups(cardsGroup, i)}"
 			[cardsGroup]="cardsGroup">
 		</app-draggable-group>
 	</div>

@@ -104,14 +104,9 @@ export class CardsGroup {
 
 	// endregion
 
-	addCard(card: Card): void {
-		this.cards.push(card);
-		this.cards = UtilsService.sort(this.cards, (c) => c.start);
-		this.id = this.cards[0].id;
-		this.end = card.end;
-	}
-
 	addCards(cards: Card[]): void {
+		/* No es necesario ordenar las fichas por start, ya que este método se usa para añadir a un grupo que está a
+		*  la izquerda, fichas de otro que está a la derecha */
 		this.cards = this.cards.concat(cards);
 		this.end = cards[cards.length-1].end;
 	}
