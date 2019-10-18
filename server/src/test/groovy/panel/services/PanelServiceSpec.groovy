@@ -2306,8 +2306,8 @@ class PanelServiceSpec extends Specification {
 	void "test relate cards IDs same order"() {
 		given:
 		List<Card> cards = [
-				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]])
 		]
 
 		when:
@@ -2320,13 +2320,13 @@ class PanelServiceSpec extends Specification {
 		!cards[1].linkedNextId
 	}
 
-	void "test relate cards IDs same order several cards"() {
+	void "test relate cards IDs same order several cards rising order"() {
 		given:
 		List<Card> cards = [
-				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-				new Card(id: 3, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-				new Card(id: 4, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 3, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 1]]),
+				new Card(id: 4, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 2]])
 		]
 
 		when:
@@ -2341,6 +2341,29 @@ class PanelServiceSpec extends Specification {
 		cards[2].linkedNextId == 4
 		cards[3].linkedPreviousId == 3
 		!cards[3].linkedNextId
+	}
+
+	void "test relate cards IDs same order several cards random order"() {
+		given:
+		List<Card> cards = [
+				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 3]]),
+				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 1]]),
+				new Card(id: 3, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 4, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 2]])
+		]
+
+		when:
+		panelService.relateCardsIds(cards)
+
+		then:
+		cards[0].linkedPreviousId == 4
+		!cards[0].linkedNextId
+		cards[1].linkedPreviousId == 3
+		cards[1].linkedNextId == 4
+		!cards[2].linkedPreviousId
+		cards[2].linkedNextId == 2
+		cards[3].linkedPreviousId == 2
+		cards[3].linkedNextId == 1
 	}
 
 	// endregion
