@@ -403,7 +403,7 @@ class PanelService {
 	 */
 	static void relateCardsIds(List<Card> cards) {
 		cards.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
-			orderCards.eachWithIndex { Card card, int i ->
+			orderCards.sort { it.group.color.order }.eachWithIndex { Card card, int i ->
 				card.linkedPreviousId = i > 0 && orderCards[i-1].order.number == card.order.number ? orderCards[i-1].id : (Long) null
 				card.linkedNextId = i < orderCards.size()-1 && orderCards[i+1].order.number == card.order.number ? orderCards[i+1].id : (Long) null
 			}
