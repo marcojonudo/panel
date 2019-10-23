@@ -6,7 +6,7 @@ stages:
     - versioning
     - tagging
     - docker
-#    - deploy
+    - deploy
 
 #variables:
 #    SCRIPTS_REPO: https://gitlab.com/marco_fv/ci-scripts
@@ -145,17 +145,32 @@ build:docker:
     only:
         - branches
 
-#deploy-containers:
-#    stage: deploy
-#    image: docker:latest
-#    services:
-#        - docker:dind
-#    tags:
-#        - sidesman2
-#    variables:
-#        DOCKER_HOST: tcp://sidesman2:2375
-#    script:
-#        - docker stack deploy -c docker-compose.yml -c compose-prod.yml test
-#    when: manual
-#    only:
-#        - branches
+deploy:sta:
+    stage: deploy
+    tags:
+        - sidesman2
+    variables:
+        ENVIRONMENT: sta
+    before_script:
+        - apk upgrade --update && apk add openssh sshpass
+        - chmod +x ./gitlab-ci-scripts/deploy.sh
+    script:
+        - ./gitlab-ci-scripts/deploy.sh
+    when: manual
+    only:
+        - branches
+
+deploy:prod:
+    stage: deploy
+    tags:
+        - sidesman2
+    variables:
+        ENVIRONMENT: prod
+    before_script:
+        - apk upgrade --update && apk add openssh sshpass
+        - chmod +x ./gitlab-ci-scripts/deploy.sh
+    script:
+        - ./gitlab-ci-scripts/deploy.sh
+    when: manual
+    only:
+        - branches
