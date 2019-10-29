@@ -40,6 +40,8 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	@HostBinding('class.hidden')
 	dragging: boolean;
 
+	moved: boolean;
+
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
@@ -52,6 +54,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.hiddenCardsGroup = new EventEmitter();
 
 		this.position = new Coordinates(0, 0);
+		this.moved = false;
 	}
 
 	ngOnInit() {
@@ -64,7 +67,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 	onPointerDown(event: PointerEvent): void {
 		if (!(<HTMLElement> event.target).id.includes(this.AVOID_DRAG_ID)) {
-			// console.time('onPointerDown');
 			this.dragging = true;
 			/* Permite asignar la clase declarada mediante @HostBinding */
 			this.cdRef.detectChanges();
@@ -80,12 +82,11 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 			this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
 			this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
-			// console.timeEnd('onPointerDown');
 		}
 	}
 
 	onPointerMove(event: PointerEvent): void {
-		// TODO Revisar cuando se hace clic y suelta, sin el onPointerMove
+		this.moved = true;
 		if (this.dragging) {
 			this.position.x = this.startPosition.x + event.clientX - this.startEventCoordinates.x;
 			this.position.y = this.startPosition.y + event.clientY - this.startEventCoordinates.y;
@@ -94,7 +95,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	}
 
 	onPointerUp(): void {
-		// console.time('onPointerUp');
 		this.dragging = false;
 		this.cdRef.detectChanges();
 		this.hiddenCardsGroup.emit(undefined);
@@ -110,13 +110,13 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		 * antes de eliminarlas del origen, de ahí el uso de la variable emitHelperCardsGroup (sólo para el caso de arrastrar
 		 * la ficha a la bandeja desde una línea */
 		this.cardPositionService.emitDragging(this.dragging);
-		if (emitHelperCard) {
+		if (emitHelperCard || !this.moved) {
 			this.cardPositionService.emitHelperCardsGroup(undefined);
 		}
 
 		this.pointerMoveListener();
 		this.pointerUpListener();
-		// console.timeEnd('onPointerUp');
+		this.moved = false;
 	}
 
 	private handleDestinyPosition(): boolean {

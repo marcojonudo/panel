@@ -19,9 +19,6 @@ export class UtilsService {
 	}
 
 	public static parseTimeFromMinutes(minutes: number, day: Date): Date {
-		// const hours = minutes / 60 < 10 ? `0${minutes / 60}` : `${minutes / 60}`;
-		// const m = minutes % 60 < 10 ? `0${minutes % 60}` : `${minutes % 60}`;
-		// return `${hours}:${m}:00`
 		return new Date(day.getFullYear(), day.getMonth(), day.getDate(), minutes/60, minutes%60)
 	}
 
