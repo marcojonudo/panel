@@ -9,7 +9,8 @@ export class Constants {
 	public static VALUE: any = {
 		LINE_HEIGHT_DEFAULT: 40,
 		LINE_HEIGHT_NARROW: 25,
-		MECHANIC_INFO_WIDTH: 180
+		MECHANIC_INFO_WIDTH: 180,
+		CARD_MIN_DURATION: 10
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {

@@ -173,4 +173,8 @@ export class DaysService {
 		this.daysMechanicsSubjects[day.getTime()].next(this.daysMechanics[day.getTime()]);
 	}
 
+	findMechanic(day: Date, code: string): Mechanic {
+		return this.daysMechanics[day.getTime()].find(mechanic => mechanic.code == code);
+	}
+
 }

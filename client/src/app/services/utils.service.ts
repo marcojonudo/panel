@@ -14,6 +14,7 @@ export class UtilsService {
 		date.setHours(parseInt(info[0]));
 		date.setMinutes(parseInt(info[1]));
 		date.setSeconds(parseInt(info[2]));
+		date.setMilliseconds(0);
 
 		return date;
 	}
