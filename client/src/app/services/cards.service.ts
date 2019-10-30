@@ -15,6 +15,7 @@ import {CardUpdateRemove} from "../objects/update-cards/card-update-remove";
 import {CardUpdateWidth} from "../objects/update-cards/card-update-width";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
+import {isNullOrUndefined} from "util";
 
 @Injectable({
 	providedIn: 'root'
@@ -167,9 +168,13 @@ export class CardsService {
 			this.assignedDaysCardsGroups$[dayTime] = {};
 
 			for (let mechanic of daysMechanics[dayTime]) {
-				this.assignedDaysCardsGroups[dayTime][mechanic.code] = assignedCardsGroups.filter(cardsGroup => {
+				const assignedDayCardsGroups = assignedCardsGroups.filter(cardsGroup => {
 					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.code
 				});
+				this.assignedDaysCardsGroups[dayTime][mechanic.code] = UtilsService.sort(
+					assignedDayCardsGroups,
+					(g) => g.start
+				);
 
 				const subject = new Subject<CardUpdate>();
 				const observable = subject.asObservable();
@@ -350,10 +355,61 @@ export class CardsService {
 
 	// region Update width
 
-	updateCardDuration(card: Card, width: number): void {
-		card.width = width;
-		card.duration = this.timeService.calcDurationFromWidth(card.width);
-		this.http.put(`${environment.serverUrl}/panel/cards/duration`, card).subscribe();
+	handleCardDurationUpdate(card: Card, widthIncrease: number): Card[] {
+		const lineGroups = this.findLineGroups(card.day, card.mechanicCode, card.line);
+		const durationIncrease = this.timeService.calcDurationFromWidth(widthIncrease);
+		card.setWidth(widthIncrease, durationIncrease);
+
+		let cards = [];
+		if (widthIncrease > 0) {
+			const updatedGroups = this.findUpdatedDurationGroups(card);
+			cards = this.updatePositionByStep(updatedGroups, widthIncrease, durationIncrease);
+		}
+		this.handleGroupDurationUpdate(lineGroups, card.id, durationIncrease);
+
+		this.notifyAssigned(card.day, card.mechanicCode, new CardUpdateWidth());
+		return cards.concat(card);
+	}
+
+	handleGroupDurationUpdate(lineGroups: CardsGroup[], cardId: number, durationIncrease: number): void {
+		const group = this.findCardGroup(lineGroups, cardId);
+		group.end = UtilsService.addMinutes(group.end, durationIncrease);
+	}
+
+	findUpdatedDurationGroups(card: Card): CardsGroup[] {
+		const lineGroups = this.findLineGroups(card.day, card.mechanicCode, card.line);
+		let stopSearching = false;
+		return lineGroups.filter((group, i) => {
+			const startTime = group.start.getTime();
+			if (!stopSearching && startTime > card.start.getTime()) {
+				const gapBetweenGroups = lineGroups[i-1].end.getTime() != group.start.getTime();
+				if (gapBetweenGroups) {
+					stopSearching = true;
+				}
+				return !gapBetweenGroups
+			}
+			return false;
+		});
+	}
+
+	updatePositionByStep(groups: CardsGroup[], widthStep: number, durationStep: number): Card[] {
+		const cards = [];
+		groups.forEach(group => {
+			group.left += widthStep;
+			group.start = UtilsService.addMinutes(group.start, durationStep);
+			group.end = UtilsService.addMinutes(group.end, durationStep);
+
+			group.cards.forEach(c => {
+				c.start = UtilsService.addMinutes(c.start, durationStep);
+				c.end = UtilsService.addMinutes(c.start, c.duration);
+			});
+			cards.push(...group.cards);
+		});
+		return cards;
+	}
+
+	updateCardsDuration(cards: Card[]): void {
+		this.http.put(`${environment.serverUrl}/panel/cards/duration`, cards).subscribe();
 	}
 
 	// endregion

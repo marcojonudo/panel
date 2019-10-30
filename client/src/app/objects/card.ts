@@ -40,4 +40,14 @@ export class Card {
 		this.linkedNextId = card.linkedNextId;
 	}
 
+	setWidth(widthIncrease: number, durationIncrease: number) {
+		this.width += widthIncrease;
+		this.setDuration(durationIncrease);
+	}
+
+	setDuration(durationIncrease: number) {
+		this.duration += durationIncrease;
+		this.end = UtilsService.addMinutes(this.start, this.duration);
+	}
+
 }

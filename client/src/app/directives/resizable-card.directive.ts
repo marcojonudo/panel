@@ -14,6 +14,7 @@ export class ResizableCardDirective {
 	private pointerMoveListener;
 	private pointerUpListener;
 
+	private updatedCards: Card[];
 	private lastX: number;
 
 	constructor(
@@ -22,7 +23,9 @@ export class ResizableCardDirective {
 		private cdRef: ChangeDetectorRef,
 		private cardsService: CardsService,
 		private timeService: TimeService
-	) { }
+	) {
+		this.updatedCards = []
+	}
 
 	ngOnInit(): void {
 		this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
@@ -40,9 +43,11 @@ export class ResizableCardDirective {
 		const diff = event.clientX - this.lastX;
 		if (Math.abs(diff) >= this.timeService.intervalWidth &&
 			!(diff < 0 && this.card.width == this.timeService.intervalWidth)) {
-			this.card.width += this.timeService.intervalWidth * Math.sign(diff);
+			this.updatedCards = this.updatedCards.concat(this.cardsService.handleCardDurationUpdate(
+				this.card,
+				this.timeService.intervalWidth * Math.sign(diff)
+			)).filter((card, i, self) => self.indexOf(card) === i);
 			this.lastX = event.clientX;
-			this.cdRef.detectChanges();
 		}
 	}
 
@@ -50,7 +55,7 @@ export class ResizableCardDirective {
 		this.pointerMoveListener();
 		this.pointerUpListener();
 
-		this.cardsService.updateCardDuration(this.card, this.card.width);
+		this.cardsService.updateCardsDuration(this.updatedCards);
 	}
 
 }

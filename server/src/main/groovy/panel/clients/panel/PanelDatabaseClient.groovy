@@ -44,6 +44,6 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<Map> updateCardsPosition(@Body List<Map<String, Object>> cards)
 
 	@Put("/cards/duration")
-	Map updateCardDuration(@Body Map<String, Object> card)
+	List<Map> updateCardDuration(@Body List<Map<String, Object>> cards)
 
 }
