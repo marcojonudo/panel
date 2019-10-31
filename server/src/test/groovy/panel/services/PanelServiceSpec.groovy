@@ -1452,10 +1452,10 @@ class PanelServiceSpec extends Specification {
 	void "test get day mechanics sort not null days"() {
 		given:
 		Date date = new Date()
-		List<Map> dayMechanics = [
-				[day: 1567090800000],
-				[day: 1567090800000],
-				[day: 1566939600000]
+		List<EmployeeSchedule> dayMechanics = [
+				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
+				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
+				new EmployeeSchedule(day: new java.sql.Date(1566939600000))
 		]
 		schedulesDatabaseClient.getMechanics(date, true) >> dayMechanics
 
@@ -1473,10 +1473,10 @@ class PanelServiceSpec extends Specification {
 	void "test get day mechanics null days"() {
 		given:
 		Date date = new Date()
-		List<Map> dayMechanics = [
-				[day: 1567090800000],
-				[day: 1566939600000],
-				[day: null],
+		List<EmployeeSchedule> dayMechanics = [
+				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
+				new EmployeeSchedule(day: new java.sql.Date(1566939600000)),
+				new EmployeeSchedule(day: null),
 		]
 		schedulesDatabaseClient.getMechanics(date, true) >> dayMechanics
 
@@ -1660,13 +1660,13 @@ class PanelServiceSpec extends Specification {
 
 	void "test build order cards 1"() {
 		given:
-		GroupUnits groupUnits = new GroupUnits(group1, [1])
+		GroupUnits groupUnits = new GroupUnits(group: group1, units: [1])
 		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits]
 		]
 		panelDatabaseClient.getDurations(
 				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-		) >> [(order1Article.number): [[group: group1, units: 1, duration: 30]]]
+		) >> [(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 30])]]
 
 		when:
 		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
@@ -1683,9 +1683,9 @@ class PanelServiceSpec extends Specification {
 
 	void "test build order cards 2"() {
 		given:
-		GroupUnits groupUnits1 = new GroupUnits(group1, [1])
-		GroupUnits groupUnits2 = new GroupUnits(group2, [1, 1])
-		GroupUnits groupUnits3 = new GroupUnits(group3, [3])
+		GroupUnits groupUnits1 = new GroupUnits(group: group1, units: [1])
+		GroupUnits groupUnits2 = new GroupUnits(group: group2, units: [1, 1])
+		GroupUnits groupUnits3 = new GroupUnits(group: group3, units: [3])
 		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits1],
 				(order4Articles): [groupUnits1, groupUnits2, groupUnits3]
@@ -1693,11 +1693,11 @@ class PanelServiceSpec extends Specification {
 		panelDatabaseClient.getDurations(
 				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
 		) >> [
-				(order1Article.number): [[group: group1, units: 1, duration: 10]],
+				(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 10])],
 				(order4Articles.number): [
-						[group: group1, units: 1, duration: 10],
-						[group: group2, units: 2, duration: 30],
-						[group: group3, units: 3, duration: 45]
+						new GroupUnits([group: group1, units: [1], duration: 10]),
+						new GroupUnits([group: group2, units: [2], duration: 30]),
+						new GroupUnits([group: group3, units: [3], duration: 45])
 				],
 		]
 
@@ -1722,7 +1722,7 @@ class PanelServiceSpec extends Specification {
 
 	void "test build order cards duration not found for group"() {
 		given:
-		GroupUnits groupUnits1 = new GroupUnits(group1, [1])
+		GroupUnits groupUnits1 = new GroupUnits(group: group1, units: [1])
 		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits1]
 		]
@@ -1938,8 +1938,8 @@ class PanelServiceSpec extends Specification {
 	void "test handle replaced group card completely new group"() {
 		given:
 		UpdateCards updateCards = new UpdateCards()
-		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]])
 
 		when:
 		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
@@ -2251,8 +2251,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards updated new cards"() {
 		given:
-		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [[code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
