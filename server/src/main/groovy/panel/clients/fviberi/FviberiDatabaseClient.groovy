@@ -5,6 +5,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
+import utils.pogos.fviberi.Order
 
 import javax.inject.Singleton
 
@@ -15,6 +16,6 @@ import javax.inject.Singleton
 interface FviberiDatabaseClient extends FviberiDatabaseApi {
 
 	@Get("/orders")
-	List<Map> getOrders(@QueryValue List<String> states)
+	List<Order> getOrders(@QueryValue List<String> states)
 
 }

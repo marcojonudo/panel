@@ -7,6 +7,8 @@ import io.micronaut.http.client.annotation.Client
 import panel.utils.Constants
 import utils.pogos.panel.Card
 import utils.pogos.panel.GroupUnits
+import utils.pogos.panel.JobLineType
+import utils.pogos.panel.Task
 
 import javax.inject.Singleton
 
@@ -17,28 +19,28 @@ import javax.inject.Singleton
 interface PanelDatabaseClient extends PanelDatabaseApi {
 
 	@Get("/tasks")
-	List<Map> getTasks(@QueryValue List<Integer> articles)
+	List<Task> getTasks(@QueryValue List<Integer> articles)
 
 	@Get("/cards")
-	List<Map> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
+	List<Card> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
 
 	@Get("/jobLineTypes")
-	List<Map> getJobLineTypes()
+	List<JobLineType> getJobLineTypes()
 
 	@Post("/durations")
-	Map<Integer, List<Map>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
+	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 
 	@Post("/cards")
-	List<Map> createCards(@Body List<Card> cards)
+	List<Card> createCards(@Body List<Card> cards)
 
 	@Put("/cards")
-	List<Map> updateCards(@Body List<Card> cards)
+	List<Card> updateCards(@Body List<Card> cards)
 
 	@Put("/cardsLinks")
 	void updateCardsLinks(@Body List<Map<String, Object>> cards)
 
 	@Delete("/cards")
-	List<Map> deleteCards(@Body List<Long> ids)
+	List<Card> deleteCards(@Body List<Long> ids)
 
 	@Put("/cards/position")
 	List<Map> updateCardsPosition(@Body List<Map<String, Object>> cards)

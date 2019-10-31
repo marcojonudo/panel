@@ -41,14 +41,14 @@ class PanelService {
 	}
 
 	CompleteInfo getPanelInfo(Date day = new Date()) {
-		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes().collect { (JobLineType) it }
-		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills().collect { (Skill) it }
+		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
+		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES).collect { (Order) it }
+		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-		List<Card> dayCards = panelDatabaseClient.getCards(day).collect { (Card) it }
+		List<Card> dayCards = panelDatabaseClient.getCards(day)
 
 		UpdateCards updateCards = syncOrders(orders, dayCards)
 		List<Card> cards = saveCards(updateCards)
@@ -63,9 +63,7 @@ class PanelService {
 	 * @return List of mechanic employees
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(Date date) {
-		List<EmployeeSchedule> mechanics = schedulesDatabaseClient.getMechanics(date, true).collect {
-			(EmployeeSchedule) it
-		}
+		List<EmployeeSchedule> mechanics = schedulesDatabaseClient.getMechanics(date, true)
 		Map<String, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day?.toString() }
 		return daysMechanics
 	}
@@ -116,7 +114,10 @@ class PanelService {
 					return group.tasks.size() == commonTasks.size()
 				}
 				if (selectedGroup) {
-					selectedGroupsInfo << new GroupUnits(selectedGroup, getOrderGroupUnits(order, selectedGroup))
+					selectedGroupsInfo << new GroupUnits(
+							group: selectedGroup,
+							units: getOrderGroupUnits(order, selectedGroup)
+					)
 					processedTasks += selectedGroup.tasks
 				} else {
 					LOG.warn("[$task.articleCode]$orderTasks.articleCode Group not found for task")
@@ -138,13 +139,12 @@ class PanelService {
 	 * @return List of Card
 	 */
 	List<Card> buildOrdersCards(List<Order> orders, Map<Order, List<GroupUnits>> ordersGroupsUnits) {
-		Map<Integer, List<Map>> durationGroupsUnits = panelDatabaseClient.getDurations(
+		Map<Integer, List<GroupUnits>> durationGroupsUnits = panelDatabaseClient.getDurations(
 				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
 		)
 
 		List<Card> ordersCards = []
-		durationGroupsUnits.each { Integer orderNumber, List<Map> groupsUnitsMap ->
-			List<GroupUnits> groupsUnits = groupsUnitsMap.collect { (GroupUnits) it }
+		durationGroupsUnits.each { Integer orderNumber, List<GroupUnits> groupsUnits ->
 			Order order = orders.find { it.number == orderNumber }
 			if (groupsUnits.duration) {
 				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
@@ -169,7 +169,7 @@ class PanelService {
 	UpdateCards syncOrders(List<Order> orders, List<Card> dayCards) {
 		/* Se obtiene una lista de todas las tareas de las distintas órdenes */
 		List<Integer> articlesCodes = ((List<Article>) orders.lines.article.flatten()).findAll { it.labour }.code.unique()
-		List<Task> ordersTasks = panelDatabaseClient.getTasks(articlesCodes).collect { (Task) it }
+		List<Task> ordersTasks = panelDatabaseClient.getTasks(articlesCodes)
 
 		/* Para cada orden, se obtienen sus agrupaciones y las unidades de cada uno de ellos */
 		Map<Order, List<GroupUnits>> ordersGroupsUnits = getOrdersGroupsUnits(orders, ordersTasks)
@@ -382,17 +382,17 @@ class PanelService {
 	List<Card> saveCards(UpdateCards updateCards) {
 		List<Card> cards = []
 		if (updateCards.newCards) {
-			cards = panelDatabaseClient.createCards(updateCards.newCards).collect { (Card) it }
+			cards = panelDatabaseClient.createCards(updateCards.newCards)
 			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
 			* para poder relacionar los IDS enlazados */
 			relateCardsIds(cards)
 			panelDatabaseClient.updateCardsLinks(cards.collect { it.properties })
 		}
 		if (updateCards.updatedCards) {
-			cards += panelDatabaseClient.updateCards(updateCards.updatedCards).collect { (Card) it }
+			cards += panelDatabaseClient.updateCards(updateCards.updatedCards)
 		}
 		if (updateCards.deletedCards) {
-			cards += panelDatabaseClient.deleteCards(updateCards.deletedCards.id).collect { (Card) it }
+			cards += panelDatabaseClient.deleteCards(updateCards.deletedCards.id)
 		}
 		return cards
 	}

@@ -7,6 +7,8 @@ import io.micronaut.http.annotation.QueryValue
 import panel.utils.Constants
 import utils.pogos.panel.Card
 import utils.pogos.panel.GroupUnits
+import utils.pogos.panel.JobLineType
+import utils.pogos.panel.Task
 
 import javax.inject.Singleton
 
@@ -14,13 +16,14 @@ import javax.inject.Singleton
 @CompileStatic
 interface PanelDatabaseApi {
 
-	List<Map> getTasks(@QueryValue List<Integer> articles)
-	List<Map> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day)
-	Map<Integer, List<Map>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
-	List<Map> createCards(@Body List<Card> cards)
-	List<Map> updateCards(@Body List<Card> cards)
+	List<Task> getTasks(@QueryValue List<Integer> articles)
+	List<Card> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
+	List<JobLineType> getJobLineTypes()
+	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
+	List<Card> createCards(@Body List<Card> cards)
+	List<Card> updateCards(@Body List<Card> cards)
 	void updateCardsLinks(@Body List<Map<String, Object>> cards)
-	List<Map> deleteCards(@Body List<Long> ids)
+	List<Card> deleteCards(@Body List<Long> ids)
 	List<Map> updateCardsPosition(@Body List<Map<String, Object>> cards)
 	Map updateCardDuration(@Body Map<String, Object> card)
 

@@ -2,11 +2,7 @@ package panel.clients.schedules
 
 import groovy.transform.CompileStatic
 import io.micronaut.core.convert.format.Format
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Header
-import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import panel.utils.Constants
 import utils.pogos.schedules.EmployeeSchedule
@@ -20,7 +16,7 @@ import javax.inject.Singleton
 interface SchedulesDatabaseClient extends SchedulesDatabaseApi {
 
 	@Get("/mechanics")
-	List<Map> getMechanics(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day, @QueryValue boolean fixedSchedules)
+	List<EmployeeSchedule> getMechanics(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day, @QueryValue boolean fixedSchedules)
 
 	@Get("/employeesSchedulesPosition")
 	List<Map> updateEmployeesSchedulesPosition(@Body List<EmployeeSchedule> employeesSchedules)

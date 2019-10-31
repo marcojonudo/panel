@@ -44,7 +44,7 @@ dependencies {
     testCompile "io.micronaut.test:micronaut-test-spock:1.1.0"
 
     compile "io.micronaut:micronaut-management"
-    compile "feuvert:utils:0.10.5"
+    compile "feuvert:utils:0.10.6"
     compile "org.codehaus.groovy:groovy-json:2.5.4"
 }
 
