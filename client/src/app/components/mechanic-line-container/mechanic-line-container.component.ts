@@ -15,6 +15,7 @@ export class MechanicLineContainerComponent {
 	// @Input() cards: any[];
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleWidth: number;
 
 	// region Getters / setters
 

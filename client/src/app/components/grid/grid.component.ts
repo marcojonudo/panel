@@ -14,6 +14,7 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleWidth: number;
 
 	private _mechanics: Mechanic[];
 

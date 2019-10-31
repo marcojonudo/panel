@@ -18,6 +18,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	@Input() mechanic: Mechanic;
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleWidth: number;
 
 	private cardsSubscription: any;
 

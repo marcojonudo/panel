@@ -14,6 +14,7 @@ export class DayPanelComponent {
 	@Input() index: number;
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleWidth: number;
 
 	constructor() { }
 
