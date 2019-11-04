@@ -54,7 +54,8 @@ export class OverlayComponent implements OnInit, OnDestroy {
 			if (!helperCardsGroup && this.cardPositionService.dropzone) {
 				this.cardsService.updateTranslatedCards(
 					this.helperCardsGroup,
-					this.cardPositionService.dropzone.mechanic
+					this.cardPositionService.dropzone.mechanic.day,
+					this.cardPositionService.dropzone.mechanic.code
 				);
 			}
 

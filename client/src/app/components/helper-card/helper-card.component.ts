@@ -27,12 +27,12 @@ export class HelperCardComponent {
 		return this.CARD_STATE_COLOR[state];
 	}
 
-	checkShowLeftLinkHandler(card: Card, direction: string = Constants.NEXT_CARD_DIRECTION.LEFT): boolean {
-		return this.cardsService.findLeftNextCard(card, direction) != undefined;
+	checkShowLeftLinkHandler(card: Card): boolean {
+		return this.cardsService.findLeftNextCard(card) != undefined;
 	}
 
-	checkShowRightLinkHandler(card: Card, direction: string = Constants.NEXT_CARD_DIRECTION.RIGHT): boolean {
-		return this.cardsService.findRightNextCard(card, direction) != undefined;
+	checkShowRightLinkHandler(card: Card): boolean {
+		return this.cardsService.findRightNextCard(card) != undefined;
 	}
 
 	check(): void {

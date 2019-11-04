@@ -57,6 +57,10 @@ export class UtilsService {
 		return date;
 	}
 
+	public static isDate(date: Date) {
+		return date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0
+	}
+
 	// endregion
 
 	public static createMinutesArray(from: number, to: number): number[] {

@@ -17,6 +17,11 @@ import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {isNullOrUndefined} from "util";
 import {Schedule} from "../objects/schedule";
+import {RealTimeCardUpdate} from "../objects/real-time-update/real-time-card-update";
+import {group} from "@angular/animations";
+import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-info";
+import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-card-update-position";
+import {RealTimeService} from "./real-time.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -30,6 +35,8 @@ export class CardsService {
 	private assignedCardsGroups: CardsGroup[];
 	private _assignedDaysCardsGroups: any;
 
+	private _overlappedGroups: CardsGroup[];
+
 	private unassignedCardsGroupsSubject: Subject<CardUpdate>;
 	private _unassignedCardsGroups$: Observable<CardUpdate>;
 
@@ -42,7 +49,7 @@ export class CardsService {
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private http: HttpClient
-	) {	}
+	) {}
 
 	// region Getters / setters
 
@@ -76,6 +83,14 @@ export class CardsService {
 
 	set assignedDaysCardsGroups$(value: any) {
 		this._assignedDaysCardsGroups$ = value;
+	}
+
+	get overlappedGroups(): CardsGroup[] {
+		return this._overlappedGroups;
+	}
+
+	set overlappedGroups(value: CardsGroup[]) {
+		this._overlappedGroups = value;
 	}
 
 	// endregion
@@ -231,32 +246,37 @@ export class CardsService {
 		}
 	}
 
-	updateTranslatedCards(cardsGroup: CardsGroup, newMechanic: Mechanic) {
-		if (newMechanic) {
+	updateTranslatedCards(cardsGroup: CardsGroup, day: Date, newMechanicCode: string, updateDb: boolean = true) {
+		if (newMechanicCode) {
 			cardsGroup.cards.forEach(card => {
-				card.day = newMechanic.day;
-				card.mechanicCode = newMechanic.code;
+				card.setDay(day);
+				card.setMechanicCode(newMechanicCode);
 			});
 		} else {
 			this.resetCardsGroup(cardsGroup);
 		}
 
-		this.addToDestiny(newMechanic, cardsGroup);
-		this.http.put(`${environment.serverUrl}/panel/cards/position`, cardsGroup.cards).subscribe();
+		this.addToDestiny(cardsGroup, day, newMechanicCode);
+		if (updateDb) {
+			this.http.put(
+				`${environment.serverUrl}/panel/cards/position`,
+				cardsGroup.cards.concat(...this.overlappedGroups.map(g => g.cards))
+			).subscribe();
+		}
 	}
 
-	private addToDestiny(newMechanic: Mechanic, cardsGroup: CardsGroup): void {
-		if (newMechanic) {
+	private addToDestiny(cardsGroup: CardsGroup, day: Date, newMechanicCode: string): void {
+		if (newMechanicCode) {
 			/* Al añadir un grupo a una línea, se comprueba si tiene grupos al lado para activar o desactivar los
 			*  iconos de los enlaces */
 			this.handleAssignedMovementGroupsLinks(
-				newMechanic.day,
-				newMechanic.code,
+				day,
+				newMechanicCode,
 				cardsGroup.line,
 				cardsGroup.start,
 				cardsGroup.end
 			);
-			this.handleAddAssignedCardsGroup(newMechanic.day, newMechanic.code, cardsGroup);
+			this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
 		} else {
 			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number);
 			this.handleAddUnassignedCardsGroup(cardsGroup);
@@ -296,8 +316,8 @@ export class CardsService {
 	}
 
 	private resetCard(card: Card): void {
-		card.day = undefined;
-		card.mechanicCode = undefined;
+		card.setDay(undefined);
+		card.setMechanicCode(undefined);
 		card.left = undefined;
 		card.start = undefined;
 		card.end = undefined;
@@ -305,51 +325,28 @@ export class CardsService {
 
 	// endregion
 
-	// region Global cards map
+	// region Update left
 
-	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
-		this.addAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned(day, mechanicCode, new CardUpdateAdd(group));
-	}
+	updatePosition(group: CardsGroup, day: Date, line: number, left: number) {
+		/* Sólo se puede mover un grupo a la vez, ya que es lo que se arrastra cuando se desplazan fichas por el
+		*  panel; sin embargo, en caso de haber solapamientos, son varios los que deben ser actualizados. Por ese
+		*  motivo se usa un array en lugar de un sólo grupo */
+		// groups.forEach(group => {
+			group.left = left;
 
-	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
-		this.removeAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned(day, mechanicCode, new CardUpdateRemove(group));
-	}
-
-	handleAddUnassignedCardsGroup(group: CardsGroup): void {
-		this.addUnassignedCardsGroup(group);
-		this.notifyUnassigned(new CardUpdateAdd(group));
-	}
-
-	handleRemoveUnassignedCardsGroup(group: CardsGroup): void {
-		this.removeUnassignedCardsGroup(group);
-		this.notifyUnassigned(new CardUpdateRemove(group));
-	}
-
-	private addAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
-		/* Se usa concat en lugar de push para que no modifique el array original, y se actualice antes de tiempo en
-		*  mechanic-line.component. Haciendo el push, el array cardsGroups del mechanic-line.component se actualiza aquí
-		*  en lugar de en el propio componente */
-		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
-			UtilsService.sort(
-				this.assignedDaysCardsGroups[day.getTime()][mechanicCode].concat([group]),
-				(g) => g.start
-			);
-	}
-
-	private removeAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
-		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
-			this.assignedDaysCardsGroups[day.getTime()][mechanicCode].filter(g => g.id != group.id);
-	}
-
-	private addUnassignedCardsGroup(group: CardsGroup): void {
-		this.unassignedCardsGroups = this.unassignedCardsGroups.concat([group]);
-		UtilsService.sort(this.unassignedCardsGroups, (g) => g.cards[0].order.code);
-	}
-
-	private removeUnassignedCardsGroup(group: CardsGroup): void {
-		this.unassignedCardsGroups = this.unassignedCardsGroups.filter(g => g.id != group.id);
+			group.cards.forEach((card, index) => {
+				const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
+				card.setLine(line);
+				card.start = this.timeService.calcStart(
+					group.left + this.timeService.calcWidth(leftCardsDuration),
+					day
+				);
+				card.end = UtilsService.addMinutes(card.start, card.duration);
+			});
+			group.line = line;
+			group.start = group.cards[0].start;
+			group.end = group.cards[group.cards.length-1].end;
+		// });
 	}
 
 	// endregion
@@ -451,15 +448,64 @@ export class CardsService {
 
 	// endregion
 
+	// region Global cards map
+
+	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+		this.addAssignedCardsGroup(day, mechanicCode, group);
+		this.notifyAssigned(day, mechanicCode, new CardUpdateAdd(group));
+	}
+
+	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+		this.removeAssignedCardsGroup(day, mechanicCode, group);
+		this.notifyAssigned(day, mechanicCode, new CardUpdateRemove(group));
+	}
+
+	handleAddUnassignedCardsGroup(group: CardsGroup): void {
+		this.addUnassignedCardsGroup(group);
+		this.notifyUnassigned(new CardUpdateAdd(group));
+	}
+
+	handleRemoveUnassignedCardsGroup(group: CardsGroup): void {
+		this.removeUnassignedCardsGroup(group);
+		this.notifyUnassigned(new CardUpdateRemove(group));
+	}
+
+	private addAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+		/* Se usa concat en lugar de push para que no modifique el array original, y se actualice antes de tiempo en
+		*  mechanic-line.component. Haciendo el push, el array cardsGroups del mechanic-line.component se actualiza aquí
+		*  en lugar de en el propio componente */
+		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
+			UtilsService.sort(
+				this.assignedDaysCardsGroups[day.getTime()][mechanicCode].concat([group]),
+				(g) => g.start
+			);
+	}
+
+	private removeAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
+			this.assignedDaysCardsGroups[day.getTime()][mechanicCode].filter(g => g.id != group.id);
+	}
+
+	private addUnassignedCardsGroup(group: CardsGroup): void {
+		this.unassignedCardsGroups = this.unassignedCardsGroups.concat([group]);
+		UtilsService.sort(this.unassignedCardsGroups, (g) => g.cards[0].order.code);
+	}
+
+	private removeUnassignedCardsGroup(group: CardsGroup): void {
+		this.unassignedCardsGroups = this.unassignedCardsGroups.filter(g => g.id != group.id);
+	}
+
+	// endregion
+
 	// region Link handlers checks
 
-	findLeftNextCard(card: Card, direction: string): Card {
+	findLeftNextCard(card: Card): Card {
 		return card.start ?
 			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
 			this.findLeftUnassignedNextCard(card.id);
 	}
 
-	findRightNextCard(card: Card, direction: string): Card {
+	findRightNextCard(card: Card): Card {
 		return card.start ?
 			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
 			this.findRightUnassignedNextCard(card.id);
@@ -604,7 +650,7 @@ export class CardsService {
 
 	// region Find cards and groups
 
-	getAssignedCards(day: Date, mechanicCode: string) {
+	getAssignedCards(day: Date, mechanicCode: string): CardsGroup[] {
 		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
 	}
 
@@ -617,7 +663,7 @@ export class CardsService {
 		return [].concat(...groups.map(group => group.cards));
 	}
 
-	private findCardGroup(groups: CardsGroup[], cardId: number): CardsGroup {
+	findCardGroup(groups: CardsGroup[], cardId: number): CardsGroup {
 		return groups.find(group => group.cards.find(card => card.id == cardId) != undefined);
 	}
 

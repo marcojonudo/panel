@@ -10,6 +10,7 @@ import {TimeService} from "./time.service";
 import {DaysService} from "./days.service";
 import {Constants} from "../objects/constants";
 import {isNullOrUndefined} from "util";
+import {CardsService} from "./cards.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -41,6 +42,7 @@ export class CardPositionService {
 	private _dragging$: Observable<boolean>;
 
 	constructor(
+		private cardsService: CardsService,
 		private timeService: TimeService,
 		private daysService: DaysService
 	) {
@@ -222,7 +224,7 @@ export class CardPositionService {
 		/* Se define la nueva posición, una vez tenidas en cuenta las fichas solapadas, para completar la transición
 		*  en la directiva draggable */
 		position.x = this.leftToAbsolutePosition(clonedCardsGroup.left);
-		this.updatePositionProperties([cardsGroup], [clonedCardsGroup], position.line, this.dropzone.mechanic.day);
+		this.updatePositionProperties([cardsGroup], [clonedCardsGroup], this.dropzone.mechanic.day, position.line);
 		return position;
 	}
 
@@ -333,10 +335,15 @@ export class CardPositionService {
 			*  se actualizan las propiedades en los grupos originales */
 			if (!groupOutsideDropzone) {
 				/* Se actualizan los valores relacionados con la posicion (left y start) */
-				this.updatePositionProperties(overlappedCardsGroups, clonedOverlappedGroups, line, dropzone.mechanic.day);
+				this.updatePositionProperties(overlappedCardsGroups, clonedOverlappedGroups, dropzone.mechanic.day, line);
 			}
 		}
 
+		// console.log('aaaa', overlappedCardsGroups.map(g => g.left), cardsGroup.left);
+		/* En caso de soltar una ficha encima de otra por el lado derecho, la ficha solapada permanece en el sitio
+		*  y sólo se reubica la que se está soltando. Por lo tanto, en ese caso no sería necesario actualizar la
+		*  posición de la solapada */
+		this.cardsService.overlappedGroups = overlappedCardsGroups.filter(group => group.left > cardsGroup.left);
 		return groupOutsideDropzone;
 	}
 
@@ -380,23 +387,10 @@ export class CardPositionService {
 		});
 	}
 
-	private updatePositionProperties(groups: CardsGroup[], clonedGroups: CardsGroup[], line: number, day: Date) {
+	private updatePositionProperties(groups: CardsGroup[], clonedGroups: CardsGroup[], day: Date, line: number) {
 		groups.forEach(group => {
 			const clonedGroup = clonedGroups.find(g => g.id == group.id);
-			group.left = clonedGroup.left;
-
-			group.cards.forEach((card, index) => {
-				const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
-				card.line = line;
-				card.start = this.timeService.calcStart(
-					group.left + this.timeService.calcWidth(leftCardsDuration),
-					day
-				);
-				card.end = UtilsService.addMinutes(card.start, card.duration);
-			});
-			group.line = line;
-			group.start = group.cards[0].start;
-			group.end = group.cards[group.cards.length-1].end;
+			this.cardsService.updatePosition(group, day, line, clonedGroup.left);
 		});
 	}
 

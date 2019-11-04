@@ -43,6 +43,7 @@ import {SpinnerComponent} from './components/spinner/spinner.component';
 import {FormsModule} from "@angular/forms";
 import {ToolsBarComponent} from './components/tools-bar/tools-bar.component';
 import {SkillsDetailsComponent} from './components/skills-details/skills-details.component';
+import {UtilsService} from "./services/utils.service";
 
 @NgModule({
 	declarations: [
@@ -99,7 +100,7 @@ export class AppModule {
 
 	private overrideDateToJSON() {
 		Date.prototype.toJSON = function() {
-			return this.getTime();
+			return UtilsService.isDate(this) ? this.getTime() : this.toLocaleTimeString();
 		};
 	}
 

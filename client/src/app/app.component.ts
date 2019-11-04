@@ -10,6 +10,7 @@ import {environment} from "../environments/environment";
 import {Mechanic} from "./objects/mechanic";
 import {Constants} from "./objects/constants";
 import {CommonService} from "./services/common.service";
+import {RealTimeService} from "./services/real-time.service";
 
 @Component({
 	selector: 'app-root',
@@ -27,6 +28,7 @@ export class AppComponent implements AfterViewInit {
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private cardsService: CardsService,
+		private realTimeService: RealTimeService,
 		private commonService: CommonService,
 		private http: HttpClient
 	) {
