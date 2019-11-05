@@ -29,21 +29,22 @@ export class Card {
 	possibleLinkedNextId: boolean;
 	possibleLinkedPreviousId: boolean;
 
-	constructor(card: any) {
+	constructor(card: any, initialLoad: boolean = true) {
 		this.id = card.id;
 		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;
-		this.lastDay = card.lastDay ? UtilsService.parseDateFromLong(card.lastDay) : this.day;
 		this.mechanicCode = card.mechanicCode;
-		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : card.mechanicCode;
 		this.start = card.start ? UtilsService.parseCompleteDate(this.day, card.start) : undefined;
 		this.duration = card.duration;
 		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : undefined;
 		this.line = card.line;
-		this.lastLine = card.lastLine != undefined ? card.lastLine : card.line;
 		this.group = new Group(card.group);
 		this.order = new Order(card.order);
 		this.linkedPreviousId = card.linkedPreviousId;
 		this.linkedNextId = card.linkedNextId;
+
+		this.lastDay = card.lastDay ? UtilsService.parseDateFromLong(card.lastDay) : initialLoad ? this.day : undefined;
+		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : initialLoad ? this.mechanicCode : undefined;
+		this.lastLine = card.lastLine != undefined ? card.lastLine : initialLoad ? this.line : undefined;
 	}
 
 	setWidth(widthIncrease: number, durationIncrease: number) {

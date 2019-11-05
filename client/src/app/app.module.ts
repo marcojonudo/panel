@@ -38,12 +38,13 @@ import {DraggableGroupComponent} from './components/draggable-group/draggable-gr
 import {HelperDraggableGroupComponent} from './components/helper-draggable-group/helper-draggable-group.component';
 import {ResizableLineDirective} from './directives/resizable-line.directive';
 import {ResizableCardDirective} from './directives/resizable-card.directive';
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {SpinnerComponent} from './components/spinner/spinner.component';
 import {FormsModule} from "@angular/forms";
 import {ToolsBarComponent} from './components/tools-bar/tools-bar.component';
 import {SkillsDetailsComponent} from './components/skills-details/skills-details.component';
 import {UtilsService} from "./services/utils.service";
+import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 
 @NgModule({
 	declarations: [
@@ -88,7 +89,12 @@ import {UtilsService} from "./services/utils.service";
 		FormsModule
 	],
 	providers: [
-		TimeService
+		TimeService,
+		{
+			provide: HTTP_INTERCEPTORS,
+			useClass: SessionIdInterceptor,
+			multi: true
+		}
 	],
 	bootstrap: [AppComponent]
 })

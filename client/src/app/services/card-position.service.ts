@@ -339,7 +339,6 @@ export class CardPositionService {
 			}
 		}
 
-		// console.log('aaaa', overlappedCardsGroups.map(g => g.left), cardsGroup.left);
 		/* En caso de soltar una ficha encima de otra por el lado derecho, la ficha solapada permanece en el sitio
 		*  y sólo se reubica la que se está soltando. Por lo tanto, en ese caso no sería necesario actualizar la
 		*  posición de la solapada */

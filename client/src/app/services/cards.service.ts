@@ -32,7 +32,7 @@ export class CardsService {
 	private unassignedCards: Card[];
 	private _unassignedCardsGroups: CardsGroup[];
 	private assignedCards: Card[];
-	private assignedCardsGroups: CardsGroup[];
+	private _assignedCardsGroups: CardsGroup[];
 	private _assignedDaysCardsGroups: any;
 
 	private _overlappedGroups: CardsGroup[];
@@ -67,6 +67,14 @@ export class CardsService {
 
 	set unassignedCardsGroups$(value: Observable<CardUpdate>) {
 		this._unassignedCardsGroups$ = value;
+	}
+
+	get assignedCardsGroups(): CardsGroup[] {
+		return this._assignedCardsGroups;
+	}
+
+	set assignedCardsGroups(value: CardsGroup[]) {
+		this._assignedCardsGroups = value;
 	}
 
 	get assignedDaysCardsGroups(): any {
@@ -230,7 +238,7 @@ export class CardsService {
 
 	removeFromOrigin(cardsGroup: CardsGroup): any {
 		const card = cardsGroup.cards[0];
-		if (cardsGroup.cards[0].mechanicCode) {
+		if (card.mechanicCode) {
 			this.handleAssignedMovementGroupsLinks(
 				card.day,
 				card.mechanicCode,
@@ -331,22 +339,20 @@ export class CardsService {
 		/* Sólo se puede mover un grupo a la vez, ya que es lo que se arrastra cuando se desplazan fichas por el
 		*  panel; sin embargo, en caso de haber solapamientos, son varios los que deben ser actualizados. Por ese
 		*  motivo se usa un array en lugar de un sólo grupo */
-		// groups.forEach(group => {
-			group.left = left;
+		group.left = left;
 
-			group.cards.forEach((card, index) => {
-				const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
-				card.setLine(line);
-				card.start = this.timeService.calcStart(
-					group.left + this.timeService.calcWidth(leftCardsDuration),
-					day
-				);
-				card.end = UtilsService.addMinutes(card.start, card.duration);
-			});
-			group.line = line;
-			group.start = group.cards[0].start;
-			group.end = group.cards[group.cards.length-1].end;
-		// });
+		group.cards.forEach((card, index) => {
+			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
+			card.setLine(line);
+			card.start = this.timeService.calcStart(
+				group.left + this.timeService.calcWidth(leftCardsDuration),
+				day
+			);
+			card.end = UtilsService.addMinutes(card.start, card.duration);
+		});
+		group.line = line;
+		group.start = group.cards[0].start;
+		group.end = group.cards[group.cards.length-1].end;
 	}
 
 	// endregion
@@ -479,11 +485,13 @@ export class CardsService {
 				this.assignedDaysCardsGroups[day.getTime()][mechanicCode].concat([group]),
 				(g) => g.start
 			);
+		this.assignedCardsGroups = this.assignedCardsGroups.concat(group);
 	}
 
 	private removeAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
 			this.assignedDaysCardsGroups[day.getTime()][mechanicCode].filter(g => g.id != group.id);
+		this.assignedCardsGroups = this.assignedCardsGroups.filter(g => g.id != group.id);
 	}
 
 	private addUnassignedCardsGroup(group: CardsGroup): void {

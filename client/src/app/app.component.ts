@@ -33,6 +33,7 @@ export class AppComponent implements AfterViewInit {
 		private http: HttpClient
 	) {
 		this.loading = true;
+		this.generateRandomId();
 		this.http.get(`${environment.serverUrl}/panel/get`)
 			.subscribe((data: any) => {
 				console.log(data);
@@ -65,6 +66,13 @@ export class AppComponent implements AfterViewInit {
 	}
 
 	// endregion
+
+	generateRandomId(): void {
+		/* Para conseguir actualizaciones en tiempo real, se necesita una forma de evitar que el sender reciba sus
+		*  propias actualizaciones. Para ello, cada navegador genera un código aleatorio, que se adjuntará en la
+		*  petición y se usará como ID del evento del PublishSubject */
+		this.realTimeService.sessionId = Math.random().toString(36).slice(2);
+	}
 
 	parseDaysMechanics(daysMechanics: any, skills: any[]) {
 		let daysMechanicsList = [];
