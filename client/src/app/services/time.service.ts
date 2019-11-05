@@ -292,7 +292,7 @@ export class TimeService {
 
 	// region Convert to dimensions
 
-	calcWidth(duration: number): number {
+	calcWidthFromDuration(duration: number): number {
 		/* Se obtiene el número de intervalos que ocupan los minutos de duración */
 		const durationIntervals = this.getIntervalsNumberFromDuration(duration);
 		/* Se retorna el ancho en px */

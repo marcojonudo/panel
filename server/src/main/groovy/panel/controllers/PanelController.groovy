@@ -46,18 +46,18 @@ class PanelController {
 	}
 
 	@Put("/cards/duration")
-	void updateDuration(@Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.updateCardDuration(cards)
+	void updateDuration(@Header String sessionId, @Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.updateCardDuration(sessionId, cards)
 	}
 
 	@Put("/cards/links")
-	void updateLinks(@Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.updateCardsLinks(cards)
+	void updateLinks(@Header String sessionId, @Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.updateCardsLinks(sessionId, cards)
 	}
 
 	@Put("/mechanic/lines")
-	void updateMechanicLines(@Body Map<String, Object> mechanic) {
-		schedulesDatabaseClient.updateMechanicLines(mechanic)
+	void updateMechanicLines(@Header String sessionId, @Body Map<String, Object> mechanic) {
+		schedulesDatabaseClient.updateMechanicLines(sessionId, mechanic)
 	}
 
 }

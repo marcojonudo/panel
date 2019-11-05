@@ -386,7 +386,7 @@ class PanelService {
 			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
 			* para poder relacionar los IDS enlazados */
 			relateCardsIds(cards)
-			panelDatabaseClient.updateCardsLinks(cards.collect { it.properties })
+			panelDatabaseClient.updateCardsLinks("", cards.collect { it.properties })
 		}
 		if (updateCards.updatedCards) {
 			cards += panelDatabaseClient.updateCards(updateCards.updatedCards)

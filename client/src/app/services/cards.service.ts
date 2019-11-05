@@ -217,14 +217,14 @@ export class CardsService {
 	private updateDimensions() {
 		this.unassignedCardsGroups.forEach((cardsGroup: CardsGroup) => {
 			cardsGroup.cards.forEach((card) => {
-				card.width = this.timeService.calcWidth(card.duration);
+				card.width = this.timeService.calcWidthFromDuration(card.duration);
 			});
 		});
 		for (let dayTime in this.assignedDaysCardsGroups) {
 			for (let mechanic in this.assignedDaysCardsGroups[dayTime]) {
 				this.assignedDaysCardsGroups[dayTime][mechanic].forEach((cardsGroup: CardsGroup) => {
 					cardsGroup.cards.forEach((card: Card) => {
-						card.width = this.timeService.calcWidth(card.duration);
+						card.width = this.timeService.calcWidthFromDuration(card.duration);
 					});
 					cardsGroup.left = this.timeService.calcLeft(cardsGroup.cards[0].start);
 				});
@@ -345,7 +345,7 @@ export class CardsService {
 			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setLine(line);
 			card.start = this.timeService.calcStart(
-				group.left + this.timeService.calcWidth(leftCardsDuration),
+				group.left + this.timeService.calcWidthFromDuration(leftCardsDuration),
 				day
 			);
 			card.end = UtilsService.addMinutes(card.start, card.duration);
@@ -369,7 +369,7 @@ export class CardsService {
 			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
 			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
 				this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
-				return [card]
+				return group.cards
 			}
 			return []
 		}
@@ -387,7 +387,7 @@ export class CardsService {
 		/* Si el aumento de duración no desplaza otros grupos, se actualiza la ficha */
 		if (!updatedGroups.length) {
 			this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
-			return [card]
+			return group.cards
 		}
 
 		/* En caso de que se desplacen otros grupos, estos podrían sobresalir del horario. Si es así, no se actualiza
@@ -400,11 +400,18 @@ export class CardsService {
 		/* Si se desplazan grupos pero todos están dentro del horario, se actualizan */
 		const cards = this.updatePositionByStep(updatedGroups, widthIncrease, durationIncrease);
 		this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
-		return cards.concat(card);
+		return cards.concat(group.cards);
 	}
 
 	updateDurationProperties(card: Card, group: CardsGroup, widthIncrease: number, durationIncrease: number): void {
 		card.setWidth(widthIncrease, durationIncrease);
+		group.cards.forEach(c => {
+			if (c.id != card.id && c.start > card.start) {
+				c.start = UtilsService.addMinutes(c.start, durationIncrease);
+				c.end = UtilsService.addMinutes(c.start, c.duration);
+			}
+		});
+
 		group.end = UtilsService.addMinutes(group.end, durationIncrease);
 		this.notifyAssigned(card.day, card.mechanicCode, new CardUpdateWidth());
 	}

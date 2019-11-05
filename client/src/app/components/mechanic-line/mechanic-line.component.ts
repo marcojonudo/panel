@@ -88,7 +88,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	// endregion
 
 	calcScheduleWidth(duration: number): number {
-		return this.timeService.calcWidth(duration);
+		return this.timeService.calcWidthFromDuration(duration);
 	}
 
 	calcScheduleLeft(start: Date): number {

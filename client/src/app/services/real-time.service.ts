@@ -5,6 +5,9 @@ import {TimeService} from "./time.service";
 import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-info";
 import {environment} from "../../environments/environment";
 import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-card-update-position";
+import {RealTimeCardUpdateDuration} from "../objects/real-time-update/real-time-card-update-duration";
+import {CardsGroup} from "../objects/cards-group";
+import {UtilsService} from "./utils.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -12,7 +15,8 @@ import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-
 export class RealTimeService {
 
 	private readonly UPDATE_TYPE = {
-		position: () => new RealTimeCardUpdatePosition()
+		position: () => new RealTimeCardUpdatePosition(),
+		duration: () => new RealTimeCardUpdateDuration()
 	};
 
 	private _sessionId: string;
@@ -73,5 +77,41 @@ export class RealTimeService {
 			}
 		});
 	}
+
+	updateDuration(cards: Card[]): void {
+		/* Por cómo se van actualizando las fichas (duración de una, desplazamientos de otras), aquella cuya duración
+		*  se actualiza es la última de la lista. El resto, son fichas que se desplazaron al aumentar la duración de
+		*  esta */
+		const allGroups = cards[0].lastDay ?
+			this.cardsService.assignedCardsGroups :
+			this.cardsService.unassignedCardsGroups;
+
+		let updatedDurationCard = undefined;
+		let updatedDurationGroup = undefined;
+		const translatedCards = [];
+		cards.forEach(card => {
+			const group = this.cardsService.findCardGroup(allGroups, card.id);
+			const updatedDurationGroupCard = group.cards.find(c => {
+				const receivedCard = cards.find(receivedCard => receivedCard.id == c.id);
+				return receivedCard.duration != c.duration;
+			});
+			if (updatedDurationGroupCard) {
+				if (!updatedDurationGroup) {
+					updatedDurationCard = updatedDurationGroupCard;
+					updatedDurationGroup = group;
+				}
+			} else {
+				translatedCards.push(card);
+			}
+		});
+		const receivedUpdatedDurationCard = cards.find(c => c.id == updatedDurationCard.id);
+		const durationDiff = receivedUpdatedDurationCard.duration - updatedDurationCard.duration;
+		const widthDiff = this.timeService.calcWidthFromDuration(durationDiff);
+		this.cardsService.updateDurationProperties(updatedDurationCard, updatedDurationGroup, widthDiff, durationDiff);
+		if (translatedCards.length) {
+			this.updatePosition(translatedCards);
+		}
+	}
+
 
 }

@@ -236,7 +236,7 @@ export class CardPositionService {
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
 		return cardsGroups.find(group => {
-			const duration = this.timeService.calcWidth(this.timeService.calcDurationFromCardsGroup(group));
+			const duration = this.timeService.calcWidthFromDuration(this.timeService.calcDurationFromCardsGroup(group));
 			return this.checkOutsideLeft(group.left, dropzoneLeft) ||
 				this.checkOutsideRight(group.left + duration, dropzoneRight)
 		});
@@ -248,7 +248,7 @@ export class CardPositionService {
 		dropzone: DropzoneInfo = this.dropzone
 	): Coordinates {
 		const leftX = this.absolutePositionToLeft(position.x);
-		const duration = this.timeService.calcWidth(this.timeService.calcDurationFromCardsGroup(cardsGroup));
+		const duration = this.timeService.calcWidthFromDuration(this.timeService.calcDurationFromCardsGroup(cardsGroup));
 		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.rect.x);
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
