@@ -6,8 +6,8 @@ import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-i
 import {environment} from "../../environments/environment";
 import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-card-update-position";
 import {RealTimeCardUpdateDuration} from "../objects/real-time-update/real-time-card-update-duration";
-import {CardsGroup} from "../objects/cards-group";
-import {UtilsService} from "./utils.service";
+import {RealTimeCardUpdateLinks} from "../objects/real-time-update/real-time-card-update-links";
+import {Constants} from "../objects/constants";
 
 @Injectable({
 	providedIn: 'root'
@@ -16,10 +16,9 @@ export class RealTimeService {
 
 	private readonly UPDATE_TYPE = {
 		position: () => new RealTimeCardUpdatePosition(),
-		duration: () => new RealTimeCardUpdateDuration()
+		duration: () => new RealTimeCardUpdateDuration(),
+		links: () => new RealTimeCardUpdateLinks()
 	};
-
-	private _sessionId: string;
 
 	constructor(
 		private cardsService: CardsService,
@@ -27,6 +26,8 @@ export class RealTimeService {
 	) {
 		this.connectUpdatePublisher();
 	}
+
+	private _sessionId: string;
 
 	// region Getters / setters
 
@@ -113,5 +114,25 @@ export class RealTimeService {
 		}
 	}
 
+	updateLinks(cards: Card[]): void {
+		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
+
+		const allGroups = cards[0].lastDay ?
+			this.cardsService.assignedCardsGroups :
+			this.cardsService.unassignedCardsGroups;
+
+		/* Si la ficha de la izquierda tiene linkedNextId, significa que ambas se están enlazando */
+		if (cards[0].linkedNextId) {
+			const card = this.cardsService.findCardGroup(allGroups, cards[0].id).cards.find(c => {
+				return c.id == cards[0].id
+			});
+			this.cardsService.linkNext(card, false);
+		} else {
+			const card = this.cardsService.findCardGroup(allGroups, cards[0].id).cards.find(c => {
+				return c.id == cards[0].id
+			});
+			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, false);
+		}
+	}
 
 }

@@ -22,10 +22,15 @@ class DatabaseClientFilter implements HttpClientFilter {
 		*  notificar el Observable para que se actualicen otros terminales en tiempo real */
 		if (updateId != 'cards') {
 			String sessionId = request.headers.get(Constants.SESSION_ID)
-			CardsPublisher.send(
-					sessionId,
-					new CardsPublisherInfo(updateId, (List<Map<String, Object>>) request.body.get())
-			)
+			/* Al crear de cero las fichas, se hace una petición a /cards/links, que forma parte de los endpoints que
+			*  activan la actualización. Para evitarlo (en la carga inicial no se requiere), se comprueba el sessionId,
+			*  que en esa petición es un string vacio */
+			if (sessionId) {
+				CardsPublisher.send(
+						sessionId,
+						new CardsPublisherInfo(updateId, (List<Map<String, Object>>) request.body.get())
+				)
+			}
 		}
 		return chain.proceed(request)
 	}

@@ -564,7 +564,7 @@ export class CardsService {
 
 	// region Link handlers actions
 
-	unlink(card: Card, direction: string): void {
+	unlink(card: Card, direction: string, updateDb: boolean = true): void {
 		let findGroups, createGroup, handleUpdate;
 		if (card.start) {
 			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
@@ -592,10 +592,12 @@ export class CardsService {
 		group.removeCards(cardIndex+offset, group.cards.length - (cardIndex+offset));
 
 		handleUpdate(newGroup);
-		this.http.put(
-			`${environment.serverUrl}/panel/cards/links`,
-			[group.cards[group.cards.length-1], newGroup.cards[0]]
-		).subscribe();
+		if (updateDb) {
+			this.http.put(
+				`${environment.serverUrl}/panel/cards/links`,
+				[group.cards[group.cards.length-1], newGroup.cards[0]]
+			).subscribe();
+		}
 	}
 
 	updateLinks(card: Card, group: CardsGroup, cardIndex: number, direction: string): number {
@@ -629,15 +631,16 @@ export class CardsService {
 		leftGroup.cards[leftGroup.cards.length-1].linkedNextId = card.id;
 		card.linkedPreviousId = leftGroup.cards[leftGroup.cards.length-1].id;
 
+		const lastLeftGroupCardIndex = leftGroup.cards.length-1;
 		leftGroup.addCards(group.cards);
 		handleUpdate(group);
 		this.http.put(
 			`${environment.serverUrl}/panel/cards/links`,
-			leftGroup.cards
+				leftGroup.cards.slice(lastLeftGroupCardIndex)
 		).subscribe();
 	}
 
-	linkNext(card: Card): void {
+	linkNext(card: Card, updateDb: boolean = true): void {
 		let findGroups, handleUpdate;
 		if (card.start) {
 			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
@@ -653,12 +656,15 @@ export class CardsService {
 		rightGroup.cards[0].linkedPreviousId = card.id;
 		card.linkedNextId = rightGroup.cards[0].id;
 
+		const lastGroupCardIndex = group.cards.length-1;
 		group.addCards(rightGroup.cards);
 		handleUpdate(rightGroup);
-		this.http.put(
-			`${environment.serverUrl}/panel/cards/links`,
-			group.cards
-		).subscribe();
+		if (updateDb) {
+			this.http.put(
+				`${environment.serverUrl}/panel/cards/links`,
+				group.cards.slice(lastGroupCardIndex)
+			).subscribe();
+		}
 	}
 
 	// endregion
