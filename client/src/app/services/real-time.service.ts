@@ -2,12 +2,14 @@ import {Injectable} from '@angular/core';
 import {Card} from "../objects/card";
 import {CardsService} from "./cards.service";
 import {TimeService} from "./time.service";
-import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-info";
 import {environment} from "../../environments/environment";
 import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-card-update-position";
 import {RealTimeCardUpdateDuration} from "../objects/real-time-update/real-time-card-update-duration";
 import {RealTimeCardUpdateLinks} from "../objects/real-time-update/real-time-card-update-links";
 import {Constants} from "../objects/constants";
+import {RealTimeMechanicUpdateLines} from "../objects/real-time-update/real-time-mechanic-update-lines";
+import {Mechanic} from "../objects/mechanic";
+import {DaysService} from "./days.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -15,14 +17,16 @@ import {Constants} from "../objects/constants";
 export class RealTimeService {
 
 	private readonly UPDATE_TYPE = {
-		position: () => new RealTimeCardUpdatePosition(),
-		duration: () => new RealTimeCardUpdateDuration(),
-		links: () => new RealTimeCardUpdateLinks()
+		position: (updateInfo) => new RealTimeCardUpdatePosition(updateInfo.cards),
+		duration: (updateInfo) => new RealTimeCardUpdateDuration(updateInfo.cards),
+		links: (updateInfo) => new RealTimeCardUpdateLinks(updateInfo.cards),
+		lines: (updateInfo) => new RealTimeMechanicUpdateLines(updateInfo.mechanic)
 	};
 
 	constructor(
 		private cardsService: CardsService,
-		private timeService: TimeService
+		private timeService: TimeService,
+		private daysService: DaysService
 	) {
 		this.connectUpdatePublisher();
 	}
@@ -45,10 +49,10 @@ export class RealTimeService {
 		const eventSource = new EventSource(`${environment.serverUrl}/panel/publisher`);
 		eventSource.onmessage = event => {
 			if (event.lastEventId != this.sessionId) {
-				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
+				const updateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);
-				const updateType = this.UPDATE_TYPE[updateInfo.updateId]();
-				updateType.update(this, updateInfo.cards.map(c => new Card(c, false)));
+				const updateType = this.UPDATE_TYPE[updateInfo.updateProperty](updateInfo);
+				updateType.update(this);
 			}
 		};
 	}
@@ -133,6 +137,11 @@ export class RealTimeService {
 			});
 			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, false);
 		}
+	}
+
+	updateLines(mechanic: Mechanic): void {
+		const mec = this.daysService.daysMechanics[mechanic.day.getTime()].find(m => m.panelPosition == mechanic.panelPosition);
+		this.daysService.updateMechanicLines(mec, mechanic.lines);
 	}
 
 }

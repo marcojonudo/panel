@@ -8,6 +8,9 @@ import {Subject} from "rxjs/internal/Subject";
 import {TimeService} from "./time.service";
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
+import {MechanicUpdateRemove} from "../objects/mechanic-update/mechanic-update-remove";
+import {MechanicUpdate} from "../objects/mechanic-update/mechanic-update";
+import {MechanicUpdateHeight} from "../objects/mechanic-update/mechanic-update-height";
 
 @Injectable({
 	providedIn: 'root'
@@ -128,7 +131,7 @@ export class DaysService {
 		this.daysMechanics$ = {};
 
 		for (let dayTime in daysMechanics) {
-			const subject = new Subject<Mechanic[]>();
+			const subject = new Subject<MechanicUpdate>();
 			const observable = subject.asObservable();
 
 			this.daysMechanicsSubjects[dayTime] = subject;
@@ -161,20 +164,31 @@ export class DaysService {
 		return gridHeight < mechanicsHeight;
 	}
 
-	updateMechanicLines(mechanic: Mechanic): void {
-		mechanic.lines = Math.round(mechanic.height / this.lineHeight);
+	updateMechanicLines(mechanic: Mechanic, newLines: number): void {
+		mechanic.lines = newLines;
+		mechanic.height = this.lineHeight * mechanic.lines;
+		this.notifyDay(mechanic.day, new MechanicUpdateHeight(mechanic));
+	}
+
+	updateDbMechanicLines(mechanic: Mechanic): void {
 		this.http.put(`${environment.serverUrl}/panel/mechanic/lines`, mechanic).subscribe();
 	}
 
-	removeMechanic(day: Date, position: string) {
-		this.daysMechanics[day.getTime()] = this.daysMechanics[day.getTime()].filter(mechanic => {
-			return mechanic.panelPosition != position;
+	removeMechanic(day: Date, mechanic: Mechanic) {
+		this.daysMechanics[day.getTime()] = this.daysMechanics[day.getTime()].filter(m => {
+			return m.panelPosition != mechanic.panelPosition;
 		});
-		this.daysMechanicsSubjects[day.getTime()].next(this.daysMechanics[day.getTime()]);
+		const mechanicUpdate = new MechanicUpdateRemove(mechanic);
+		this.daysMechanicsSubjects[day.getTime()].next(mechanicUpdate);
+		// this.daysMechanicsSubjects[day.getTime()].next(this.daysMechanics[day.getTime()]);
 	}
 
 	findMechanic(day: Date, code: string): Mechanic {
 		return this.daysMechanics[day.getTime()].find(mechanic => mechanic.code == code);
+	}
+
+	notifyDay(day: Date, mechanicUpdate: MechanicUpdate): void {
+		this.daysMechanicsSubjects[day.getTime()].next(mechanicUpdate);
 	}
 
 }

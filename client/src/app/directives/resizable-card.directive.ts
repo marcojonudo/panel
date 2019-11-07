@@ -55,7 +55,7 @@ export class ResizableCardDirective {
 		this.pointerMoveListener();
 		this.pointerUpListener();
 
-		this.cardsService.updateCardsDuration(this.updatedCards);
+		this.cardsService.updateDbCardsDuration(this.updatedCards);
 	}
 
 }

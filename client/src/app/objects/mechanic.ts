@@ -19,11 +19,11 @@ export class Mechanic {
 	constructor(
 		day: Date,
 		position: string,
+		lines: number,
 		employee: any,
 		schedule: any,
-		lines: number,
 		skills: any[],
-		highlightedSkills: Skill[]
+		highlightedSkills: Skill[],
 	) {
 		this.day = day;
 		this.code = employee.code;
@@ -45,6 +45,10 @@ export class Mechanic {
 		this.schedule = new Schedule(schedule);
 		this.lines = lines;
 		this.height = lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
+	}
+
+	static clone(mechanic: any): Mechanic {
+		return
 	}
 
 }

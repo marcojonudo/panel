@@ -6,9 +6,9 @@ import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
-import panel.pogos.CardsPublisherInfo
 import panel.pogos.CompleteInfo
-import panel.publisher.CardsPublisher
+import panel.pogos.PublisherInfo
+import panel.publisher.PanelPublisher
 import panel.services.PanelService
 
 @CompileStatic
@@ -36,8 +36,8 @@ class PanelController {
 	}
 
 	@Get("/publisher")
-	PublishSubject<Event<CardsPublisherInfo>> getCardsPublisher() {
-		return CardsPublisher.get()
+	PublishSubject<Event<PublisherInfo>> getCardsPublisher() {
+		return PanelPublisher.get()
 	}
 
 	@Put("/cards/position")

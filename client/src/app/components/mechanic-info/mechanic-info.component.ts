@@ -84,8 +84,8 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 			{'background-color': skill.backgroundColor, 'color': skill.color} : undefined;
 	}
 
-	removeMechanic(position: string) {
-		this.daysService.removeMechanic(this.day, position);
+	removeMechanic() {
+		this.daysService.removeMechanic(this.day, this.mechanic);
 	}
 
 	showSkills(skills: Skill[]) {

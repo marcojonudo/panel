@@ -1,11 +1,18 @@
-import {RealTimeCardUpdate} from "./real-time-card-update";
+import {RealTimeUpdate} from "./real-time-update";
 import {Card} from "../card";
 import {RealTimeService} from "../../services/real-time.service";
 
-export class RealTimeCardUpdatePosition extends RealTimeCardUpdate {
+export class RealTimeCardUpdatePosition extends RealTimeUpdate {
 
-	update(realTimeService: RealTimeService, cards: Card[]): void {
-		realTimeService.updatePosition(cards);
+	private readonly cards: Card[];
+
+	constructor(cards: any[]) {
+		super();
+		this.cards = cards.map(c => new Card(c, false));
+	}
+
+	update(realTimeService: RealTimeService): void {
+		realTimeService.updatePosition(this.cards);
 	}
 
 }

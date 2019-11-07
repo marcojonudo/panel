@@ -3,14 +3,14 @@ package panel.pogos
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class CardsPublisherInfo {
+class CardsPublisherInfo extends PublisherInfo {
 
-	String updateId
 	List<Map<String, Object>> cards
 
-	CardsPublisherInfo(String updateId, List<Map<String, Object>> cards) {
-		this.updateId = updateId;
-		this.cards = cards;
+	CardsPublisherInfo(String updateProperty, List<Map<String, Object>> cards) {
+		this.updateObject = 'cards'
+		this.updateProperty = updateProperty
+		this.cards = cards
 	}
 
 }

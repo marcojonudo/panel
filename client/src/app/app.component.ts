@@ -84,9 +84,9 @@ export class AppComponent implements AfterViewInit {
 						new Mechanic(
 							day,
 							mechanic.panelPosition,
+							mechanic.lines,
 							mechanic.employee,
 							mechanic.schedule,
-							mechanic.lines,
 							skills,
 							this.commonService.highlightedSkills
 						)

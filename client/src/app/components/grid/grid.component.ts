@@ -3,6 +3,8 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {DaysService} from "../../services/days.service";
 import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
+import {Subscription} from "rxjs/internal/Subscription";
+import {MechanicUpdate} from "../../objects/mechanic-update/mechanic-update";
 
 @Component({
 	selector: 'app-grid',
@@ -18,7 +20,7 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	private _mechanics: Mechanic[];
 
-	private mechanicsSubscription: any;
+	private mechanicsSubscription: Subscription;
 
 	constructor(
 		private daysService: DaysService,
@@ -27,19 +29,10 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.mechanics = this.daysService.daysMechanics[this.day.getTime()];
-		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()].subscribe(mechanics => {
-			const removedMechanicIndex = this.mechanics.findIndex(mechanic =>
-				!mechanics.find(m => m.panelPosition == mechanic.panelPosition)
-			);
-			let prevPosition = this.mechanics[removedMechanicIndex].panelPosition;
-			this.mechanics.splice(removedMechanicIndex, 1);
-
-			for (let i = removedMechanicIndex; i < this.mechanics.length; i++) {
-				const newPosition = this.mechanics[i].panelPosition;
-				this.mechanics[i].panelPosition = prevPosition;
-				prevPosition = newPosition;
-			}
-			this.cdRef.detectChanges();
+		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()]
+			.subscribe((mechanicUpdate: MechanicUpdate) => {
+				mechanicUpdate.update(this.mechanics);
+				this.cdRef.detectChanges();
 		});
 	}
 

@@ -4,7 +4,7 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.context.env.Environment
 import io.micronaut.context.event.ApplicationEventListener
 import io.micronaut.context.event.StartupEvent
-import panel.publisher.CardsPublisher
+import panel.publisher.PanelPublisher
 
 import javax.inject.Singleton
 
@@ -14,7 +14,7 @@ class Bootstrap implements ApplicationEventListener<StartupEvent> {
 
 	@Override
 	void onApplicationEvent(StartupEvent event) {
-		CardsPublisher.create()
+		PanelPublisher.create()
 	}
 
 }

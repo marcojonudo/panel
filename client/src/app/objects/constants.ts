@@ -22,6 +22,5 @@ export class Constants {
 		LEFT: 'LEFT',
 		RIGHT: 'RIGTH'
 	};
-	public static readonly SESSION_ID: string = "sessionId";
-	public static readonly CARDS_PATH: string = "/cards/";
+	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/"];
 }

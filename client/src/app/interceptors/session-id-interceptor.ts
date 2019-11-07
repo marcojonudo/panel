@@ -16,7 +16,7 @@ export class SessionIdInterceptor implements HttpInterceptor {
 	) {}
 
 	intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-		if (req.url.includes(Constants.CARDS_PATH)) {
+		if (this.triggerRealTimeUpdate(req.url)) {
 			const sessionId = this.realTimeService.sessionId;
 			req = req.clone({
 				setHeaders: {
@@ -25,6 +25,10 @@ export class SessionIdInterceptor implements HttpInterceptor {
 			});
 		}
 		return next.handle(req);
+	}
+
+	triggerRealTimeUpdate(url: string): boolean {
+		return Constants.REAL_TIME_UPDATE_PATHS.find(path => url.includes(path)) != undefined
 	}
 
 }
