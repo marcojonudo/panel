@@ -55,9 +55,14 @@ class PanelController {
 		panelDatabaseClient.updateCardsLinks(sessionId, cards)
 	}
 
+	@Put("/mechanic/position")
+	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
+		schedulesDatabaseClient.updateMechanicsPosition(sessionId, mechanics)
+	}
+
 	@Put("/mechanic/lines")
-	void updateMechanicLines(@Header String sessionId, @Body Map<String, Object> mechanic) {
-		schedulesDatabaseClient.updateMechanicLines(sessionId, mechanic)
+	void updateMechanicLines(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
+		schedulesDatabaseClient.updateMechanicLines(sessionId, mechanics)
 	}
 
 }

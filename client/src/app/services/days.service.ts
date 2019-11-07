@@ -171,16 +171,21 @@ export class DaysService {
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {
-		this.http.put(`${environment.serverUrl}/panel/mechanic/lines`, mechanic).subscribe();
+		this.http.put(`${environment.serverUrl}/panel/mechanic/lines`, [mechanic]).subscribe();
 	}
 
-	removeMechanic(day: Date, mechanic: Mechanic) {
+	removeMechanic(day: Date, mechanic: Mechanic, updateDb: boolean = true) {
+		mechanic.showInPanel = false;
 		this.daysMechanics[day.getTime()] = this.daysMechanics[day.getTime()].filter(m => {
 			return m.panelPosition != mechanic.panelPosition;
 		});
-		const mechanicUpdate = new MechanicUpdateRemove(mechanic);
-		this.daysMechanicsSubjects[day.getTime()].next(mechanicUpdate);
-		// this.daysMechanicsSubjects[day.getTime()].next(this.daysMechanics[day.getTime()]);
+		this.notifyDay(day, new MechanicUpdateRemove(mechanic));
+		if (updateDb) {
+			this.http.put(
+				`${environment.serverUrl}/panel/mechanic/position`,
+				this.daysMechanics[day.getTime()].concat(mechanic)
+			).subscribe();
+		}
 	}
 
 	findMechanic(day: Date, code: string): Mechanic {

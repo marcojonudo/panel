@@ -10,6 +10,8 @@ import {Constants} from "../objects/constants";
 import {RealTimeMechanicUpdateLines} from "../objects/real-time-update/real-time-mechanic-update-lines";
 import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
+import {RealTimeMechanicUpdatePosition} from "../objects/real-time-update/real-time-mechanic-update-position";
+import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-info";
 
 @Injectable({
 	providedIn: 'root'
@@ -17,10 +19,15 @@ import {DaysService} from "./days.service";
 export class RealTimeService {
 
 	private readonly UPDATE_TYPE = {
-		position: (updateInfo) => new RealTimeCardUpdatePosition(updateInfo.cards),
-		duration: (updateInfo) => new RealTimeCardUpdateDuration(updateInfo.cards),
-		links: (updateInfo) => new RealTimeCardUpdateLinks(updateInfo.cards),
-		lines: (updateInfo) => new RealTimeMechanicUpdateLines(updateInfo.mechanic)
+		mechanic: {
+			position: (updateInfo) => new RealTimeMechanicUpdatePosition(updateInfo.mechanics),
+			lines: (updateInfo) => new RealTimeMechanicUpdateLines(updateInfo.mechanics)
+		},
+		cards: {
+			position: (updateInfo) => new RealTimeCardUpdatePosition(updateInfo.cards),
+			duration: (updateInfo) => new RealTimeCardUpdateDuration(updateInfo.cards),
+			links: (updateInfo) => new RealTimeCardUpdateLinks(updateInfo.cards)
+		}
 	};
 
 	constructor(
@@ -49,9 +56,9 @@ export class RealTimeService {
 		const eventSource = new EventSource(`${environment.serverUrl}/panel/publisher`);
 		eventSource.onmessage = event => {
 			if (event.lastEventId != this.sessionId) {
-				const updateInfo = JSON.parse(event.data);
+				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);
-				const updateType = this.UPDATE_TYPE[updateInfo.updateProperty](updateInfo);
+				const updateType = this.UPDATE_TYPE[updateInfo.updateObject][updateInfo.updateProperty](updateInfo);
 				updateType.update(this);
 			}
 		};
@@ -142,6 +149,14 @@ export class RealTimeService {
 	updateLines(mechanic: Mechanic): void {
 		const mec = this.daysService.daysMechanics[mechanic.day.getTime()].find(m => m.panelPosition == mechanic.panelPosition);
 		this.daysService.updateMechanicLines(mec, mechanic.lines);
+	}
+
+	updateMechanicPosition(mechanics: Mechanic[]): void {
+		/* El último elemento de la lista es el mecánico eliminado */
+		const removedMechanic = this.daysService.daysMechanics[mechanics[0].day.getTime()].find(m =>
+			m.panelPosition == mechanics[mechanics.length-1].panelPosition
+		);
+		this.daysService.removeMechanic(removedMechanic.day, removedMechanic, false);
 	}
 
 }

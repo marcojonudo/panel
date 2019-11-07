@@ -21,7 +21,10 @@ interface SchedulesDatabaseClient extends SchedulesDatabaseApi {
 	@Get("/employeesSchedulesPosition")
 	List<Map> updateEmployeesSchedulesPosition(@Body List<EmployeeSchedule> employeesSchedules)
 
+	@Put("/mechanic/position")
+	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+
 	@Put("/mechanic/lines")
-	void updateMechanicLines(@Header String sessionId, @Body Map<String, Object> mechanic)
+	void updateMechanicLines(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
 
 }

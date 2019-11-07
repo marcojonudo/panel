@@ -1,8 +1,6 @@
-import {Card} from "../card";
-
 export class RealTimeUpdateInfo {
 
+	updateObject: string;
 	updateProperty: string;
-	cards: Card[];
 
 }

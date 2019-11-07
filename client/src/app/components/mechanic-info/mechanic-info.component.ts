@@ -5,6 +5,7 @@ import {Mechanic} from "../../objects/mechanic";
 import {JobLineType} from "../../objects/job-line-type";
 import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -26,6 +27,7 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private daysService: DaysService,
+		private cardsServie: CardsService,
 		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
@@ -82,6 +84,10 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	getSkillColorObject(skill: Skill): any {
 		return skill.expertise && skill.expertise != Constants.SKILL_EXPERTISE_LEVEL.LOW ?
 			{'background-color': skill.backgroundColor, 'color': skill.color} : undefined;
+	}
+
+	checkRemoveMechanic(): boolean {
+		return this.cardsServie.getAssignedCards(this.mechanic.day, this.mechanic.code).length == 0;
 	}
 
 	removeMechanic() {

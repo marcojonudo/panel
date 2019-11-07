@@ -24,8 +24,13 @@
 		</div>
 		<div class="w-25 h-75 d-flex flex-wrap">
 			<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
-			<div class="w-50 h-35 align-center" (click)="removeMechanic()"><i class="far fa-trash-alt"></i></div>
-			<div class="w-50 h-35 align-center"><i class="fas fa-arrows-alt-v"></i></div>
+			<div
+				*ngIf="checkRemoveMechanic()"
+				class="w-50 h-35 align-center"
+				(click)="removeMechanic()">
+				<i class="far fa-trash-alt"></i>
+			</div>
+			<div class="w-50 h-35 align-center ml-auto"><i class="fas fa-arrows-alt-v"></i></div>
 		</div>
 	</div>
 	<ng-template #minLayout>

@@ -6,6 +6,7 @@ import {CommonService} from "../services/common.service";
 
 export class Mechanic {
 
+	id: number;
 	day: Date;
 	code: string;
 	panelPosition: string;
@@ -14,24 +15,23 @@ export class Mechanic {
 	highlightedSkills: Skill[];
 	schedule: Schedule;
 	lines: number;
+	showInPanel: boolean;
 	height: number;
 
 	constructor(
 		day: Date,
-		position: string,
-		lines: number,
-		employee: any,
-		schedule: any,
+		mechanic: any,
 		skills: any[],
 		highlightedSkills: Skill[],
 	) {
+		this.id = mechanic.id;
 		this.day = day;
-		this.code = employee.code;
-		this.panelPosition = position;
-		this.personalData = new PersonalData(employee);
+		this.code = mechanic.employee.code;
+		this.panelPosition = mechanic.panelPosition;
+		this.personalData = new PersonalData(mechanic.employee);
 		this.skills = skills.map(skill => {
 			const children = skill.children.map(child => {
-				const employeeSkill = employee.employeeSkills.find(s => s.skill.name == child.name);
+				const employeeSkill = mechanic.employee.employeeSkills.find(s => s.skill.name == child.name);
 				return new Skill(child, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
 			});
 			/* La experiencia es siempre undefined, ya que las categorías padre no tienen especialización por parte de
@@ -39,16 +39,13 @@ export class Mechanic {
 			return new Skill(skill, undefined, children);
 		});
 		this.highlightedSkills = highlightedSkills.map(skill => {
-			const employeeSkill = employee.employeeSkills.find(s => s.skill.name == skill.name);
+			const employeeSkill = mechanic.employee.employeeSkills.find(s => s.skill.name == skill.name);
 			return new Skill(skill, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
 		});
-		this.schedule = new Schedule(schedule);
-		this.lines = lines;
-		this.height = lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
-	}
-
-	static clone(mechanic: any): Mechanic {
-		return
+		this.schedule = new Schedule(mechanic.schedule);
+		this.lines = mechanic.lines;
+		this.showInPanel = mechanic.showInPanel;
+		this.height = this.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
 	}
 
 }

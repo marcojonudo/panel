@@ -5,12 +5,12 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class MechanicPublisherInfo extends PublisherInfo {
 
-	Map<String, Object> mechanic
+	List<Map<String, Object>> mechanics
 
-	MechanicPublisherInfo(String updateProperty, Map<String, Object> mechanic) {
+	MechanicPublisherInfo(String updateProperty, List<Map<String, Object>> mechanics) {
 		this.updateObject = 'mechanic'
 		this.updateProperty = updateProperty
-		this.mechanic = mechanic
+		this.mechanics = mechanics
 	}
 
 }

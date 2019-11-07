@@ -83,10 +83,7 @@ export class AppComponent implements AfterViewInit {
 				{day: day, mechanics: mechanics.map(mechanic =>
 						new Mechanic(
 							day,
-							mechanic.panelPosition,
-							mechanic.lines,
-							mechanic.employee,
-							mechanic.schedule,
+							mechanic,
 							skills,
 							this.commonService.highlightedSkills
 						)

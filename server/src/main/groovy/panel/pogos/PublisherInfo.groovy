@@ -7,7 +7,7 @@ abstract class PublisherInfo {
 
 	static final Map<String, Closure<PublisherInfo>> PUBLISHER_INFO_TYPE = [
 	        cards: { String updateProperty, Object cards -> new CardsPublisherInfo(updateProperty, (List<Map<String, Object>>) cards) },
-	        mechanic: { String updateProperty, Object mechanic -> new MechanicPublisherInfo(updateProperty, (Map<String, Object>) mechanic) }
+	        mechanic: { String updateProperty, Object mechanics -> new MechanicPublisherInfo(updateProperty, (List<Map<String, Object>>) mechanics) }
 	]
 
 	String updateObject
