@@ -23,6 +23,7 @@
     "@angular/platform-browser": "~8.0.0",
     "@angular/platform-browser-dynamic": "~8.0.0",
     "@angular/router": "~8.0.0",
+    "@ng-bootstrap/ng-bootstrap": "^5.1.2",
     "@shopify/draggable": "^1.0.0-beta.8",
     "angular-gridster2": "^7.2.0",
     "angular-resizable-element": "^3.2.4",

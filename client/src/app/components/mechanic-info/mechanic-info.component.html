@@ -25,9 +25,8 @@
 		<div class="w-25 h-75 d-flex flex-wrap">
 			<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
 			<div
-				*ngIf="checkRemoveMechanic()"
 				class="w-50 h-35 align-center"
-				(click)="removeMechanic()">
+				(click)="checkRemoveMechanic(mymodal)">
 				<i class="far fa-trash-alt"></i>
 			</div>
 			<div class="w-50 h-35 align-center ml-auto"><i class="fas fa-arrows-alt-v"></i></div>
@@ -56,4 +55,16 @@
 		</div>
 	</ng-template>
 </div>
+<ng-template #mymodal let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">!Atención!</h4>
+	</div>
+	<div class="modal-body">
+		Estás a punto de eliminar un mecánico que tiene fichas asignadas. Si lo haces, todas ellas bajarán a la cinta.
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-info" (click)="modal.dismiss()">Descartar</button>
+		<button type="button" class="btn btn-warning" (click)="modal.close()">Continuar</button>
+	</div>
+</ng-template>
 <div>{{check()}}</div>

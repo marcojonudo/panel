@@ -45,6 +45,7 @@ import {ToolsBarComponent} from './components/tools-bar/tools-bar.component';
 import {SkillsDetailsComponent} from './components/skills-details/skills-details.component';
 import {UtilsService} from "./services/utils.service";
 import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
+import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 
 @NgModule({
 	declarations: [
@@ -86,7 +87,8 @@ import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 		AngularDraggableModule,
 		OverlayModule,
 		HttpClientModule,
-		FormsModule
+		FormsModule,
+		NgbModule
 	],
 	providers: [
 		TimeService,

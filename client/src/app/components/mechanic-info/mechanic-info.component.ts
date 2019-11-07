@@ -6,6 +6,7 @@ import {JobLineType} from "../../objects/job-line-type";
 import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
 import {CardsService} from "../../services/cards.service";
+import {NgbModal, NgbModalConfig} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -29,6 +30,7 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		private daysService: DaysService,
 		private cardsServie: CardsService,
 		private commonService: CommonService,
+		private modalService: NgbModal,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.oneDayMode = true;
@@ -86,8 +88,15 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 			{'background-color': skill.backgroundColor, 'color': skill.color} : undefined;
 	}
 
-	checkRemoveMechanic(): boolean {
-		return this.cardsServie.getAssignedCards(this.mechanic.day, this.mechanic.code).length == 0;
+	checkRemoveMechanic(content): void {
+		const assignedCards = this.cardsServie.getAssignedCards(this.mechanic.day, this.mechanic.code);
+		if (assignedCards.length) {
+			this.modalService.open(content, {centered: true}).result.then(() => {
+				this.removeMechanic();
+			});
+		} else {
+			this.removeMechanic();
+		}
 	}
 
 	removeMechanic() {
