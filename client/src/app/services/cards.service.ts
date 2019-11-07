@@ -15,6 +15,7 @@ import {CardUpdateWidth} from "../objects/update-cards/card-update-width";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Schedule} from "../objects/schedule";
+import {Subscription} from "rxjs/internal/Subscription";
 
 @Injectable({
 	providedIn: 'root'
@@ -24,18 +25,29 @@ export class CardsService {
 	private cards: Card[];
 	private unassignedCards: Card[];
 	private assignedCards: Card[];
-	private unassignedCardsGroupsSubject: Subject<CardUpdate>;
+
 	private assignedDaysCardsGroupsSubjects: any;
-	private maxScheduleWidthSubscription: any;
+
+	private unassignedCardsGroupsSubject: Subject<CardUpdate>;
+	private _unassignedCardsGroups$: Observable<CardUpdate>;
+
+	private _assignedDaysCardsGroups: any;
+	private _assignedCardsGroups: CardsGroup[];
+	private _unassignedCardsGroups: CardsGroup[];
+
+	private _overlappedGroups: CardsGroup[];
+
+	private maxScheduleWidthSubscription: Subscription;
 
 	constructor(
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private http: HttpClient
 	) {
+		this.overlappedGroups = [];
 	}
 
-	private _unassignedCardsGroups: CardsGroup[];
+	// region Getters / setters
 
 	get unassignedCardsGroups(): CardsGroup[] {
 		return this._unassignedCardsGroups;
@@ -45,8 +57,6 @@ export class CardsService {
 		this._unassignedCardsGroups = value;
 	}
 
-	private _assignedCardsGroups: CardsGroup[];
-
 	get assignedCardsGroups(): CardsGroup[] {
 		return this._assignedCardsGroups;
 	}
@@ -54,10 +64,6 @@ export class CardsService {
 	set assignedCardsGroups(value: CardsGroup[]) {
 		this._assignedCardsGroups = value;
 	}
-
-	// region Getters / setters
-
-	private _assignedDaysCardsGroups: any;
 
 	get assignedDaysCardsGroups(): any {
 		return this._assignedDaysCardsGroups;
@@ -67,8 +73,6 @@ export class CardsService {
 		this._assignedDaysCardsGroups = value;
 	}
 
-	private _overlappedGroups: CardsGroup[];
-
 	get overlappedGroups(): CardsGroup[] {
 		return this._overlappedGroups;
 	}
@@ -76,8 +80,6 @@ export class CardsService {
 	set overlappedGroups(value: CardsGroup[]) {
 		this._overlappedGroups = value;
 	}
-
-	private _unassignedCardsGroups$: Observable<CardUpdate>;
 
 	get unassignedCardsGroups$(): Observable<CardUpdate> {
 		return this._unassignedCardsGroups$;
@@ -143,7 +145,12 @@ export class CardsService {
 		}
 	}
 
-	updateTranslatedCards(cardsGroup: CardsGroup, day: Date, newMechanicCode: string, updateDb: boolean = true) {
+	updateTranslatedCards(
+		cardsGroup: CardsGroup,
+		day: Date = undefined,
+		newMechanicCode: string = undefined,
+		updateDb: boolean = true
+	) {
 		if (newMechanicCode) {
 			cardsGroup.cards.forEach(card => {
 				card.setDay(day);
@@ -159,6 +166,11 @@ export class CardsService {
 				`${environment.serverUrl}/panel/cards/position`,
 				cardsGroup.cards.concat(...this.overlappedGroups.map(g => g.cards))
 			).subscribe();
+
+			/* Si en un terminal se mueven fichas y hay solapadas, y después se actualiza en tiempo real de otro
+			*  terminal distinto, las primeras fichas solapadas no deben tenerse en cuenta en este último caso. Por lo
+			*  tanto, la lista debe resetearse una vez usada */
+			this.overlappedGroups = [];
 		}
 	}
 
@@ -429,16 +441,16 @@ export class CardsService {
 		}
 	}
 
-	getAssignedCards(day: Date, mechanicCode: string): CardsGroup[] {
+	getAssignedCardsGroups(day: Date, mechanicCode: string): CardsGroup[] {
 		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
 	}
 
 	findLineGroups(day: Date, mechanicCode: string, line: number): CardsGroup[] {
-		return this.getAssignedCards(day, mechanicCode).filter(group => group.line == line);
+		return this.getAssignedCardsGroups(day, mechanicCode).filter(group => group.line == line);
 	}
 
 	findLineCards(day: Date, mechanicCode: string, line: number): Card[] {
-		const groups = this.getAssignedCards(day, mechanicCode).filter(group => group.cards[0].line == line);
+		const groups = this.getAssignedCardsGroups(day, mechanicCode).filter(group => group.cards[0].line == line);
 		return [].concat(...groups.map(group => group.cards));
 	}
 

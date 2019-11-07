@@ -77,10 +77,13 @@ export class RealTimeService {
 		cards.forEach(card => {
 			const group = this.cardsService.findCardGroup(allGroups, card.id);
 			if (group && processedGroups.indexOf(group) == -1) {
-				/* En este caso, left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en
-				*  otro terminal) */
-				const left = this.timeService.calcLeft(card.start);
-				this.cardsService.updatePosition(group, card.day, card.line, left);
+				/* Se actualiza la posición sólo si la ficha está asignada */
+				if (card.start) {
+					/* En este caso, left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en
+					*  otro terminal) */
+					const left = this.timeService.calcLeft(card.start);
+					this.cardsService.updatePosition(group, card.day, card.line, left);
+				}
 
 				this.cardsService.removeFromOrigin(group);
 				this.cardsService.updateTranslatedCards(group, card.day, card.mechanicCode, false);

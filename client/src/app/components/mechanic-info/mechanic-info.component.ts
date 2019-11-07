@@ -89,11 +89,17 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	}
 
 	checkRemoveMechanic(content): void {
-		const assignedCards = this.cardsServie.getAssignedCards(this.mechanic.day, this.mechanic.code);
-		if (assignedCards.length) {
-			this.modalService.open(content, {centered: true}).result.then(() => {
-				this.removeMechanic();
-			});
+		const assignedCardsGroups = this.cardsServie.getAssignedCardsGroups(this.mechanic.day, this.mechanic.code);
+		if (assignedCardsGroups.length) {
+			this.modalService.open(content, {centered: true}).result.then(
+				() => {
+					assignedCardsGroups.forEach(group => {
+						this.cardsServie.removeFromOrigin(group);
+						this.cardsServie.updateTranslatedCards(group)
+					});
+					this.removeMechanic();
+				},
+				() => {});
 		} else {
 			this.removeMechanic();
 		}
