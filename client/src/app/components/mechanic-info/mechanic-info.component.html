@@ -5,7 +5,9 @@
 		*ngIf="oneDayMode; else minLayout"
 		class="d-flex flex-wrap"
 		[style.height.px]="defaultHeight">
-		<div class="w-75 h-25 d-flex align-items-center mechanic-name pl-1">{{mechanic.personalData.completeName}}</div>
+		<div
+			class="w-75 h-25 d-flex align-items-center mechanic-name pl-1"
+			(click)="showAppointmentSchedulesDialog()">{{mechanic.personalData.completeName}}</div>
 		<div class="w-25 h-25">
 			<select class="w-100 h-100 align-center job-line-type-select" (change)="test($event.target.value)">
 				<option></option>

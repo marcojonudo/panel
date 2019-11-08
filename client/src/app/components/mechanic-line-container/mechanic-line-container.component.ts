@@ -13,7 +13,6 @@ export class MechanicLineContainerComponent {
 	@Input() mechanic: Mechanic;
 	@Input() height: number;
 	@Input() position: string;
-	// @Input() cards: any[];
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;

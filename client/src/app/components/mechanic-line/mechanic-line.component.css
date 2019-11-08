@@ -1,61 +1,20 @@
-mwlResizable {
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-}
-
 .mechanic-line {
 	position: relative;
 	background-color: #ffffff;
-	/*background-color: #e1e1e1;*/
 }
 
 .schedule-line {
 	position: absolute;
-	/*background-color: #F3F3F3;*/
-	/*background-color: #e1e1e1;*/
-	/*background: repeating-linear-gradient(*/
-	/*to right,*/
-	/*#e1e1e1,*/
-	/*#e1e1e1 90px,*/
-	/*#a2a2a2 90px,*/
-	/*#a2a2a2 91px,*/
-	/*#e1e1e1 91px,*/
-	/*#e1e1e1 181px,*/
-	/*#a2a2a2 181px,*/
-	/*#a2a2a2 182px,*/
-	/*#e1e1e1 182px,*/
-	/*#e1e1e1 272px,*/
-	/*#a2a2a2 272px,*/
-	/*#a2a2a2 273px,*/
-	/*#e1e1e1 273px,*/
-	/*#e1e1e1 363px,*/
-	/*#a2a2a2 363px,*/
-	/*#a2a2a2 366px*/
-	/*);*/
-	/*background: repeating-linear-gradient(*/
-		/*to right,*/
-		/*#e1e1e1,*/
-		/*#e1e1e1 25%,*/
-		/*#a2a2a2 25%,*/
-		/*#a2a2a2 calc(25% + 1px),*/
-		/*#e1e1e1 calc(25% + 1px),*/
-		/*#e1e1e1 50%,*/
-		/*#a2a2a2 50%,*/
-		/*#a2a2a2 calc(50% + 1px),*/
-		/*#e1e1e1 calc(50% + 1px),*/
-		/*#e1e1e1 75%,*/
-		/*#a2a2a2 75%,*/
-		/*#a2a2a2 calc(75% + 1px),*/
-		/*#e1e1e1 calc(75% + 1px),*/
-		/*#e1e1e1 100%*/
-	/*);*/
 }
 
 .quarter {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+}
+
+.appointment-schedule {
+	opacity: .2;
 }
 
 .dropzone-dragging {

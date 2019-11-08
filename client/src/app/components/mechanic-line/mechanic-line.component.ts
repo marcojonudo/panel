@@ -91,31 +91,30 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		return this.timeService.calcWidthFromDuration(duration);
 	}
 
-	calcScheduleLeft(start: Date): number {
+	calcScheduleLeft(start: Date, a: any = undefined): number {
 		return this.timeService.calcLeft(start);
 	}
 
 	calcScheduleLineBackground(quarters: number[]): any {
 		return `repeating-linear-gradient(
 			to right,
-			#e1e1e1,
-			#e1e1e1 ${this.quarterWidth-this.quarterBackground[quarters[0]]}px,
+			rgb(225, 225, 225, .5),
+			rgb(225, 225, 225, .5) ${this.quarterWidth-this.quarterBackground[quarters[0]]}px,
 			#a2a2a2 ${this.quarterWidth-this.quarterBackground[quarters[0]]}px,
 			#a2a2a2 ${this.quarterWidth}px,
-			#e1e1e1 ${this.quarterWidth}px,
-			#e1e1e1 ${this.quarterWidth*2-this.quarterBackground[quarters[1]]}px,
-			#a2a2a2 ${this.quarterWidth*2-this.quarterBackground[quarters[1]]}px,
+			rgb(225, 225, 225, .5) ${this.quarterWidth}px,
+			rgb(225, 225, 225, .5) ${this.quarterWidth*2-this.quarterBackground[quarters.length > 1 ? quarters[1] : (quarters[0] + 15)%60]}px,
+			#a2a2a2 ${this.quarterWidth*2-this.quarterBackground[quarters.length > 1 ? quarters[1] : (quarters[0] + 15)%60]}px,
 			#a2a2a2 ${this.quarterWidth*2}px,
-			#e1e1e1 ${this.quarterWidth*2}px,
-			#e1e1e1 ${this.quarterWidth*3-this.quarterBackground[quarters[2]]}px,
-			#a2a2a2 ${this.quarterWidth*3-this.quarterBackground[quarters[2]]}px,
+			rgb(225, 225, 225, .5) ${this.quarterWidth*2}px,
+			rgb(225, 225, 225, .5) ${this.quarterWidth*3-this.quarterBackground[quarters.length > 2 ? quarters[2] : (quarters[0] + 15*2)%60]}px,
+			#a2a2a2 ${this.quarterWidth*3-this.quarterBackground[quarters.length > 2 ? quarters[2] : (quarters[0] + 15*2)%60]}px,
 			#a2a2a2 ${this.quarterWidth*3}px,
-			#e1e1e1 ${this.quarterWidth*3}px,
-			#e1e1e1 ${this.quarterWidth*4-this.quarterBackground[quarters[3]]}px,
-			#a2a2a2 ${this.quarterWidth*4-this.quarterBackground[quarters[3]]}px,
+			rgb(225, 225, 225, .5) ${this.quarterWidth*3}px,
+			rgb(225, 225, 225, .5) ${this.quarterWidth*4-this.quarterBackground[quarters.length > 3 ? quarters[3] : (quarters[0] + 15*3)%60]}px,
+			#a2a2a2 ${this.quarterWidth*4-this.quarterBackground[quarters.length > 3 ? quarters[3] : (quarters[0] + 15*3)%60]}px,
 			#a2a2a2 ${this.quarterWidth*4}px
 		)`;
-
 	}
 
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {

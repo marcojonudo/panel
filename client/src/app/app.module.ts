@@ -46,6 +46,7 @@ import {SkillsDetailsComponent} from './components/skills-details/skills-details
 import {UtilsService} from "./services/utils.service";
 import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
+import { AppointmentSchedulePanelComponent } from './components/appointment-schedule-panel/appointment-schedule-panel.component';
 
 @NgModule({
 	declarations: [
@@ -76,7 +77,8 @@ import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 		ResizableCardDirective,
 		SpinnerComponent,
 		ToolsBarComponent,
-		SkillsDetailsComponent
+		SkillsDetailsComponent,
+		AppointmentSchedulePanelComponent
 	],
 	imports: [
 		BrowserModule,

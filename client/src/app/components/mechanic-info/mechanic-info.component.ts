@@ -109,6 +109,10 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		this.daysService.removeMechanic(this.day, this.mechanic);
 	}
 
+	showAppointmentSchedulesDialog(): void {
+
+	}
+
 	showSkills(skills: Skill[]) {
 		this.highlightMechanic = !this.highlightMechanic;
 		this.commonService.emitSkills(this.highlightMechanic ? skills : []);

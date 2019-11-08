@@ -3,6 +3,7 @@ import {PersonalData} from "./personal-data";
 import {Schedule} from "./schedule";
 import {Skill} from "./skill";
 import {CommonService} from "../services/common.service";
+import {AppointmentSchedule} from "./appointment-schedule";
 
 export class Mechanic {
 
@@ -17,6 +18,7 @@ export class Mechanic {
 	lines: number;
 	showInPanel: boolean;
 	height: number;
+	appointmentsSchedules: AppointmentSchedule[];
 
 	constructor(
 		day: Date,
@@ -46,6 +48,7 @@ export class Mechanic {
 		this.lines = mechanic.lines;
 		this.showInPanel = mechanic.showInPanel;
 		this.height = this.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
+		this.appointmentsSchedules = mechanic.appointments.map(appointment => new AppointmentSchedule(appointment));
 	}
 
 }
