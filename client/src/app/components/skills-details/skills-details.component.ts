@@ -22,16 +22,20 @@ export class SkillsDetailsComponent implements OnInit {
 	private _skills: Skill[];
 	private _skillsPanelWidth: number;
 
+	private _showSkills: boolean;
+
 	constructor(
 		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.skillsPanelWidth = 0;
+		this.showSkills = false;
 	}
 
 	ngOnInit() {
 		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
 			this.skills = skills;
+			this.showSkills = this.skills.length != 0;
 			this.skillsPanelWidth = this.skills.length ? this.DEFAULT_WIDTH : 0;
 			this.cdRef.detectChanges();
 		});
@@ -53,6 +57,14 @@ export class SkillsDetailsComponent implements OnInit {
 
 	set skillsPanelWidth(value: number) {
 		this._skillsPanelWidth = value;
+	}
+
+	get showSkills(): boolean {
+		return this._showSkills;
+	}
+
+	set showSkills(value: boolean) {
+		this._showSkills = value;
 	}
 
 	// endregion

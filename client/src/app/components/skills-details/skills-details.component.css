@@ -1,5 +1,9 @@
-.skills-container {
+:host {
 	overflow-y: auto;
+}
+
+.skills-container {
+	background-color: #ffffff;
 }
 
 .parent-skill {
