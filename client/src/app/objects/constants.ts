@@ -22,5 +22,14 @@ export class Constants {
 		LEFT: 'LEFT',
 		RIGHT: 'RIGTH'
 	};
+	public static readonly SCHEDULE_TYPE: any = {
+		MORNING: 'morning',
+		AFTERNOON: 'afternoon',
+		FULL_TIME: 'full-time'
+	};
+	public static readonly DRAG_SCHEDULE_ACTION: any = {
+		ADD: 'add',
+		REMOVE: 'remove'
+	};
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/"];
 }

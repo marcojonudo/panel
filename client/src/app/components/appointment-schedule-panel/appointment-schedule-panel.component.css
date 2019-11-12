@@ -1,0 +1,40 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background-color: #ffffff;
+}
+
+.appointment-schedule-row {
+	margin: 0 !important;
+}
+
+.appointment-type-schedule-label {
+	margin: 0;
+	padding: 0;
+}
+
+.appointment-type-schedule-select {
+	font-size: .9em;
+}
+
+.appointment-type-schedule {
+	background-color: green;
+}
+
+.appointment-type-hour {
+	width: 60px;
+	font-size: .8em;
+}
+
+.appointment-type-quarter {
+	cursor: pointer;
+}
+
+.disabled {
+	background-color: #f2f2f2;
+}
+
+.selected-schedule {
+	background-color: #C8FFB9;
+}

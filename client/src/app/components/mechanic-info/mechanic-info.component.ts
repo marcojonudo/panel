@@ -7,6 +7,7 @@ import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
 import {CardsService} from "../../services/cards.service";
 import {NgbModal, NgbModalConfig} from "@ng-bootstrap/ng-bootstrap";
+import {Subscription} from "rxjs/internal/Subscription";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -20,11 +21,12 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	@Input() mechanic: Mechanic;
 	@Input() position: string;
 
-	private skillsSubscription: any;
+	private skillsSubscription: Subscription;
 
 	private _oneDayMode: boolean;
-	private oneDayModeSubscription: any;
+	private oneDayModeSubscription: Subscription;
 	private _highlightMechanic: boolean;
+	private _showAppointmentSchedulesDialog: boolean;
 
 	constructor(
 		private daysService: DaysService,
@@ -35,6 +37,7 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	) {
 		this.oneDayMode = true;
 		this.highlightMechanic = false;
+		this.showAppointmentSchedulesDialog = false;
 	}
 
 	ngOnInit(): void {
@@ -81,6 +84,18 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		return Constants.VALUE.LINE_HEIGHT_DEFAULT * 2;
 	}
 
+	get mechanicInfoWidth() {
+		return Constants.VALUE.MECHANIC_INFO_WIDTH;
+	}
+
+	get showAppointmentSchedulesDialog(): boolean {
+		return this._showAppointmentSchedulesDialog;
+	}
+
+	set showAppointmentSchedulesDialog(value: boolean) {
+		this._showAppointmentSchedulesDialog = value;
+	}
+
 	// endregion
 
 	getSkillColorObject(skill: Skill): any {
@@ -109,8 +124,9 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		this.daysService.removeMechanic(this.day, this.mechanic);
 	}
 
-	showAppointmentSchedulesDialog(): void {
-
+	toggleAppointmentSchedulesDialog(): void {
+		this.showAppointmentSchedulesDialog = !this.showAppointmentSchedulesDialog;
+		this.cdRef.detectChanges();
 	}
 
 	showSkills(skills: Skill[]) {

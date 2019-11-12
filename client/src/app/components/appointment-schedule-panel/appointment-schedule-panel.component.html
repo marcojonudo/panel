@@ -1,3 +1,43 @@
-<p>
-  appointment-schedule-panel works!
-</p>
+<div *ngFor="let appointmentSchedule of appointmentsSchedules" class="h-50 d-flex flex-column">
+	<div class="form-group row appointment-schedule-row">
+		<label
+			for="appointment-{{appointmentSchedule.schedule.type}}-type-input"
+			class="col-3 d-flex align-items-center justify-content-end appointment-type-schedule-label pl-1">
+			{{getScheduleTypeName(appointmentSchedule.schedule.type)}}:
+		</label>
+		<div class="col-9">
+			<select
+				id="appointment-{{appointmentSchedule.schedule.type}}-type-input"
+				class="align-center appointment-type-schedule-select"
+				[(ngModel)]="appointmentSchedule.appointmentType.code"
+				(change)="addAppointmentType(appointmentSchedule.appointmentType.code)">
+				<option></option>
+				<option *ngFor="let appointmentType of appointmentTypes" value="{{appointmentType.code}}">
+					{{appointmentType.code}}
+				</option>
+			</select>
+		</div>
+	</div>
+	<div class="flex-grow-1 flex-basis-0 d-flex border-top border-bottom">
+		<div
+			*ngFor="let hour of appointmentSchedule.schedule.hours[0]; let i = index"
+			class="h-100 d-flex flex-column appointment-type-hour">
+			<div class="flex-grow-1 flex-basis-0 pl-1 border-bottom border-right">{{hour}}</div>
+			<div class="flex-grow-1 flex-basis-0 d-flex">
+				<div
+					*ngFor="let quarter of findHourQuarters(appointmentSchedule.schedule.quarters[0])"
+					appDraggableSchedule
+					[appointmentTypeScheduleSubject]="appointmentTypeScheduleSubject"
+					[dragInfo]="{hour: hour, quarter: quarter}"
+					class="flex-grow-1 flex-basis-0 appointment-type-quarter"
+					[ngClass]="{
+						'border-right': quarter != undefined,
+						'disabled': quarter == undefined,
+						'selected-schedule': isScheduleSelected(hour, quarter)
+					}">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div>{{check()}}</div>

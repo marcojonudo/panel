@@ -3,6 +3,7 @@ package panel.services
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
@@ -13,6 +14,7 @@ import panel.utils.Constants
 import utils.pogos.fviberi.Article
 import utils.pogos.fviberi.Order
 import utils.pogos.panel.*
+import utils.pogos.schedules.AppointmentType
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.skills.Skill
 
@@ -28,21 +30,26 @@ class PanelService {
 	FviberiDatabaseClient fviberiDatabaseClient
 	SchedulesDatabaseClient schedulesDatabaseClient
 	SkillsDatabaseClient skillsDatabaseClient
+	CuboDatabaseClient cuboDatabaseClient
 
-	PanelService(PanelDatabaseClient panelDatabaseClient,
-	             FviberiDatabaseClient fviberiDatabaseClient,
-	             SchedulesDatabaseClient schedulesDatabaseClient,
-	             SkillsDatabaseClient skillsDatabaseClient
+	PanelService(
+			PanelDatabaseClient panelDatabaseClient,
+			FviberiDatabaseClient fviberiDatabaseClient,
+	        SchedulesDatabaseClient schedulesDatabaseClient,
+	        SkillsDatabaseClient skillsDatabaseClient,
+			CuboDatabaseClient cuboDatabaseClient
 	) {
 		this.panelDatabaseClient = panelDatabaseClient
 		this.fviberiDatabaseClient = fviberiDatabaseClient
 		this.schedulesDatabaseClient = schedulesDatabaseClient
 		this.skillsDatabaseClient = skillsDatabaseClient
+		this.cuboDatabaseClient = cuboDatabaseClient
 	}
 
 	CompleteInfo getPanelInfo(Date day = new Date()) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
+		List<AppointmentType> appointmentTypes = cuboDatabaseClient.getAppointmentTypes()
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
@@ -52,7 +59,13 @@ class PanelService {
 
 		UpdateCards updateCards = syncOrders(orders, dayCards)
 		List<Card> cards = saveCards(updateCards)
-		return new CompleteInfo(daysMechanics, skills, jobLineTypes, cards + updateCards.sameCards)
+		return new CompleteInfo(
+				daysMechanics,
+				skills,
+				jobLineTypes,
+				appointmentTypes,
+				cards + updateCards.sameCards
+		)
 	}
 
 	// region Mechanics

@@ -2,7 +2,6 @@ import {Constants} from "./constants";
 import {PersonalData} from "./personal-data";
 import {Schedule} from "./schedule";
 import {Skill} from "./skill";
-import {CommonService} from "../services/common.service";
 import {AppointmentSchedule} from "./appointment-schedule";
 
 export class Mechanic {

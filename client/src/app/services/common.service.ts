@@ -3,6 +3,7 @@ import {JobLineType} from "../objects/job-line-type";
 import {Skill} from "../objects/skill";
 import {Observable} from "rxjs/internal/Observable";
 import {Subject} from "rxjs/internal/Subject";
+import {AppointmentType} from "../objects/appointment-type";
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class CommonService {
 
 	private _jobLineTypes: JobLineType[];
 	private _highlightedSkills: Skill[];
+	private _appointmentTypes: AppointmentType[];
 
 	private skillsSubject: Subject<Skill[]>;
 	private _skills$: Observable<Skill[]>;
@@ -33,9 +35,11 @@ export class CommonService {
 
 	// region Init
 
-	init(jobLineTypes: any[]): void {
-		this.jobLineTypes = jobLineTypes.map(jobLineType => new JobLineType(jobLineType));
+	init(jobLineTypes: JobLineType[], appointmentTypes: AppointmentType[]): void {
+		this.jobLineTypes = jobLineTypes;
+		this.appointmentTypes = appointmentTypes;
 		console.log('Job line types', this.jobLineTypes);
+		console.log('Appointment types', this.appointmentTypes);
 	}
 
 	// endregion
@@ -64,6 +68,14 @@ export class CommonService {
 
 	set skills$(value: Observable<Skill[]>) {
 		this._skills$ = value;
+	}
+
+	get appointmentTypes(): AppointmentType[] {
+		return this._appointmentTypes;
+	}
+
+	set appointmentTypes(value: AppointmentType[]) {
+		this._appointmentTypes = value;
 	}
 
 	// endregion

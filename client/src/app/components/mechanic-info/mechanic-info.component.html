@@ -7,9 +7,9 @@
 		[style.height.px]="defaultHeight">
 		<div
 			class="w-75 h-25 d-flex align-items-center mechanic-name pl-1"
-			(click)="showAppointmentSchedulesDialog()">{{mechanic.personalData.completeName}}</div>
+			(click)="toggleAppointmentSchedulesDialog()">{{mechanic.personalData.completeName}}</div>
 		<div class="w-25 h-25">
-			<select class="w-100 h-100 align-center job-line-type-select" (change)="test($event.target.value)">
+			<select class="w-100 h-100 align-center job-line-type-select">
 				<option></option>
 				<option *ngFor="let jobLineType of jobLineTypes" value="{{jobLineType.code}}">
 					{{jobLineType.code}}
@@ -28,7 +28,7 @@
 			<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
 			<div
 				class="w-50 h-35 align-center"
-				(click)="checkRemoveMechanic(mymodal)">
+				(click)="checkRemoveMechanic(deleteScheduleModal)">
 				<i class="far fa-trash-alt"></i>
 			</div>
 			<div class="w-50 h-35 align-center ml-auto"><i class="fas fa-arrows-alt-v"></i></div>
@@ -57,7 +57,12 @@
 		</div>
 	</ng-template>
 </div>
-<ng-template #mymodal let-modal>
+<app-appointment-schedule-panel
+	*ngIf="showAppointmentSchedulesDialog"
+	class="h-100 appointment-schedule-panel-container"
+	[style.left.px]="mechanicInfoWidth"
+	[appointmentsSchedules]="mechanic.appointmentsSchedules"></app-appointment-schedule-panel>
+<ng-template #deleteScheduleModal let-modal>
 	<div class="modal-header">
 		<h4 class="modal-title" id="modal-basic-title">!Atención!</h4>
 	</div>

@@ -38,7 +38,7 @@ export class AppComponent implements AfterViewInit {
 			.subscribe((data: any) => {
 				console.log(data);
 
-				this.commonService.init(data.jobLineTypes);
+				this.commonService.init(data.jobLineTypes, data.appointmentTypes);
 
 				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics, data.skills);
 				this.daysService.init(daysMechanicsList);
