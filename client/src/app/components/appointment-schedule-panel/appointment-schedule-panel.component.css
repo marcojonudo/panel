@@ -3,19 +3,15 @@
 	flex-direction: column;
 	justify-content: center;
 	background-color: #ffffff;
-}
-
-.appointment-schedule-row {
-	margin: 0 !important;
+	font-size: .8em;
 }
 
 .appointment-type-schedule-label {
 	margin: 0;
 	padding: 0;
-}
-
-.appointment-type-schedule-select {
 	font-size: .9em;
+	background-color: #595959;
+	color: #ffffff;
 }
 
 .appointment-type-schedule {
@@ -24,7 +20,9 @@
 
 .appointment-type-hour {
 	width: 60px;
+	line-height: 1.2;
 	font-size: .8em;
+	font-weight: bold;
 }
 
 .appointment-type-quarter {

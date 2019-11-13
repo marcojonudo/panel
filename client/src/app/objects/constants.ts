@@ -27,9 +27,11 @@ export class Constants {
 		AFTERNOON: 'afternoon',
 		FULL_TIME: 'full-time'
 	};
-	public static readonly DRAG_SCHEDULE_ACTION: any = {
-		ADD: 'add',
-		REMOVE: 'remove'
+	public static readonly QUARTERS: any = {
+		STEP_0: 0,
+		STEP_15: 15,
+		STEP_30: 30,
+		STEP_45: 45,
 	};
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/"];
 }
