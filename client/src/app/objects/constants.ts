@@ -23,9 +23,9 @@ export class Constants {
 		RIGHT: 'RIGTH'
 	};
 	public static readonly SCHEDULE_TYPE: any = {
-		MORNING: 'morning',
-		AFTERNOON: 'afternoon',
-		FULL_TIME: 'full-time'
+		MORNING: 'MORNING',
+		AFTERNOON: 'AFTERNOON',
+		FULL_TIME: 'FULL_TIME'
 	};
 	public static readonly QUARTERS: any = {
 		STEP_0: 0,
@@ -33,5 +33,6 @@ export class Constants {
 		STEP_30: 30,
 		STEP_45: 45,
 	};
-	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/"];
+	public static readonly HOUR_MINUTES: number = 60;
+	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/", "/appointment"];
 }

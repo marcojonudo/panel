@@ -4,16 +4,16 @@
 	[ngClass]="{'h-100': schedule.minutes.length == 1}">
 	<div class="d-flex flex-column">
 		<label
-			for="appointment-{{appointmentsSchedules[i]?.schedule.type}}-type-input"
+			for="appointment-{{i}}-type-input"
 			class="h-50 align-center appointment-type-schedule-label">
 			{{getScheduleTypeName(schedule.type, i)}}
 		</label>
 		<select
-			id="appointment-{{appointmentsSchedules[i]?.schedule.type}}-type-input"
+			id="appointment-{{i}}-type-input"
 			class="h-50 align-center"
-			[(ngModel)]="appointmentsSchedules[i]?.appointmentType.code"
-			(change)="addAppointmentType(appointmentsSchedules[i]?.appointmentType.code)">
-			<option></option>
+			[ngModel]="appointmentsSchedules[i]?.appointmentType.code"
+			(change)="updateAppointmentType(i, $event.target.value)">
+			<option value=""></option>
 			<option *ngFor="let appointmentType of appointmentTypes" value="{{appointmentType.code}}">
 				{{appointmentType.code}}
 			</option>
@@ -21,13 +21,14 @@
 	</div>
 	<div class="flex-grow-1 flex-basis-0 d-flex border-top border-bottom">
 		<div
-			*ngFor="let hour of schedule.hours[i]"
+			*ngFor="let hour of schedule.hoursArray[i]"
 			class="h-100 d-flex flex-column appointment-type-hour">
-			<div class="flex-grow-1 flex-basis-0 d-flex align-items-center pl-1 border-bottom border-right">{{hour}}</div>
-			<div class="flex-grow-1 flex-basis-0 d-flex">
+			<div class="h-50 d-flex align-items-center pl-1 border-bottom border-right">{{hour}}</div>
+			<div *ngIf="appointmentsSchedules[i]" class="flex-grow-1 flex-basis-0 d-flex">
 				<div
 					*ngFor="let quarter of findHourQuarters(schedule.quarters[i])"
 					appDraggableSchedule
+					(updateSchedule)="updateAppointmentSchedule(i, $event)"
 					[appointmentTypeScheduleSubject]="appointmentTypeScheduleSubject"
 					[initialDragInfo]="{hour: hour, quarter: quarter, type: getScheduleType(schedule.type, i)}"
 					class="flex-grow-1 flex-basis-0 appointment-type-quarter"
@@ -38,6 +39,7 @@
 					}">
 				</div>
 			</div>
+			<div *ngIf="!appointmentsSchedules[i]" class="flex-grow-1 flex-basis-0 disabled"></div>
 		</div>
 	</div>
 </div>

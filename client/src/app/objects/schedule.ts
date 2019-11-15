@@ -3,6 +3,7 @@ import {Constants} from "./constants";
 
 export class Schedule {
 
+	id: number;
 	morningStart: Date;
 	morningEnd: Date;
 	afternoonStart: Date;
@@ -13,18 +14,19 @@ export class Schedule {
 	end: Date;
 	minutes: number[] = [];
 	quarters: number[][] = [];
-	hours: number[][] = [];
+	hoursArray: number[][] = [];
 
-	constructor(schedule: any) {
-		if (schedule.morningStart) {
-			this.morningStart = UtilsService.parseTimeFromString(schedule.morningStart);
-			this.morningEnd = UtilsService.parseTimeFromString(schedule.morningEnd);
+	constructor(morningStart: string, morningEnd: string, afternoonStart: string, afternoonEnd: string, id: number = undefined) {
+		this.id = id;
+		if (morningStart) {
+			this.morningStart = UtilsService.parseTimeFromString(morningStart);
+			this.morningEnd = UtilsService.parseTimeFromString(morningEnd);
 			this.thresholds.push(this.morningStart, this.morningEnd);
 			this.type = Constants.SCHEDULE_TYPE.MORNING;
 		}
-		if (schedule.afternoonStart) {
-			this.afternoonStart = UtilsService.parseTimeFromString(schedule.afternoonStart);
-			this.afternoonEnd = UtilsService.parseTimeFromString(schedule.afternoonEnd);
+		if (afternoonStart) {
+			this.afternoonStart = UtilsService.parseTimeFromString(afternoonStart);
+			this.afternoonEnd = UtilsService.parseTimeFromString(afternoonEnd);
 			this.thresholds.push(this.afternoonStart, this.afternoonEnd);
 			this.type = this.thresholds.length > 2 ? Constants.SCHEDULE_TYPE.FULL_TIME : Constants.SCHEDULE_TYPE.AFTERNOON;
 		}
@@ -35,7 +37,7 @@ export class Schedule {
 			this.minutes.push(UtilsService.getScheduleMinutes(this.thresholds[i], this.thresholds[i+1]));
 			const startHours = this.thresholds[i].getHours();
 			const startMinutes = this.thresholds[i].getMinutes();
-			this.hours.push(UtilsService.createArray(Math.ceil(this.minutes[i/2]/60)).map((elem, i) => {
+			this.hoursArray.push(UtilsService.createArray(Math.ceil(this.minutes[i/2]/60)).map((elem, i) => {
 				return startHours + i;
 			}));
 			this.quarters.push(UtilsService.createArray(this.minutes[i/2] / 15).map((elem, i) => {

@@ -8,6 +8,8 @@ import {Observable} from "rxjs/internal/Observable";
 import {Subject} from "rxjs/internal/Subject";
 import {AppointmentTypeScheduleDragInfo} from "../../objects/appointment-type-schedule-drag-info";
 import {Schedule} from "../../objects/schedule";
+import {AppointmentsService} from "../../services/appointments.service";
+import {Mechanic} from "../../objects/mechanic";
 
 @Component({
 	selector: 'app-appointment-schedule-panel',
@@ -18,12 +20,17 @@ import {Schedule} from "../../objects/schedule";
 export class AppointmentSchedulePanelComponent implements OnInit {
 
 	@Input() schedule: Schedule;
-	@Input() appointmentsSchedules: AppointmentSchedule[];
+	@Input() mechanic: Mechanic;
+
+	private _appointmentsSchedules: AppointmentSchedule[];
 
 	private appointmentTypeScheduleSubject: Subject<AppointmentTypeScheduleDragInfo[]>;
+	private _appointmentTypeSchedule$: Observable<AppointmentTypeScheduleDragInfo[]>;
+
 	private dragTypeSchedule: any;
 
 	constructor(
+		private appointmentsService: AppointmentsService,
 		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
@@ -40,13 +47,39 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 		});
 	}
 
-	private _appointmentTypeSchedule$: Observable<AppointmentTypeScheduleDragInfo[]>;
+	ngOnInit(): void {
+		this.appointmentsSchedules = this.mechanic.appointments;
+		/* Al abrir el popup, es posible que el mecánico ya tenga horario de citas asignado. Si es así, se carga para
+		*  que se muestre */
+		this.appointmentsSchedules.forEach(appointmentSchedule => {
+			let startQuarterIndex = 0;
+			appointmentSchedule.schedule.hoursArray[0].forEach(hour => {
+				const quarters = appointmentSchedule.schedule.quarters[0].slice(startQuarterIndex);
+				const endQuarterIndex = quarters.indexOf(Constants.QUARTERS.STEP_45);
+				const endIndex = endQuarterIndex != -1 ? endQuarterIndex + 1: quarters.length;
+				for (let i = 0; i < endIndex; i++) {
+					this.dragTypeSchedule[appointmentSchedule.schedule.type].push(
+						new AppointmentTypeScheduleDragInfo(hour, quarters[i], appointmentSchedule.schedule.type)
+					);
+				}
+				startQuarterIndex += endQuarterIndex+1;
+			});
+		});
+	}
+
+	// region Getters / setters
+
+	get appointmentsSchedules(): AppointmentSchedule[] {
+		return this._appointmentsSchedules;
+	}
+
+	set appointmentsSchedules(value: AppointmentSchedule[]) {
+		this._appointmentsSchedules = value;
+	}
 
 	get appointmentTypeSchedule$(): Observable<AppointmentTypeScheduleDragInfo[]> {
 		return this._appointmentTypeSchedule$;
 	}
-
-	// region Getters / setters
 
 	set appointmentTypeSchedule$(value: Observable<AppointmentTypeScheduleDragInfo[]>) {
 		this._appointmentTypeSchedule$ = value;
@@ -54,23 +87,6 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 
 	get appointmentTypes(): AppointmentType[] {
 		return this.commonService.appointmentTypes;
-	}
-
-	ngOnInit(): void {
-		/* Al abrir el popup, es posible que el mecánico ya tenga horario de citas asignado. Si es así, se carga para
-		*  que se muestre */
-		this.appointmentsSchedules.forEach(appointmentSchedule => {
-			const quarters = appointmentSchedule.schedule.quarters[0];
-			let startQuarterIndex = 0;
-			appointmentSchedule.schedule.hours[0].forEach(hour => {
-				const endQuarterIndex = quarters.slice(startQuarterIndex).indexOf(Constants.QUARTERS.STEP_45);
-				for (let i = startQuarterIndex; i < endQuarterIndex + 1; i++) {
-					this.dragTypeSchedule[appointmentSchedule.schedule.type].push(
-						new AppointmentTypeScheduleDragInfo(hour, quarters[i], appointmentSchedule.schedule.type)
-					);
-				}
-			});
-		});
 	}
 
 	// endregion
@@ -97,8 +113,19 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 		return this.dragTypeSchedule[type].find(s => s.hour == hour && s.quarter == quarter && s.type == type) != undefined;
 	}
 
-	addAppointmentType(code: string): void {
-		console.log(code);
+	updateAppointmentType(index: number, appointmentTypeCode: string): void {
+		this.appointmentsService.updateAppointmentType(this.mechanic, this.appointmentsSchedules, index, appointmentTypeCode);
+		this.cdRef.detectChanges();
+	}
+
+	updateAppointmentSchedule(index: number, scheduleType: string): void {
+		this.appointmentsService.updateAppointmentSchedule(
+			this.mechanic,
+			this.appointmentsSchedules,
+			index,
+			scheduleType,
+			this.dragTypeSchedule[scheduleType]
+		);
 	}
 
 	check() {

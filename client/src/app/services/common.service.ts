@@ -84,4 +84,8 @@ export class CommonService {
 		this.skillsSubject.next(skills);
 	}
 
+	findAppointmentType(code: string): AppointmentType {
+		return this.appointmentTypes.find(appointmentType => appointmentType.code == code);
+	}
+
 }

@@ -3,6 +3,7 @@ import {PersonalData} from "./personal-data";
 import {Schedule} from "./schedule";
 import {Skill} from "./skill";
 import {AppointmentSchedule} from "./appointment-schedule";
+import {UtilsService} from "../services/utils.service";
 
 export class Mechanic {
 
@@ -17,7 +18,7 @@ export class Mechanic {
 	lines: number;
 	showInPanel: boolean;
 	height: number;
-	appointmentsSchedules: AppointmentSchedule[];
+	appointments: AppointmentSchedule[];
 
 	constructor(
 		day: Date,
@@ -43,11 +44,18 @@ export class Mechanic {
 			const employeeSkill = mechanic.employee.employeeSkills.find(s => s.skill.name == skill.name);
 			return new Skill(skill, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
 		});
-		this.schedule = new Schedule(mechanic.schedule);
+		this.schedule = new Schedule(
+			mechanic.schedule.morningStart,
+			mechanic.schedule.morningEnd,
+			mechanic.schedule.afternoonStart,
+			mechanic.schedule.afternoonEnd
+		);
 		this.lines = mechanic.lines;
 		this.showInPanel = mechanic.showInPanel;
 		this.height = this.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
-		this.appointmentsSchedules = mechanic.appointments.map(appointment => new AppointmentSchedule(appointment));
+		this.appointments = UtilsService.sort(mechanic.appointments.map(appointment =>
+			new AppointmentSchedule(mechanic, appointment)
+		), (appointment) => appointment.schedule.start);
 	}
 
 }

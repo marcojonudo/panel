@@ -1,7 +1,9 @@
-import {Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
+import {Directive, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2} from '@angular/core';
 import {Subject} from "rxjs/internal/Subject";
 import {AppointmentTypeScheduleDragInfo} from "../objects/appointment-type-schedule-drag-info";
 import {Constants} from "../objects/constants";
+import {AppointmentSchedule} from "../objects/appointment-schedule";
+import {CardsGroup} from "../objects/cards-group";
 
 @Directive({
 	selector: '[appDraggableSchedule]'
@@ -12,6 +14,8 @@ export class DraggableScheduleDirective implements OnInit {
 
 	@Input() appointmentTypeScheduleSubject: Subject<AppointmentTypeScheduleDragInfo[]>;
 	@Input() initialDragInfo: AppointmentTypeScheduleDragInfo;
+
+	@Output() updateSchedule: EventEmitter<string>;
 
 	private pointerDownListener;
 	private pointerMoveListener;
@@ -31,10 +35,11 @@ export class DraggableScheduleDirective implements OnInit {
 		this.dragSchedule = [];
 		this.lastStep = 0;
 		this.lastClientX = 0;
+
+		this.updateSchedule = new EventEmitter();
 	}
 
 	ngOnInit(): void {
-		// this.initialDragInfo = this.initialDragInfo;
 		this.dragInfo = new AppointmentTypeScheduleDragInfo(
 			this.initialDragInfo.hour,
 			this.initialDragInfo.quarter,
@@ -104,6 +109,7 @@ export class DraggableScheduleDirective implements OnInit {
 			this.initialDragInfo.quarter,
 			this.initialDragInfo.type
 		);
+		this.updateSchedule.emit(this.dragInfo.type);
 
 		this.pointerMoveListener();
 		this.pointerUpListener();

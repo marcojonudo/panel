@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import panel.utils.Constants
 import utils.pogos.schedules.EmployeeSchedule
+import utils.pogos.schedules.EmployeeScheduleAppointment
 
 import javax.inject.Singleton
 
@@ -26,5 +27,26 @@ interface SchedulesDatabaseClient extends SchedulesDatabaseApi {
 
 	@Put("/mechanic/lines")
 	void updateMechanicLines(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+
+	@Post("/mechanic/appointments")
+	EmployeeScheduleAppointment createMechanicAppointmentsSchedules(
+			@Header String sessionId,
+			@Body List<Map<String, Object>> mechanics,
+			@QueryValue boolean morning
+	)
+
+	@Put("/mechanic/appointments")
+	void updateMechanicAppointmentsSchedules(
+			@Header String sessionId,
+			@Body List<Map<String, Object>> mechanics,
+			@QueryValue boolean morning
+	)
+
+	@Delete("/mechanic/appointments")
+	void deleteMechanicAppointmentSchedule(
+			@Header String sessionId,
+			@Body List<Map<String, Object>> mechanics,
+			@QueryValue boolean morning
+	)
 
 }
