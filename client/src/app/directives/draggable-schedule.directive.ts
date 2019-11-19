@@ -1,32 +1,30 @@
 import {Directive, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2} from '@angular/core';
 import {Subject} from "rxjs/internal/Subject";
-import {AppointmentTypeScheduleDragInfo} from "../objects/appointment-type-schedule-drag-info";
+import {DragScheduleInfo} from "../objects/drag-schedule-info";
 import {Constants} from "../objects/constants";
-import {AppointmentSchedule} from "../objects/appointment-schedule";
-import {CardsGroup} from "../objects/cards-group";
+import {DragScheduleAdd} from "../objects/drag-schedule/drag-schedule-add";
+import {DragScheduleRemove} from "../objects/drag-schedule/drag-schedule-remove";
+import {DragScheduleAction} from "../objects/drag-schedule/drag-schedule-action";
 
 @Directive({
 	selector: '[appDraggableSchedule]'
 })
 export class DraggableScheduleDirective implements OnInit {
 
-	private readonly HOUR_MINUTES: number = 60;
-
-	@Input() appointmentTypeScheduleSubject: Subject<AppointmentTypeScheduleDragInfo[]>;
-	@Input() initialDragInfo: AppointmentTypeScheduleDragInfo;
-
+	@Input() appointmentTypeScheduleSubject: Subject<DragScheduleAction>;
+	@Input() initialDragInfo: DragScheduleInfo;
 	@Output() updateSchedule: EventEmitter<string>;
 
 	private pointerDownListener;
 	private pointerMoveListener;
 	private pointerUpListener;
 
-	private dragInfo: AppointmentTypeScheduleDragInfo;
+	private dragInfo: DragScheduleInfo;
 	private lastClientX: number;
 	private lastStep: number;
 	private rect: any;
 
-	private dragSchedule: AppointmentTypeScheduleDragInfo[];
+	private dragSchedule: DragScheduleInfo[];
 
 	constructor(
 		private element: ElementRef,
@@ -40,7 +38,7 @@ export class DraggableScheduleDirective implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.dragInfo = new AppointmentTypeScheduleDragInfo(
+		this.dragInfo = new DragScheduleInfo(
 			this.initialDragInfo.hour,
 			this.initialDragInfo.quarter,
 			this.initialDragInfo.type
@@ -54,8 +52,8 @@ export class DraggableScheduleDirective implements OnInit {
 	}
 
 	onPointerDown(): void {
-		this.dragSchedule.push(this.dragInfo);
-		this.appointmentTypeScheduleSubject.next(this.dragSchedule);
+		// this.dragSchedule.push(this.dragInfo);
+		this.appointmentTypeScheduleSubject.next(new DragScheduleAdd(this.dragInfo));
 		this.pointerMoveListener = this.renderer.listen(
 			'document',
 			'pointermove',
@@ -69,30 +67,37 @@ export class DraggableScheduleDirective implements OnInit {
 	}
 
 	onPointerMove(event: PointerEvent): void {
-		const step = Math.ceil((event.clientX - this.rect.right)/this.rect.width);
+		const step = Math.ceil((event.clientX - this.rect.right) / this.rect.width);
 		const sign = Math.sign(event.clientX - this.lastClientX);
 
 		if (step != this.lastStep) {
 			const newQuarter = this.calcNewQuarter(this.dragInfo.quarter, sign, step);
-			this.dragInfo = new AppointmentTypeScheduleDragInfo(
+			this.dragInfo = new DragScheduleInfo(
 				this.calcNewHour(this.dragInfo.hour, newQuarter, sign),
 				newQuarter,
 				this.dragInfo.type
 			);
 			const existent = this.findSchedule(this.dragInfo.hour, this.dragInfo.quarter) != undefined;
-			if (existent) {
-				this.dragSchedule.pop();
-			} else {
-				this.dragSchedule.push(this.dragInfo);
-			}
-			this.appointmentTypeScheduleSubject.next(this.dragSchedule);
+			const action = existent ? new DragScheduleRemove(this.dragInfo, sign) : new DragScheduleAdd(this.dragInfo, sign);
+			action.update(this.dragSchedule);
+			// if (existent) {
+			// 	const action = new DragScheduleRemove(this.dragInfo, sign);
+			// 	// this.dragSchedule.pop();
+			// } else {
+			// 	if (sign > 0) {
+			// 		this.dragSchedule.push(this.dragInfo);
+			// 	} else {
+			// 		this.dragSchedule.unshift(this.dragInfo);
+			// 	}
+			// }
+			this.appointmentTypeScheduleSubject.next(action);
 			this.lastStep = step;
 		}
 		this.lastClientX = event.clientX;
 	}
 
 	calcNewQuarter(baseQuarter: number, sign: number, step: number): number {
-		return (baseQuarter + Constants.QUARTERS.STEP_15*sign + this.HOUR_MINUTES*Math.abs(step))%this.HOUR_MINUTES;
+		return (baseQuarter + Constants.QUARTERS.STEP_15 * sign + Constants.HOUR_MINUTES * Math.abs(step)) % Constants.HOUR_MINUTES;
 	}
 
 	calcNewHour(baseHour: number, newQuarter: number, sign: number): number {
@@ -104,7 +109,8 @@ export class DraggableScheduleDirective implements OnInit {
 
 	onPointerUp(): void {
 		this.dragSchedule = [];
-		this.dragInfo = new AppointmentTypeScheduleDragInfo(
+		this.lastStep = 0;
+		this.dragInfo = new DragScheduleInfo(
 			this.initialDragInfo.hour,
 			this.initialDragInfo.quarter,
 			this.initialDragInfo.type
@@ -115,7 +121,7 @@ export class DraggableScheduleDirective implements OnInit {
 		this.pointerUpListener();
 	}
 
-	private findSchedule(hour: number, quarter: number): AppointmentTypeScheduleDragInfo {
+	private findSchedule(hour: number, quarter: number): DragScheduleInfo {
 		return this.dragSchedule.find(s => s.hour == hour && s.quarter == quarter);
 	}
 

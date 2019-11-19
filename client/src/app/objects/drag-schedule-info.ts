@@ -1,4 +1,4 @@
-export class AppointmentTypeScheduleDragInfo {
+export class DragScheduleInfo {
 
 	hour: number;
 	quarter: number;

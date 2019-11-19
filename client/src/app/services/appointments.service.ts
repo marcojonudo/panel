@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {CommonService} from "./common.service";
-import {AppointmentTypeScheduleDragInfo} from "../objects/appointment-type-schedule-drag-info";
+import {DragScheduleInfo} from "../objects/drag-schedule-info";
 import {Schedule} from "../objects/schedule";
 import {Constants} from "../objects/constants";
 import {environment} from "../../environments/environment";
@@ -26,8 +26,7 @@ export class AppointmentsService {
 		appointmentTypeCode: string
 	): void {
 		const appointmentSchedule = appointmentsSchedules[index];
-		const morning = appointmentSchedule.schedule.type == Constants.SCHEDULE_TYPE.MORNING;
-		console.log(appointmentSchedule, index, morning);
+		const morning = appointmentSchedule ? appointmentSchedule.schedule.type == Constants.SCHEDULE_TYPE.MORNING : false;
 
 		if (appointmentTypeCode) {
 			const appointmentType = this.commonService.findAppointmentType(appointmentTypeCode);
@@ -65,7 +64,7 @@ export class AppointmentsService {
 		appointmentsSchedules: AppointmentSchedule[],
 		index: number,
 		type: string,
-		dragSchedule: AppointmentTypeScheduleDragInfo[]
+		dragSchedule: DragScheduleInfo[]
 	): void {
 		const start = `${dragSchedule[0].hour}:${dragSchedule[0].quarter}:00`;
 		const end = `${dragSchedule[dragSchedule.length - 1].hour}:${dragSchedule[dragSchedule.length - 1].quarter + Constants.QUARTERS.STEP_15}:00`;

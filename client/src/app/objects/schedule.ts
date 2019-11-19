@@ -1,5 +1,6 @@
 import {UtilsService} from "../services/utils.service";
 import {Constants} from "./constants";
+import {HourQuarters} from "./hour-quarters";
 
 export class Schedule {
 
@@ -14,7 +15,7 @@ export class Schedule {
 	end: Date;
 	minutes: number[] = [];
 	quarters: number[][] = [];
-	hoursArray: number[][] = [];
+	hourQuarters: HourQuarters[][] = [];
 
 	constructor(morningStart: string, morningEnd: string, afternoonStart: string, afternoonEnd: string, id: number = undefined) {
 		this.id = id;
@@ -34,14 +35,32 @@ export class Schedule {
 		this.end = this.thresholds[this.thresholds.length-1];
 
 		for (let i = 0; i < this.thresholds.length; i = i + 2) {
+			this.hourQuarters.push([]);
 			this.minutes.push(UtilsService.getScheduleMinutes(this.thresholds[i], this.thresholds[i+1]));
-			const startHours = this.thresholds[i].getHours();
-			const startMinutes = this.thresholds[i].getMinutes();
-			this.hoursArray.push(UtilsService.createArray(Math.ceil(this.minutes[i/2]/60)).map((elem, i) => {
-				return startHours + i;
-			}));
+			const [startMinutes, endMinutes] = [
+				UtilsService.getTotalMinutes(this.thresholds[i]), UtilsService.getTotalMinutes(this.thresholds[i+1])
+			];
+			for (let minutes = startMinutes; minutes < endMinutes; minutes = minutes + 15) {
+				const quarterTime = UtilsService.parseTimeFromMinutes(minutes, this.thresholds[i]);
+				const [hours, mins] = [quarterTime.getHours(), quarterTime.getMinutes()];
+				const hourQuarter = this.hourQuarters[i/2].find(hourQuarter => hourQuarter.hour == hours);
+				if (hourQuarter) {
+					hourQuarter.quarters.push(mins);
+				} else {
+					this.hourQuarters[i/2].push(
+						new HourQuarters(
+							hours,
+							[mins],
+							this.type != Constants.SCHEDULE_TYPE.FULL_TIME
+								? this.type
+								: (i == 0 ? Constants.SCHEDULE_TYPE.MORNING : Constants.SCHEDULE_TYPE.AFTERNOON)
+						)
+					);
+				}
+			}
+			const startMinutes2 = this.thresholds[i].getMinutes();
 			this.quarters.push(UtilsService.createArray(this.minutes[i/2] / 15).map((elem, i) => {
-				return (startMinutes + 15 * i) % 60;
+				return (startMinutes2 + 15 * i) % 60;
 			}));
 		}
 	}
