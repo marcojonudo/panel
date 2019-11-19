@@ -22,7 +22,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _days: Date[];
 	private itemSize: number;
 	private _displayScrollbar: boolean;
-	private _nonexistentTodaySchedules: boolean;
+	private _showNonexistentScheduleMessage: boolean;
 
 	private _oneDayMode: boolean;
 	private _maxScheduleWidth: number;
@@ -50,13 +50,14 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
 
-		this.nonexistentTodaySchedules = this.daysService.daysMechanics[new Date().getTime()] == undefined;
+		this.showNonexistentScheduleMessage = !this.checkTodayScheduleExists();
 	}
 
 	ngOnInit(): void {
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
 			this.oneDayMode = oneDayMode;
 			this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
+			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
 			this.timeService.calcMaxScheduleWidth(oneDayMode);
 		});
 		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
@@ -102,12 +103,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._displayScrollbar = value;
 	}
 
-	get nonexistentTodaySchedules(): boolean {
-		return this._nonexistentTodaySchedules;
+	get showNonexistentScheduleMessage(): boolean {
+		return this._showNonexistentScheduleMessage;
 	}
 
-	set nonexistentTodaySchedules(value: boolean) {
-		this._nonexistentTodaySchedules = value;
+	set showNonexistentScheduleMessage(value: boolean) {
+		this._showNonexistentScheduleMessage = value;
 	}
 
 	get oneDayMode(): boolean {
@@ -135,6 +136,10 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
+
+	private checkTodayScheduleExists(today: Date = this.timeService.today): boolean {
+		return this.daysService.findDayMechanics(today) != undefined;
+	}
 
 	trackByDay(index, item) {
 		return item
