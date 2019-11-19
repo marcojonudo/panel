@@ -76,20 +76,22 @@ export class AppComponent implements AfterViewInit {
 
 	parseDaysMechanics(daysMechanics: any, skills: any[]) {
 		let daysMechanicsList = [];
-		for (const dayString of Object.keys(daysMechanics)) {
-			const day = UtilsService.parseDateFromString(dayString);
-			const mechanics = daysMechanics[dayString];
-			daysMechanicsList.push(
-				{day: day, mechanics: mechanics.map(mechanic =>
-						new Mechanic(
-							day,
-							mechanic,
-							skills,
-							this.commonService.highlightedSkills
+		if (daysMechanics) {
+			for (const dayString of Object.keys(daysMechanics)) {
+				const day = UtilsService.parseDateFromString(dayString);
+				const mechanics = daysMechanics[dayString];
+				daysMechanicsList.push(
+					{day: day, mechanics: mechanics.map(mechanic =>
+							new Mechanic(
+								day,
+								mechanic,
+								skills,
+								this.commonService.highlightedSkills
+							)
 						)
-					)
-				}
-			);
+					}
+				);
+			}
 		}
 		return daysMechanicsList;
 	}

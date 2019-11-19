@@ -22,6 +22,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _days: Date[];
 	private itemSize: number;
 	private _displayScrollbar: boolean;
+	private _nonexistentTodaySchedules: boolean;
 
 	private _oneDayMode: boolean;
 	private _maxScheduleWidth: number;
@@ -48,6 +49,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.relativeContainer = true;
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
+
+		this.nonexistentTodaySchedules = this.daysService.daysMechanics[new Date().getTime()] == undefined;
 	}
 
 	ngOnInit(): void {
@@ -97,6 +100,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set displayScrollbar(value: boolean) {
 		this._displayScrollbar = value;
+	}
+
+	get nonexistentTodaySchedules(): boolean {
+		return this._nonexistentTodaySchedules;
+	}
+
+	set nonexistentTodaySchedules(value: boolean) {
+		this._nonexistentTodaySchedules = value;
 	}
 
 	get oneDayMode(): boolean {

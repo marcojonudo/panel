@@ -155,13 +155,19 @@ export class DaysService {
 		daysMechanics: any = this.daysMechanics,
 		oneDayMode: boolean = this.oneDayMode
 	): boolean {
+		if (!Object.keys(daysMechanics).length) {
+			return false;
+		}
 		const mechanics = oneDayMode ? daysMechanics[today.getTime()] : [].concat(...Object.values(daysMechanics));
-		const mechanicsHeight =
-			UtilsService.sum(mechanics, 'lines') * lineHeight +
-			mechanics.length * (this.MECHANIC_BOTTOM_MARGIN + 4) +
-			this.TIMELINE_HEIGHT
-		;
-		return gridHeight < mechanicsHeight;
+		if (mechanics) {
+			const mechanicsHeight =
+				UtilsService.sum(mechanics, 'lines') * lineHeight +
+				mechanics.length * (this.MECHANIC_BOTTOM_MARGIN + 4) +
+				this.TIMELINE_HEIGHT
+			;
+			return gridHeight < mechanicsHeight;
+		}
+		return false;
 	}
 
 	updateMechanicLines(mechanic: Mechanic, newLines: number): void {

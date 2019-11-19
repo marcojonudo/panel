@@ -47,7 +47,6 @@ export class TimeService {
 	constructor(
 		private daysService: DaysService
 	) {
-		// TODO Evitar error cuando no hay horario en today
 		this.today = UtilsService.clearTime(new Date());
 
 		this.maxScheduleWidthSubject = new BehaviorSubject<number>(this.maxScheduleWidth);
@@ -56,6 +55,9 @@ export class TimeService {
 		/* Observer usado para notificar al slider cuál es el valor máximo de zoom posible */
 		this.maxScheduleMaxWidthSubject = new BehaviorSubject<number>(this.maxScheduleMaxWidth);
 		this.maxScheduleMaxWidth$ = this.maxScheduleMaxWidthSubject.asObservable();
+
+		this.maxTodayScheduleHours = [];
+		this.maxDaysSchedulesHours = [];
 	}
 
 	// region Init

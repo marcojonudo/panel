@@ -4,8 +4,12 @@
 		<div class="col h-100 padding-0 d-flex">
 			<div
 				appScrollable
-				class="flex-grow-1 h-100 panel-container padding-0 overflow-scroll"
-				[ngClass]="{'width-0-scrollbar': !displayScrollbar}">
+				class="flex-grow-1 h-100 panel-container padding-0"
+				[ngClass]="{
+					'width-0-scrollbar': !displayScrollbar,
+					'overflow-scroll': !nonexistentTodaySchedules,
+					'overflow-hidden': nonexistentTodaySchedules
+				}">
 				<div
 					class="h-100"
 					[style.width.px]="maxScheduleWidth">
@@ -16,6 +20,11 @@
 						[maxScheduleHours]="maxScheduleHours"
 						[maxScheduleWidth]="maxScheduleWidth"
 						*ngFor="let day of days | days: oneDayMode; trackBy: trackByDay; let i = index"></app-day-panel>
+				</div>
+				<div
+					*ngIf="nonexistentTodaySchedules"
+					class="w-100 h-100 align-center nonexistent-today-schedules-container">
+					No hay horarios definidos para hoy. Tómate el día libre.
 				</div>
 			</div>
 			<app-day-info-panel class="h-100"></app-day-info-panel>
