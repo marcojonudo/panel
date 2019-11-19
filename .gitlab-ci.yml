@@ -39,7 +39,7 @@ build:backend:
 
 build:frontend:
     stage: build
-    image: gradle:latest
+    image: gradle:5.6.4
     script:
         - gradle --build-cache buildAndCopyClientResources
     artifacts:
