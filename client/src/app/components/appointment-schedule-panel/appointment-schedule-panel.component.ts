@@ -69,8 +69,6 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 				this.appointmentsSchedules[0].schedule.type == Constants.SCHEDULE_TYPE.AFTERNOON) {
 			this.appointmentsSchedules.unshift(undefined);
 		}
-		console.log(this.mechanic);
-		console.log(this.appointmentsSchedules);
 	}
 
 	// region Getters / setters
@@ -138,7 +136,7 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 			? this.mechanic.schedule.thresholds.slice(2) : this.mechanic.schedule.thresholds.slice(0, 2);
 		this.dragTypeSchedule[scheduleType] = this.dragTypeSchedule[scheduleType].filter((dragInfo: DragScheduleInfo) => {
 			const time = UtilsService.parseTimeFromMinutes(dragInfo.hour*Constants.HOUR_MINUTES + dragInfo.quarter, new Date());
-			return thresholds[0] <= time && time <= thresholds[1]
+			return thresholds[0] <= time && time < thresholds[1]
 		});
 
 		this.appointmentsService.updateAppointmentSchedule(

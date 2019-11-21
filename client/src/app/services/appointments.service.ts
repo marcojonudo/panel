@@ -7,6 +7,8 @@ import {Constants} from "../objects/constants";
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
+import {DaysService} from "./days.service";
+import {MechanicUpdateTrigger} from "../objects/mechanic-update/mechanic-update-trigger";
 
 @Injectable({
 	providedIn: 'root'
@@ -14,6 +16,7 @@ import {Mechanic} from "../objects/mechanic";
 export class AppointmentsService {
 
 	constructor(
+		private daysService: DaysService,
 		private commonService: CommonService,
 		private http: HttpClient
 	) {
@@ -41,6 +44,7 @@ export class AppointmentsService {
 					[mechanic],
 					{params: {morning: `${morning}`}}
 				).subscribe();
+				this.notify(mechanic, appointmentsSchedules);
 			} else {
 				this.addAppointmentSchedule(
 					appointmentsSchedules,
@@ -56,6 +60,7 @@ export class AppointmentsService {
 				{params: {morning: `${morning}`}}
 			).subscribe();
 			appointmentsSchedules[index] = undefined;
+			this.notify(mechanic, appointmentsSchedules);
 		}
 	}
 
@@ -91,6 +96,7 @@ export class AppointmentsService {
 				{params: {morning: `${morning}`}}
 			).subscribe()
 		}
+		this.notify(mechanic, appointmentsSchedules);
 	}
 
 	private addAppointmentSchedule(
@@ -110,6 +116,12 @@ export class AppointmentsService {
 			const pushElem = appointmentsSchedules[0] ? [appointmentSchedule] : [undefined, appointmentSchedule];
 			appointmentsSchedules.push(...pushElem);
 		}
+	}
+
+	private notify(mechanic: Mechanic, appointments: AppointmentSchedule[]): void {
+		/* Se usa el slice para crear un array con nueva referencia, y que así se lance el CD en mechanic-line.component */
+		mechanic.appointments = appointments.slice();
+		this.daysService.notifyDay(mechanic.day, new MechanicUpdateTrigger());
 	}
 
 }

@@ -1,7 +1,7 @@
 <div
 	class="h-100 mechanic-line">
 	<div
-		*ngFor="let appointmentSchedule of mechanic.appointments; let i = index"
+		*ngFor="let appointmentSchedule of mechanic.appointments"
 		class="h-100 d-flex schedule-line appointment-schedule"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(appointmentSchedule.schedule.minutes[0]),

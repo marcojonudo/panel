@@ -73,13 +73,14 @@ class PanelController {
 			@QueryValue boolean morning
 	) {
 		Map<String, Object> appointment = ((List<Map<String, Object>>) mechanics[0].appointments).find {
-			(morning ? ((Map<String, Object>) it.schedule).morningStart : ((Map<String, Object>) it.schedule).afternoonStart)
+			!it.schedule ||
+					(morning ? ((Map<String, Object>) it.schedule).morningStart : ((Map<String, Object>) it.schedule).afternoonStart)
 		}
 		if (appointment.appointmentType) {
 			schedulesDatabaseClient.updateMechanicAppointmentsSchedules(sessionId, mechanics, morning)
 		} else {
-			schedulesDatabaseClient.deleteMechanicAppointmentSchedule(sessionId, mechanics, morning)
-		}
+			schedulesDatabaseClient.deleteMechanicAppointmentSchedule(sessionId, mechanics)
+ 		}
 	}
 
 	@Post("/mechanic/appointments")

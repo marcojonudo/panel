@@ -10,7 +10,7 @@ import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {MechanicUpdateRemove} from "../objects/mechanic-update/mechanic-update-remove";
 import {MechanicUpdate} from "../objects/mechanic-update/mechanic-update";
-import {MechanicUpdateHeight} from "../objects/mechanic-update/mechanic-update-height";
+import {MechanicUpdateTrigger} from "../objects/mechanic-update/mechanic-update-trigger";
 
 @Injectable({
 	providedIn: 'root'
@@ -173,7 +173,7 @@ export class DaysService {
 	updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.lines = newLines;
 		mechanic.height = this.lineHeight * mechanic.lines;
-		this.notifyDay(mechanic.day, new MechanicUpdateHeight(mechanic));
+		this.notifyDay(mechanic.day, new MechanicUpdateTrigger(mechanic));
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {

@@ -45,8 +45,7 @@ interface SchedulesDatabaseClient extends SchedulesDatabaseApi {
 	@Delete("/mechanic/appointments")
 	void deleteMechanicAppointmentSchedule(
 			@Header String sessionId,
-			@Body List<Map<String, Object>> mechanics,
-			@QueryValue boolean morning
+			@Body List<Map<String, Object>> mechanics
 	)
 
 }

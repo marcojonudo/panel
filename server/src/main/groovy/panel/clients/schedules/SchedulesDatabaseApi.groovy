@@ -37,8 +37,7 @@ interface SchedulesDatabaseApi {
 
 	void deleteMechanicAppointmentSchedule(
 			@Header String sessionId,
-			@Body List<Map<String, Object>> mechanics,
-			@QueryValue boolean morning
+			@Body List<Map<String, Object>> mechanics
 	)
 
 }

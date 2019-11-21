@@ -4,8 +4,9 @@ import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
 import {DaysService} from "../../services/days.service";
 import {CardsGroup} from "../../objects/cards-group";
-import {Constants} from "../../objects/constants";
 import {CardUpdate} from "../../objects/update-cards/card-update";
+import {AppointmentSchedule} from "../../objects/appointment-schedule";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -15,8 +16,9 @@ import {CardUpdate} from "../../objects/update-cards/card-update";
 })
 export class MechanicLineComponent implements OnInit, OnDestroy {
 
-	@Input() mechanic: Mechanic;
 	@Input() day: Date;
+	@Input() mechanic: Mechanic;
+	@Input() appointments: AppointmentSchedule[];
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
@@ -91,7 +93,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		return this.timeService.calcWidthFromDuration(duration);
 	}
 
-	calcScheduleLeft(start: Date, a: any = undefined): number {
+	calcScheduleLeft(start: Date): number {
 		return this.timeService.calcLeft(start);
 	}
 

@@ -1,7 +1,7 @@
 import {MechanicUpdate} from "./mechanic-update";
 import {Mechanic} from "../mechanic";
 
-export class MechanicUpdateHeight implements MechanicUpdate {
+export class MechanicUpdateTrigger implements MechanicUpdate {
 
 	updatedMechanic: Mechanic;
 
