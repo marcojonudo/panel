@@ -4,9 +4,9 @@
 		*ngFor="let appointmentSchedule of mechanic.appointments"
 		class="h-100 d-flex schedule-line appointment-schedule"
 		[ngStyle]="{
-			'width.px': calcScheduleWidth(appointmentSchedule.schedule.minutes[0]),
-			'left.px': calcScheduleLeft(appointmentSchedule.schedule.thresholds[0], mechanic),
-			'background-color': appointmentSchedule.appointmentType.color
+			'width.px': calcScheduleWidth(appointmentSchedule?.schedule.minutes[0]),
+			'left.px': calcScheduleLeft(appointmentSchedule?.schedule.thresholds[0]),
+			'background-color': appointmentSchedule?.appointmentType.color
 		}">
 	</div>
 	<div

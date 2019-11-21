@@ -83,7 +83,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	get quarterWidth(): number {
-		/* El navegador redondea a 2 decimales, por lo que se hace lo mismo que las distancias sean equivalentes */
+		/* El navegador redondea a 2 decimales, por lo que se hace lo mismo para que las distancias sean equivalentes */
 		return +(this.timeService.intervalWidth * 3).toFixed(2);
 	}
 
@@ -94,7 +94,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 	}
 
 	calcScheduleLeft(start: Date): number {
-		return this.timeService.calcLeft(start);
+		return start ? this.timeService.calcLeft(start) : 0;
 	}
 
 	calcScheduleLineBackground(quarters: number[]): any {
