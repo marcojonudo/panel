@@ -5,6 +5,7 @@ plugins {
 plugins {
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
     id "com.github.johnrengelman.shadow" version "4.0.2"
+    id "com.gorylenko.gradle-git-properties" version "2.0.0"
 }
 
 apply plugin:"application"
