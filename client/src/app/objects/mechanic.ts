@@ -4,6 +4,7 @@ import {Schedule} from "./schedule";
 import {Skill} from "./skill";
 import {AppointmentSchedule} from "./appointment-schedule";
 import {UtilsService} from "../services/utils.service";
+import {ScheduleInterval} from "./schedule-interval";
 
 export class Mechanic {
 
@@ -53,9 +54,17 @@ export class Mechanic {
 		this.lines = mechanic.lines;
 		this.showInPanel = mechanic.showInPanel;
 		this.height = this.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
-		this.appointments = UtilsService.sort(mechanic.appointments.map(appointment =>
-			new AppointmentSchedule(mechanic, appointment)
-		), (appointment) => appointment.schedule.start);
+		const appointments = mechanic.appointments.map(appointment => new AppointmentSchedule(this.id, undefined, appointment));
+		this.appointments = this.schedule.intervals.map((interval: ScheduleInterval, i: number) => {
+			const appointment = appointments.find(appointment =>
+				interval.start <= appointment.schedule.start && appointment.schedule.end <= interval.end
+			);
+			if (appointment) {
+				appointment.index = i;
+				return appointment;
+			}
+			return new AppointmentSchedule(this.id, i);
+		});
 	}
 
 }

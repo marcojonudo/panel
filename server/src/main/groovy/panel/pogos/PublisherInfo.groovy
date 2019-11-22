@@ -6,8 +6,15 @@ import groovy.transform.CompileStatic
 abstract class PublisherInfo {
 
 	static final Map<String, Closure<PublisherInfo>> PUBLISHER_INFO_TYPE = [
-	        cards: { String updateProperty, Object cards -> new CardsPublisherInfo(updateProperty, (List<Map<String, Object>>) cards) },
-	        mechanic: { String updateProperty, Object mechanics -> new MechanicPublisherInfo(updateProperty, (List<Map<String, Object>>) mechanics) }
+	        cards: { String updateProperty, Object cards ->
+		        new CardsPublisherInfo(updateProperty, (List<Map<String, Object>>) cards)
+	        },
+	        mechanic: { String updateProperty, Object mechanics ->
+		        new MechanicPublisherInfo(updateProperty, (List<Map<String, Object>>) mechanics)
+	        },
+	        appointment: { String updateProperty, Object appointment ->
+		        new AppointmentPublisherInfo(updateProperty, (Map<String, Object>) appointment)
+	        }
 	]
 
 	String updateObject

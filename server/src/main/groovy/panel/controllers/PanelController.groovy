@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.*
 import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
+import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
 import panel.pogos.CompleteInfo
@@ -19,15 +20,18 @@ class PanelController {
 	private final PanelService panelService
 	private final PanelDatabaseClient panelDatabaseClient
 	private final SchedulesDatabaseClient schedulesDatabaseClient
+	private final CuboDatabaseClient cuboDatabaseClient
 
 	PanelController(
 			PanelService panelService,
 			PanelDatabaseClient panelDatabaseClient,
-			SchedulesDatabaseClient schedulesDatabaseClient
+			SchedulesDatabaseClient schedulesDatabaseClient,
+			CuboDatabaseClient cuboDatabaseClient
 	) {
 		this.panelService = panelService
 		this.panelDatabaseClient = panelDatabaseClient
 		this.schedulesDatabaseClient = schedulesDatabaseClient
+		this.cuboDatabaseClient = cuboDatabaseClient
 	}
 
 	@Get("/get")
@@ -66,30 +70,39 @@ class PanelController {
 		schedulesDatabaseClient.updateMechanicLines(sessionId, mechanics)
 	}
 
-	@Put("/mechanic/appointments")
-	void updateAppointmentsSchedules(
+	@Put("/appointment/type")
+	void updateAppointmentType(
 			@Header String sessionId,
-			@Body List<Map<String, Object>> mechanics,
-			@QueryValue boolean morning
+			@Body Map<String, Object> appointment
 	) {
-		Map<String, Object> appointment = ((List<Map<String, Object>>) mechanics[0].appointments).find {
-			!it.schedule ||
-					(morning ? ((Map<String, Object>) it.schedule).morningStart : ((Map<String, Object>) it.schedule).afternoonStart)
-		}
-		if (appointment.appointmentType) {
-			schedulesDatabaseClient.updateMechanicAppointmentsSchedules(sessionId, mechanics, morning)
-		} else {
-			schedulesDatabaseClient.deleteMechanicAppointmentSchedule(sessionId, mechanics)
- 		}
+		cuboDatabaseClient.updateAppointmentType(sessionId, appointment)
 	}
 
-	@Post("/mechanic/appointments")
-	EmployeeScheduleAppointment createAppointmentSchedule(
+	@Delete("/appointment/type")
+	void updateAppointmentType(
 			@Header String sessionId,
-			@Body List<Map<String, Object>> mechanics,
-			@QueryValue boolean morning
+			@QueryValue long id,
+			@QueryValue long mechanicId,
+			@QueryValue int index
 	) {
-		return schedulesDatabaseClient.createMechanicAppointmentsSchedules(sessionId, mechanics, morning)
+		cuboDatabaseClient.deleteAppointment(sessionId, id, mechanicId, index)
+	}
+
+	@Post("/appointment/schedule")
+	EmployeeScheduleAppointment createAppointment(
+			@Header String sessionId,
+			@Body Map<String, Object> appointment,
+			@QueryValue long mechanicId
+	) {
+		return cuboDatabaseClient.createAppointment(sessionId, appointment, mechanicId)
+	}
+
+	@Put("/appointment/schedule")
+	void updateAppointmentSchedule(
+			@Header String sessionId,
+			@Body Map<String, Object> appointment
+	) {
+		cuboDatabaseClient.updateAppointmentSchedule(sessionId, appointment)
 	}
 
 }

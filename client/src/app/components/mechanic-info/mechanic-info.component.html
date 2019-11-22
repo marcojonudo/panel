@@ -59,8 +59,8 @@
 </div>
 <app-appointment-schedule-panel
 	*ngIf="showAppointmentSchedulesDialog"
-	class="h-100 appointment-schedule-panel-container"
-	[style.left.px]="mechanicInfoWidth"
+	class="appointment-schedule-panel-container"
+	[ngStyle]="{'left.px': mechanicInfoWidth, 'height.px': defaultHeight}"
 	[schedule]="mechanic.schedule"
 	[mechanic]="mechanic"></app-appointment-schedule-panel>
 <ng-template #deleteScheduleModal let-modal>

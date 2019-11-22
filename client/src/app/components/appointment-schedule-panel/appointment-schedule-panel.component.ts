@@ -51,33 +51,29 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.appointmentsSchedules = this.mechanic.appointments;
+		this.appointments = this.mechanic.appointments;
 		/* Al abrir el popup, es posible que el mecánico ya tenga horario de citas asignado. Si es así, se carga para
 		*  que se muestre */
-		this.appointmentsSchedules.forEach(appointmentSchedule => {
-			appointmentSchedule.schedule.hourQuarters[0].forEach((hourQuarters: HourQuarters) => {
-				hourQuarters.quarters.forEach(quarter => {
-					this.dragTypeSchedule[appointmentSchedule.schedule.type].push(
-						new DragScheduleInfo(hourQuarters.hour, quarter, hourQuarters.type)
-					);
+		this.appointments.forEach((appointment: AppointmentSchedule) => {
+			if (appointment.schedule) {
+				appointment.schedule.intervals[0].hourQuarters.forEach((hourQuarters: HourQuarters) => {
+					hourQuarters.quarters.forEach(quarter => {
+						this.dragTypeSchedule[appointment.schedule.type].push(
+							new DragScheduleInfo(hourQuarters.hour, quarter, hourQuarters.type)
+						);
+					});
 				});
-			});
+			}
 		});
-
-		if (this.mechanic.schedule.type == Constants.SCHEDULE_TYPE.FULL_TIME &&
-				this.appointmentsSchedules.length == 1 &&
-				this.appointmentsSchedules[0].schedule.type == Constants.SCHEDULE_TYPE.AFTERNOON) {
-			this.appointmentsSchedules.unshift(undefined);
-		}
 	}
 
 	// region Getters / setters
 
-	get appointmentsSchedules(): AppointmentSchedule[] {
+	get appointments(): AppointmentSchedule[] {
 		return this._appointmentsSchedules;
 	}
 
-	set appointmentsSchedules(value: AppointmentSchedule[]) {
+	set appointments(value: AppointmentSchedule[]) {
 		this._appointmentsSchedules = value;
 	}
 
@@ -97,12 +93,11 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 		return this.QUARTERS;
 	}
 
-	// endregion
-
-	findAppointmentSchedule(scheduleType: string, index: number): AppointmentSchedule {
-		const type = this.getScheduleType(scheduleType, index);
-		return this.appointmentsSchedules.find(appointment => appointment && appointment.schedule.type == type);
+	get lineDefaultHeight(): number {
+		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
 	}
+
+	// endregion
 
 	getScheduleType(type: string, index: number): string {
 		return (type == Constants.SCHEDULE_TYPE.FULL_TIME && index == 0) || type == Constants.SCHEDULE_TYPE.MORNING
@@ -122,35 +117,43 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 		return this.dragTypeSchedule[type].find(s => s.hour == hour && s.quarter == quarter) != undefined;
 	}
 
-	updateAppointmentType(index: number, appointmentTypeCode: string): void {
-		this.appointmentsService.updateAppointmentType(this.mechanic, this.appointmentsSchedules, index, appointmentTypeCode);
+	updateAppointmentType(appointment: AppointmentSchedule, newAppointmentTypeCode: string): void {
+		if (!newAppointmentTypeCode) {
+			this.dragTypeSchedule[appointment.schedule.type] = []
+		}
+		this.appointmentsService.updateAppointmentType(this.mechanic, appointment, newAppointmentTypeCode);
 		this.cdRef.detectChanges();
 	}
 
-	updateAppointmentSchedule(index: number, scheduleType: string): void {
-		/* Se filtra la información de los horarios para que no se guarden datos fuera de los límites.
-		*  Al sólo haber horarios de mañana o tarde en citas (para poder definir tipos de citas distintos), no hace
-		*  falta comprobar si es full_time. Si es de tarde y hay mañana, thresholds tendrá longitud 4, siendo de tarde
-		*  los 2 últimos elementos. Si es de tarde pero no hay mañana, o es mañana, se cogen los 2 primeros */
-		const thresholds = scheduleType == Constants.SCHEDULE_TYPE.AFTERNOON && this.mechanic.schedule.morningStart
-			? this.mechanic.schedule.thresholds.slice(2) : this.mechanic.schedule.thresholds.slice(0, 2);
+	updateAppointmentSchedule(
+		appointment: AppointmentSchedule,
+		index: number,
+		scheduleType: string,
+		schedule: Schedule = this.mechanic.schedule
+	): void {
+		/* Se filtra la información de los horarios para que no se guarden datos fuera de los límites */
 		this.dragTypeSchedule[scheduleType] = this.dragTypeSchedule[scheduleType].filter((dragInfo: DragScheduleInfo) => {
 			const time = UtilsService.parseTimeFromMinutes(dragInfo.hour*Constants.HOUR_MINUTES + dragInfo.quarter, new Date());
-			return thresholds[0] <= time && time < thresholds[1]
+			return schedule.intervals[index].start <= time && time < schedule.intervals[index].end
 		});
+
+		const [start, end] = [
+			`${this.dragTypeSchedule[scheduleType][0].hour}:${this.dragTypeSchedule[scheduleType][0].quarter}:00`,
+			`${this.dragTypeSchedule[scheduleType][this.dragTypeSchedule[scheduleType].length - 1].hour}:${this.dragTypeSchedule[scheduleType][this.dragTypeSchedule[scheduleType].length - 1].quarter + Constants.QUARTERS.STEP_15}:00`
+		];
 
 		this.appointmentsService.updateAppointmentSchedule(
 			this.mechanic,
-			this.appointmentsSchedules,
-			index,
+			appointment,
 			scheduleType,
-			this.dragTypeSchedule[scheduleType]
+			start,
+			end
 		);
 	}
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking appointment schedule panel', this.appointmentsSchedules)
+			console.log('checking appointment schedule panel', this.appointments)
 		}
 	}
 

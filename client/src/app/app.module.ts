@@ -48,6 +48,7 @@ import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import { AppointmentSchedulePanelComponent } from './components/appointment-schedule-panel/appointment-schedule-panel.component';
 import { DraggableScheduleDirective } from './directives/draggable-schedule.directive';
+import { AppointmentsPipe } from './pipes/appointments.pipe';
 
 @NgModule({
 	declarations: [
@@ -80,7 +81,8 @@ import { DraggableScheduleDirective } from './directives/draggable-schedule.dire
 		ToolsBarComponent,
 		SkillsDetailsComponent,
 		AppointmentSchedulePanelComponent,
-		DraggableScheduleDirective
+		DraggableScheduleDirective,
+		AppointmentsPipe
 	],
 	imports: [
 		BrowserModule,

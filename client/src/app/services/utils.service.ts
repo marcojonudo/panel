@@ -19,7 +19,7 @@ export class UtilsService {
 		return date;
 	}
 
-	public static parseTimeFromMinutes(minutes: number, day: Date): Date {
+	public static parseTimeFromMinutes(minutes: number, day: Date = new Date()): Date {
 		return new Date(day.getFullYear(), day.getMonth(), day.getDate(), minutes/60, minutes%60)
 	}
 

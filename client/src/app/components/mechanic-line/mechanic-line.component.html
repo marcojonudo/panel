@@ -1,23 +1,23 @@
 <div
 	class="h-100 mechanic-line">
 	<div
-		*ngFor="let appointmentSchedule of mechanic.appointments"
+		*ngFor="let appointment of mechanic.appointments | appointments"
 		class="h-100 d-flex schedule-line appointment-schedule"
 		[ngStyle]="{
-			'width.px': calcScheduleWidth(appointmentSchedule?.schedule.minutes[0]),
-			'left.px': calcScheduleLeft(appointmentSchedule?.schedule.thresholds[0]),
-			'background-color': appointmentSchedule?.appointmentType.color
+			'width.px': calcScheduleWidth(appointment.schedule.intervals[0].duration),
+			'left.px': calcScheduleLeft(appointment.schedule.intervals[0].start),
+			'background-color': appointment.appointmentType.color
 		}">
 	</div>
 	<div
 		class="h-100 d-flex schedule-line"
 		appDropzone
 		[mechanic]="mechanic"
-		*ngFor="let duration of mechanic.schedule.minutes; let i = index"
+		*ngFor="let interval of mechanic.schedule.intervals"
 		[ngStyle]="{
-			'width.px': calcScheduleWidth(duration),
-		 	'left.px': calcScheduleLeft(mechanic.schedule.thresholds[i*2]),
-		 	'background': calcScheduleLineBackground(mechanic.schedule.quarters[i])
+			'width.px': calcScheduleWidth(interval.duration),
+		 	'left.px': calcScheduleLeft(interval.start),
+		 	'background': calcScheduleLineBackground(interval.quarters)
 		}">
 	</div>
 	<app-draggable-group

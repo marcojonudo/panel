@@ -1,3 +1,8 @@
+:host {
+	display: flex;
+	align-items: center;
+}
+
 .mechanic-info {
 	background-color: #ffffff;
 }
@@ -36,5 +41,4 @@
 	width: auto;
 	min-width: 200px;
 	position: absolute;
-	top: 0;
 }

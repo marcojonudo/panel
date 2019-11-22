@@ -1,10 +1,10 @@
 package panel.clients.cubo
 
 import groovy.transform.CompileStatic
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Header
+import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import utils.pogos.schedules.AppointmentType
+import utils.pogos.schedules.EmployeeScheduleAppointment
 
 import javax.inject.Singleton
 
@@ -16,5 +16,32 @@ interface CuboDatabaseClient extends CuboDatabaseApi {
 
 	@Get("/appointmentTypes")
 	List<AppointmentType> getAppointmentTypes()
+
+	@Post("/appointment/schedule")
+	EmployeeScheduleAppointment createAppointment(
+			@Header String sessionId,
+			@Body Map<String, Object> appointment,
+			@QueryValue long mechanicId
+	)
+
+	@Put("/appointment/type")
+	void updateAppointmentType(
+			@Header String sessionId,
+			@Body Map<String, Object> appointment
+	)
+
+	@Delete("/appointment/type")
+	void deleteAppointment(
+			@Header String sessionId,
+			@QueryValue long id,
+			@QueryValue long mechanicId,
+			@QueryValue int index
+	)
+
+	@Put("/appointment/schedule")
+	void updateAppointmentSchedule(
+			@Header String sessionId,
+			@Body Map<String, Object> appointment
+	)
 
 }

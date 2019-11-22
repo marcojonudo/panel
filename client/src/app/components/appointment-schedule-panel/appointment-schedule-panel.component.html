@@ -1,7 +1,7 @@
 <div
-	*ngFor="let scheduleType of schedule.minutes; let i = index"
-	class="h-50 d-flex"
-	[ngClass]="{'h-100': schedule.minutes.length == 1}">
+	*ngFor="let appointment of mechanic.appointments; let i = index"
+	class="d-flex"
+	[style.height.px]="lineDefaultHeight">
 	<div class="d-flex flex-column">
 		<label
 			for="appointment-{{i}}-type-input"
@@ -11,8 +11,8 @@
 		<select
 			id="appointment-{{i}}-type-input"
 			class="h-50 align-center"
-			[ngModel]="appointmentsSchedules[i]?.appointmentType.code"
-			(change)="updateAppointmentType(i, $event.target.value)">
+			[ngModel]="appointment.appointmentType?.code"
+			(change)="updateAppointmentType(appointment, $event.target.value)">
 			<option value=""></option>
 			<option *ngFor="let appointmentType of appointmentTypes" value="{{appointmentType.code}}">
 				{{appointmentType.code}}
@@ -21,14 +21,14 @@
 	</div>
 	<div class="flex-grow-1 flex-basis-0 d-flex border-top border-bottom">
 		<div
-			*ngFor="let hourQuarters of schedule.hourQuarters[i]"
+			*ngFor="let hourQuarters of schedule.intervals[i].hourQuarters"
 			class="h-100 d-flex flex-column appointment-type-hour">
 			<div class="h-50 d-flex align-items-center pl-1 border-bottom border-right">{{hourQuarters.hour}}</div>
-			<div *ngIf="appointmentsSchedules[i]" class="flex-grow-1 flex-basis-0 d-flex">
+			<div *ngIf="appointment.appointmentType" class="flex-grow-1 flex-basis-0 d-flex">
 				<div
 					*ngFor="let quarter of quarters"
 					appDraggableSchedule
-					(updateSchedule)="updateAppointmentSchedule(i, $event)"
+					(updateSchedule)="updateAppointmentSchedule(appointment, i, $event)"
 					[appointmentTypeScheduleSubject]="appointmentTypeScheduleSubject"
 					[initialDragInfo]="{hour: hourQuarters.hour, quarter: quarter, type: hourQuarters.type}"
 					class="flex-grow-1 flex-basis-0 appointment-type-quarter"
@@ -39,7 +39,7 @@
 					}">
 				</div>
 			</div>
-			<div *ngIf="!appointmentsSchedules[i]" class="flex-grow-1 flex-basis-0 disabled"></div>
+			<div *ngIf="!appointment.appointmentType" class="flex-grow-1 flex-basis-0 disabled"></div>
 		</div>
 	</div>
 </div>

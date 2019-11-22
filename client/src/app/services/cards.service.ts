@@ -252,9 +252,13 @@ export class CardsService {
 	}
 
 	groupOutsideSchedule(group: CardsGroup, schedule: Schedule): boolean {
-		const threshold = schedule.thresholds.filter((t, i) => i % 2 == 1).find(threshold => {
-			return threshold.getTime() == group.end.getTime();
-		});
+		// TODO Revisar sin threshold
+		// const threshold = schedule.thresholds.filter((t, i) => i % 2 == 1).find(threshold => {
+		// 	return threshold.getTime() == group.end.getTime();
+		// });
+		const threshold = schedule.intervals.find(interval =>
+			interval.end.getTime() == group.end.getTime()
+		);
 		return threshold != undefined;
 	}
 

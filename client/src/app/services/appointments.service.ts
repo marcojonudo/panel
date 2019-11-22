@@ -9,6 +9,7 @@ import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
 import {MechanicUpdateTrigger} from "../objects/mechanic-update/mechanic-update-trigger";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Injectable({
 	providedIn: 'root'
@@ -22,105 +23,85 @@ export class AppointmentsService {
 	) {
 	}
 
+	findMechanicAppointmentByMechanic(
+		dayMechanics: Mechanic[],
+		mechanicId: number,
+		appointmentIndex: number
+	): any[] {
+		const mechanic = dayMechanics.find(mechanic => mechanic.id == mechanicId);
+		return [mechanic, mechanic.appointments[appointmentIndex]];
+	}
+
 	updateAppointmentType(
 		mechanic: Mechanic,
-		appointmentsSchedules: AppointmentSchedule[],
-		index: number,
-		appointmentTypeCode: string
+		appointment: AppointmentSchedule,
+		newAppointmentTypeCode: string
 	): void {
-		const appointmentSchedule = appointmentsSchedules[index];
-		const morning = appointmentSchedule ? appointmentSchedule.schedule.type == Constants.SCHEDULE_TYPE.MORNING : false;
+		if (newAppointmentTypeCode) {
+			appointment.appointmentType = this.commonService.findAppointmentType(newAppointmentTypeCode);
 
-		if (appointmentTypeCode) {
-			const appointmentType = this.commonService.findAppointmentType(appointmentTypeCode);
-
-			if (appointmentsSchedules[index]) {
-				appointmentsSchedules[index].appointmentType = appointmentType;
-
-				/* Si se cambia el tipo de cita cuando ya se tiene un horario, hay que actualizarlo en base de datos. En caso
-				*  contrario, se actualiza en BD una vez se define el horario */
+			/* La info se guarda en DB sólo si ya tiene horario. Al definir una nueva cita, y escoger sólo el tipo, no
+			*  se guarda para no tener una cita sin horario (aunque sea temporalmente) en DB */
+			if (appointment.schedule) {
+				console.log(appointment);
 				this.http.put(
-					`${environment.serverUrl}/panel/mechanic/appointments`,
-					[mechanic],
-					{params: {morning: `${morning}`}}
+					`${environment.serverUrl}/panel/appointment/type`,
+					appointment
 				).subscribe();
-				this.notify(mechanic, appointmentsSchedules);
-			} else {
-				this.addAppointmentSchedule(
-					appointmentsSchedules,
-					new AppointmentSchedule(mechanic, {appointmentType: appointmentType}),
-					index
-				);
 			}
 		} else {
-			appointmentsSchedules[index].reset();
-			this.http.put(
-				`${environment.serverUrl}/panel/mechanic/appointments`,
-				[mechanic],
-				{params: {morning: `${morning}`}}
+			this.http.delete(
+				`${environment.serverUrl}/panel/appointment/type`,
+				{params: {id: `${appointment.id}`, mechanicId: `${mechanic.id}`, index: `${appointment.index}`}}
 			).subscribe();
-			appointmentsSchedules[index] = undefined;
-			this.notify(mechanic, appointmentsSchedules);
+			appointment.reset();
 		}
+		mechanic.appointments = mechanic.appointments.slice();
+		this.notify(mechanic);
 	}
 
 	updateAppointmentSchedule(
 		mechanic: Mechanic,
-		appointmentsSchedules: AppointmentSchedule[],
-		index: number,
+		appointment: AppointmentSchedule,
 		type: string,
-		dragSchedule: DragScheduleInfo[]
+		start: string,
+		end: string
 	): void {
-		const start = `${dragSchedule[0].hour}:${dragSchedule[0].quarter}:00`;
-		const end = `${dragSchedule[dragSchedule.length - 1].hour}:${dragSchedule[dragSchedule.length - 1].quarter + Constants.QUARTERS.STEP_15}:00`;
+		const insertNewAppointment = appointment.schedule == undefined;
 
-		const insertNewAppointment = appointmentsSchedules[index].schedule == undefined;
-		const morning = type == Constants.SCHEDULE_TYPE.MORNING;
-
-		appointmentsSchedules[index].schedule = morning
+		appointment.schedule = type == Constants.SCHEDULE_TYPE.MORNING
 			? new Schedule(start, end, undefined, undefined)
 			: new Schedule(undefined, undefined, start, end);
 
+		mechanic.appointments = mechanic.appointments.slice();
+		console.log('***', mechanic.appointments);
 		if (insertNewAppointment) {
 			this.http.post(
-				`${environment.serverUrl}/panel/mechanic/appointments`,
-				[mechanic],
-				{params: {morning: `${morning}`}}
-			).subscribe((appointment: AppointmentSchedule) => {
-				appointmentsSchedules[index].id = appointment.id
-			})
+				`${environment.serverUrl}/panel/appointment/schedule`,
+				appointment,
+				{params: {mechanicId: `${mechanic.id}`}}
+			).subscribe((createdAppointment: AppointmentSchedule) => {
+				appointment.id = createdAppointment.id;
+				console.log(appointment);
+				console.log(mechanic.appointments);
+
+			});
 		} else {
 			this.http.put(
-				`${environment.serverUrl}/panel/mechanic/appointments`,
-				[mechanic],
-				{params: {morning: `${morning}`}}
+				`${environment.serverUrl}/panel/appointment/schedule`,
+				appointment
 			).subscribe()
 		}
-		this.notify(mechanic, appointmentsSchedules);
+		this.notify(mechanic);
 	}
 
-	private addAppointmentSchedule(
-		appointmentsSchedules: AppointmentSchedule[],
-		appointmentSchedule: AppointmentSchedule,
-		i: number
-	): void {
-		if (i == 0) {
-			if (appointmentsSchedules.length == 2) {
-				appointmentsSchedules[0] = appointmentSchedule;
-			} else {
-				appointmentsSchedules.unshift(appointmentSchedule);
-			}
-		} else {
-			/* Si se añade un horario de tarde (index 1), pero no hay horario de mañana (index 0), es necesario añadir
-			*  también un elemento nulo para que el de tarde quede en el index correcto */
-			const pushElem = appointmentsSchedules[0] ? [appointmentSchedule] : [undefined, appointmentSchedule];
-			appointmentsSchedules.push(...pushElem);
-		}
+	updateAppointments(mechanic: Mechanic): void {
+		this.notify(mechanic);
 	}
 
-	private notify(mechanic: Mechanic, appointments: AppointmentSchedule[]): void {
+	private notify(mechanic: Mechanic): void {
 		/* Se usa el slice para crear un array con nueva referencia, y que así se lance el CD en mechanic-line.component */
-		mechanic.appointments = appointments.slice();
+		mechanic.appointments = mechanic.appointments.slice();
 		this.daysService.notifyDay(mechanic.day, new MechanicUpdateTrigger());
 	}
 

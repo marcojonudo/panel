@@ -194,7 +194,7 @@ export class DaysService {
 		}
 	}
 
-	findDayMechanics(day: Date): Mechanic {
+	findDayMechanics(day: Date): Mechanic[] {
 		return this.daysMechanics[day.getTime()];
 	}
 

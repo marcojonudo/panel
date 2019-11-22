@@ -12,6 +12,11 @@ import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
 import {RealTimeMechanicUpdatePosition} from "../objects/real-time-update/real-time-mechanic-update-position";
 import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-info";
+import {RealTimeAppointmentUpdateSchedule} from "../objects/real-time-update/real-time-appointment-update-schedule";
+import {AppointmentsService} from "./appointments.service";
+import {AppointmentSchedule} from "../objects/appointment-schedule";
+import {UtilsService} from "./utils.service";
+import {RealTimeAppointmentUpdateType} from "../objects/real-time-update/real-time-appointment-update-type";
 
 @Injectable({
 	providedIn: 'root'
@@ -27,13 +32,18 @@ export class RealTimeService {
 			position: (updateInfo) => new RealTimeCardUpdatePosition(updateInfo.cards),
 			duration: (updateInfo) => new RealTimeCardUpdateDuration(updateInfo.cards),
 			links: (updateInfo) => new RealTimeCardUpdateLinks(updateInfo.cards)
+		},
+		appointment: {
+			schedule: (updateInfo) => new RealTimeAppointmentUpdateSchedule(updateInfo.appointment),
+			type: (updateInfo) => new RealTimeAppointmentUpdateType(updateInfo.appointment)
 		}
 	};
 
 	constructor(
 		private cardsService: CardsService,
 		private timeService: TimeService,
-		private daysService: DaysService
+		private daysService: DaysService,
+		private appointmentsService: AppointmentsService
 	) {
 		this.connectUpdatePublisher();
 	}
@@ -160,6 +170,54 @@ export class RealTimeService {
 			m.panelPosition == mechanics[mechanics.length-1].panelPosition
 		);
 		this.daysService.removeMechanic(removedMechanic.day, removedMechanic, false);
+	}
+
+	updateAppointmentSchedule(updatedAppointment: AppointmentSchedule): void {
+		const dayMechanics = this.daysService.findDayMechanics(
+			UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
+		);
+		const [mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
+			dayMechanics,
+			updatedAppointment.mechanicId,
+			updatedAppointment.index
+		);
+
+		/* El id y tipo se actualizan por el caso de creación de nueva cita. En ese caso, la cita del mecánico estará vacía,
+		*  y si se asigna sólo el horario no tendrá información sobre su tipo */
+		appointment.appointmentType = updatedAppointment.appointmentType;
+		appointment.schedule = updatedAppointment.schedule;
+		console.log('updated mechanic', mechanic);
+		this.appointmentsService.updateAppointments(mechanic);
+	}
+
+	updateAppointmentType(updatedAppointment: AppointmentSchedule): void {
+		let mechanic, appointment;
+		if (!updatedAppointment.appointmentType) {
+			for (const mechanics of Object.values(this.daysService.daysMechanics)) {
+				if (!mechanic) {
+					let [mec, app] = this.appointmentsService.findMechanicAppointmentByMechanic(
+						<Mechanic[]> mechanics,
+						updatedAppointment.mechanicId,
+						updatedAppointment.index
+					);
+					if (mec) {
+						[mechanic, appointment] = [mec, app]
+					}
+				}
+			}
+			appointment.reset();
+		} else {
+			const dayMechanics = this.daysService.findDayMechanics(
+				UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
+			);
+			[mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
+				dayMechanics,
+				updatedAppointment.mechanicId,
+				updatedAppointment.index
+			);
+			appointment.appointmentType = updatedAppointment.appointmentType;
+		}
+		this.appointmentsService.updateAppointments(mechanic);
 	}
 
 }

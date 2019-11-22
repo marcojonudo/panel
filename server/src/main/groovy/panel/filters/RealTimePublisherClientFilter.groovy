@@ -1,9 +1,12 @@
 package panel.filters
 
 import groovy.transform.CompileStatic
+import io.micronaut.http.HttpMethod
+import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpRequest
 import io.micronaut.http.annotation.Filter
+import io.micronaut.http.context.ServerRequestContext
 import io.micronaut.http.filter.ClientFilterChain
 import io.micronaut.http.filter.HttpClientFilter
 import org.reactivestreams.Publisher
@@ -12,8 +15,10 @@ import panel.publisher.PanelPublisher
 import panel.utils.Constants
 
 @CompileStatic
-@Filter(["/panel/cards/**", "/schedules/mechanic/**"])
+@Filter(["/panel/cards/**", "/schedules/mechanic/**", "/cubo/appointment/**"])
 class RealTimePublisherClientFilter implements HttpClientFilter {
+
+	private static final List<HttpMethod> GET_BODY_METHODS = [HttpMethod.POST, HttpMethod.PUT]
 
 	@Override
 	Publisher<? extends HttpResponse<?>> doFilter(MutableHttpRequest<?> request, ClientFilterChain chain) {
@@ -27,10 +32,11 @@ class RealTimePublisherClientFilter implements HttpClientFilter {
 			*  activan la actualización. Para evitarlo (en la carga inicial no se requiere), se comprueba el sessionId,
 			*  que en esa petición es un string vacio */
 			if (sessionId) {
+				Map<String, Object> requestInfo = findRequestInfo(request)
 				PublisherInfo publisherInfo = PublisherInfo.findPublisherInfoType(
 						updateInfo.updateObject,
 						updateInfo.updateProperty,
-						request.body.get()
+						requestInfo
 				)
 				PanelPublisher.send(sessionId, publisherInfo)
 			}
@@ -50,6 +56,20 @@ class RealTimePublisherClientFilter implements HttpClientFilter {
 
 	static boolean triggerRealTimeUpdate(String updateProperty) {
 		return !Constants.REAL_TIME_UPDATE_AVOID_PATHS.find { it == updateProperty }
+	}
+
+	static Map<String, Object> findRequestInfo(MutableHttpRequest<?> request) {
+		boolean getBody = GET_BODY_METHODS.find { it == request.method }
+		if (getBody) {
+			return (Map<String, Object>) request.body.get()
+		} else {
+			/* Por algún motivo, no se pueden sacar los parámetros de la request pasada como parámetro. Por lo tanto, se
+			*  obtiene la petición al controlador y se obtienen de ahí (en este caso, se obtiene la petición del front
+			*  al back de panel, no de panel a server-database-resolver) */
+			HttpRequest httpRequest = ServerRequestContext.currentRequest().get()
+			return httpRequest.parameters.collectEntries { [(it.key): ((List<String>) it.value)[0]] }
+		}
+
 	}
 
 }
