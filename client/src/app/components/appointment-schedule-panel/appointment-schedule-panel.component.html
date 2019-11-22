@@ -34,9 +34,9 @@
 					class="flex-grow-1 flex-basis-0 appointment-type-quarter"
 					[ngClass]="{
 						'border-right': quarter != undefined,
-						'disabled': isQuarterDisabled(quarter, hourQuarters.quarters),
-						'selected-schedule': isScheduleSelected(hourQuarters.hour, quarter, hourQuarters.type)
-					}">
+						'disabled': isQuarterDisabled(quarter, hourQuarters.quarters)
+					}"
+					[style.background-color]="isScheduleSelected(hourQuarters.hour, quarter, hourQuarters.type) ? appointment.appointmentType.color : 'transparent'">
 				</div>
 			</div>
 			<div *ngIf="!appointment.appointmentType" class="flex-grow-1 flex-basis-0 disabled"></div>

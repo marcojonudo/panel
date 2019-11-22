@@ -43,7 +43,6 @@ export class AppointmentsService {
 			/* La info se guarda en DB sólo si ya tiene horario. Al definir una nueva cita, y escoger sólo el tipo, no
 			*  se guarda para no tener una cita sin horario (aunque sea temporalmente) en DB */
 			if (appointment.schedule) {
-				console.log(appointment);
 				this.http.put(
 					`${environment.serverUrl}/panel/appointment/type`,
 					appointment
@@ -74,7 +73,6 @@ export class AppointmentsService {
 			: new Schedule(undefined, undefined, start, end);
 
 		mechanic.appointments = mechanic.appointments.slice();
-		console.log('***', mechanic.appointments);
 		if (insertNewAppointment) {
 			this.http.post(
 				`${environment.serverUrl}/panel/appointment/schedule`,
@@ -82,9 +80,6 @@ export class AppointmentsService {
 				{params: {mechanicId: `${mechanic.id}`}}
 			).subscribe((createdAppointment: AppointmentSchedule) => {
 				appointment.id = createdAppointment.id;
-				console.log(appointment);
-				console.log(mechanic.appointments);
-
 			});
 		} else {
 			this.http.put(
