@@ -32,7 +32,7 @@ class RealTimePublisherClientFilter implements HttpClientFilter {
 			*  activan la actualización. Para evitarlo (en la carga inicial no se requiere), se comprueba el sessionId,
 			*  que en esa petición es un string vacio */
 			if (sessionId) {
-				Map<String, Object> requestInfo = findRequestInfo(request)
+				Object requestInfo = findRequestInfo(request)
 				PublisherInfo publisherInfo = PublisherInfo.findPublisherInfoType(
 						updateInfo.updateObject,
 						updateInfo.updateProperty,
@@ -58,10 +58,10 @@ class RealTimePublisherClientFilter implements HttpClientFilter {
 		return !Constants.REAL_TIME_UPDATE_AVOID_PATHS.find { it == updateProperty }
 	}
 
-	static Map<String, Object> findRequestInfo(MutableHttpRequest<?> request) {
+	static Object findRequestInfo(MutableHttpRequest<?> request) {
 		boolean getBody = GET_BODY_METHODS.find { it == request.method }
 		if (getBody) {
-			return (Map<String, Object>) request.body.get()
+			return request.body.get()
 		} else {
 			/* Por algún motivo, no se pueden sacar los parámetros de la request pasada como parámetro. Por lo tanto, se
 			*  obtiene la petición al controlador y se obtienen de ahí (en este caso, se obtiene la petición del front
