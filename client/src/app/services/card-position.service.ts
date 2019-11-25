@@ -204,13 +204,18 @@ export class CardPositionService {
 		const clonedCardsGroup = cardsGroup.clone();
 
 		/* Se comprueba si los laterales del grupo están fuera de la dropzone */
-		let position = this.handleGroupOutsideDropzone(lastPosition, clonedCardsGroup);
+		let position = this.fixGroupOutsideDropzonePosition(lastPosition, clonedCardsGroup);
 		/* Si la ficha no cabe en el horario, se devuelve undefined para retornar a la posición original*/
 		if (!position) {
 			return position;
 		}
 		/* La posición se redondea a los múltiplos de 5 minutos */
 		position = this.roundLastPosition(lastPosition, this.dropzone.rect, intervalWidth);
+
+		let outsideDropzone = this.isGroupOutsideDropzone(position, clonedCardsGroup);
+		if (outsideDropzone) {
+			return undefined;
+		}
 		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
 		*  cuenta a la hora de identificar las fichas solapadas */
 		this.updateLeft(clonedCardsGroup, position);
@@ -222,7 +227,7 @@ export class CardPositionService {
 			lineGroups
 		);
 
-		const outsideDropzone = this.checkGroupOutsideDropzone(overlappedGroupsToUpdate);
+		outsideDropzone = this.checkGroupOutsideDropzone(overlappedGroupsToUpdate);
 		if (outsideDropzone) {
 			return undefined;
 		}
@@ -260,7 +265,7 @@ export class CardPositionService {
 		}) != undefined;
 	}
 
-	private handleGroupOutsideDropzone(
+	private fixGroupOutsideDropzonePosition(
 		position: Coordinates,
 		cardsGroup: CardsGroup,
 		dropzone: DropzoneInfo = this.dropzone
@@ -278,7 +283,21 @@ export class CardPositionService {
 		if (outsideRight) {
 			position.x = this.leftToAbsolutePosition(dropzoneRight - duration);
 		}
+
 		return outsideLeft && outsideRight ? undefined : position;
+	}
+
+	private isGroupOutsideDropzone(
+		position: Coordinates,
+		cardsGroup: CardsGroup,
+		dropzone: DropzoneInfo = this.dropzone
+	): boolean {
+		const leftX = this.absolutePositionToLeft(position.x);
+		const duration = this.timeService.calcWidthFromDuration(this.timeService.calcDurationFromCardsGroup(cardsGroup));
+		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.rect.x);
+		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
+
+		return this.checkOutsideLeft(leftX, dropzoneLeft) || this.checkOutsideRight(leftX + duration, dropzoneRight);
 	}
 
 	private checkOutsideLeft(leftX: number, dropzoneLeft: number): boolean {
@@ -286,12 +305,10 @@ export class CardPositionService {
 		*  Esta cifra permite que a la hora de redondear en el método roundLastPosition, la ficha quede dentro de la
 		*  dropzone, en lugar de justo a la izquierda */
 		return leftX < dropzoneLeft;
-
 	}
 
 	private checkOutsideRight(rightX: number, dropzoneRight: number): boolean {
 		return rightX > dropzoneRight;
-
 	}
 
 	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {
