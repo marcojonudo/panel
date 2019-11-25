@@ -215,11 +215,29 @@ export class CardPositionService {
 		*  cuenta a la hora de identificar las fichas solapadas */
 		this.updateLeft(clonedCardsGroup, position);
 
+		const lineGroups = dayMechanicCardsGroups.filter(group => group.line == position.line);
 		/* Se gestionan los movimientos de fichas solapadas */
-		const groupOutsideDropzone = this.handleOverlappedMovements(position.line, clonedCardsGroup, dayMechanicCardsGroups);
-		if (groupOutsideDropzone) {
+		const overlappedGroupsToUpdate = this.handleOverlappedMovements(
+			clonedCardsGroup,
+			lineGroups
+		);
+
+		const outsideDropzone = this.checkGroupOutsideDropzone(overlappedGroupsToUpdate);
+		if (outsideDropzone) {
 			return undefined;
 		}
+
+		/* Si no se encuentra ningún grupo que, después de gestionarse el solapamiento, esté fuera del horario,
+		*  se actualizan las propiedades en los grupos originales */
+		overlappedGroupsToUpdate.forEach(clonedGroup => {
+			/* Se obtiene el grupo de todos los del día, en lugar de sólo los de la línea, porque la ficha que se está
+			*  moviendo puede provenir de otra línea. Además, se añade cardsGroup porque si se mueve desde otra línea de
+			*  mecánico, no va a estar en dayMechanicsCardsGroups */
+			const group = dayMechanicCardsGroups.concat(cardsGroup).find(group => group.id == clonedGroup.id);
+			/* Se actualizan los valores relacionados con la posicion (left y start) */
+			this.updatePositionProperties([group], [clonedGroup], this.dropzone.mechanic.day, position.line);
+		});
+		this.cardsService.overlappedGroups = overlappedGroupsToUpdate;
 
 		/* Se define la nueva posición, una vez tenidas en cuenta las fichas solapadas, para completar la transición
 		*  en la directiva draggable */
@@ -229,17 +247,17 @@ export class CardPositionService {
 	}
 
 	private checkGroupOutsideDropzone(
-		cardsGroups: CardsGroup[],
+		groups: CardsGroup[],
 		dropzone: DropzoneInfo = this.dropzone
-	): CardsGroup {
+	): boolean {
 		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.rect.x);
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
-		return cardsGroups.find(group => {
+		return groups.find(group => {
 			const duration = this.timeService.calcWidthFromDuration(this.timeService.calcDurationFromCardsGroup(group));
 			return this.checkOutsideLeft(group.left, dropzoneLeft) ||
 				this.checkOutsideRight(group.left + duration, dropzoneRight)
-		});
+		}) != undefined;
 	}
 
 	private handleGroupOutsideDropzone(
@@ -294,15 +312,13 @@ export class CardPositionService {
 	}
 
 	private handleOverlappedMovements(
-		line: number,
 		cardsGroup: CardsGroup,
-		dayMechanicCardsGroups: CardsGroup[],
-		dropzone: DropzoneInfo = this.dropzone
-	): CardsGroup {
+		lineGroups: CardsGroup[],
+		groupsToUpdate: CardsGroup[] = []
+	): CardsGroup[] {
 		/* Se obtienen los grupos solapados. Se clonan para evitar que se actualice el left de los grupos originales,
 		 * ya que si al final se determina que la ficha no se puede mover, ya se habría actualizado este valor */
-		const overlappedCardsGroups = this.findOverlappedCardsGroups(line, cardsGroup, dayMechanicCardsGroups);
-		let groupOutsideDropzone = undefined;
+		const overlappedCardsGroups = this.findOverlappedCardsGroups(cardsGroup, lineGroups);
 		/* Se hacen los cálculos sólo si se encuentran fichas solapadas */
 		if (overlappedCardsGroups.length) {
 			const clonedOverlappedGroups = overlappedCardsGroups.map(group => group.clone());
@@ -313,54 +329,48 @@ export class CardPositionService {
 				clonedOverlappedGroups.concat([cardsGroup]),
 				(cardsGroup) => cardsGroup.left
 			);
+
 			/* Se actualiza la propiedad left de los grupos para comprobar si alguno queda fuera de la dropzone */
 			this.calcLeft(allCardsGroups);
-
-			groupOutsideDropzone = this.checkGroupOutsideDropzone(allCardsGroups, dropzone);
-			if (groupOutsideDropzone) {
-				return groupOutsideDropzone;
-			}
 
 			/* Si la ficha soltada desplaza otras hacia la derecha, también se debe comprobar si estas, a su vez, se
 			*  solapan con otras. Para ello, de la lista completa se obtienen aquellas que estén a la derecha de la soltada,
 			*  y se repite la gestión para fichas solapadas */
-			const checkNewOverlapped = allCardsGroups.slice(allCardsGroups.indexOf(cardsGroup)+1);
-			if (checkNewOverlapped.length) {
-				groupOutsideDropzone = checkNewOverlapped.find(group =>
-					this.handleOverlappedMovements(line, group, dayMechanicCardsGroups) != undefined
-				);
-			}
+			const movedGroupIndex = allCardsGroups.indexOf(cardsGroup);
+			const checkNewOverlappedIndex = movedGroupIndex == allCardsGroups.length - 1
+				? allCardsGroups.length - 1
+				: movedGroupIndex + 1;
+			const checkNewOverlapped = allCardsGroups.slice(checkNewOverlappedIndex);
 
-			/* Si no se encuentra ningún grupo que, después de gestionarse el solapamiento, esté fuera del horario,
-			*  se actualizan las propiedades en los grupos originales */
-			if (!groupOutsideDropzone) {
-				/* Se actualizan los valores relacionados con la posicion (left y start) */
-				this.updatePositionProperties(overlappedCardsGroups, clonedOverlappedGroups, dropzone.mechanic.day, line);
+			if (checkNewOverlapped.length) {
+				return groupsToUpdate.concat(
+					...checkNewOverlapped.map(group =>
+						this.handleOverlappedMovements(group, lineGroups, [group])
+					)
+				);
 			}
 		}
 
 		/* En caso de soltar una ficha encima de otra por el lado derecho, la ficha solapada permanece en el sitio
 		*  y sólo se reubica la que se está soltando. Por lo tanto, en ese caso no sería necesario actualizar la
 		*  posición de la solapada */
-		this.cardsService.overlappedGroups = overlappedCardsGroups.filter(group => group.left > cardsGroup.left);
-		return groupOutsideDropzone;
+		// this.cardsService.overlappedGroups = overlappedCardsGroups.filter(group => group.left > cardsGroup.left);
+		// console.log('returning', cardsGroup.cards[0].order.code, groupsToUpdate.map(g => g.cards[0].order.code));
+		return groupsToUpdate;
 	}
 
 	private findOverlappedCardsGroups(
-		line: number,
 		cardsGroup: CardsGroup,
-		dayMechanicCardsGroups: CardsGroup[]
+		lineGroups: CardsGroup[]
 	): CardsGroup[] {
-		dayMechanicCardsGroups = dayMechanicCardsGroups.filter(group =>
-			group.cards[0].line == line && group.id != cardsGroup.id
-		);
+		lineGroups = lineGroups.filter(group => group.id != cardsGroup.id);
 		let newCardsMinutes = this.getDurationArray(
 			this.timeService.calcStart(cardsGroup.left, new Date()),
 			cardsGroup.cards
 		);
 		newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);
 
-		return dayMechanicCardsGroups.filter(cardsGroup => {
+		return lineGroups.filter(cardsGroup => {
 			const minutesArray = this.getDurationArray(cardsGroup.cards[0].start, cardsGroup.cards);
 			return minutesArray.find(minutes => newCardsMinutes.indexOf(minutes) >= 0);
 		});
