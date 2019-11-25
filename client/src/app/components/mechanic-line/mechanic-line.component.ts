@@ -14,17 +14,14 @@ import {Constants} from "../../objects/constants";
 	styleUrls: ['./mechanic-line.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicLineComponent implements OnInit, OnDestroy {
+export class MechanicLineComponent {
 
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
+	@Input() cardsGroups: CardsGroup;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
-
-	private cardsSubscription: any;
-
-	private _cardsGroups: CardsGroup[];
 
 	private _hiddenCardsGroup: CardsGroup;
 
@@ -36,7 +33,6 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		private daysService: DaysService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.cardsGroups = [];
 		this.quarterBackground = {
 			0: 1,
 			15: 1,
@@ -45,30 +41,7 @@ export class MechanicLineComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	ngOnInit(): void {
-		this.cardsGroups = this.cardsService.assignedDaysCardsGroups[this.day.getTime()][this.mechanic.code];
-		if (this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.code]) {
-			this.cardsSubscription =
-				this.cardsService.assignedDaysCardsGroups$[this.day.getTime()][this.mechanic.code].subscribe((cardUpdate: CardUpdate) => {
-					cardUpdate.update(this.cardsGroups);
-					this.cdRef.detectChanges();
-			});
-		}
-	}
-
-	ngOnDestroy(): void {
-		this.cardsSubscription.unsubscribe();
-	}
-
 	// region Getters / setters
-
-	get cardsGroups(): CardsGroup[] {
-		return this._cardsGroups;
-	}
-
-	set cardsGroups(value: CardsGroup[]) {
-		this._cardsGroups = value;
-	}
 
 	get hiddenCardsGroup(): CardsGroup {
 		return this._hiddenCardsGroup;

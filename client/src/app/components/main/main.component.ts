@@ -1,15 +1,15 @@
 import {
-	AfterViewInit,
 	ChangeDetectionStrategy, ChangeDetectorRef,
 	Component,
-	ElementRef,
 	OnDestroy, OnInit,
-	Renderer2,
-	ViewChild
 } from '@angular/core';
 import {TimeService} from "../../services/time.service";
 import {DaysService} from "../../services/days.service";
 import {Constants} from "../../objects/constants";
+import {Subscription} from "rxjs/internal/Subscription";
+import {CardsService} from "../../services/cards.service";
+import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
+import {CardsGroup} from "../../objects/cards-group";
 
 @Component({
 	selector: 'app-main',
@@ -24,6 +24,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _displayScrollbar: boolean;
 	private _showNonexistentScheduleMessage: boolean;
 
+	private _assignedDaysCardsGroups: CardsGroup[];
+
 	private _oneDayMode: boolean;
 	private _maxScheduleWidth: number;
 	private _maxScheduleHours: number[];
@@ -32,12 +34,14 @@ export class MainComponent implements OnInit, OnDestroy {
 	private scrollLeft: number;
 	private scrollTop: number;
 
-	private oneDayModeSubscription: any;
-	private maxScheduleWidthSubscription: any;
+	private oneDayModeSubscription: Subscription;
+	private maxScheduleWidthSubscription: Subscription;
+	private assignedCardsGroupsSubscription: Subscription;
 
 	constructor(
 		private daysService: DaysService,
 		private timeService: TimeService,
+		private cardsService: CardsService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.daysService.days;
@@ -54,6 +58,11 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
+		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
+		this.cardsService.assignedCardsGroups$.subscribe((dayCardUpdate: DayCardUpdate) => {
+			dayCardUpdate.update(this.assignedDaysCardsGroups);
+			this.cdRef.detectChanges();
+		});
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
 			this.oneDayMode = oneDayMode;
 			this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
@@ -77,12 +86,13 @@ export class MainComponent implements OnInit, OnDestroy {
 				lineHeight
 			);
 			this.cdRef.detectChanges();
-		})
+		});
 	}
 
 	ngOnDestroy(): void {
 		this.oneDayModeSubscription.unsubscribe();
 		this.maxScheduleWidthSubscription.unsubscribe();
+		this.assignedCardsGroupsSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -93,6 +103,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set days(value: Date[]) {
 		this._days = value;
+	}
+
+	get assignedDaysCardsGroups(): CardsGroup[] {
+		return this._assignedDaysCardsGroups;
+	}
+
+	set assignedDaysCardsGroups(value: CardsGroup[]) {
+		this._assignedDaysCardsGroups = value;
 	}
 
 	get displayScrollbar(): boolean {
@@ -136,6 +154,10 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
+
+	private findDayCardsGroups(day: Date): any {
+		return this.assignedDaysCardsGroups[day.getTime()];
+	}
 
 	private checkTodayScheduleExists(today: Date = this.timeService.today): boolean {
 		return this.daysService.findDayMechanics(today) != undefined;

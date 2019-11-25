@@ -16,6 +16,8 @@ import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Schedule} from "../objects/schedule";
 import {Subscription} from "rxjs/internal/Subscription";
+import {DayCardUpdate} from "../objects/update-days-cards/day-card-update";
+import {DayCardUpdateTrigger} from "../objects/update-days-cards/day-card-update-trigger";
 
 @Injectable({
 	providedIn: 'root'
@@ -26,7 +28,8 @@ export class CardsService {
 	private unassignedCards: Card[];
 	private assignedCards: Card[];
 
-	private assignedDaysCardsGroupsSubjects: any;
+	private assignedCardsGroupsSubject: Subject<DayCardUpdate>;
+	private _assignedCardsGroups$: Observable<DayCardUpdate>;
 
 	private unassignedCardsGroupsSubject: Subject<CardUpdate>;
 	private _unassignedCardsGroups$: Observable<CardUpdate>;
@@ -65,6 +68,14 @@ export class CardsService {
 		this._assignedCardsGroups = value;
 	}
 
+	get assignedCardsGroups$(): Observable<DayCardUpdate> {
+		return this._assignedCardsGroups$;
+	}
+
+	set assignedCardsGroups$(value: Observable<DayCardUpdate>) {
+		this._assignedCardsGroups$ = value;
+	}
+
 	get assignedDaysCardsGroups(): any {
 		return this._assignedDaysCardsGroups;
 	}
@@ -89,16 +100,6 @@ export class CardsService {
 		this._unassignedCardsGroups$ = value;
 	}
 
-	private _assignedDaysCardsGroups$: any;
-
-	get assignedDaysCardsGroups$(): any {
-		return this._assignedDaysCardsGroups$;
-	}
-
-	set assignedDaysCardsGroups$(value: any) {
-		this._assignedDaysCardsGroups$ = value;
-	}
-
 	// endregion
 
 	// region Init
@@ -112,6 +113,8 @@ export class CardsService {
 		this.assignedCards = this.cards.filter(card => card.day);
 		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
 		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, this.daysService.daysMechanics);
+		this.assignedCardsGroupsSubject = new Subject<DayCardUpdate>();
+		this.assignedCardsGroups$ = this.assignedCardsGroupsSubject.asObservable();
 
 		this.unassignedCardsGroupsSubject = new Subject<CardUpdate>();
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
@@ -248,7 +251,7 @@ export class CardsService {
 		});
 
 		group.end = UtilsService.addMinutes(group.end, durationIncrease);
-		this.notifyAssigned(card.day, card.mechanicCode, new CardUpdateWidth());
+		this.notifyAssigned();
 	}
 
 	groupOutsideSchedule(group: CardsGroup, schedule: Schedule): boolean {
@@ -304,12 +307,12 @@ export class CardsService {
 
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned(day, mechanicCode, new CardUpdateAdd(group));
+		this.notifyAssigned();
 	}
 
 	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned(day, mechanicCode, new CardUpdateRemove(group));
+		this.notifyAssigned();
 	}
 
 	handleAddUnassignedCardsGroup(group: CardsGroup): void {
@@ -520,13 +523,9 @@ export class CardsService {
 
 	private initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: any): any {
 		this.assignedDaysCardsGroups = {};
-		this.assignedDaysCardsGroupsSubjects = {};
-		this.assignedDaysCardsGroups$ = {};
 
 		for (let dayTime in daysMechanics) {
 			this.assignedDaysCardsGroups[dayTime] = {};
-			this.assignedDaysCardsGroupsSubjects[dayTime] = {};
-			this.assignedDaysCardsGroups$[dayTime] = {};
 
 			for (let mechanic of daysMechanics[dayTime]) {
 				const assignedDayCardsGroups = assignedCardsGroups.filter(cardsGroup => {
@@ -536,11 +535,6 @@ export class CardsService {
 					assignedDayCardsGroups,
 					(g) => g.start
 				);
-
-				const subject = new Subject<CardUpdate>();
-				const observable = subject.asObservable();
-				this.assignedDaysCardsGroupsSubjects[dayTime][mechanic.code] = subject;
-				this.assignedDaysCardsGroups$[dayTime][mechanic.code] = observable;
 			}
 		}
 	}
@@ -751,28 +745,16 @@ export class CardsService {
 
 	private notifyAll(): void {
 		this.notifyUnassigned(new CardUpdateWidth());
-		this.notifyAllAssigned();
+		this.notifyAssigned();
 	}
 
 	private notifyUnassigned(cardUpdate: CardUpdate): void {
 		this.unassignedCardsGroupsSubject.next(cardUpdate);
 	}
 
-	private notifyAllAssigned(): void {
-		for (let dayTime in this.assignedDaysCardsGroupsSubjects) {
-			for (let mechanic in this.assignedDaysCardsGroupsSubjects[dayTime]) {
-				const dayMechanicCards = this.assignedDaysCardsGroups[dayTime][mechanic];
-				if (dayMechanicCards.length) {
-					this.assignedDaysCardsGroupsSubjects[dayTime][mechanic].next(
-						new CardUpdateWidth(dayMechanicCards)
-					)
-				}
-			}
-		}
-	}
-
-	private notifyAssigned(day: Date, mechanicCode: string, cardUpdate: CardUpdate): void {
-		this.assignedDaysCardsGroupsSubjects[day.getTime()][mechanicCode].next(cardUpdate);
+	private notifyAssigned(dayCardUpdate: DayCardUpdate = new DayCardUpdateTrigger()): void {
+		// this.assignedDaysCardsGroupsSubjects[day.getTime()][mechanicCode].next(cardUpdate);
+		this.assignedCardsGroupsSubject.next(dayCardUpdate);
 	}
 
 	// endregion

@@ -5,7 +5,12 @@
 			[day]="day"
 			[maxScheduleHours]="maxScheduleHours"
 			class="timeline-container-wrapper"></app-timeline-container>
-		<app-grid [day]="day" [maxScheduleHours]="maxScheduleHours" [maxScheduleWidth]="maxScheduleWidth"></app-grid>
+		<app-grid
+			[day]="day"
+			[dayCardsGroups]="dayCardsGroups"
+			[maxScheduleHours]="maxScheduleHours"
+			[maxScheduleWidth]="maxScheduleWidth">
+		</app-grid>
 	</div>
 </div>
 <div>{{checkDayPanel()}}</div>

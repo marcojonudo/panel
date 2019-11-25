@@ -5,16 +5,17 @@ import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {MechanicUpdate} from "../../objects/mechanic-update/mechanic-update";
+import {CardsGroup} from "../../objects/cards-group";
 
 @Component({
 	selector: 'app-grid',
 	templateUrl: './grid.component.html',
-	styleUrls: ['./grid.component.css'],
-	changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ['./grid.component.css']
 })
 export class GridComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
+	@Input() dayCardsGroups: any;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
@@ -51,6 +52,10 @@ export class GridComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
+
+	findMechanicCardsGroups(mechanicCode): CardsGroup {
+		return this.dayCardsGroups[mechanicCode];
+	}
 
 	drop(event: CdkDragDrop<string[]>) {
 		moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);

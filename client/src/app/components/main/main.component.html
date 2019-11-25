@@ -15,8 +15,8 @@
 					[style.width.px]="maxScheduleWidth">
 					<app-day-panel
 						class="animated slideInRight"
-						[index]="i"
 						[day]="day"
+						[dayCardsGroups]="findDayCardsGroups(day)"
 						[maxScheduleHours]="maxScheduleHours"
 						[maxScheduleWidth]="maxScheduleWidth"
 						*ngFor="let day of days | days: oneDayMode; trackBy: trackByDay; let i = index"></app-day-panel>

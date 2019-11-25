@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
+import {CardsGroup} from "../../objects/cards-group";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -11,11 +12,12 @@ import {AppointmentSchedule} from "../../objects/appointment-schedule";
 })
 export class MechanicLineContainerComponent {
 
+	@Input() day: Date;
 	@Input() mechanic: Mechanic;
+	@Input() cardsGroups: CardsGroup[];
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;
-	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
