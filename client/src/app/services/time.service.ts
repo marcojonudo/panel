@@ -5,6 +5,7 @@ import {UtilsService} from "./utils.service";
 import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
 import {CardsGroup} from "../objects/cards-group";
+import {Constants} from "../objects/constants";
 
 @Injectable({
 	providedIn: 'root'
@@ -351,6 +352,12 @@ export class TimeService {
 
 	private getIntervalsNumberFromWidth(width: number) {
 		return Math.round(width / this.intervalWidth);
+	}
+
+	findTimeScheduleType(time: Date): string {
+		return time < UtilsService.parseTimeFromMinutes(Constants.TIME_14_00_MINUTES)
+			? Constants.SCHEDULE_TYPE.MORNING
+			: Constants.SCHEDULE_TYPE.AFTERNOON
 	}
 
 	// endregion

@@ -9,30 +9,46 @@
 		</tr>
 		</thead>
 		<tbody>
-		<tr>
-			<th scope="row">RAP</th>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
+		<tr *ngFor="let item of appointmentsCounter | keyvalue">
+			<th scope="row">{{item.key}}</th>
+			<td>{{item.value[morning]}}</td>
+			<td>{{item.value[afternoon]}}</td>
+			<td class="d-flex">
+				<div class="flex-grow-1 flex-basis-0 align-center">{{item.value[total]}}</div>
+				<div class="w-25 h-100 d-flex flex-column">
+					<div class="h-50 appointment-number-icon align-center" (click)="toggleToolsBar()">
+						<i class="fas fa-chevron-up"></i>
+					</div>
+					<div class="h-50 appointment-number-icon align-center" (click)="toggleToolsBar()">
+						<i class="fas fa-chevron-down"></i>
+					</div>
+				</div>
+			</td>
 		</tr>
-		<tr>
-			<th scope="row">CRF</th>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
-		</tr>
-		<tr>
-			<th scope="row">INT</th>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
-		</tr>
-		<tr>
-			<th scope="row">TP</th>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
-			<td>0 (0)</td>
-		</tr>
+		<!--<tr>-->
+			<!--<th scope="row">RAP</th>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+		<!--</tr>-->
+		<!--<tr>-->
+			<!--<th scope="row">CRF</th>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+		<!--</tr>-->
+		<!--<tr>-->
+			<!--<th scope="row">INT</th>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+		<!--</tr>-->
+		<!--<tr>-->
+			<!--<th scope="row">TP</th>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+			<!--<td>0 (0)</td>-->
+		<!--</tr>-->
 		</tbody>
 	</table>
 </div>

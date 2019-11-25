@@ -34,6 +34,7 @@ export class CardsService {
 	private unassignedCardsGroupsSubject: Subject<CardUpdate>;
 	private _unassignedCardsGroups$: Observable<CardUpdate>;
 
+	private _assignedDaysCardsGroups$: any;
 	private _assignedDaysCardsGroups: any;
 	private _assignedCardsGroups: CardsGroup[];
 	private _unassignedCardsGroups: CardsGroup[];

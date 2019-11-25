@@ -3,7 +3,6 @@ package panel.clients.cubo
 import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
-import utils.pogos.schedules.AppointmentType
 import utils.pogos.schedules.EmployeeScheduleAppointment
 
 import javax.inject.Singleton
@@ -13,9 +12,6 @@ import javax.inject.Singleton
 @Client("http://\${host.ip}:8082/cubo")
 @Header(name = "database", value = "cubo")
 interface CuboDatabaseClient extends CuboDatabaseApi {
-
-	@Get("/appointmentTypes")
-	List<AppointmentType> getAppointmentTypes()
 
 	@Post("/appointment/schedule")
 	EmployeeScheduleAppointment createAppointment(

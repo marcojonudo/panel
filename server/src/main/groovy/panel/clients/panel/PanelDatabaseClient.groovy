@@ -9,6 +9,7 @@ import utils.pogos.panel.Card
 import utils.pogos.panel.GroupUnits
 import utils.pogos.panel.JobLineType
 import utils.pogos.panel.Task
+import utils.pogos.panel.AppointmentType
 
 import javax.inject.Singleton
 
@@ -26,6 +27,9 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 
 	@Get("/jobLineTypes")
 	List<JobLineType> getJobLineTypes()
+
+	@Get("/appointmentTypes")
+	List<AppointmentType> getAppointmentTypes()
 
 	@Post("/durations")
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)

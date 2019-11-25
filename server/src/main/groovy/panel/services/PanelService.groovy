@@ -14,7 +14,6 @@ import panel.utils.Constants
 import utils.pogos.fviberi.Article
 import utils.pogos.fviberi.Order
 import utils.pogos.panel.*
-import utils.pogos.schedules.AppointmentType
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.skills.Skill
 
@@ -49,7 +48,7 @@ class PanelService {
 	CompleteInfo getPanelInfo(Date day = new Date()) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
-		List<AppointmentType> appointmentTypes = cuboDatabaseClient.getAppointmentTypes()
+		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */

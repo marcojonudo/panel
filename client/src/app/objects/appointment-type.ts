@@ -2,15 +2,15 @@ export class AppointmentType {
 
 	name: string;
 	code: string;
-	ownSchedule: boolean;
-	numberIndicator: boolean;
+	workingLine: boolean;
+	counter: boolean;
 	color: string;
 
 	constructor(appointmentType: any) {
 		this.name = appointmentType.name;
 		this.code = appointmentType.code;
-		this.ownSchedule = appointmentType.ownSchedule;
-		this.numberIndicator = appointmentType.numberIndicator;
+		this.workingLine = appointmentType.workingLine;
+		this.counter= appointmentType.counter;
 		this.color = appointmentType.name;
 	}
 

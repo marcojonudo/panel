@@ -13,8 +13,6 @@ import javax.inject.Singleton
 @CompileStatic
 interface CuboDatabaseApi {
 
-	List<AppointmentType> getAppointmentTypes()
-
 	EmployeeScheduleAppointment createAppointment(
 			@Header String sessionId,
 			@Body Map<String, Object> appointment,

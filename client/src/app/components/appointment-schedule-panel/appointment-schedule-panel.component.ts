@@ -86,7 +86,7 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 	}
 
 	get appointmentTypes(): AppointmentType[] {
-		return this.commonService.appointmentTypes;
+		return this.commonService.appointmentTypes.filter(appointmentType => appointmentType.workingLine);
 	}
 
 	get quarters(): number[] {

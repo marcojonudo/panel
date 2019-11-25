@@ -10,18 +10,92 @@ import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
 import {MechanicUpdateTrigger} from "../objects/mechanic-update/mechanic-update-trigger";
 import {ScheduleInterval} from "../objects/schedule-interval";
+import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
+import {Subject} from "rxjs/internal/Subject";
+import {Observable} from "rxjs/internal/Observable";
+import {CardsGroup} from "../objects/cards-group";
+import {AppointmentType} from "../objects/appointment-type";
+import {Card} from "../objects/card";
+import {TimeService} from "./time.service";
+import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
+import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
+import {AppointmentsCounterUpdateInit} from "../objects/update-appointments-counter/appointments-counter-update-init";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class AppointmentsService {
 
+	private readonly TOTAL: string = 'TOTAL';
+
+	private appointmentTypes: AppointmentType[];
+
+	private appointmentsCounterSubject: BehaviorSubject<AppointmentsCounterUpdate>;
+	private _appointmentsCounter$: Observable<AppointmentsCounterUpdate>;
+	private appointmentsCounter: any;
+
 	constructor(
+		private timeService: TimeService,
 		private daysService: DaysService,
 		private commonService: CommonService,
 		private http: HttpClient
 	) {
+		this.appointmentsCounterSubject = new BehaviorSubject<AppointmentsCounterUpdate>(this.appointmentsCounter);
+		this.appointmentsCounter$ = this.appointmentsCounterSubject.asObservable();
+		this.appointmentsCounter = {}
 	}
+
+	// region Init
+
+	init(
+		appointmentTypes: AppointmentType[],
+		assignedGroups: CardsGroup[],
+		unassignedGroups: CardsGroup[]
+	): void {
+		this.appointmentTypes = appointmentTypes;
+		this.appointmentsCounter = this.initAppointmentsCounter();
+
+		assignedGroups.filter((group: CardsGroup) => {
+			return group.cards[0].order.code[0] == "C"
+		}).forEach((group: CardsGroup) => {
+			group.cards.forEach((card: Card) => {
+				if (this.appointmentsCounter[card.group.appointmentType.code] != undefined) {
+					const scheduleType = this.timeService.findTimeScheduleType(card.start);
+					this.appointmentsCounter[card.group.appointmentType.code][scheduleType] =
+						this.appointmentsCounter[card.group.appointmentType.code][scheduleType] + 1;
+					this.appointmentsCounter[card.group.appointmentType.code][this.TOTAL] =
+						this.appointmentsCounter[card.group.appointmentType.code][this.TOTAL] + 1;
+				}
+			})
+		});
+		console.log(this.appointmentsCounter);
+		this.appointmentsCounterSubject.next(new AppointmentsCounterUpdateInit(this.appointmentsCounter));
+	}
+
+	initAppointmentsCounter(appointmentTypes: AppointmentType[] = this.appointmentTypes): any {
+		const appointmentsCounter = {};
+		appointmentTypes.filter(appointmentType => appointmentType.counter)
+			.forEach((appointmentType: AppointmentType) => {
+				appointmentsCounter[appointmentType.code] = {
+					'MORNING': 0, 'AFTERNOON': 0, 'TOTAL': 0
+				};
+			});
+		return appointmentsCounter;
+	}
+
+	// endregion
+
+	// region Getters / setters
+
+	get appointmentsCounter$(): Observable<AppointmentsCounterUpdate> {
+		return this._appointmentsCounter$;
+	}
+
+	set appointmentsCounter$(value: Observable<AppointmentsCounterUpdate>) {
+		this._appointmentsCounter$ = value;
+	}
+
+	// endregion
 
 	findMechanicAppointmentByMechanic(
 		dayMechanics: Mechanic[],

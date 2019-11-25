@@ -11,6 +11,7 @@ import {Mechanic} from "./objects/mechanic";
 import {Constants} from "./objects/constants";
 import {CommonService} from "./services/common.service";
 import {RealTimeService} from "./services/real-time.service";
+import {AppointmentsService} from "./services/appointments.service";
 
 @Component({
 	selector: 'app-root',
@@ -28,6 +29,7 @@ export class AppComponent implements AfterViewInit {
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private cardsService: CardsService,
+		private appointmentsService: AppointmentsService,
 		private realTimeService: RealTimeService,
 		private commonService: CommonService,
 		private http: HttpClient
@@ -45,6 +47,11 @@ export class AppComponent implements AfterViewInit {
 				this.timeService.init(this.daysService.daysMechanics);
 
 				this.cardsService.init(data.cards.map(card => new Card(card)));
+				this.appointmentsService.init(
+					data.appointmentTypes,
+					this.cardsService.assignedCardsGroups,
+					this.cardsService.unassignedCardsGroups
+				);
 
 				this.loading = false;
 				this.cdRef.detectChanges();

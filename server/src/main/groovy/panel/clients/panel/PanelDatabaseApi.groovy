@@ -6,10 +6,7 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.QueryValue
 import panel.utils.Constants
-import utils.pogos.panel.Card
-import utils.pogos.panel.GroupUnits
-import utils.pogos.panel.JobLineType
-import utils.pogos.panel.Task
+import utils.pogos.panel.*
 
 import javax.inject.Singleton
 
@@ -20,6 +17,7 @@ interface PanelDatabaseApi {
 	List<Task> getTasks(@QueryValue List<Integer> articles)
 	List<Card> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
 	List<JobLineType> getJobLineTypes()
+	List<AppointmentType> getAppointmentTypes()
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 	List<Card> createCards(@Body List<Card> cards)
 	List<Card> updateCards(@Body List<Card> cards)

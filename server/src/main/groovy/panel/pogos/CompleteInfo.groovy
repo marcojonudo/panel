@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
 import utils.pogos.panel.Card
 import utils.pogos.panel.JobLineType
-import utils.pogos.schedules.AppointmentType
+import utils.pogos.panel.AppointmentType
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.skills.Skill
 

@@ -44,3 +44,7 @@
 .appointments-panel tr th:not(first-child), .appointments-panel tr td {
 	border-right: 1px solid #dee2e6
 }
+
+.appointment-number-icon {
+	font-size: .7em;
+}
