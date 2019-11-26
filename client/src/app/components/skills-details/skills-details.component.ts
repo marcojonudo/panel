@@ -1,6 +1,8 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
+import {SubscriptionLog} from "rxjs/internal/testing/SubscriptionLog";
+import {Subscription} from "rxjs/internal/Subscription";
 
 @Component({
 	selector: 'app-skills-details',
@@ -8,7 +10,7 @@ import {Skill} from "../../objects/skill";
 	styleUrls: ['./skills-details.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SkillsDetailsComponent implements OnInit {
+export class SkillsDetailsComponent implements OnInit, OnDestroy {
 
 	private SKILL_EXPERTISE_COLOR: any = {
 		LOW: '#FF0000',
@@ -18,9 +20,8 @@ export class SkillsDetailsComponent implements OnInit {
 
 	private DEFAULT_WIDTH: number = 250;
 
-	private skillsSubscription: any;
+	private skillsSubscription: Subscription;
 	private _skills: Skill[];
-	private _skillsPanelWidth: number;
 
 	private _showSkills: boolean;
 
@@ -28,17 +29,29 @@ export class SkillsDetailsComponent implements OnInit {
 		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.skillsPanelWidth = 0;
+		this.skills = [];
 		this.showSkills = false;
 	}
 
-	ngOnInit() {
+	ngOnInit(): void {
 		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
-			this.skills = skills;
+			if (skills.length) {
+				skills.forEach((parent: Skill) => {
+					this.skills.push(parent);
+					parent.children.forEach((child: Skill) => {
+						this.skills.push(child);
+					});
+				});
+			} else {
+				this.skills = skills;
+			}
 			this.showSkills = this.skills.length != 0;
-			this.skillsPanelWidth = this.skills.length ? this.DEFAULT_WIDTH : 0;
 			this.cdRef.detectChanges();
 		});
+	}
+
+	ngOnDestroy(): void {
+		this.skillsSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -52,11 +65,7 @@ export class SkillsDetailsComponent implements OnInit {
 	}
 
 	get skillsPanelWidth(): number {
-		return this._skillsPanelWidth;
-	}
-
-	set skillsPanelWidth(value: number) {
-		this._skillsPanelWidth = value;
+		return this.DEFAULT_WIDTH;
 	}
 
 	get showSkills(): boolean {

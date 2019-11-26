@@ -1,18 +1,14 @@
-:host {
-	overflow-y: auto;
-}
-
 .skills-container {
 	background-color: #ffffff;
+}
+
+.skill {
+	font-size: .8em;
 }
 
 .parent-skill {
 	font-weight: bold;
 	background-color: #e1e1e1;
-}
-
-.child-skill {
-	font-size: .9em;
 }
 
 .skill-expertise-color {

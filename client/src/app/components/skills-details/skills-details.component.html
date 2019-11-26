@@ -1,11 +1,15 @@
-<div *ngIf="showSkills" class="w-100 h-100 d-flex flex-column skills-container">
-	<div *ngFor="let skill of skills" class="h-auto">
-		<div class="parent-skill pl-1 pt-1 pb-1 border-bottom">{{skill.name}}</div>
-		<div *ngFor="let child of skill.children" class="child-skill pl-2 border-bottom d-flex align-items-center">
-			<div class="mr-auto">{{child.name}}</div>
-			<div
-				class="rounded-circle skill-expertise-color mr-1"
-				[style.background-color]="getSkillExpertiseColor(child)"></div>
+<div
+	*ngIf="showSkills"
+	class="h-100 d-flex flex-column skills-container border-left-2 border-semi-dark"
+	[style.width.px]="skillsPanelWidth">
+	<div
+		*ngFor="let skill of skills"
+		class="flex-grow-1 flex-basis-0 d-flex skill align-items-center border-bottom"
+		[ngClass]="{'parent-skill pl-1': skill.children.length, 'pl-2': !skill.children.length}">
+		<div>{{skill.name}}</div>
+		<div
+			class="rounded-circle skill-expertise-color ml-auto mr-1"
+			[style.background-color]="getSkillExpertiseColor(skill)">
 		</div>
 	</div>
 </div>
