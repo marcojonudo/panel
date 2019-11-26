@@ -18,6 +18,7 @@ import {Schedule} from "../objects/schedule";
 import {Subscription} from "rxjs/internal/Subscription";
 import {DayCardUpdate} from "../objects/update-days-cards/day-card-update";
 import {DayCardUpdateTrigger} from "../objects/update-days-cards/day-card-update-trigger";
+import {AppointmentsService} from "./appointments.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -46,6 +47,7 @@ export class CardsService {
 	constructor(
 		private daysService: DaysService,
 		private timeService: TimeService,
+		private appointmentsService: AppointmentsService,
 		private http: HttpClient
 	) {
 		this.overlappedGroups = [];
@@ -754,7 +756,6 @@ export class CardsService {
 	}
 
 	private notifyAssigned(dayCardUpdate: DayCardUpdate = new DayCardUpdateTrigger()): void {
-		// this.assignedDaysCardsGroupsSubjects[day.getTime()][mechanicCode].next(cardUpdate);
 		this.assignedCardsGroupsSubject.next(dayCardUpdate);
 	}
 

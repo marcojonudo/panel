@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 
 @Component({
@@ -7,13 +7,9 @@ import {Constants} from "../../objects/constants";
 	styleUrls: ['./day-info-panel.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DayInfoPanelComponent implements OnInit {
+export class DayInfoPanelComponent {
 
-	constructor() {
-	}
-
-	ngOnInit() {
-	}
+	@Input() day: Date;
 
 	checkDayInfoPanel() {
 		if (Constants.CHECK) {

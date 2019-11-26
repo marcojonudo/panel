@@ -3,18 +3,18 @@ import {AppointmentsCounterUpdate} from "./appointments-counter-update";
 export class AppointmentsCounterUpdateInit implements AppointmentsCounterUpdate {
 
 	appointmentTypeCode: string;
-	newAppointmentsCounter: any;
+	newDaysAppointmentsCounter: any;
 
-	constructor(newAppointmentsCounter: any) {
-		this.newAppointmentsCounter = newAppointmentsCounter;
+	constructor(newDaysAppointmentsCounter: any) {
+		this.newDaysAppointmentsCounter = newDaysAppointmentsCounter;
 	}
 
-	update(appointmentsCounter: any): void {
-		for (const [type, info] of Object.entries(this.newAppointmentsCounter)) {
+	update(daysAppointmentsCounter: any): void {
+		for (const [type, info] of Object.entries(this.newDaysAppointmentsCounter)) {
 			for (const [scheduleType, counter] of Object.entries(info)) {
-				appointmentsCounter[type][scheduleType] = counter;
+				daysAppointmentsCounter[type][scheduleType] = counter;
 			}
-			appointmentsCounter[type]['MAX'] = 3;
+			daysAppointmentsCounter[type]['MAX'] = 3;
 		}
 	}
 

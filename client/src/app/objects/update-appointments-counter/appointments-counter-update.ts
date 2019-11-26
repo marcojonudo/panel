@@ -1,8 +1,9 @@
 export interface AppointmentsCounterUpdate {
 
+	// day: Date;
 	appointmentTypeCode: string;
-	newAppointmentsCounter: any;
+	newDaysAppointmentsCounter: any;
 
-	update(appointmentsCounter: any): void;
+	update(daysAppointmentsCounter: any): void;
 
 }

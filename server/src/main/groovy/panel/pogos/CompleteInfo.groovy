@@ -2,6 +2,7 @@ package panel.pogos
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
+import utils.pogos.panel.AppointmentDay
 import utils.pogos.panel.Card
 import utils.pogos.panel.JobLineType
 import utils.pogos.panel.AppointmentType
@@ -15,6 +16,7 @@ class CompleteInfo {
 	List<Skill> skills
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
+	List<AppointmentDay> appointmentDays
 	@JsonInclude
 	List<Card> cards
 
@@ -23,12 +25,14 @@ class CompleteInfo {
 			List<Skill> skills,
 			List<JobLineType> jobLineTypes,
 			List<AppointmentType> appointmentTypes,
+			List<AppointmentDay> appointmentDays,
 			List<Card> cards
 	) {
 		this.daysMechanics = daysMechanics
 		this.skills = skills
 		this.jobLineTypes = jobLineTypes
 		this.appointmentTypes = appointmentTypes
+		this.appointmentDays = appointmentDays
 		this.cards = cards
 	}
 

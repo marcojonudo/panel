@@ -59,7 +59,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
-		this.cardsService.assignedCardsGroups$.subscribe((dayCardUpdate: DayCardUpdate) => {
+		this.assignedCardsGroupsSubscription = this.cardsService.assignedCardsGroups$
+				.subscribe((dayCardUpdate: DayCardUpdate) => {
 			dayCardUpdate.update(this.assignedDaysCardsGroups);
 			this.cdRef.detectChanges();
 		});

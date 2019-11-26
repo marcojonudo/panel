@@ -20,6 +20,7 @@ import {TimeService} from "./time.service";
 import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {AppointmentsCounterUpdateInit} from "../objects/update-appointments-counter/appointments-counter-update-init";
+import {AppointmentDay} from "../objects/appointment-day";
 
 @Injectable({
 	providedIn: 'root'
@@ -27,12 +28,14 @@ import {AppointmentsCounterUpdateInit} from "../objects/update-appointments-coun
 export class AppointmentsService {
 
 	private readonly TOTAL: string = 'TOTAL';
+	private readonly MAX: string = 'MAX';
 
 	private appointmentTypes: AppointmentType[];
+	private appointmentDays: AppointmentDay[];
 
-	private appointmentsCounterSubject: BehaviorSubject<AppointmentsCounterUpdate>;
+	private appointmentsCounterSubject: Subject<AppointmentsCounterUpdate>;
 	private _appointmentsCounter$: Observable<AppointmentsCounterUpdate>;
-	private appointmentsCounter: any;
+	private _daysAppointmentsCounter: any;
 
 	constructor(
 		private timeService: TimeService,
@@ -40,39 +43,66 @@ export class AppointmentsService {
 		private commonService: CommonService,
 		private http: HttpClient
 	) {
-		this.appointmentsCounterSubject = new BehaviorSubject<AppointmentsCounterUpdate>(this.appointmentsCounter);
+		this.appointmentsCounterSubject = new Subject<AppointmentsCounterUpdate>();
 		this.appointmentsCounter$ = this.appointmentsCounterSubject.asObservable();
-		this.appointmentsCounter = {}
+		this.daysAppointmentsCounter = {}
 	}
 
 	// region Init
 
 	init(
 		appointmentTypes: AppointmentType[],
-		assignedGroups: CardsGroup[],
+		appointmentDays: AppointmentDay[],
+		assignedDaysGroups: any,
 		unassignedGroups: CardsGroup[]
 	): void {
 		this.appointmentTypes = appointmentTypes;
-		this.appointmentsCounter = this.initAppointmentsCounter();
+		this.appointmentDays = appointmentDays.map(appointmentDay => new AppointmentDay(appointmentDay));
 
-		assignedGroups.filter((group: CardsGroup) => {
-			return group.cards[0].order.code[0] == "C"
-		}).forEach((group: CardsGroup) => {
-			group.cards.forEach((card: Card) => {
-				if (this.appointmentsCounter[card.group.appointmentType.code] != undefined) {
-					const scheduleType = this.timeService.findTimeScheduleType(card.start);
-					this.appointmentsCounter[card.group.appointmentType.code][scheduleType] =
-						this.appointmentsCounter[card.group.appointmentType.code][scheduleType] + 1;
-					this.appointmentsCounter[card.group.appointmentType.code][this.TOTAL] =
-						this.appointmentsCounter[card.group.appointmentType.code][this.TOTAL] + 1;
-				}
-			})
-		});
-		console.log(this.appointmentsCounter);
-		this.appointmentsCounterSubject.next(new AppointmentsCounterUpdateInit(this.appointmentsCounter));
+		console.log('Appointment types', this.appointmentTypes);
+		console.log('Appointment days', this.appointmentDays);
+
+		this.initDaysAppointmentsMax(this.appointmentDays);
+		this.initDaysAppointmentsCounter(assignedDaysGroups);
+
+		console.log(1234, this.daysAppointmentsCounter);
+		this.appointmentsCounterSubject.next(new AppointmentsCounterUpdateInit(this.daysAppointmentsCounter));
 	}
 
-	initAppointmentsCounter(appointmentTypes: AppointmentType[] = this.appointmentTypes): any {
+	private initDaysAppointmentsMax(appointmentDays: AppointmentDay[]): void {
+		appointmentDays.forEach((appointmentDay: AppointmentDay) => {
+			if (!this.daysAppointmentsCounter[appointmentDay.day.getTime()]) {
+				this.daysAppointmentsCounter[appointmentDay.day.getTime()] = this.initAppointmentsCounter();
+			}
+			this.daysAppointmentsCounter[appointmentDay.day.getTime()][appointmentDay.appointmentType.code][this.MAX] =
+				appointmentDay.max;
+		})
+	}
+
+	private initDaysAppointmentsCounter(assignedDaysGroups: any): void {
+		for (const [dayTime, dayInfo] of Object.entries(assignedDaysGroups)) {
+			if (!this.daysAppointmentsCounter[dayTime]) {
+				this.daysAppointmentsCounter[dayTime] = this.initAppointmentsCounter();
+			}
+
+			for (const groups of Object.values(dayInfo)) {
+				groups.forEach(group => {
+					group.cards.forEach((card: Card) => {
+						if (this.daysAppointmentsCounter[dayTime][card.group.appointmentType.code] != undefined) {
+							const scheduleType = this.timeService.findTimeScheduleType(card.start);
+							this.daysAppointmentsCounter[dayTime][card.group.appointmentType.code][scheduleType] += 1;
+							this.daysAppointmentsCounter[dayTime][card.group.appointmentType.code][this.TOTAL] += 1;
+						}
+					})
+				});
+			}
+		}
+	}
+
+	initAppointmentsCounter(
+		appointmentTypes: AppointmentType[] = this.appointmentTypes,
+		appointmentDays: AppointmentDay[] = this.appointmentDays
+	): any {
 		const appointmentsCounter = {};
 		appointmentTypes.filter(appointmentType => appointmentType.counter)
 			.forEach((appointmentType: AppointmentType) => {
@@ -93,6 +123,14 @@ export class AppointmentsService {
 
 	set appointmentsCounter$(value: Observable<AppointmentsCounterUpdate>) {
 		this._appointmentsCounter$ = value;
+	}
+
+	get daysAppointmentsCounter(): any {
+		return this._daysAppointmentsCounter;
+	}
+
+	set daysAppointmentsCounter(value: any) {
+		this._daysAppointmentsCounter = value;
 	}
 
 	// endregion

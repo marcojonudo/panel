@@ -49,6 +49,7 @@ class PanelService {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
+		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(day)
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
@@ -63,6 +64,7 @@ class PanelService {
 				skills,
 				jobLineTypes,
 				appointmentTypes,
+				appointmentDays,
 				cards + updateCards.sameCards
 		)
 	}

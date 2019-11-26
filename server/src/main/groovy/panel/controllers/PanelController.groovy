@@ -36,8 +36,7 @@ class PanelController {
 
 	@Get("/get")
 	CompleteInfo get() {
-		CompleteInfo panelInfo = panelService.getPanelInfo()
-		return panelInfo
+		return panelService.getPanelInfo()
 	}
 
 	@Get("/publisher")

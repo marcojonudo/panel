@@ -5,6 +5,7 @@ import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import panel.utils.Constants
+import utils.pogos.panel.AppointmentDay
 import utils.pogos.panel.Card
 import utils.pogos.panel.GroupUnits
 import utils.pogos.panel.JobLineType
@@ -30,6 +31,9 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 
 	@Get("/appointmentTypes")
 	List<AppointmentType> getAppointmentTypes()
+
+	@Get("/appointmentDays")
+	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day)
 
 	@Post("/durations")
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)

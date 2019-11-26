@@ -1,9 +1,11 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {AppointmentsService} from "../../services/appointments.service";
 import {Subscription} from "rxjs/internal/Subscription";
 import {Constants} from "../../objects/constants";
 import {CardUpdate} from "../../objects/update-cards/card-update";
 import {CardsService} from "../../services/cards.service";
+import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
+import {UtilsService} from "../../services/utils.service";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -13,34 +15,41 @@ import {CardsService} from "../../services/cards.service";
 })
 export class AppointmentsPanelComponent implements OnInit {
 
-	private readonly TOTAL: string = 'TOTAL';
+	@Input() day: Date;
 
-	private cardsSubscription: Subscription;
+	private readonly TOTAL: string = 'TOTAL';
+	private readonly MAX: string = 'MAX';
+
+	private assignedCardsGroupsSubscription: Subscription;
 	private appointmentsCounterSubscription: Subscription;
-	private _appointmentsCounter: any;
+	private _daysAppointmentsCounter: any;
 
 	constructor(
 		private appointmentsService: AppointmentsService,
 		private cardsService: CardsService
-	) {
-		this.appointmentsCounter = this.appointmentsService.initAppointmentsCounter();
-	}
+	) {}
 
 	ngOnInit() {
+		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
 		this.appointmentsCounterSubscription = this.appointmentsService.appointmentsCounter$.subscribe(update => {
 			console.log(update);
-			update.update(this.appointmentsCounter);
+			update.update(this.daysAppointmentsCounter);
 		});
+		// this.assignedCardsGroupsSubscription = this.cardsService.assignedCardsGroups$
+		// 		.subscribe((dayCardUpdate: DayCardUpdate) => {
+		// 	console.log(1);
+		// 	console.log(this.cardsService.assignedDaysCardsGroups);
+		// })
 	}
 
 	// region Getters / setters
 
-	get appointmentsCounter(): any {
-		return this._appointmentsCounter;
+	get daysAppointmentsCounter(): any {
+		return this._daysAppointmentsCounter;
 	}
 
-	set appointmentsCounter(value: any) {
-		this._appointmentsCounter = value;
+	set daysAppointmentsCounter(value: any) {
+		this._daysAppointmentsCounter = value;
 	}
 
 	get morning(): string {
@@ -55,8 +64,14 @@ export class AppointmentsPanelComponent implements OnInit {
 		return this.TOTAL;
 	}
 
+	get max(): string {
+		return this.MAX;
+	}
+
 	// endregion
 
-
+	findDayAppointmentsCounter(day: Date): any {
+		return this.daysAppointmentsCounter[UtilsService.clearTime(new Date()).getTime()];
+	}
 
 }
