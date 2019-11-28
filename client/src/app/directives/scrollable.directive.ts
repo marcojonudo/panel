@@ -24,7 +24,6 @@ export class ScrollableDirective implements OnInit {
 
 	private scrollTop: number;
 	private scrollLeft: number;
-
 	private lastScrollTop: number;
 	private lastScrollLeft: number;
 
@@ -48,14 +47,11 @@ export class ScrollableDirective implements OnInit {
 	}
 
 	ngOnInit() {
-		const rect = this.element.nativeElement.getBoundingClientRect();
-		this.left = rect.left + this.scrollZoneSize;
-		this.right = rect.right - this.scrollZoneSize;
-		this.top = rect.top + this.scrollZoneSize;
-		this.bottom = rect.bottom - this.scrollZoneSize;
-
 		this.cardPositionService.dragging$.subscribe(dragging => {
 			if (dragging) {
+				if (!this.top) {
+					this.setPositionValues(this.element.nativeElement.getBoundingClientRect());
+				}
 				this.dragging = true;
 				this.lastScrollTop = this.scrollTop;
 				this.lastScrollLeft = this.scrollLeft;
@@ -71,6 +67,13 @@ export class ScrollableDirective implements OnInit {
 				}
 			}
 		});
+	}
+
+	setPositionValues(rect: any): void {
+		this.left = rect.left + this.scrollZoneSize;
+		this.right = rect.right - this.scrollZoneSize;
+		this.top = rect.top + this.scrollZoneSize;
+		this.bottom = rect.bottom - this.scrollZoneSize;
 	}
 
 	onPointerMove(event: PointerEvent): void {
