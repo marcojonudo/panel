@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Card} from "../objects/card";
+import {Constants} from "../objects/constants";
 
 @Injectable({
 	providedIn: 'root'
@@ -104,6 +105,12 @@ export class UtilsService {
 
 	public static getScheduleMinutes(start: Date, end: Date) {
 		return Math.round((end.getTime() - start.getTime()) / 60000);
+	}
+
+	public static findScheduleType(start: Date, end: Date) {
+		const startDiff = Math.abs(this.getTotalMinutes(start) - Constants.MORNING_AFTERNOON_THRESHOLD_MINUTES);
+		const endDiff = Math.abs(this.getTotalMinutes(end) - Constants.MORNING_AFTERNOON_THRESHOLD_MINUTES);
+		return startDiff > endDiff ? Constants.SCHEDULE_TYPE.MORNING : Constants.SCHEDULE_TYPE.AFTERNOON;
 	}
 
 }

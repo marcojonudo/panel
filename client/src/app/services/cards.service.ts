@@ -19,6 +19,8 @@ import {Subscription} from "rxjs/internal/Subscription";
 import {DayCardUpdate} from "../objects/update-days-cards/day-card-update";
 import {DayCardUpdateTrigger} from "../objects/update-days-cards/day-card-update-trigger";
 import {AppointmentsService} from "./appointments.service";
+import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
+import {AppointmentsCounterUpdateSubtract} from "../objects/update-appointments-counter/appointments-counter-update-subtract";
 
 @Injectable({
 	providedIn: 'root'
@@ -167,6 +169,7 @@ export class CardsService {
 		}
 
 		this.addToDestiny(cardsGroup, day, newMechanicCode);
+		this.handleAppointmentsCounter(cardsGroup.cards);
 		if (updateDb) {
 			this.http.put(
 				`${environment.serverUrl}/panel/cards/position`,
@@ -189,11 +192,11 @@ export class CardsService {
 		group.cards.forEach((card, index) => {
 			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setLine(line);
-			card.start = this.timeService.calcStart(
+			card.setStart(this.timeService.calcStart(
 				group.left + this.timeService.calcWidthFromDuration(leftCardsDuration),
 				day
-			);
-			card.end = UtilsService.addMinutes(card.start, card.duration);
+			));
+			// card.end = UtilsService.addMinutes(card.start, card.duration);
 		});
 		group.line = line;
 		group.start = group.cards[0].start;
@@ -466,6 +469,16 @@ export class CardsService {
 
 	// endregion
 
+	// region Appointments counter
+
+	private handleAppointmentsCounter(cards: Card[]): void {
+		this.appointmentsService.notifyAppointment(new AppointmentsCounterUpdateSubtract(cards[0].lastDay, cards));
+		this.appointmentsService.notifyAppointment(new AppointmentsCounterUpdateAdd(cards[0].day, cards));
+	}
+
+
+	// endregion
+
 	// region Global cards map
 
 	findCardGroup(groups: CardsGroup[], cardId: number): CardsGroup {
@@ -624,8 +637,8 @@ export class CardsService {
 		card.setDay(undefined);
 		card.setMechanicCode(undefined);
 		card.left = undefined;
-		card.start = undefined;
-		card.end = undefined;
+		card.setStart(undefined);
+		// card.end = undefined;
 	}
 
 	// endregion

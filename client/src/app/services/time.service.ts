@@ -355,7 +355,7 @@ export class TimeService {
 	}
 
 	findTimeScheduleType(time: Date): string {
-		return time < UtilsService.parseTimeFromMinutes(Constants.TIME_14_00_MINUTES)
+		return time < UtilsService.parseTimeFromMinutes(Constants.MORNING_AFTERNOON_THRESHOLD_MINUTES)
 			? Constants.SCHEDULE_TYPE.MORNING
 			: Constants.SCHEDULE_TYPE.AFTERNOON
 	}

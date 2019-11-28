@@ -14,9 +14,7 @@ export class ScheduleInterval {
 	constructor(start: string, end: string) {
 		this.start = UtilsService.parseTimeFromString(start);
 		this.end = UtilsService.parseTimeFromString(end);
-		this.type = this.start < UtilsService.parseTimeFromMinutes(Constants.TIME_14_00_MINUTES)
-			? Constants.SCHEDULE_TYPE.MORNING
-			: Constants.SCHEDULE_TYPE.AFTERNOON;
+		this.type = UtilsService.findScheduleType(this.start, this.end);
 		this.duration = UtilsService.getScheduleMinutes(this.start, this.end);
 
 		let time = this.start;

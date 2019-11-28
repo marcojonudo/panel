@@ -33,8 +33,9 @@ export class AppointmentsPanelComponent implements OnInit {
 	ngOnInit() {
 		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
 		this.appointmentsCounterSubscription = this.appointmentsService.appointmentsCounter$.subscribe(update => {
-			console.log(update);
+			console.log('update', update);
 			update.update(this.daysAppointmentsCounter);
+			this.cdRef.detectChanges();
 		});
 		// this.assignedCardsGroupsSubscription = this.cardsService.assignedCardsGroups$
 		// 		.subscribe((dayCardUpdate: DayCardUpdate) => {
@@ -76,7 +77,7 @@ export class AppointmentsPanelComponent implements OnInit {
 	}
 
 	addMax(dayAppointmentsCounter: any): void {
-		dayAppointmentsCounter[this.max] = dayAppointmentsCounter[this.max] ? dayAppointmentsCounter[this.max] + 1 : 1;
+		dayAppointmentsCounter[this.max] = dayAppointmentsCounter[this.max] + 1;
 		this.cdRef.detectChanges();
 	}
 

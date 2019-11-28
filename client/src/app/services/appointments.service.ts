@@ -9,7 +9,6 @@ import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
 import {MechanicUpdateTrigger} from "../objects/mechanic-update/mechanic-update-trigger";
-import {ScheduleInterval} from "../objects/schedule-interval";
 import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
@@ -17,9 +16,6 @@ import {CardsGroup} from "../objects/cards-group";
 import {AppointmentType} from "../objects/appointment-type";
 import {Card} from "../objects/card";
 import {TimeService} from "./time.service";
-import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
-import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
-import {AppointmentsCounterUpdateInit} from "../objects/update-appointments-counter/appointments-counter-update-init";
 import {AppointmentDay} from "../objects/appointment-day";
 
 @Injectable({
@@ -65,7 +61,7 @@ export class AppointmentsService {
 		this.initDaysAppointmentsMax(this.appointmentDays);
 		this.initDaysAppointmentsCounter(assignedDaysGroups);
 
-		this.appointmentsCounterSubject.next(new AppointmentsCounterUpdateInit(this.daysAppointmentsCounter));
+		console.log('Days appointments counter', this.daysAppointmentsCounter);
 	}
 
 	private initDaysAppointmentsMax(appointmentDays: AppointmentDay[]): void {
@@ -106,7 +102,7 @@ export class AppointmentsService {
 		appointmentTypes.filter(appointmentType => appointmentType.counter)
 			.forEach((appointmentType: AppointmentType) => {
 				appointmentsCounter[appointmentType.code] = {
-					'MORNING': 0, 'AFTERNOON': 0, 'TOTAL': 0
+					'MORNING': 0, 'AFTERNOON': 0, 'TOTAL': 0, 'MAX': 0
 				};
 			});
 		return appointmentsCounter;
@@ -133,6 +129,10 @@ export class AppointmentsService {
 	}
 
 	// endregion
+
+	notifyAppointment(counterUpdate: AppointmentsCounterUpdate): void {
+		this.appointmentsCounterSubject.next(counterUpdate);
+	}
 
 	findMechanicAppointmentByMechanic(
 		dayMechanics: Mechanic[],
@@ -167,7 +167,7 @@ export class AppointmentsService {
 			appointment.reset();
 		}
 		mechanic.appointments = mechanic.appointments.slice();
-		this.notify(mechanic);
+		this.notifyMechanic(mechanic);
 	}
 
 	updateAppointmentSchedule(
@@ -198,14 +198,14 @@ export class AppointmentsService {
 				appointment
 			).subscribe()
 		}
-		this.notify(mechanic);
+		this.notifyMechanic(mechanic);
 	}
 
 	updateAppointments(mechanic: Mechanic): void {
-		this.notify(mechanic);
+		this.notifyMechanic(mechanic);
 	}
 
-	private notify(mechanic: Mechanic): void {
+	private notifyMechanic(mechanic: Mechanic): void {
 		/* Se usa el slice para crear un array con nueva referencia, y que así se lance el CD en mechanic-line.component */
 		mechanic.appointments = mechanic.appointments.slice();
 		this.daysService.notifyDay(mechanic.day, new MechanicUpdateTrigger());

@@ -1,8 +1,9 @@
+import {Card} from "../card";
+
 export interface AppointmentsCounterUpdate {
 
-	// day: Date;
-	appointmentTypeCode: string;
-	newDaysAppointmentsCounter: any;
+	day: Date;
+	cards: Card[];
 
 	update(daysAppointmentsCounter: any): void;
 

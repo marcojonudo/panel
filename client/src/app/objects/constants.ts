@@ -35,8 +35,9 @@ export class Constants {
 		STEP_30: 30,
 		STEP_45: 45,
 	};
+	public static readonly APPOINTMENT_TOTAL: string = 'TOTAL';
 	public static readonly HOUR_MINUTES: number = 60;
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/", "/appointment"];
-	public static readonly TIME_14_00_MINUTES: number = 840;
+	public static readonly MORNING_AFTERNOON_THRESHOLD_MINUTES: number = 900;
 
 }

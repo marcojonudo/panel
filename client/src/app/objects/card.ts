@@ -9,10 +9,13 @@ export class Card {
 	lastDay: Date;
 	mechanicCode: string;
 	lastMechanicCode: string;
+	status: string;
 
 	start: Date;
+	lastStart: Date;
 	duration: number;
 	end: Date;
+	lastEnd: Date;
 	line: number;
 	lastLine: number;
 
@@ -32,6 +35,7 @@ export class Card {
 	constructor(card: any, initialLoad: boolean = true) {
 		this.id = card.id;
 		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;
+		this.status = card.status;
 		this.mechanicCode = card.mechanicCode;
 		this.start = card.start ? UtilsService.parseCompleteDate(this.day, card.start) : undefined;
 		this.duration = card.duration;
@@ -45,6 +49,14 @@ export class Card {
 		this.lastDay = card.lastDay ? UtilsService.parseDateFromLong(card.lastDay) : initialLoad ? this.day : undefined;
 		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : initialLoad ? this.mechanicCode : undefined;
 		this.lastLine = card.lastLine != undefined ? card.lastLine : initialLoad ? this.line : undefined;
+	}
+
+	setStart(start: Date): void {
+		this.lastStart = this.start;
+		this.start = start;
+
+		this.lastEnd = this.end;
+		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : this.start;
 	}
 
 	setWidth(widthIncrease: number, durationIncrease: number) {
