@@ -16,6 +16,7 @@ class CompleteInfo {
 	List<Skill> skills
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
+	@JsonInclude
 	List<AppointmentDay> appointmentDays
 	@JsonInclude
 	List<Card> cards

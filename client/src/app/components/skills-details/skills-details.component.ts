@@ -1,7 +1,14 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	EventEmitter,
+	OnDestroy,
+	OnInit,
+	Output
+} from '@angular/core';
 import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
-import {SubscriptionLog} from "rxjs/internal/testing/SubscriptionLog";
 import {Subscription} from "rxjs/internal/Subscription";
 
 @Component({
@@ -20,17 +27,16 @@ export class SkillsDetailsComponent implements OnInit, OnDestroy {
 
 	private DEFAULT_WIDTH: number = 250;
 
+	@Output() showSkills: EventEmitter<boolean>;
+
 	private skillsSubscription: Subscription;
 	private _skills: Skill[];
-
-	private _showSkills: boolean;
 
 	constructor(
 		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.skills = [];
-		this.showSkills = false;
 	}
 
 	ngOnInit(): void {
@@ -45,7 +51,7 @@ export class SkillsDetailsComponent implements OnInit, OnDestroy {
 			} else {
 				this.skills = skills;
 			}
-			this.showSkills = this.skills.length != 0;
+			this.showSkills.emit(this.skills.length != 0);
 			this.cdRef.detectChanges();
 		});
 	}
@@ -66,14 +72,6 @@ export class SkillsDetailsComponent implements OnInit, OnDestroy {
 
 	get skillsPanelWidth(): number {
 		return this.DEFAULT_WIDTH;
-	}
-
-	get showSkills(): boolean {
-		return this._showSkills;
-	}
-
-	set showSkills(value: boolean) {
-		this._showSkills = value;
 	}
 
 	// endregion

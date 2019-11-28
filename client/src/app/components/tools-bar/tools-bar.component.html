@@ -1,16 +1,13 @@
-<div class="h-100 tools-bar-container" [style.width.px]="toolsBarWidth">
-	<div class="tools-bar-hook align-center" (click)="toggleToolsBar()">
-		<i class="fas" [ngClass]="{'fa-chevron-right': show, 'fa-chevron-left': !show}"></i>
-	</div>
-	<div class="h-100 d-flex flex-column align-items-center" [ngClass]="{'buttons-slider-container': !show}">
-		<div class="d-flex flex-column align-items-center">
-			<div
-				class="mt-1 mb-1"
-				(click)="toggleDayMode()">
-				<i class="fas fa-binoculars fa-lg"></i>
-			</div>
+<div
+	class="h-100 d-flex flex-column align-items-center"
+	[style.width.px]="toolsBarWidth">
+	<div class="d-flex flex-column align-items-center">
+		<div
+			class="mt-1 mb-1"
+			(click)="toggleDayMode()">
+			<i class="fas fa-binoculars fa-lg"></i>
 		</div>
-		<hr class="w-75">
-		<app-dimension-sliders class="w-100 flex-grow-1"></app-dimension-sliders>
 	</div>
+	<hr class="w-75">
+	<app-dimension-sliders class="w-100 flex-grow-1"></app-dimension-sliders>
 </div>

@@ -23,6 +23,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	private itemSize: number;
 	private _displayScrollbar: boolean;
 	private _showNonexistentScheduleMessage: boolean;
+	private _dayContainerWidth: number;
+	private _showSkills: boolean;
 
 	private _assignedDaysCardsGroups: CardsGroup[];
 
@@ -55,6 +57,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.scrollTop = 0;
 
 		this.showNonexistentScheduleMessage = !this.checkTodayScheduleExists();
+		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 	}
 
 	ngOnInit(): void {
@@ -154,7 +157,32 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._maxScheduleHours = value;
 	}
 
+	get dayPanelWidth(): number {
+		return Constants.VALUE.DAY_PANEL_WIDTH;
+	}
+
+	get dayContainerWidth(): number {
+		return this._dayContainerWidth;
+	}
+
+	set dayContainerWidth(value: number) {
+		this._dayContainerWidth = value;
+	}
+
+	get showSkills(): boolean {
+		return this._showSkills;
+	}
+
+	set showSkills(value: boolean) {
+		this._showSkills = value;
+	}
+
 	// endregion
+
+	setShowSkills(show: boolean): void {
+		this.showSkills = show;
+		this.cdRef.detectChanges();
+	}
 
 	private findDayCardsGroups(day: Date): any {
 		return this.assignedDaysCardsGroups[day.getTime()];

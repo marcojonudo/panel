@@ -10,6 +10,8 @@ export class Constants {
 		LINE_HEIGHT_DEFAULT: 40,
 		LINE_HEIGHT_NARROW: 25,
 		MECHANIC_INFO_WIDTH: 180,
+		DAY_PANEL_WIDTH: 200,
+		TOOLS_BAR_WIDTH: 30,
 		CARD_MIN_DURATION: 10
 	};
 	public static readonly CHECK: boolean = false;

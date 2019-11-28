@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {AppointmentsService} from "../../services/appointments.service";
 import {Subscription} from "rxjs/internal/Subscription";
 import {Constants} from "../../objects/constants";
@@ -26,7 +26,8 @@ export class AppointmentsPanelComponent implements OnInit {
 
 	constructor(
 		private appointmentsService: AppointmentsService,
-		private cardsService: CardsService
+		private cardsService: CardsService,
+		private cdRef: ChangeDetectorRef
 	) {}
 
 	ngOnInit() {
@@ -71,7 +72,19 @@ export class AppointmentsPanelComponent implements OnInit {
 	// endregion
 
 	findDayAppointmentsCounter(day: Date): any {
-		return this.daysAppointmentsCounter[UtilsService.clearTime(new Date()).getTime()];
+		return this.daysAppointmentsCounter[day.getTime()];
+	}
+
+	addMax(dayAppointmentsCounter: any): void {
+		dayAppointmentsCounter[this.max] = dayAppointmentsCounter[this.max] ? dayAppointmentsCounter[this.max] + 1 : 1;
+		this.cdRef.detectChanges();
+	}
+
+	subtractMax(dayAppointmentsCounter: any): void {
+		dayAppointmentsCounter[this.max] = dayAppointmentsCounter[this.max] - 1 < 0
+			? dayAppointmentsCounter[this.max]
+			: dayAppointmentsCounter[this.max] - 1;
+		this.cdRef.detectChanges();
 	}
 
 }

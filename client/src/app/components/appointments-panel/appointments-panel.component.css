@@ -46,5 +46,9 @@
 }
 
 .appointment-number-icon {
-	font-size: .7em;
+	font-size: .6em;
+}
+
+.max-appointment-limit {
+	font-size: .8em;
 }

@@ -65,7 +65,6 @@ export class AppointmentsService {
 		this.initDaysAppointmentsMax(this.appointmentDays);
 		this.initDaysAppointmentsCounter(assignedDaysGroups);
 
-		console.log(1234, this.daysAppointmentsCounter);
 		this.appointmentsCounterSubject.next(new AppointmentsCounterUpdateInit(this.daysAppointmentsCounter));
 	}
 

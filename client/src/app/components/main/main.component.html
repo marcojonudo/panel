@@ -1,34 +1,46 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
 	<div
 		class="row assigned-orders-container">
-		<div class="col h-100 padding-0 d-flex">
+		<div class="col w-100 h-100 padding-0 d-flex">
 			<div
-				appScrollable
-				class="flex-grow-1 h-100 panel-container padding-0"
-				[ngClass]="{
-					'width-0-scrollbar': !displayScrollbar,
-					'overflow-scroll': !showNonexistentScheduleMessage,
-					'overflow-hidden': showNonexistentScheduleMessage
-				}">
+				class="d-flex flex-column"
+				[style.width.px]="dayContainerWidth"
+				[ngClass]="{'overflow-y-scroll': !oneDayMode}">
 				<div
-					class="h-100"
-					[style.width.px]="maxScheduleWidth">
-					<app-day-panel
-						class="animated slideInRight"
-						[day]="day"
-						[dayCardsGroups]="findDayCardsGroups(day)"
-						[maxScheduleHours]="maxScheduleHours"
-						[maxScheduleWidth]="maxScheduleWidth"
-						*ngFor="let day of days | days: oneDayMode; trackBy: trackByDay; let i = index"></app-day-panel>
-				</div>
-				<div
-					*ngIf="showNonexistentScheduleMessage"
-					class="w-100 h-100 align-center nonexistent-today-schedules-container">
-					No hay horarios definidos para hoy. ¡Puedes tomarte el día libre!
+					*ngFor="let day of days | days: oneDayMode; trackBy: trackByDay;"
+					class="w-100 h-auto d-flex"
+					[ngClass]="{'overflow-hidden': oneDayMode}">
+					<div
+						appScrollable
+						class="h-100 panel-container padding-0"
+						[ngClass]="{
+							'width-0-scrollbar': !oneDayMode || !displayScrollbar,
+							'overflow-scroll': !showNonexistentScheduleMessage,
+							'overflow-hidden': showNonexistentScheduleMessage
+						}">
+						<div
+							class="h-100"
+							[style.width.px]="maxScheduleWidth">
+							<app-day-panel
+								class="animated slideInRight"
+								[day]="day"
+								[dayCardsGroups]="findDayCardsGroups(day)"
+								[maxScheduleHours]="maxScheduleHours"
+								[maxScheduleWidth]="maxScheduleWidth">
+							</app-day-panel>
+						</div>
+					</div>
+					<app-day-info-panel
+						class="h-100"
+						[style.min-width.px]="dayPanelWidth"
+						[day]="day">
+					</app-day-info-panel>
 				</div>
 			</div>
-			<app-skills-details class="h-100"></app-skills-details>
-			<app-day-info-panel class="h-100" [day]="day"></app-day-info-panel>
+			<app-skills-details
+				*ngIf="showSkills"
+				(showSkills)="setShowSkills($event)"
+				class="h-100"></app-skills-details>
 			<app-tools-bar class="h-100"></app-tools-bar>
 		</div>
 	</div>

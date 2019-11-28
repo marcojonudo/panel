@@ -159,7 +159,7 @@ export class DaysService {
 			return false;
 		}
 		const mechanics = oneDayMode ? daysMechanics[today.getTime()] : [].concat(...Object.values(daysMechanics));
-		if (mechanics) {
+		if (mechanics.length) {
 			const mechanicsHeight =
 				UtilsService.sum(mechanics, 'lines') * lineHeight +
 				mechanics.length * (this.MECHANIC_BOTTOM_MARGIN + 4) +
