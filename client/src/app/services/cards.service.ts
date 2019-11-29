@@ -169,7 +169,7 @@ export class CardsService {
 		}
 
 		this.addToDestiny(cardsGroup, day, newMechanicCode);
-		this.handleAppointmentsCounter(cardsGroup.cards);
+		this.appointmentsService.updateAppointmentsCounter(cardsGroup.cards);
 		if (updateDb) {
 			this.http.put(
 				`${environment.serverUrl}/panel/cards/position`,
@@ -466,16 +466,6 @@ export class CardsService {
 		const groups = this.getAssignedCardsGroups(day, mechanicCode).filter(group => group.cards[0].line == line);
 		return [].concat(...groups.map(group => group.cards));
 	}
-
-	// endregion
-
-	// region Appointments counter
-
-	private handleAppointmentsCounter(cards: Card[]): void {
-		this.appointmentsService.notifyAppointment(new AppointmentsCounterUpdateSubtract(cards[0].lastDay, cards));
-		this.appointmentsService.notifyAppointment(new AppointmentsCounterUpdateAdd(cards[0].day, cards));
-	}
-
 
 	// endregion
 

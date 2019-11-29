@@ -56,4 +56,13 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	@Put("/cards/duration")
 	List<Map> updateCardDuration(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
+	@Post("/appointmentDay")
+	void createAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
+
+	@Put("/appointmentDay/counters")
+	void updateAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
+
+	@Put("/appointmentDay/max")
+	void updateAppointmentDayMax(@Header String sessionId, @Body Map<String, Object> appointmentDay)
+
 }

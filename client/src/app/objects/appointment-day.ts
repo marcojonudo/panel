@@ -5,16 +5,18 @@ export class AppointmentDay {
 
 	appointmentType: AppointmentType;
 	day: Date;
-	morning: number;
-	afternoon: number;
-	max: number;
+	morning: number = 0;
+	afternoon: number = 0;
+	max: number = 0;
 
-	constructor(appointmentDay: any) {
-		this.appointmentType = new AppointmentType(appointmentDay.appointmentType);
-		this.day = UtilsService.parseDateFromLong(appointmentDay.day);
-		this.morning = appointmentDay.morning;
-		this.afternoon = appointmentDay.afternoon;
-		this.max = appointmentDay.max;
+	constructor(appointmentType: any, day: number = undefined, appointmentDay: any = undefined) {
+		this.appointmentType = new AppointmentType(appointmentType);
+		this.day = day ? UtilsService.parseDateFromLong(day) : undefined;
+		if (appointmentDay) {
+			this.morning = appointmentDay.morning;
+			this.afternoon = appointmentDay.afternoon;
+			this.max = appointmentDay.max;
+		}
 	}
 
 }

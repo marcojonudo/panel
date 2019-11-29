@@ -104,4 +104,28 @@ class PanelController {
 		cuboDatabaseClient.updateAppointmentSchedule(sessionId, appointment)
 	}
 
+	@Post("/appointmentDay")
+	void createAppointmentDays(
+			@Header String sessionId,
+			@Body List<Map<String, Object>> appointmentDays
+	) {
+		panelDatabaseClient.createAppointmentDays(sessionId, appointmentDays)
+	}
+
+	@Put("/appointmentDay/counters")
+	void updateAppointmentDays(
+			@Header String sessionId,
+			@Body List<Map<String, Object>> appointmentDays
+	) {
+		panelDatabaseClient.updateAppointmentDays(sessionId, appointmentDays)
+	}
+
+	@Put("/appointmentDay/max")
+	void updateAppointmentDayMax(
+			@Header String sessionId,
+			@Body Map<String, Object> appointmentDay
+	) {
+		panelDatabaseClient.updateAppointmentDayMax(sessionId, appointmentDay)
+	}
+
 }

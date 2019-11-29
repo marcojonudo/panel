@@ -38,4 +38,10 @@ interface PanelDatabaseApi {
 
 	Map updateCardDuration(@Header String sessionId, @Body Map<String, Object> card)
 
+	void createAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
+
+	void updateAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
+
+	void updateAppointmentDayMax(@Header String sessionId, @Body Map<String, Object> appointmentDay)
+
 }

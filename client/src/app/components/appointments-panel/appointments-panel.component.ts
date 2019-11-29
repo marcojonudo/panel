@@ -2,10 +2,8 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} fr
 import {AppointmentsService} from "../../services/appointments.service";
 import {Subscription} from "rxjs/internal/Subscription";
 import {Constants} from "../../objects/constants";
-import {CardUpdate} from "../../objects/update-cards/card-update";
 import {CardsService} from "../../services/cards.service";
-import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
-import {UtilsService} from "../../services/utils.service";
+import {AppointmentDay} from "../../objects/appointment-day";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -20,7 +18,6 @@ export class AppointmentsPanelComponent implements OnInit {
 	private readonly TOTAL: string = 'TOTAL';
 	private readonly MAX: string = 'MAX';
 
-	private assignedCardsGroupsSubscription: Subscription;
 	private appointmentsCounterSubscription: Subscription;
 	private _daysAppointmentsCounter: any;
 
@@ -33,15 +30,9 @@ export class AppointmentsPanelComponent implements OnInit {
 	ngOnInit() {
 		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
 		this.appointmentsCounterSubscription = this.appointmentsService.appointmentsCounter$.subscribe(update => {
-			console.log('update', update);
 			update.update(this.daysAppointmentsCounter);
 			this.cdRef.detectChanges();
 		});
-		// this.assignedCardsGroupsSubscription = this.cardsService.assignedCardsGroups$
-		// 		.subscribe((dayCardUpdate: DayCardUpdate) => {
-		// 	console.log(1);
-		// 	console.log(this.cardsService.assignedDaysCardsGroups);
-		// })
 	}
 
 	// region Getters / setters
@@ -62,30 +53,24 @@ export class AppointmentsPanelComponent implements OnInit {
 		return Constants.SCHEDULE_TYPE.AFTERNOON;
 	}
 
-	get total(): string {
-		return this.TOTAL;
-	}
-
-	get max(): string {
-		return this.MAX;
-	}
-
 	// endregion
 
 	findDayAppointmentsCounter(day: Date): any {
 		return this.daysAppointmentsCounter[day.getTime()];
 	}
 
-	addMax(dayAppointmentsCounter: any): void {
-		dayAppointmentsCounter[this.max] = dayAppointmentsCounter[this.max] + 1;
+	addMax(appointmentDay: AppointmentDay): void {
+		appointmentDay.max = appointmentDay.max + 1;
 		this.cdRef.detectChanges();
+		this.appointmentsService.updateMaxDb(appointmentDay, this.day);
 	}
 
-	subtractMax(dayAppointmentsCounter: any): void {
-		dayAppointmentsCounter[this.max] = dayAppointmentsCounter[this.max] - 1 < 0
-			? dayAppointmentsCounter[this.max]
-			: dayAppointmentsCounter[this.max] - 1;
-		this.cdRef.detectChanges();
+	subtractMax(appointmentDay: any): void {
+		if (appointmentDay.max - 1 >= 0) {
+			appointmentDay.max = appointmentDay.max - 1 < 0 ? appointmentDay.max : appointmentDay.max - 1;
+			this.cdRef.detectChanges();
+			this.appointmentsService.updateMaxDb(appointmentDay, this.day);
+		}
 	}
 
 }

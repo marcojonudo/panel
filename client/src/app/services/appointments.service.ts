@@ -17,6 +17,8 @@ import {AppointmentType} from "../objects/appointment-type";
 import {Card} from "../objects/card";
 import {TimeService} from "./time.service";
 import {AppointmentDay} from "../objects/appointment-day";
+import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
+import {AppointmentsCounterUpdateSubtract} from "../objects/update-appointments-counter/appointments-counter-update-subtract";
 
 @Injectable({
 	providedIn: 'root'
@@ -48,62 +50,51 @@ export class AppointmentsService {
 
 	init(
 		appointmentTypes: AppointmentType[],
-		appointmentDays: AppointmentDay[],
+		appointmentDays: any[],
 		assignedDaysGroups: any,
 		unassignedGroups: CardsGroup[]
 	): void {
 		this.appointmentTypes = appointmentTypes;
-		this.appointmentDays = appointmentDays.map(appointmentDay => new AppointmentDay(appointmentDay));
+		this.appointmentDays = appointmentDays.map(appointmentDay => {
+			return new AppointmentDay(appointmentDay.appointmentType, appointmentDay.day, appointmentDay)
+		});
 
 		console.log('Appointment types', this.appointmentTypes);
 		console.log('Appointment days', this.appointmentDays);
 
-		this.initDaysAppointmentsMax(this.appointmentDays);
-		this.initDaysAppointmentsCounter(assignedDaysGroups);
+		this.initDaysAppointmentsCounter(this.appointmentDays, assignedDaysGroups);
 
 		console.log('Days appointments counter', this.daysAppointmentsCounter);
 	}
 
-	private initDaysAppointmentsMax(appointmentDays: AppointmentDay[]): void {
+	private initDaysAppointmentsCounter(
+		appointmentDays: AppointmentDay[],
+		assignedDaysGroups: any
+	): void {
 		appointmentDays.forEach((appointmentDay: AppointmentDay) => {
-			if (!this.daysAppointmentsCounter[appointmentDay.day.getTime()]) {
-				this.daysAppointmentsCounter[appointmentDay.day.getTime()] = this.initAppointmentsCounter();
+			const [time, code] = [appointmentDay.day.getTime(), appointmentDay.appointmentType.code];
+			if (!this.daysAppointmentsCounter[time]) {
+				this.daysAppointmentsCounter[time] = this.initAppointmentsCounter();
 			}
-			this.daysAppointmentsCounter[appointmentDay.day.getTime()][appointmentDay.appointmentType.code][this.MAX] =
-				appointmentDay.max;
-		})
-	}
-
-	private initDaysAppointmentsCounter(assignedDaysGroups: any): void {
-		for (const [dayTime, dayInfo] of Object.entries(assignedDaysGroups)) {
-			if (!this.daysAppointmentsCounter[dayTime]) {
-				this.daysAppointmentsCounter[dayTime] = this.initAppointmentsCounter();
-			}
-
-			for (const groups of Object.values(dayInfo)) {
-				groups.forEach(group => {
-					group.cards.forEach((card: Card) => {
-						if (this.daysAppointmentsCounter[dayTime][card.group.appointmentType.code] != undefined) {
-							const scheduleType = this.timeService.findTimeScheduleType(card.start);
-							this.daysAppointmentsCounter[dayTime][card.group.appointmentType.code][scheduleType] += 1;
-							this.daysAppointmentsCounter[dayTime][card.group.appointmentType.code][this.TOTAL] += 1;
-						}
-					})
-				});
+			this.daysAppointmentsCounter[time][code] = appointmentDay;
+		});
+		/* Además de los appointmentDays, se recorre también los grupos asignados, ya que contienen como key todos los
+		*  días posibles de horarios. De esta forma, si no hay información de citas para un día concreto, en este bucle
+		*  se creará la información vacía corresponciente */
+		for (const time of Object.keys(assignedDaysGroups)) {
+			if (!this.daysAppointmentsCounter[time]) {
+				this.daysAppointmentsCounter[time] = this.initAppointmentsCounter();
 			}
 		}
 	}
 
 	initAppointmentsCounter(
-		appointmentTypes: AppointmentType[] = this.appointmentTypes,
-		appointmentDays: AppointmentDay[] = this.appointmentDays
+		appointmentTypes: AppointmentType[] = this.appointmentTypes
 	): any {
 		const appointmentsCounter = {};
 		appointmentTypes.filter(appointmentType => appointmentType.counter)
 			.forEach((appointmentType: AppointmentType) => {
-				appointmentsCounter[appointmentType.code] = {
-					'MORNING': 0, 'AFTERNOON': 0, 'TOTAL': 0, 'MAX': 0
-				};
+				appointmentsCounter[appointmentType.code] = new AppointmentDay(appointmentType)
 			});
 		return appointmentsCounter;
 	}
@@ -130,8 +121,86 @@ export class AppointmentsService {
 
 	// endregion
 
+	updateAppointmentsCounter(cards: Card[]): void {
+		this.notifyAppointment(new AppointmentsCounterUpdateSubtract(cards[0].lastDay, cards));
+		this.notifyAppointment(new AppointmentsCounterUpdateAdd(cards[0].day, cards));
+
+		const daysAppointmentsDayCreate = [];
+		const daysAppointmentsDayUpdate = [];
+		cards.forEach((card: Card) => {
+			const appointmentTypeCode = card.group.appointmentType.code;
+			/* Si tiene lastDay, ya había sido asignada con anterioridad (no sale de la cinta) */
+			if (cards[0].lastDay) {
+				this.updateAppointmentDayUpdateList(
+					card.lastDay,
+					appointmentTypeCode,
+					daysAppointmentsDayCreate,
+					daysAppointmentsDayUpdate
+				)
+			}
+			/* Si tiene día, no está siendo bajada a la cinta */
+			if (cards[0].day) {
+				this.updateAppointmentDayUpdateList(
+					card.day,
+					appointmentTypeCode,
+					daysAppointmentsDayCreate,
+					daysAppointmentsDayUpdate
+				)
+			}
+		});
+
+		if (daysAppointmentsDayCreate.length) {
+			this.http.post(
+				`${environment.serverUrl}/panel/appointmentDay`,
+				daysAppointmentsDayCreate
+			).subscribe();
+		}
+		if (daysAppointmentsDayUpdate.length) {
+			this.http.put(
+				`${environment.serverUrl}/panel/appointmentDay/counters`,
+				daysAppointmentsDayUpdate
+			).subscribe();
+		}
+	}
+
+	private updateAppointmentDayUpdateList(
+		day: Date,
+		appointmentTypeCode: string,
+		createList: AppointmentDay[],
+		updateList: AppointmentDay[]
+	): void {
+		const appointmentDay = this.daysAppointmentsCounter[day.getTime()][appointmentTypeCode];
+		if (this.checkCreateAppointmentDay(appointmentDay)) {
+			appointmentDay.day = day;
+			createList.push(appointmentDay);
+		} else {
+			updateList.push(appointmentDay);
+		}
+	}
+
+	private checkCreateAppointmentDay(appointmentDay: AppointmentDay): boolean {
+		/* Si el AppointmentDay no tiene día, significa que no hay ningún registro en DB y es necesario crearlo,
+		*  no actualizarlo */
+		return appointmentDay.day == undefined;
+	}
+
 	notifyAppointment(counterUpdate: AppointmentsCounterUpdate): void {
 		this.appointmentsCounterSubject.next(counterUpdate);
+	}
+
+	updateMaxDb(appointmentDay: AppointmentDay, day: Date): void {
+		if (appointmentDay.day) {
+			this.http.put(
+				`${environment.serverUrl}/panel/appointmentDay/max`,
+				appointmentDay
+			).subscribe();
+		} else {
+			appointmentDay.day = day;
+			this.http.post(
+				`${environment.serverUrl}/panel/appointmentDay`,
+				[appointmentDay]
+			).subscribe();
+		}
 	}
 
 	findMechanicAppointmentByMechanic(

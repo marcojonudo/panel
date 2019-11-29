@@ -17,8 +17,7 @@ export class AppointmentsCounterUpdateSubtract implements AppointmentsCounterUpd
 		if (this.day) {
 			this.cards.forEach((card: Card) => {
 				const scheduleType = UtilsService.findScheduleType(card.lastStart, card.lastEnd);
-				daysAppointmentsCounter[this.day.getTime()][card.group.appointmentType.code][scheduleType] -= 1;
-				daysAppointmentsCounter[this.day.getTime()][card.group.appointmentType.code][Constants.APPOINTMENT_TOTAL] -= 1;
+				daysAppointmentsCounter[this.day.getTime()][card.group.appointmentType.code][`${scheduleType.toLowerCase()}`] -= 1;
 			});
 		}
 	}
