@@ -1,3 +1,7 @@
+:host {
+	position: absolute;
+}
+
 .skills-container {
 	background-color: #ffffff;
 }

@@ -10,6 +10,8 @@ import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
 import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
 import {CardsGroup} from "../../objects/cards-group";
+import {Skill} from "../../objects/skill";
+import {CommonService} from "../../services/common.service";
 
 @Component({
 	selector: 'app-main',
@@ -28,6 +30,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _assignedDaysCardsGroups: CardsGroup[];
 
+	private _skills: Skill[];
+
 	private _oneDayMode: boolean;
 	private _maxScheduleWidth: number;
 	private _maxScheduleHours: number[];
@@ -39,11 +43,13 @@ export class MainComponent implements OnInit, OnDestroy {
 	private oneDayModeSubscription: Subscription;
 	private maxScheduleWidthSubscription: Subscription;
 	private assignedCardsGroupsSubscription: Subscription;
+	private skillsSubscription: Subscription;
 
 	constructor(
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private cardsService: CardsService,
+		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.daysService.days;
@@ -56,6 +62,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
 
+		this.skills = [];
+
 		this.showNonexistentScheduleMessage = !this.checkTodayScheduleExists();
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 	}
@@ -67,6 +75,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			dayCardUpdate.update(this.assignedDaysCardsGroups);
 			this.cdRef.detectChanges();
 		});
+
 		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
 			this.oneDayMode = oneDayMode;
 			this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
@@ -89,6 +98,21 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.timeService.today,
 				lineHeight
 			);
+			this.cdRef.detectChanges();
+		});
+
+		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
+			if (skills.length) {
+				skills.forEach((parent: Skill) => {
+					this.skills.push(parent);
+					parent.children.forEach((child: Skill) => {
+						this.skills.push(child);
+					});
+				});
+			} else {
+				this.skills = skills;
+			}
+			this.showSkills = this.skills.length != 0;
 			this.cdRef.detectChanges();
 		});
 	}
@@ -177,12 +201,20 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._showSkills = value;
 	}
 
-	// endregion
-
-	setShowSkills(show: boolean): void {
-		this.showSkills = show;
-		this.cdRef.detectChanges();
+	get skills(): Skill[] {
+		return this._skills;
 	}
+
+	set skills(value: Skill[]) {
+		this._skills = value;
+	}
+
+	get skillsDetailsRight(): number {
+		console.log(Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH);
+		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
+	}
+
+	// endregion
 
 	private findDayCardsGroups(day: Date): any {
 		return this.assignedDaysCardsGroups[day.getTime()];

@@ -1,7 +1,7 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
 	<div
 		class="row assigned-orders-container">
-		<div class="col w-100 h-100 padding-0 d-flex">
+		<div class="col w-100 h-100 padding-0 d-flex parent-sections-container">
 			<div
 				class="d-flex flex-column"
 				[style.width.px]="dayContainerWidth"
@@ -39,7 +39,8 @@
 			</div>
 			<app-skills-details
 				*ngIf="showSkills"
-				(showSkills)="setShowSkills($event)"
+				[skills]="skills"
+				[style.right.px]="skillsDetailsRight"
 				class="h-100"></app-skills-details>
 			<app-tools-bar class="h-100"></app-tools-bar>
 		</div>

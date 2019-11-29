@@ -18,6 +18,10 @@
 	overflow: hidden;
 }
 
+.parent-sections-container {
+	position: relative;
+}
+
 .cdk-virtual-scroll-viewport {
 	overflow: visible;
 	contain: none;
