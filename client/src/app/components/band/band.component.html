@@ -3,15 +3,23 @@
 		<!--<button class="btn btn-outline-dark align-center padding-0">Ocultar</button>-->
 		<button class="btn btn-danger align-center padding-0">En curso</button>
 		<button class="btn btn-primary align-center padding-0">Cita previa</button>
+		<button class="btn btn-primary align-center padding-0">Pendientes</button>
 	</div>
 	<div
 		appDropzone
-		class="align-items-center flex-grow-1 unassigned-orders-cards-container d-flex pl-3">
+		class="flex-grow-1 unassigned-orders-cards-container"
+		[style.height.px]="unassignedBarHeight"
+		[type]="unassignedDropzoneType">
 		<app-draggable-group
-			*ngFor="let cardsGroup of unassignedCardsGroups; let i = index"
-			class="cards-height"
-			[ngClass]="{'mr-2': checkMarginBetweenGroups(cardsGroup, i)}"
-			[cardsGroup]="cardsGroup">
+			*ngFor="let group of unassignedCardsGroups; let i = index"
+			class="unassigned-card"
+			[ngClass]="{'hidden': checkHideGroup(group.id)}"
+			[ngStyle]="{
+				'height.px': lineDefaultHeight,
+				'transform': 'translateX(' + findGroupLeft(group.left, i) + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
+			}"
+			(hiddenCardsGroup)="setHiddenCardsGroup($event)"
+			[cardsGroup]="group">
 		</app-draggable-group>
 	</div>
 </div>

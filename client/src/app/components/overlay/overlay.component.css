@@ -1,4 +1,6 @@
-.overlay {
+:host {
+	width: 100%;
+	height: 100%;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -10,16 +12,3 @@
 	pointer-events: none;
 	z-index: 10;
 }
-
-.helper-card {
-	background-color: white !important;
-	/*border: 1px solid #000000;*/
-}
-
-.transform-transition {
-	transition: transform .2s;
-}
-
-/*.draggable {*/
-	/*transition: transform .25s ease-in-out, visibility 0s .2s;*/
-/*}*/

@@ -1,10 +1,11 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {CardPositionService} from "../../services/card-position.service";
-import {Card} from "../../objects/card";
 import {DaysService} from "../../services/days.service";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
+import {Subscription} from "rxjs/internal/Subscription";
+import {Coordinates} from "../../objects/coordinates";
 
 @Component({
 	selector: 'app-overlay',
@@ -14,9 +15,11 @@ import {Constants} from "../../objects/constants";
 })
 export class OverlayComponent implements OnInit, OnDestroy {
 
-	private coordinatesSubscription: any;
-	private draggingSubscription: any;
-	private helperCardsGroupSubscription: any;
+	private coordinates: Coordinates;
+
+	private coordinatesSubscription: Subscription;
+	private draggingSubscription: Subscription;
+	private helperCardsGroupSubscription: Subscription;
 
 	private _helperCardsGroup: CardsGroup;
 	private dragging: boolean;
@@ -30,6 +33,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.coordinatesSubscription = this.cardPositionService.coordinates$.subscribe(coordinates => {
+			this.coordinates = coordinates;
 			this.cdRef.detectChanges();
 		});
 
@@ -38,27 +42,10 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		this.draggingSubscription = this.cardPositionService.dragging$.subscribe(dragging => {
 			this.dragging = dragging;
 			this.cdRef.detectChanges();
-
-			/* Cuando se deja de arrastrar (dragging = false y helperCardsGroup = true), se elimina la ficha del origen. De esta
-			*  forma, se evitan problemas de parpadeos al modificar la propiedad 'visibility' para lograr los efectos
-			*  buscados */
-			if (!this.dragging && this.helperCardsGroup && this.cardPositionService.dropzone) {
-				this.cardsService.removeFromOrigin(this.helperCardsGroup);
-			}
 		});
 
 		/* Permite mostrar o eliminar la ficha auxiliar en pantalla */
 		this.helperCardsGroupSubscription = this.cardPositionService.helperCardsGroup$.subscribe(helperCardsGroup => {
-			/* Cuando se borra la ficha auxiliar (terminó la transición o se soltó la ficha en la barra inferior), se
-			*  ejecutan las operaciones necesarias para actualizar la ficha */
-			if (!helperCardsGroup && this.cardPositionService.dropzone) {
-				this.cardsService.updateTranslatedCards(
-					this.helperCardsGroup,
-					this.cardPositionService.dropzone.mechanic ? this.cardPositionService.dropzone.mechanic.day : undefined,
-					this.cardPositionService.dropzone.mechanic ? this.cardPositionService.dropzone.mechanic.code : undefined
-				);
-			}
-
 			this.helperCardsGroup = helperCardsGroup;
 			this.cdRef.detectChanges();
 		});
@@ -79,11 +66,15 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		this._helperCardsGroup = value;
 	}
 
-	// endregion
-
 	get lineHeight$() {
 		return this.daysService.lineHeight$;
 	}
+
+	get translateDuration(): number {
+		return Constants.VALUE.CARD_MOVEMENT_DURATION;
+	}
+
+	// endregion
 
 	check(): void {
 		if (Constants.CHECK) {
@@ -92,6 +83,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	}
 
 	updateCard() {
+		this.cardPositionService.hiddenGroup = undefined;
 		this.cardPositionService.emitHelperCardsGroup(undefined);
 	}
 

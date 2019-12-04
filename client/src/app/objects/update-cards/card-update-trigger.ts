@@ -1,7 +1,7 @@
 import {CardsGroup} from "../cards-group";
 import {CardUpdate} from "./card-update";
 
-export class CardUpdateWidth implements CardUpdate {
+export class CardUpdateTrigger implements CardUpdate {
 
 	newGroup: CardsGroup;
 

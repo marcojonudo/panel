@@ -1,25 +1,11 @@
-<div class="w-100 h-100 overlay">
-	<app-helper-draggable-group
-		*ngIf="helperCardsGroup"
-		appMovable
-		class="helper-cards-group transform-transition"
-		[ngClass]="{'transform-transition': !dragging}"
-		[style.height.px]="lineHeight$ | async"
-		[cardsGroup]="helperCardsGroup"
-		(transitionend)="updateCard()">
-	</app-helper-draggable-group>
-	<!--<div-->
-		<!--*ngIf="helperCardsGroup"-->
-		<!--appMovable-->
-		<!--class="d-flex helper-cards-group"-->
-		<!--[ngClass]="{'transform-transition': !dragging}"-->
-		<!--[style.height.px]="(lineHeight$ | async) / 2"-->
-		<!--(transitionend)="updateCard()">-->
-		<!--<app-helper-card-->
-			<!--*ngFor="let card of helperCardsGroup.cards"-->
-			<!--[card]="card"-->
-			<!--class="helper-card">-->
-		<!--</app-helper-card>-->
-	<!--</div>-->
-</div>
+<app-helper-draggable-group
+	*ngIf="helperCardsGroup"
+	appMovable
+	class="helper-cards-group"
+	[ngStyle]="{'transition': (dragging ? 'none' : 'transform') + ' ' + translateDuration + 'ms'}"
+	[style.height.px]="lineHeight$ | async"
+	[cardsGroup]="helperCardsGroup"
+	[coordinates]="coordinates"
+	(transitionend)="updateCard()">
+</app-helper-draggable-group>
 <div>{{check()}}</div>

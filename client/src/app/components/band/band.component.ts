@@ -7,6 +7,8 @@ import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
 import {CardUpdate} from "../../objects/update-cards/card-update";
 import {UtilsService} from "../../services/utils.service";
+import {DaysService} from "../../services/days.service";
+import {Subscription} from "rxjs/internal/Subscription";
 
 @Component({
 	selector: 'app-band',
@@ -35,17 +37,22 @@ import {UtilsService} from "../../services/utils.service";
 })
 export class BandComponent implements OnInit, OnDestroy {
 
+	private _unassignedCardRelativeTop: number;
 	private _unassignedCardsGroups: CardsGroup[];
 
-	private unassignedCardsGroupsSubscription;
+	private _hiddenCardsGroup: CardsGroup;
+
+	private unassignedCardsGroupsSubscription: Subscription;
 
 	constructor(
 		private timeService: TimeService,
+		private daysService: DaysService,
 		private cardPositionService: CardPositionService,
 		private cardsService: CardsService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.unassignedCardsGroups = [];
+		this.unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
 	}
 
 	ngOnInit(): void {
@@ -58,7 +65,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.unassignedCardsGroupsSubscription();
+		this.unassignedCardsGroupsSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -71,11 +78,47 @@ export class BandComponent implements OnInit, OnDestroy {
 		this._unassignedCardsGroups = value;
 	}
 
+	get unassignedDropzoneType(): string {
+		return Constants.DROPZONE_TYPE.UNASSIGNED;
+	}
+
+	get unassignedBarHeight(): number {
+		return Constants.VALUE.UNASSIGNED_BAR_HEIGHT;
+	}
+
+	get lineDefaultHeight() {
+		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
+	}
+
+	get unassignedCardRelativeTop(): number {
+		return this._unassignedCardRelativeTop;
+	}
+
+	set unassignedCardRelativeTop(value: number) {
+		this._unassignedCardRelativeTop = value;
+	}
+
+	get hiddenCardsGroup(): CardsGroup {
+		return this._hiddenCardsGroup;
+	}
+
+	set hiddenCardsGroup(value: CardsGroup) {
+		this._hiddenCardsGroup = value;
+	}
+
 	// endregion
 
-	checkMarginBetweenGroups(group: CardsGroup, index: number): boolean {
-		return index < this.unassignedCardsGroups.length-1 &&
-			group.cards[0].order.number != this.unassignedCardsGroups[index+1].cards[0].order.number;
+	findGroupLeft(left: number, index: number): number {
+		return left + (index + 1) * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS;
+	}
+
+	setHiddenCardsGroup(group: CardsGroup): void {
+		this.hiddenCardsGroup = group;
+		this.cdRef.detectChanges();
+	}
+
+	checkHideGroup(groupId: number): boolean {
+		return this.hiddenCardsGroup ? this.hiddenCardsGroup.id == groupId : false;
 	}
 
 	check() {

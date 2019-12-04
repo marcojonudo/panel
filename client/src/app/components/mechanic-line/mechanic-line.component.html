@@ -12,6 +12,7 @@
 	<div
 		class="h-100 d-flex schedule-line"
 		appDropzone
+		[type]="assignedDropzoneType"
 		[mechanic]="mechanic"
 		*ngFor="let interval of mechanic.schedule.intervals"
 		[ngStyle]="{

@@ -302,13 +302,24 @@ export class TimeService {
 		return durationIntervals * this.intervalWidth;
 	}
 
-	calcLeft(start: Date) {
+	calcLeftFromStart(start: Date) {
 		/* Se obtienen los minutos desde el inicio del horario, hasta start */
 		const relativeMinutes = this.getRelativeMinutesFromStart(start);
 		/* Se obtiene el número de intervalos correspondiente a los minutos */
 		const relativeIntervals = this.getIntervalsNumberFromDuration(relativeMinutes);
 		/* Se retorna el ancho en px */
 		return relativeIntervals * this.intervalWidth;
+	}
+
+	calcLeftFromCardsGroups(groupIndex: number, groups: CardsGroup[]) {
+		const previousWidth = this.findCardsGroupsWidth(groups.slice(0, groupIndex));
+		return (groups[0].left ? groups[0].left : 0) + previousWidth;
+	}
+
+	private findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
+		let cards = [];
+		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
+		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
 	}
 
 	// endregion

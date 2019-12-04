@@ -11,7 +11,7 @@ import {environment} from "../../environments/environment";
 import {CardUpdate} from "../objects/update-cards/card-update";
 import {CardUpdateAdd} from "../objects/update-cards/card-update-add";
 import {CardUpdateRemove} from "../objects/update-cards/card-update-remove";
-import {CardUpdateWidth} from "../objects/update-cards/card-update-width";
+import {CardUpdateTrigger} from "../objects/update-cards/card-update-trigger";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Schedule} from "../objects/schedule";
@@ -19,8 +19,10 @@ import {Subscription} from "rxjs/internal/Subscription";
 import {DayCardUpdate} from "../objects/update-days-cards/day-card-update";
 import {DayCardUpdateTrigger} from "../objects/update-days-cards/day-card-update-trigger";
 import {AppointmentsService} from "./appointments.service";
-import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
-import {AppointmentsCounterUpdateSubtract} from "../objects/update-appointments-counter/appointments-counter-update-subtract";
+import {AppointmentCardType} from "../objects/card-type/appointment-card-type";
+import {TodayCardType} from "../objects/card-type/today-card-type";
+import {PendingCardType} from "../objects/card-type/pending-card-type";
+import {CardType} from "../objects/card-type/card-type";
 
 @Injectable({
 	providedIn: 'root'
@@ -41,6 +43,7 @@ export class CardsService {
 	private _assignedDaysCardsGroups: any;
 	private _assignedCardsGroups: CardsGroup[];
 	private _unassignedCardsGroups: CardsGroup[];
+	private _unassignedTypesCardsGroups: any;
 
 	private _overlappedGroups: CardsGroup[];
 
@@ -63,6 +66,14 @@ export class CardsService {
 
 	set unassignedCardsGroups(value: CardsGroup[]) {
 		this._unassignedCardsGroups = value;
+	}
+
+	get unassignedTypesCardsGroups(): any {
+		return this._unassignedTypesCardsGroups;
+	}
+
+	set unassignedTypesCardsGroups(value: any) {
+		this._unassignedTypesCardsGroups = value;
 	}
 
 	get assignedCardsGroups(): CardsGroup[] {
@@ -114,6 +125,7 @@ export class CardsService {
 
 		this.unassignedCards = this.cards.filter(card => !card.day);
 		this.unassignedCardsGroups = this.initUnassignedCardsGroups(this.unassignedCards);
+		this.unassignedTypesCardsGroups = this.initUnassignedTypesCardsGroups(this.unassignedCardsGroups);
 
 		this.assignedCards = this.cards.filter(card => card.day);
 		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
@@ -124,15 +136,145 @@ export class CardsService {
 		this.unassignedCardsGroupsSubject = new Subject<CardUpdate>();
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
-		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
-			this.updateDimensions();
-			this.notifyAll();
-		});
+		// this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
+		// 	// this.updateDimensions();
+		// 	this.notifyAll();
+		// });
 
 		console.log('Cards', this.cards);
 		console.log('Unassigned cards groups', this.unassignedCardsGroups);
+		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
 		console.log('Assigned cards groups', this.assignedCardsGroups);
 		console.log('Assigned days cards groups', this.assignedDaysCardsGroups);
+	}
+
+	private initUnassignedCardsGroups(unassignedCards: Card[]): CardsGroup[] {
+		UtilsService.sort(unassignedCards, (c) => c.order.code);
+		let groups = [];
+		let processedCards = [];
+		for (let card of unassignedCards) {
+			const processed = processedCards.indexOf(card) > -1;
+			if (!processed) {
+				let linkedCards = this.findAllLinkedCards(unassignedCards, card);
+				groups.push(new CardsGroup(this.sortLinkedCards(linkedCards)));
+				processedCards = processedCards.concat(linkedCards);
+			}
+		}
+		return groups;
+	}
+
+	private initUnassignedTypesCardsGroups(groups: CardsGroup[]): any {
+		const types = [new AppointmentCardType(), new TodayCardType(), new PendingCardType()];
+		const unassignedCardsGroupsTypes = {};
+		types.forEach((type: CardType) => unassignedCardsGroupsTypes[type.type] = []);
+
+		groups.forEach((group: CardsGroup) => {
+			const type = types.find((type: CardType) => type.check(group)).type;
+			unassignedCardsGroupsTypes[type].push(group);
+		});
+		return unassignedCardsGroupsTypes;
+	}
+
+	private initAssignedCardsGroups(assignedCards: Card[]) {
+		let groups: CardsGroup[] = [];
+		let processedCards = [];
+		for (let card of assignedCards) {
+			const alreadyProcessedCard = processedCards.find(c => c.id == card.id);
+			if (!alreadyProcessedCard) {
+				const linkedCards = this.findAllLinkedCards(assignedCards, card);
+				groups.push(new CardsGroup(UtilsService.sort(linkedCards, (c) => c.start)));
+				processedCards = processedCards.concat(linkedCards);
+			}
+		}
+
+		return groups;
+	}
+
+	private findAllLinkedCards(cards: Card[], card: Card): Card[] {
+		return this.findPreviousCards(cards, card, [card]).concat(this.findNextCards(cards, card));
+	}
+
+	// endregion
+
+	// region Translate card
+
+	removeFromAssigned(cardsGroup: CardsGroup, day: Date, mechanicCode: string): any {
+		this.handleAssignedMovementGroupsLinks(
+			day,
+			mechanicCode,
+			cardsGroup.lastLine,
+			cardsGroup.lastStart,
+			cardsGroup.lastEnd
+		);
+		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
+	}
+
+	addToAssigned(cardsGroup: CardsGroup, day: Date, newMechanicCode: string): void {
+		/* Al añadir un grupo a una línea, se comprueba si tiene grupos al lado para activar o desactivar los
+		*  iconos de los enlaces */
+		this.handleAssignedMovementGroupsLinks(
+			day,
+			newMechanicCode,
+			cardsGroup.line,
+			cardsGroup.start,
+			cardsGroup.end
+		);
+		this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
+	}
+
+	removeFromUnassigned(group: CardsGroup): void {
+		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number);
+		this.handleRemoveUnassignedCardsGroup(group);
+	}
+
+	addToUnassigned(cardsGroup: CardsGroup): void {
+		this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number);
+		this.handleAddUnassignedCardsGroup(cardsGroup);
+	}
+
+	updateAssignedCards(
+		cardsGroup: CardsGroup,
+		day: Date = undefined,
+		newMechanicCode: string,
+		updateDb: boolean = true
+	) {
+		cardsGroup.cards.forEach(card => {
+			card.setDay(day);
+			card.setMechanicCode(newMechanicCode);
+		});
+
+		// this.appointmentsService.updateAppointmentsCounter(cardsGroup.cards);
+		// if (updateDb) {
+		// 	this.http.put(
+		// 		`${environment.serverUrl}/panel/cards/position`,
+		// 		cardsGroup.cards.concat(...this.overlappedGroups.map(g => g.cards))
+		// 	).subscribe();
+		//
+		// 	/* Si en un terminal se mueven fichas y hay solapadas, y después se actualiza en tiempo real de otro
+		// 	*  terminal distinto, las primeras fichas solapadas no deben tenerse en cuenta en este último caso. Por lo
+		// 	*  tanto, la lista debe resetearse una vez usada */
+		// 	this.overlappedGroups = [];
+		// }
+	}
+
+	resetCardsGroup(cardsGroup: CardsGroup) {
+		cardsGroup.left = undefined;
+
+		for (let card of cardsGroup.cards) {
+			this.resetCard(card);
+		}
+	}
+
+	private resetCard(card: Card): void {
+		card.setDay(undefined);
+		card.setMechanicCode(undefined);
+		// card.left = undefined;
+		card.setStart(undefined);
+		// card.end = undefined;
+	}
+
+	updateAppointmentsPanel(group: CardsGroup): void {
+		this.appointmentsService.updateAppointmentsCounter(group.cards);
 	}
 
 	removeFromOrigin(cardsGroup: CardsGroup): any {
@@ -303,9 +445,6 @@ export class CardsService {
 		return cards;
 	}
 
-	// endregion
-
-	// region Translate card
 
 	updateDbCardsDuration(cards: Card[]): void {
 		this.http.put(`${environment.serverUrl}/panel/cards/duration`, cards).subscribe();
@@ -351,7 +490,7 @@ export class CardsService {
 		let findGroups, createGroup, handleUpdate;
 		if (card.start) {
 			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
-			createGroup = (cards, group, cardIndex, offset) => new CardsGroup(cards, this.timeService.calcLeft(group.cards[cardIndex + offset].start));
+			createGroup = (cards, group, cardIndex, offset) => new CardsGroup(cards, this.timeService.calcLeftFromStart(group.cards[cardIndex + offset].start));
 			handleUpdate = (newGroup) => this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup)
 		} else {
 			findGroups = () => this.unassignedCardsGroups;
@@ -475,40 +614,6 @@ export class CardsService {
 		return groups.find(group => group.cards.find(card => card.id == cardId) != undefined);
 	}
 
-	private initUnassignedCardsGroups(unassignedCards: Card[]): CardsGroup[] {
-		UtilsService.sort(unassignedCards, (c) => c.order.code);
-		let groups = [];
-		let processedCards = [];
-		for (let card of unassignedCards) {
-			const processed = processedCards.indexOf(card) > -1;
-			if (!processed) {
-				let linkedCards = this.findAllLinkedCards(unassignedCards, card);
-				groups.push(new CardsGroup(this.sortLinkedCards(linkedCards)));
-				processedCards = processedCards.concat(linkedCards);
-			}
-		}
-		return groups;
-	}
-
-	private initAssignedCardsGroups(assignedCards: Card[]) {
-		let groups: CardsGroup[] = [];
-		let processedCards = [];
-		for (let card of assignedCards) {
-			const alreadyProcessedCard = processedCards.find(c => c.id == card.id);
-			if (!alreadyProcessedCard) {
-				const linkedCards = this.findAllLinkedCards(assignedCards, card);
-				groups.push(new CardsGroup(UtilsService.sort(linkedCards, (c) => c.start)));
-				processedCards = processedCards.concat(linkedCards);
-			}
-		}
-
-		return groups;
-	}
-
-	private findAllLinkedCards(cards: Card[], card: Card): Card[] {
-		return this.findPreviousCards(cards, card, [card]).concat(this.findNextCards(cards, card));
-	}
-
 	private findPreviousCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
 		if (card.linkedPreviousId) {
 			const previousCard = cards.find(c => c.id == card.linkedPreviousId);
@@ -555,24 +660,6 @@ export class CardsService {
 
 	// region Link handlers checks
 
-	private updateDimensions() {
-		this.unassignedCardsGroups.forEach((cardsGroup: CardsGroup) => {
-			cardsGroup.cards.forEach((card) => {
-				card.width = this.timeService.calcWidthFromDuration(card.duration);
-			});
-		});
-		for (let dayTime in this.assignedDaysCardsGroups) {
-			for (let mechanic in this.assignedDaysCardsGroups[dayTime]) {
-				this.assignedDaysCardsGroups[dayTime][mechanic].forEach((cardsGroup: CardsGroup) => {
-					cardsGroup.cards.forEach((card: Card) => {
-						card.width = this.timeService.calcWidthFromDuration(card.duration);
-					});
-					cardsGroup.left = this.timeService.calcLeft(cardsGroup.cards[0].start);
-				});
-			}
-		}
-	}
-
 	private addToDestiny(cardsGroup: CardsGroup, day: Date, newMechanicCode: string): void {
 		if (newMechanicCode) {
 			/* Al añadir un grupo a una línea, se comprueba si tiene grupos al lado para activar o desactivar los
@@ -613,22 +700,6 @@ export class CardsService {
 				card.possibleLinkedNextId = !card.possibleLinkedNextId;
 			});
 		});
-	}
-
-	private resetCardsGroup(cardsGroup: CardsGroup) {
-		cardsGroup.left = undefined;
-
-		for (let card of cardsGroup.cards) {
-			this.resetCard(card);
-		}
-	}
-
-	private resetCard(card: Card): void {
-		card.setDay(undefined);
-		card.setMechanicCode(undefined);
-		card.left = undefined;
-		card.setStart(undefined);
-		// card.end = undefined;
 	}
 
 	// endregion
@@ -749,12 +820,12 @@ export class CardsService {
 
 	// region Notify
 
-	private notifyAll(): void {
-		this.notifyUnassigned(new CardUpdateWidth());
+	notifyAll(): void {
+		this.notifyUnassigned();
 		this.notifyAssigned();
 	}
 
-	private notifyUnassigned(cardUpdate: CardUpdate): void {
+	notifyUnassigned(cardUpdate: CardUpdate = new CardUpdateTrigger()): void {
 		this.unassignedCardsGroupsSubject.next(cardUpdate);
 	}
 

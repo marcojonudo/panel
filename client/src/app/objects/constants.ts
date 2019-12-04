@@ -12,7 +12,10 @@ export class Constants {
 		MECHANIC_INFO_WIDTH: 180,
 		DAY_PANEL_WIDTH: 200,
 		TOOLS_BAR_WIDTH: 30,
-		CARD_MIN_DURATION: 10
+		CARD_MIN_DURATION: 10,
+		UNASSIGNED_BAR_HEIGHT: 75,
+		UNASSIGNED_MARGIN_BETWEEN_GROUPS: 10,
+		CARD_MOVEMENT_DURATION: 200
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
@@ -35,7 +38,17 @@ export class Constants {
 		STEP_30: 30,
 		STEP_45: 45,
 	};
-	public static readonly APPOINTMENT_TOTAL: string = 'TOTAL';
+	public static readonly CARD_TYPE: any = {
+		APPOINTMENT: 'APPOINTMENT',
+		TODAY: 'TODAY',
+		PENDING: 'PENDING'
+	};
+	public static readonly DROPZONE_TYPE: any = {
+		ASSIGNED: 'ASSIGNED',
+		UNASSIGNED: 'UNASSIGNED',
+		FINISH: 'FINISH'
+	};
+	public static readonly APPOINTMENT_CARD_TYPE_ID: string = "C";
 	public static readonly HOUR_MINUTES: number = 60;
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/", "/appointment"];
 	public static readonly MORNING_AFTERNOON_THRESHOLD_MINUTES: number = 900;

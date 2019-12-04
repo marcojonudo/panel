@@ -12,6 +12,7 @@ import {Constants} from "./objects/constants";
 import {CommonService} from "./services/common.service";
 import {RealTimeService} from "./services/real-time.service";
 import {AppointmentsService} from "./services/appointments.service";
+import {CardPositionService} from "./services/card-position.service";
 
 @Component({
 	selector: 'app-root',
@@ -29,6 +30,7 @@ export class AppComponent implements AfterViewInit {
 		private daysService: DaysService,
 		private timeService: TimeService,
 		private cardsService: CardsService,
+		private cardPositionService: CardPositionService,
 		private appointmentsService: AppointmentsService,
 		private realTimeService: RealTimeService,
 		private commonService: CommonService,
@@ -38,7 +40,7 @@ export class AppComponent implements AfterViewInit {
 		this.generateRandomId();
 		this.http.get(`${environment.serverUrl}/panel/get`)
 			.subscribe((data: any) => {
-				console.log(data);
+				console.log('Received data', data);
 
 				this.commonService.init(data.jobLineTypes, data.appointmentTypes);
 
@@ -47,6 +49,10 @@ export class AppComponent implements AfterViewInit {
 				this.timeService.init(this.daysService.daysMechanics);
 
 				this.cardsService.init(data.cards.map(card => new Card(card)));
+				this.cardPositionService.init(
+					this.cardsService.unassignedCardsGroups,
+					this.cardsService.assignedDaysCardsGroups
+				);
 				this.appointmentsService.init(
 					data.appointmentTypes,
 					data.appointmentDays,

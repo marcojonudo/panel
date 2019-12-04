@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Observable} from "rxjs/internal/Observable";
 import {Coordinates} from "../objects/coordinates";
@@ -11,6 +11,8 @@ import {DaysService} from "./days.service";
 import {Constants} from "../objects/constants";
 import {isNullOrUndefined} from "util";
 import {CardsService} from "./cards.service";
+import {DropzoneType} from "../objects/dropzone-type/dropzone-type";
+import {Subscription} from "rxjs/internal/Subscription";
 
 @Injectable({
 	providedIn: 'root'
@@ -20,7 +22,12 @@ export class CardPositionService {
 	// private scrollLeftSubject;
 	// scrollLeft$: Observable<number>;
 	private _dragging: boolean;
+	private _hiddenGroup: CardsGroup;
 	private _dropzone: DropzoneInfo;
+	private _destinyDropzone: DropzoneType;
+	private _originDropzone: DropzoneType;
+
+	private _unassignedCardTop: number;
 
 	private _initialScrollLeft: number;
 	private _initialScrollTop: number;
@@ -41,11 +48,19 @@ export class CardPositionService {
 	private draggingSubject: BehaviorSubject<boolean>;
 	private _dragging$: Observable<boolean>;
 
+	private maxScheduleWidthSubscription: Subscription;
+
 	constructor(
 		private cardsService: CardsService,
 		private timeService: TimeService,
 		private daysService: DaysService
 	) {
+		/* Este valor se utiliza para llevar a cabo una transición al soltar una ficha en la cinta. El top de una ficha
+		*  no asignada siempre es el mismo, y se toma como referencia window.innerHeight porque la transicíon se llevará
+		*  a cabo sobre la ficha auxiliar dentro del overlay (que ocupa toda la pantalla) */
+		const unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
+		this.unassignedCardTop = window.innerHeight - unassignedCardRelativeTop - Constants.VALUE.LINE_HEIGHT_DEFAULT;
+
 		this.initialScrollLeft = 0;
 		this.initialScrollTop = 0;
 		this.scrollLeft = 0;
@@ -63,6 +78,13 @@ export class CardPositionService {
 		this.dragging$ = this.draggingSubject.asObservable();
 	}
 
+	init(unassignedGroups: CardsGroup[], assignedDaysGroups: any): void {
+		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
+			this.updateDimensions(unassignedGroups, assignedDaysGroups);
+			this.cardsService.notifyAll();
+		});
+	}
+
 	// region Getters / setters
 
 	get dragging(): boolean {
@@ -73,12 +95,36 @@ export class CardPositionService {
 		this._dragging = value;
 	}
 
+	get hiddenGroup(): CardsGroup {
+		return this._hiddenGroup;
+	}
+
+	set hiddenGroup(value: CardsGroup) {
+		this._hiddenGroup = value;
+	}
+
 	get dropzone(): DropzoneInfo {
 		return this._dropzone;
 	}
 
 	set dropzone(value: DropzoneInfo) {
 		this._dropzone = value;
+	}
+
+	get originDropzone(): DropzoneType {
+		return this._originDropzone;
+	}
+
+	set originDropzone(value: DropzoneType) {
+		this._originDropzone = value;
+	}
+
+	get destinyDropzone(): DropzoneType {
+		return this._destinyDropzone;
+	}
+
+	set destinyDropzone(value: DropzoneType) {
+		this._destinyDropzone = value;
 	}
 
 	get position(): Coordinates {
@@ -169,6 +215,14 @@ export class CardPositionService {
 		this._relativeScrollTop = value;
 	}
 
+	get unassignedCardTop(): number {
+		return this._unassignedCardTop;
+	}
+
+	set unassignedCardTop(value: number) {
+		this._unassignedCardTop = value;
+	}
+
 	// endregion
 
 	// region Emitters
@@ -190,12 +244,55 @@ export class CardPositionService {
 
 	// endregion
 
+	// region Update dimensions
+
+	private updateDimensions(unassignedGroups: CardsGroup[], daysGroups: any) {
+		this.updateUnassignedDimensions(unassignedGroups);
+		this.updateAssignedDimensions(daysGroups);
+	}
+
+	updateUnassignedDimensions(groups: CardsGroup[]): void {
+		groups.forEach((cardsGroup: CardsGroup, i: number) => {
+			cardsGroup.cards.forEach((card) => {
+				card.width = this.timeService.calcWidthFromDuration(card.duration);
+			});
+			cardsGroup.left = this.timeService.calcLeftFromCardsGroups(i, groups);
+		});
+	}
+
+	updateAssignedDimensions(daysGroups: any): void {
+		for (let dayTime in daysGroups) {
+			for (let mechanic in daysGroups[dayTime]) {
+				daysGroups[dayTime][mechanic].forEach((cardsGroup: CardsGroup) => {
+					cardsGroup.cards.forEach((card: Card) => {
+						card.width = this.timeService.calcWidthFromDuration(card.duration);
+					});
+					cardsGroup.left = this.timeService.calcLeftFromStart(cardsGroup.cards[0].start);
+				});
+			}
+		}
+	}
+
+	// endregion
+
 	// region Handle position updates
 
-	handleLinePosition(
+	handleUnassignedPosition(
+		group: CardsGroup,
+		groups: CardsGroup[] = this.cardsService.unassignedCardsGroups
+	): Coordinates {
+		this.updateUnassignedDimensions(groups);
+		const groupIndex = groups.indexOf(group);
+		return new Coordinates(
+			group.left + (groupIndex + 1) * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS,
+			this.unassignedCardTop
+		);
+	}
+
+	handleAssignedPosition(
 		lastPosition: Coordinates,
-		intervalWidth: number,
 		dayMechanicCardsGroups: CardsGroup[],
+		intervalWidth: number = this.timeService.intervalWidth,
 		cardsGroup: CardsGroup = this.helperCardsGroup
 	): Coordinates {
 		/* Para simplificar las operaciones, a medida que avanza el método se van actualizando propiedades como left.
@@ -400,17 +497,17 @@ export class CardPositionService {
 		);
 	}
 
-	private findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
-		let cards = [];
-		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
-		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
-	}
-
 	private calcLeft(cardsGroups: CardsGroup[]) {
 		cardsGroups.forEach((cardsGroup, index) => {
 			const width = this.findCardsGroupsWidth(cardsGroups.slice(0, index));
 			cardsGroup.left = cardsGroups[0].left + width;
 		});
+	}
+
+	private findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
+		let cards = [];
+		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
+		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
 	}
 
 	private updatePositionProperties(groups: CardsGroup[], clonedGroups: CardsGroup[], day: Date, line: number) {

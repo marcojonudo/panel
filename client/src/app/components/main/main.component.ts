@@ -210,7 +210,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	get skillsDetailsRight(): number {
-		console.log(Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH);
 		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
 	}
 

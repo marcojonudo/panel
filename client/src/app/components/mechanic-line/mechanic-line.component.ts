@@ -8,6 +8,7 @@ import {CardUpdate} from "../../objects/update-cards/card-update";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
+import {CardPositionService} from "../../services/card-position.service";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -31,6 +32,7 @@ export class MechanicLineComponent {
 	constructor(
 		private timeService: TimeService,
 		private cardsService: CardsService,
+		private cardPositionService: CardPositionService,
 		private daysService: DaysService,
 		private cdRef: ChangeDetectorRef
 	) {
@@ -61,6 +63,10 @@ export class MechanicLineComponent {
 		return +(this.timeService.intervalWidth * 3).toFixed(2);
 	}
 
+	get assignedDropzoneType(): string {
+		return Constants.DROPZONE_TYPE.ASSIGNED;
+	}
+
 	// endregion
 
 	calcScheduleWidth(duration: number): number {
@@ -68,7 +74,7 @@ export class MechanicLineComponent {
 	}
 
 	calcScheduleLeft(start: Date): number {
-		return start ? this.timeService.calcLeft(start) : 0;
+		return start ? this.timeService.calcLeftFromStart(start) : 0;
 	}
 
 	calcScheduleLineBackground(quarters: number[]): any {
@@ -94,12 +100,12 @@ export class MechanicLineComponent {
 	}
 
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {
-		this.hiddenCardsGroup = cardsGroup;
+		this.cardPositionService.hiddenGroup = cardsGroup;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(groupId: number): boolean {
-		return this.hiddenCardsGroup ? this.hiddenCardsGroup.id == groupId : false;
+		return this.cardPositionService.hiddenGroup ? this.cardPositionService.hiddenGroup.id == groupId : false;
 	}
 
 	trackByItem(index, item) {
