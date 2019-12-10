@@ -10,12 +10,12 @@ import {
 	Renderer2
 } from '@angular/core';
 import {CardPositionService} from "../services/card-position.service";
-import {DropzoneInfo} from "../objects/dropzone-info";
 import {Mechanic} from "../objects/mechanic";
-import {DropzoneType} from "../objects/dropzone-type/dropzone-type";
+import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Constants} from "../objects/constants";
-import {AssignedDropzoneType} from "../objects/dropzone-type/assigned-dropzone-type";
-import {UnassignedDropzoneType} from "../objects/dropzone-type/unassigned-dropzone-type";
+import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
+import {UnassignedDropzone} from "../objects/dropzone-type/unassigned-dropzone";
+import {CardsService} from "../services/cards.service";
 
 @Directive({
 	selector: '[appDropzone]'
@@ -28,10 +28,10 @@ export class DropzoneDirective implements OnInit {
 	//TODO Revisar comportamiento dragging
 	@HostBinding('class.dropzone-dragging') entered: boolean;
 
-	private dropzone: DropzoneInfo;
-	private dropzone2: DropzoneType;
+	// private dropzone: DropzoneInfo;
+	private dropzone: Dropzone;
 
-	private readonly DROPZONE_TYPE: any;
+	private readonly DROPZONE_TYPE: { [key: string]: (() => Dropzone) };
 
 	private pointerMoveListener: any;
 	private pointerLeaveListener: any;
@@ -39,21 +39,22 @@ export class DropzoneDirective implements OnInit {
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
-		private changeDetectorRef: ChangeDetectorRef,
-		private cardPositionService: CardPositionService
+		private cdRef: ChangeDetectorRef,
+		private cardPositionService: CardPositionService,
+		private cardsService: CardsService
 	) {
 		this.DROPZONE_TYPE = {};
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] = () => new AssignedDropzoneType(this.mechanic);
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] = () => new UnassignedDropzoneType();
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] = () => new AssignedDropzone(this.cardPositionService, this.cardsService, this.mechanic);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] = () => new UnassignedDropzone(this.cardPositionService, this.cardsService);
 	}
 
 	ngOnInit() {
-		this.dropzone2 = this.DROPZONE_TYPE[this.type]();
+		this.dropzone = this.DROPZONE_TYPE[this.type]();
 		this.cardPositionService.dragging$.subscribe(dragging => {
 			if (dragging) {
 				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
 				this.pointerLeaveListener = this.renderer.listen(this.element.nativeElement, 'pointerleave', this.onPointerLeave.bind(this));
-				this.dropzone = new DropzoneInfo(this.mechanic, this.element.nativeElement.getBoundingClientRect());
+				this.dropzone.rect = this.element.nativeElement.getBoundingClientRect();
 			} else {
 				if (this.pointerMoveListener) {
 					this.pointerMoveListener();
@@ -65,14 +66,12 @@ export class DropzoneDirective implements OnInit {
 
 	onPointerMove(): void {
 		if (!this.cardPositionService.originDropzone) {
-			this.cardPositionService.originDropzone = this.dropzone2;
+			this.cardPositionService.originDropzone = this.dropzone;
 		}
-		this.cardPositionService.dropzone = this.dropzone;
-		this.cardPositionService.destinyDropzone = this.dropzone2;
+		this.cardPositionService.destinyDropzone = this.dropzone;
 	}
 
 	onPointerLeave(): void {
-		this.cardPositionService.dropzone = undefined;
 		this.cardPositionService.destinyDropzone = undefined;
 	}
 

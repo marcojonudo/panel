@@ -4,7 +4,7 @@ import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
 import {DaysService} from "../../services/days.service";
 import {CardsGroup} from "../../objects/cards-group";
-import {CardUpdate} from "../../objects/update-cards/card-update";
+import {UnassignedCardUpdate} from "../../objects/update-cards/unassigned-card-update";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";

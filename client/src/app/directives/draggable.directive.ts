@@ -12,7 +12,6 @@ import {Coordinates} from "../objects/coordinates";
 import {CardPositionService} from "../services/card-position.service";
 import {TimeService} from "../services/time.service";
 import {Card} from "../objects/card";
-import {DropzoneInfo} from "../objects/dropzone-info";
 import {CardsGroup} from "../objects/cards-group";
 import {CardsService} from "../services/cards.service";
 import {Constants} from "../objects/constants";
@@ -64,10 +63,12 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		/* Temporizador usado al desplazar una ficha. Cuando se crea un grupo en una línea, se debe esperar a que
 		*  termine la transición para mostrarla. Si no, aparecería un duplicado de la ficha (la recién creada en las
 		*  listas de fichas) mientras la helper termina la transición */
-		setTimeout(
-			() => this.hiddenCardsGroup.emit(undefined),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
-		);
+		// setTimeout(
+		// 	() => {
+		// 		this.hiddenCardsGroup.emit(undefined)
+		// 	},
+		// 		Constants.VALUE.CARD_MOVEMENT_DURATION
+		// );
 	}
 
 	ngAfterViewChecked(): void {
@@ -111,7 +112,8 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 		/* Si emitHelperCard es true, se emite el evento inmediatamente en lugar de al terminar la transición en
 		*  overlay. Significa que la ficha se soltó en la barra inferior */
-		this.handleDestinyPosition();
+		this.position = this.cardPositionService.handleDestinyPosition(this.position, this.startPosition);
+
 		/* Se emite la última posición ya redondeada */
 		this.cardPositionService.emitPosition(this.position);
 
@@ -121,20 +123,10 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 		this.pointerMoveListener();
 		this.pointerUpListener();
-	}
 
-	private handleDestinyPosition(): void {
-		if (this.cardPositionService.destinyDropzone) {
-			this.cardPositionService.originDropzone.removeGroup(this.cardsService, this.cardPositionService.helperCardsGroup);
-			this.position = this.cardPositionService.destinyDropzone.addGroup(
-				this.cardPositionService,
-				this.cardsService,
-				this.cardPositionService.helperCardsGroup,
-				this.position
-			);
-		} else {
-			this.position = this.startPosition;
-		}
+		// TODO Revisar hiddenGroup y comprobar si hace falta emitter
+		this.cardPositionService.hiddenGroup = undefined;
+		this.cardPositionService.originDropzone = undefined;
 	}
 
 }

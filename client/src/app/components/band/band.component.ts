@@ -5,10 +5,11 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
-import {CardUpdate} from "../../objects/update-cards/card-update";
+import {UnassignedCardUpdate} from "../../objects/update-cards/unassigned-card-update";
 import {UtilsService} from "../../services/utils.service";
 import {DaysService} from "../../services/days.service";
 import {Subscription} from "rxjs/internal/Subscription";
+import {GroupedTypeCards} from "../../objects/grouped-type-cards";
 
 @Component({
 	selector: 'app-band',
@@ -38,9 +39,10 @@ import {Subscription} from "rxjs/internal/Subscription";
 export class BandComponent implements OnInit, OnDestroy {
 
 	private _unassignedCardRelativeTop: number;
-	private _unassignedCardsGroups: CardsGroup[];
+	private _unassignedTypesCardsGroups: GroupedTypeCards;
 
-	private _hiddenCardsGroup: CardsGroup;
+	private _cardTypes: string[];
+	private _type: string;
 
 	private unassignedCardsGroupsSubscription: Subscription;
 
@@ -51,17 +53,23 @@ export class BandComponent implements OnInit, OnDestroy {
 		private cardsService: CardsService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.unassignedCardsGroups = [];
 		this.unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
+
+		this.cardTypes = [Constants.CARD_TYPE.TODAY, Constants.CARD_TYPE.APPOINTMENT, Constants.CARD_TYPE.PENDING];
+		this.type = Constants.CARD_TYPE.APPOINTMENT;
 	}
 
 	ngOnInit(): void {
-		this.unassignedCardsGroups = this.cardsService.unassignedCardsGroups;
-		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$.subscribe((cardUpdate: CardUpdate) => {
-			cardUpdate.update(this.unassignedCardsGroups);
-			UtilsService.sort(this.unassignedCardsGroups, (g) => g.cards[0].order.code);
-			this.cdRef.detectChanges();
-		});
+		this.unassignedTypesCardsGroups = this.cardsService.unassignedTypesCardsGroups;
+		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$
+			.subscribe((cardUpdate: UnassignedCardUpdate) => {
+				if (cardUpdate.type) {
+					this.cardPositionService.updateUnassignedTypeLeft(cardUpdate.type);
+				} else {
+					this.cardPositionService.updateUnassignedLeft();
+				}
+				this.cdRef.detectChanges();
+			});
 	}
 
 	ngOnDestroy(): void {
@@ -70,12 +78,28 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	// region Getters / setters
 
-	get unassignedCardsGroups(): CardsGroup[] {
-		return this._unassignedCardsGroups;
+	get unassignedTypesCardsGroups(): GroupedTypeCards {
+		return this._unassignedTypesCardsGroups;
 	}
 
-	set unassignedCardsGroups(value: CardsGroup[]) {
-		this._unassignedCardsGroups = value;
+	set unassignedTypesCardsGroups(value: GroupedTypeCards) {
+		this._unassignedTypesCardsGroups = value;
+	}
+
+	get cardTypes(): string[] {
+		return this._cardTypes;
+	}
+
+	set cardTypes(value: string[]) {
+		this._cardTypes = value;
+	}
+
+	get type(): string {
+		return this._type;
+	}
+
+	set type(value: string) {
+		this._type = value;
 	}
 
 	get unassignedDropzoneType(): string {
@@ -98,12 +122,16 @@ export class BandComponent implements OnInit, OnDestroy {
 		this._unassignedCardRelativeTop = value;
 	}
 
-	get hiddenCardsGroup(): CardsGroup {
-		return this._hiddenCardsGroup;
+	get todayType(): string {
+		return Constants.CARD_TYPE.TODAY;
 	}
 
-	set hiddenCardsGroup(value: CardsGroup) {
-		this._hiddenCardsGroup = value;
+	get appointmentType(): string {
+		return Constants.CARD_TYPE.APPOINTMENT;
+	}
+
+	get pendingType(): string {
+		return Constants.CARD_TYPE.PENDING;
 	}
 
 	// endregion
@@ -112,18 +140,27 @@ export class BandComponent implements OnInit, OnDestroy {
 		return left + (index + 1) * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS;
 	}
 
+	setType(type: string): void {
+		this.type = type;
+		this.cdRef.detectChanges();
+	}
+
+	findUnassignedTypeGroups(type: string = this.type): CardsGroup[] {
+		return this.unassignedTypesCardsGroups[type];
+	}
+
 	setHiddenCardsGroup(group: CardsGroup): void {
-		this.hiddenCardsGroup = group;
+		this.cardPositionService.hiddenGroup = group;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(groupId: number): boolean {
-		return this.hiddenCardsGroup ? this.hiddenCardsGroup.id == groupId : false;
+		return this.cardPositionService.hiddenGroup ? this.cardPositionService.hiddenGroup.id == groupId : false;
 	}
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking band')
+			console.log('checking band', this.unassignedTypesCardsGroups)
 		}
 	}
 

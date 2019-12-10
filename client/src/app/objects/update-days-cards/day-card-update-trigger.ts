@@ -1,5 +1,5 @@
 import {CardsGroup} from "../cards-group";
-import {CardUpdate} from "../update-cards/card-update";
+import {UnassignedCardUpdate} from "../update-cards/unassigned-card-update";
 import {DayCardUpdate} from "./day-card-update";
 
 export class DayCardUpdateTrigger implements DayCardUpdate {

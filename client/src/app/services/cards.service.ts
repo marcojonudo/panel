@@ -8,21 +8,15 @@ import {CardsGroup} from "../objects/cards-group";
 import {HttpClient} from "@angular/common/http";
 import {Subject} from "rxjs/internal/Subject";
 import {environment} from "../../environments/environment";
-import {CardUpdate} from "../objects/update-cards/card-update";
-import {CardUpdateAdd} from "../objects/update-cards/card-update-add";
-import {CardUpdateRemove} from "../objects/update-cards/card-update-remove";
-import {CardUpdateTrigger} from "../objects/update-cards/card-update-trigger";
+import {UnassignedCardUpdate} from "../objects/update-cards/unassigned-card-update";
+import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Schedule} from "../objects/schedule";
-import {Subscription} from "rxjs/internal/Subscription";
 import {DayCardUpdate} from "../objects/update-days-cards/day-card-update";
 import {DayCardUpdateTrigger} from "../objects/update-days-cards/day-card-update-trigger";
 import {AppointmentsService} from "./appointments.service";
-import {AppointmentCardType} from "../objects/card-type/appointment-card-type";
-import {TodayCardType} from "../objects/card-type/today-card-type";
-import {PendingCardType} from "../objects/card-type/pending-card-type";
-import {CardType} from "../objects/card-type/card-type";
+import {GroupedTypeCards} from "../objects/grouped-type-cards";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,18 +30,16 @@ export class CardsService {
 	private assignedCardsGroupsSubject: Subject<DayCardUpdate>;
 	private _assignedCardsGroups$: Observable<DayCardUpdate>;
 
-	private unassignedCardsGroupsSubject: Subject<CardUpdate>;
-	private _unassignedCardsGroups$: Observable<CardUpdate>;
+	private unassignedCardsGroupsSubject: Subject<UnassignedCardUpdate>;
+	private _unassignedCardsGroups$: Observable<UnassignedCardUpdate>;
 
 	private _assignedDaysCardsGroups$: any;
 	private _assignedDaysCardsGroups: any;
 	private _assignedCardsGroups: CardsGroup[];
 	private _unassignedCardsGroups: CardsGroup[];
-	private _unassignedTypesCardsGroups: any;
+	private _unassignedTypesCardsGroups: GroupedTypeCards;
 
 	private _overlappedGroups: CardsGroup[];
-
-	private maxScheduleWidthSubscription: Subscription;
 
 	constructor(
 		private daysService: DaysService,
@@ -68,11 +60,11 @@ export class CardsService {
 		this._unassignedCardsGroups = value;
 	}
 
-	get unassignedTypesCardsGroups(): any {
+	get unassignedTypesCardsGroups(): GroupedTypeCards {
 		return this._unassignedTypesCardsGroups;
 	}
 
-	set unassignedTypesCardsGroups(value: any) {
+	set unassignedTypesCardsGroups(value: GroupedTypeCards) {
 		this._unassignedTypesCardsGroups = value;
 	}
 
@@ -108,11 +100,11 @@ export class CardsService {
 		this._overlappedGroups = value;
 	}
 
-	get unassignedCardsGroups$(): Observable<CardUpdate> {
+	get unassignedCardsGroups$(): Observable<UnassignedCardUpdate> {
 		return this._unassignedCardsGroups$;
 	}
 
-	set unassignedCardsGroups$(value: Observable<CardUpdate>) {
+	set unassignedCardsGroups$(value: Observable<UnassignedCardUpdate>) {
 		this._unassignedCardsGroups$ = value;
 	}
 
@@ -133,7 +125,7 @@ export class CardsService {
 		this.assignedCardsGroupsSubject = new Subject<DayCardUpdate>();
 		this.assignedCardsGroups$ = this.assignedCardsGroupsSubject.asObservable();
 
-		this.unassignedCardsGroupsSubject = new Subject<CardUpdate>();
+		this.unassignedCardsGroupsSubject = new Subject<UnassignedCardUpdate>();
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
 		// this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
@@ -164,15 +156,16 @@ export class CardsService {
 	}
 
 	private initUnassignedTypesCardsGroups(groups: CardsGroup[]): any {
-		const types = [new AppointmentCardType(), new TodayCardType(), new PendingCardType()];
-		const unassignedCardsGroupsTypes = {};
-		types.forEach((type: CardType) => unassignedCardsGroupsTypes[type.type] = []);
+		const unassignedTypesCardsGroups = {};
 
 		groups.forEach((group: CardsGroup) => {
-			const type = types.find((type: CardType) => type.check(group)).type;
-			unassignedCardsGroupsTypes[type].push(group);
+			const type = group.cards[0].type;
+			if (!unassignedTypesCardsGroups[type]) {
+				unassignedTypesCardsGroups[type] = [];
+			}
+			unassignedTypesCardsGroups[type].push(group);
 		});
-		return unassignedCardsGroupsTypes;
+		return unassignedTypesCardsGroups;
 	}
 
 	private initAssignedCardsGroups(assignedCards: Card[]) {
@@ -222,14 +215,14 @@ export class CardsService {
 		this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
 	}
 
-	removeFromUnassigned(group: CardsGroup): void {
-		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number);
-		this.handleRemoveUnassignedCardsGroup(group);
+	removeFromUnassigned(group: CardsGroup, notify: boolean = true): void {
+		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type);
+		this.handleRemoveUnassignedCardsGroup(group, notify);
 	}
 
-	addToUnassigned(cardsGroup: CardsGroup): void {
-		this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number);
-		this.handleAddUnassignedCardsGroup(cardsGroup);
+	addToUnassigned(group: CardsGroup): void {
+		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type);
+		this.handleAddUnassignedCardsGroup(group);
 	}
 
 	updateAssignedCards(
@@ -290,7 +283,7 @@ export class CardsService {
 
 			this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, cardsGroup);
 		} else {
-			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number);
+			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type);
 			this.handleRemoveUnassignedCardsGroup(cardsGroup);
 		}
 	}
@@ -334,8 +327,8 @@ export class CardsService {
 		group.cards.forEach((card, index) => {
 			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setLine(line);
-			card.setStart(this.timeService.calcStart(
-				group.left + this.timeService.calcWidthFromDuration(leftCardsDuration),
+			card.setStart(
+				this.timeService.calcStart(group.left + this.timeService.calcWidthFromDuration(leftCardsDuration),
 				day
 			));
 			// card.end = UtilsService.addMinutes(card.start, card.duration);
@@ -462,24 +455,26 @@ export class CardsService {
 
 	handleAddUnassignedCardsGroup(group: CardsGroup): void {
 		this.addUnassignedCardsGroup(group);
-		this.notifyUnassigned(new CardUpdateAdd(group));
+		this.notifyUnassigned(new UnassignedCardUpdateTrigger(group));
 	}
 
-	handleRemoveUnassignedCardsGroup(group: CardsGroup): void {
+	handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {
 		this.removeUnassignedCardsGroup(group);
-		this.notifyUnassigned(new CardUpdateRemove(group));
+		if (notify) {
+			this.notifyUnassigned(new UnassignedCardUpdateTrigger(group));
+		}
 	}
 
 	findLeftNextCard(card: Card): Card {
 		return card.start ?
 			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
-			this.findLeftUnassignedNextCard(card.id);
+			this.findLeftUnassignedNextCard(card.id, card.type);
 	}
 
 	findRightNextCard(card: Card): Card {
 		return card.start ?
 			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
-			this.findRightUnassignedNextCard(card.id);
+			this.findRightUnassignedNextCard(card.id, card.type);
 	}
 
 	// endregion
@@ -493,7 +488,7 @@ export class CardsService {
 			createGroup = (cards, group, cardIndex, offset) => new CardsGroup(cards, this.timeService.calcLeftFromStart(group.cards[cardIndex + offset].start));
 			handleUpdate = (newGroup) => this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup)
 		} else {
-			findGroups = () => this.unassignedCardsGroups;
+			findGroups = () => this.unassignedTypesCardsGroups[card.type];
 			createGroup = (cards) => new CardsGroup(cards);
 			handleUpdate = (newGroup) => this.handleAddUnassignedCardsGroup(newGroup)
 		}
@@ -546,7 +541,7 @@ export class CardsService {
 			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
 			handleUpdate = (group) => this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, group)
 		} else {
-			findGroups = () => this.unassignedCardsGroups;
+			findGroups = () => this.unassignedTypesCardsGroups[card.type];
 			handleUpdate = (group) => this.handleRemoveUnassignedCardsGroup(group)
 		}
 
@@ -572,7 +567,7 @@ export class CardsService {
 			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
 			handleUpdate = (group) => this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, group)
 		} else {
-			findGroups = () => this.unassignedCardsGroups;
+			findGroups = () => this.unassignedTypesCardsGroups[card.type];
 			handleUpdate = (group) => this.handleRemoveUnassignedCardsGroup(group)
 		}
 		const groups = findGroups();
@@ -673,7 +668,7 @@ export class CardsService {
 			);
 			this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
 		} else {
-			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number);
+			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type);
 			this.handleAddUnassignedCardsGroup(cardsGroup);
 		}
 	}
@@ -692,8 +687,8 @@ export class CardsService {
 		}
 	}
 
-	private handleUnassignedMovementGroupsLinks(orderNumber: number): void {
-		const orderGroups = this.findOrderGroups(this.unassignedCardsGroups, orderNumber);
+	private handleUnassignedMovementGroupsLinks(orderNumber: number, type: string): void {
+		const orderGroups = this.findOrderGroups(this.unassignedTypesCardsGroups[type], orderNumber);
 		orderGroups.forEach(group => {
 			group.cards.forEach(card => {
 				card.possibleLinkedPreviousId = !card.possibleLinkedPreviousId;
@@ -725,12 +720,13 @@ export class CardsService {
 	}
 
 	private addUnassignedCardsGroup(group: CardsGroup): void {
-		this.unassignedCardsGroups = this.unassignedCardsGroups.concat([group]);
-		UtilsService.sort(this.unassignedCardsGroups, (g) => g.cards[0].order.code);
+		this.unassignedTypesCardsGroups[group.type] = this.unassignedTypesCardsGroups[group.type].concat([group]);
+		UtilsService.sort(this.unassignedTypesCardsGroups[group.type], (g) => g.cards[0].order.code);
 	}
 
 	private removeUnassignedCardsGroup(group: CardsGroup): void {
-		this.unassignedCardsGroups = this.unassignedCardsGroups.filter(g => g.id != group.id);
+		const index = this.unassignedTypesCardsGroups[group.type].findIndex(g => g.id == group.id);
+		this.unassignedTypesCardsGroups[group.type].splice(index, 1);
 	}
 
 	// endregion
@@ -749,24 +745,24 @@ export class CardsService {
 		});
 	}
 
-	private findLeftUnassignedNextCard(id: number): Card {
-		const group = this.findCardGroup(this.unassignedCardsGroups, id);
+	private findLeftUnassignedNextCard(id: number, type: string): Card {
+		const group = this.findCardGroup(this.unassignedTypesCardsGroups[type], id);
 		const cardIndex = group.cards.findIndex(card => card.id == id);
 		if (cardIndex > 0) {
 			return group.cards[cardIndex - 1];
 		} else {
-			const leftGroup = this.findLeftOrderGroup(this.unassignedCardsGroups, group.id, group.cards[0].order.number);
+			const leftGroup = this.findLeftOrderGroup(this.unassignedTypesCardsGroups[type], group.id, group.cards[0].order.number);
 			return leftGroup ? leftGroup.cards[leftGroup.cards.length - 1] : undefined;
 		}
 	}
 
-	private findRightUnassignedNextCard(id: number): Card {
-		const group = this.findCardGroup(this.unassignedCardsGroups, id);
+	private findRightUnassignedNextCard(id: number, type: string): Card {
+		const group = this.findCardGroup(this.unassignedTypesCardsGroups[type], id);
 		const cardIndex = group.cards.findIndex(card => card.id == id);
 		if (cardIndex < group.cards.length - 1) {
 			return group.cards[cardIndex + 1];
 		} else {
-			const rightGroup = this.findRightOrderGroup(this.unassignedCardsGroups, group.id, group.cards[0].order.number);
+			const rightGroup = this.findRightOrderGroup(this.unassignedTypesCardsGroups[type], group.id, group.cards[0].order.number);
 			return rightGroup ? rightGroup.cards[0] : undefined;
 		}
 	}
@@ -825,11 +821,11 @@ export class CardsService {
 		this.notifyAssigned();
 	}
 
-	notifyUnassigned(cardUpdate: CardUpdate = new CardUpdateTrigger()): void {
+	notifyUnassigned(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger(this.unassignedCardsGroups[0])): void {
 		this.unassignedCardsGroupsSubject.next(cardUpdate);
 	}
 
-	private notifyAssigned(dayCardUpdate: DayCardUpdate = new DayCardUpdateTrigger()): void {
+	notifyAssigned(dayCardUpdate: DayCardUpdate = new DayCardUpdateTrigger()): void {
 		this.assignedCardsGroupsSubject.next(dayCardUpdate);
 	}
 

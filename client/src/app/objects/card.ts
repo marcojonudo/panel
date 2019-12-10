@@ -23,6 +23,7 @@ export class Card {
 	width: number;
 
 	group: Group;
+	type: string;
 
 	order: Order;
 
@@ -34,6 +35,7 @@ export class Card {
 
 	constructor(card: any, initialLoad: boolean = true) {
 		this.id = card.id;
+		this.type = card.type;
 		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;
 		this.status = card.status;
 		this.mechanicCode = card.mechanicCode;

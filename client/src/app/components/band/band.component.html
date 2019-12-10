@@ -1,17 +1,18 @@
 <div class="d-flex flex-column h-100">
 	<div class="d-flex h-25 unassigned-orders-buttons-container">
 		<!--<button class="btn btn-outline-dark align-center padding-0">Ocultar</button>-->
-		<button class="btn btn-danger align-center padding-0">En curso</button>
-		<button class="btn btn-primary align-center padding-0">Cita previa</button>
-		<button class="btn btn-primary align-center padding-0">Pendientes</button>
+		<button (click)="setType(todayType)" class="btn btn-danger align-center padding-0">En curso</button>
+		<button (click)="setType(appointmentType)" class="btn btn-primary align-center padding-0">Cita previa</button>
+		<button (click)="setType(pendingType)" class="btn btn-success align-center padding-0">Pendientes</button>
 	</div>
 	<div
+		*ngFor="let type of cardTypes | cardType: type"
 		appDropzone
 		class="flex-grow-1 unassigned-orders-cards-container"
 		[style.height.px]="unassignedBarHeight"
 		[type]="unassignedDropzoneType">
 		<app-draggable-group
-			*ngFor="let group of unassignedCardsGroups; let i = index"
+			*ngFor="let group of findUnassignedTypeGroups(type); let i = index"
 			class="unassigned-card"
 			[ngClass]="{'hidden': checkHideGroup(group.id)}"
 			[ngStyle]="{

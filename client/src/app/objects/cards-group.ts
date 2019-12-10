@@ -7,6 +7,8 @@ export class CardsGroup {
 
 	private _id: number;
 
+	private _type: string;
+
 	private _lastStart: Date;
 	private _start: Date;
 	private _left: number;
@@ -19,6 +21,7 @@ export class CardsGroup {
 	constructor(cards: Card[], left: number = undefined) {
 		this.cards = cards;
 		this.id = this.cards[0].id;
+		this.type = this.cards[0].type;
 		this.start = this.cards[0].start;
 		this.end = this.cards[this.cards.length-1].end;
 		this.line = this.cards[0].line;
@@ -41,6 +44,14 @@ export class CardsGroup {
 
 	set id(value: number) {
 		this._id = value;
+	}
+
+	get type(): string {
+		return this._type;
+	}
+
+	set type(value: string) {
+		this._type = value;
 	}
 
 	get start(): Date {

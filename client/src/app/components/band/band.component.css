@@ -12,6 +12,11 @@
 	line-height: 100%;
 }
 
+.unassigned-groups-wrapper {
+	position: absolute;
+	left: 0;
+}
+
 .unassigned-orders-cards-container {
 	position: relative;
 	background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);

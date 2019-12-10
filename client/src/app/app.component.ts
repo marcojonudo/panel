@@ -50,7 +50,7 @@ export class AppComponent implements AfterViewInit {
 
 				this.cardsService.init(data.cards.map(card => new Card(card)));
 				this.cardPositionService.init(
-					this.cardsService.unassignedCardsGroups,
+					this.cardsService.unassignedTypesCardsGroups,
 					this.cardsService.assignedDaysCardsGroups
 				);
 				this.appointmentsService.init(
