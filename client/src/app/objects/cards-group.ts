@@ -8,6 +8,7 @@ export class CardsGroup {
 	private _id: number;
 
 	private _type: string;
+	private _status: string;
 
 	private _lastStart: Date;
 	private _start: Date;
@@ -22,6 +23,7 @@ export class CardsGroup {
 		this.cards = cards;
 		this.id = this.cards[0].id;
 		this.type = this.cards[0].type;
+		this.status = this.cards[0].status;
 		this.start = this.cards[0].start;
 		this.end = this.cards[this.cards.length-1].end;
 		this.line = this.cards[0].line;
@@ -52,6 +54,14 @@ export class CardsGroup {
 
 	set type(value: string) {
 		this._type = value;
+	}
+
+	get status(): string {
+		return this._status;
+	}
+
+	set status(value: string) {
+		this._status = value;
 	}
 
 	get start(): Date {

@@ -112,14 +112,20 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 		/* Si emitHelperCard es true, se emite el evento inmediatamente en lugar de al terminar la transición en
 		*  overlay. Significa que la ficha se soltó en la barra inferior */
-		this.position = this.cardPositionService.handleDestinyPosition(this.position, this.startPosition);
+		const position = this.cardPositionService.handleDestinyPosition(this.position, this.startPosition);
+		if (position) {
+			this.position = position;
 
-		/* Se emite la última posición ya redondeada */
-		this.cardPositionService.emitPosition(this.position);
+			/* Se emite la última posición ya redondeada */
+			this.cardPositionService.emitPosition(this.position);
 
-		/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
-		 * de su posición de origen */
-		this.cardPositionService.emitDragging(this.dragging);
+			/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
+			 * de su posición de origen */
+			this.cardPositionService.emitDragging(this.dragging);
+		} else {
+			this.cardPositionService.emitDragging(this.dragging);
+			this.cardPositionService.emitHelperCardsGroup(undefined);
+		}
 
 		this.pointerMoveListener();
 		this.pointerUpListener();

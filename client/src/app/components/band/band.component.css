@@ -1,5 +1,5 @@
 .unassigned-orders-buttons-container {
-	background: #f9f9f9 url("../../../assets/img/texture.svg");
+	background: #f9f9f9;
 }
 
 .unassigned-orders-buttons-container button {
@@ -19,8 +19,15 @@
 
 .unassigned-orders-cards-container {
 	position: relative;
-	background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
 	overflow-x: auto;
+}
+
+.not-finished-groups-container {
+	background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
+}
+
+.finished-groups-container {
+	background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #F9F9F9 5px, #F9F9F9 12px);
 }
 
 .unassigned-card {

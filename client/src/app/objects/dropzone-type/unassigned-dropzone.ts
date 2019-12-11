@@ -55,9 +55,7 @@ export class UnassignedDropzone implements Dropzone {
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
-			() => {
-				this.cardsService.addToUnassigned(group);
-			},
+			() => this.cardsService.addToUnassigned(group),
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
 	}

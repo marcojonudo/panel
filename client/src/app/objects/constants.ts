@@ -25,7 +25,7 @@ export class Constants {
 	};
 	public static readonly NEXT_CARD_DIRECTION: any = {
 		LEFT: 'LEFT',
-		RIGHT: 'RIGTH'
+		RIGHT: 'RIGHT'
 	};
 	public static readonly SCHEDULE_TYPE: any = {
 		MORNING: 'MORNING',
@@ -42,6 +42,11 @@ export class Constants {
 		APPOINTMENT: 'APPOINTMENT',
 		TODAY: 'TODAY',
 		PENDING: 'PENDING'
+	};
+	public static readonly CARD_STATUS: any = {
+		DEFAULT: 'DEFAULT',
+		TEMPORAL: 'TEMPORAL',
+		FINISHED: 'FINISHED'
 	};
 	public static readonly DROPZONE_TYPE: any = {
 		ASSIGNED: 'ASSIGNED',

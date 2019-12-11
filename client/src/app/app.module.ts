@@ -49,7 +49,7 @@ import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import { AppointmentSchedulePanelComponent } from './components/appointment-schedule-panel/appointment-schedule-panel.component';
 import { DraggableScheduleDirective } from './directives/draggable-schedule.directive';
 import { AppointmentsPipe } from './pipes/appointments.pipe';
-import { CardTypePipe } from './pipes/card-type.pipe';
+import { CardSectionPipe } from './pipes/card-section.pipe';
 
 @NgModule({
 	declarations: [
@@ -84,7 +84,7 @@ import { CardTypePipe } from './pipes/card-type.pipe';
 		AppointmentSchedulePanelComponent,
 		DraggableScheduleDirective,
 		AppointmentsPipe,
-		CardTypePipe
+		CardSectionPipe
 	],
 	imports: [
 		BrowserModule,

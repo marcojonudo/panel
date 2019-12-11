@@ -17,6 +17,9 @@ import {DayCardUpdate} from "../objects/update-days-cards/day-card-update";
 import {DayCardUpdateTrigger} from "../objects/update-days-cards/day-card-update-trigger";
 import {AppointmentsService} from "./appointments.service";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
+import {UnassignedTypeSection} from "../objects/unassigned-sections/unassigned-type-section";
+import {UnassignedFinishedSection} from "../objects/unassigned-sections/unassigned-finished-section";
+import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,8 +39,11 @@ export class CardsService {
 	private _assignedDaysCardsGroups$: any;
 	private _assignedDaysCardsGroups: any;
 	private _assignedCardsGroups: CardsGroup[];
+	private _finishedCardsGroups: CardsGroup[];
 	private _unassignedCardsGroups: CardsGroup[];
 	private _unassignedTypesCardsGroups: GroupedTypeCards;
+
+	private _unassignedSections: UnassignedSection[];
 
 	private _overlappedGroups: CardsGroup[];
 
@@ -48,6 +54,13 @@ export class CardsService {
 		private http: HttpClient
 	) {
 		this.overlappedGroups = [];
+
+		this.unassignedSections = [
+			new UnassignedTypeSection(this, Constants.CARD_TYPE.TODAY),
+			new UnassignedTypeSection(this, Constants.CARD_TYPE.APPOINTMENT),
+			new UnassignedTypeSection(this, Constants.CARD_TYPE.PENDING),
+			new UnassignedFinishedSection(this, Constants.CARD_STATUS.FINISHED)
+		];
 	}
 
 	// region Getters / setters
@@ -58,6 +71,14 @@ export class CardsService {
 
 	set unassignedCardsGroups(value: CardsGroup[]) {
 		this._unassignedCardsGroups = value;
+	}
+
+	get finishedCardsGroups(): CardsGroup[] {
+		return this._finishedCardsGroups;
+	}
+
+	set finishedCardsGroups(value: CardsGroup[]) {
+		this._finishedCardsGroups = value;
 	}
 
 	get unassignedTypesCardsGroups(): GroupedTypeCards {
@@ -108,6 +129,14 @@ export class CardsService {
 		this._unassignedCardsGroups$ = value;
 	}
 
+	get unassignedSections(): UnassignedSection[] {
+		return this._unassignedSections;
+	}
+
+	set unassignedSections(value: UnassignedSection[]) {
+		this._unassignedSections = value;
+	}
+
 	// endregion
 
 	// region Init
@@ -115,11 +144,16 @@ export class CardsService {
 	init(cards: Card[]) {
 		this.cards = cards;
 
-		this.unassignedCards = this.cards.filter(card => !card.day);
+		const finishedCards = this.cards.filter(card => card.status == Constants.CARD_STATUS.FINISHED);
+		const notFinishedCards = this.cards.filter(card => card.status != Constants.CARD_STATUS.FINISHED);
+
+		this.finishedCardsGroups = this.initAssignedCardsGroups(finishedCards);
+
+		this.unassignedCards = notFinishedCards.filter(card => !card.day);
 		this.unassignedCardsGroups = this.initUnassignedCardsGroups(this.unassignedCards);
 		this.unassignedTypesCardsGroups = this.initUnassignedTypesCardsGroups(this.unassignedCardsGroups);
 
-		this.assignedCards = this.cards.filter(card => card.day);
+		this.assignedCards = notFinishedCards.filter(card => card.day);
 		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
 		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, this.daysService.daysMechanics);
 		this.assignedCardsGroupsSubject = new Subject<DayCardUpdate>();
@@ -128,12 +162,8 @@ export class CardsService {
 		this.unassignedCardsGroupsSubject = new Subject<UnassignedCardUpdate>();
 		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
 
-		// this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
-		// 	// this.updateDimensions();
-		// 	this.notifyAll();
-		// });
-
 		console.log('Cards', this.cards);
+		console.log('Finished cards groups', this.finishedCardsGroups);
 		console.log('Unassigned cards groups', this.unassignedCardsGroups);
 		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
 		console.log('Assigned cards groups', this.assignedCardsGroups);
@@ -191,6 +221,28 @@ export class CardsService {
 
 	// region Translate card
 
+	removeFromFinished(group: CardsGroup): any {
+		// this.handleAssignedMovementGroupsLinks(
+		// 	day,
+		// 	mechanicCode,
+		// 	cardsGroup.lastLine,
+		// 	cardsGroup.lastStart,
+		// 	cardsGroup.lastEnd
+		// );
+		this.handleRemoveFinishedCardsGroup(group);
+	}
+
+	addToFinished(group: CardsGroup): void {
+		// this.handleAssignedMovementGroupsLinks(
+		// 	day,
+		// 	newMechanicCode,
+		// 	cardsGroup.line,
+		// 	cardsGroup.start,
+		// 	cardsGroup.end
+		// );
+		this.handleAddFinishedCardsGroup(group);
+	}
+
 	removeFromAssigned(cardsGroup: CardsGroup, day: Date, mechanicCode: string): any {
 		this.handleAssignedMovementGroupsLinks(
 			day,
@@ -216,54 +268,70 @@ export class CardsService {
 	}
 
 	removeFromUnassigned(group: CardsGroup, notify: boolean = true): void {
-		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type);
+		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type, group.status);
 		this.handleRemoveUnassignedCardsGroup(group, notify);
 	}
 
 	addToUnassigned(group: CardsGroup): void {
-		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type);
+		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type, group.status);
 		this.handleAddUnassignedCardsGroup(group);
 	}
 
 	updateAssignedCards(
+		groupsToUpdate: CardsGroup[],
 		cardsGroup: CardsGroup,
 		day: Date = undefined,
 		newMechanicCode: string,
 		updateDb: boolean = true
 	) {
-		cardsGroup.cards.forEach(card => {
+		cardsGroup.status = Constants.CARD_STATUS.DEFAULT;
+		cardsGroup.cards.forEach((card: Card) => {
 			card.setDay(day);
 			card.setMechanicCode(newMechanicCode);
+			card.status = Constants.CARD_STATUS.DEFAULT;
 		});
 
+		// /* Si en un terminal se mueven fichas y hay solapadas, y después se actualiza en tiempo real de otro
+		// *  terminal distinto, las primeras fichas solapadas no deben tenerse en cuenta en este último caso. Por lo
+		// *  tanto, la lista debe resetearse una vez usada */
+		// this.overlappedGroups = [];
 		// this.appointmentsService.updateAppointmentsCounter(cardsGroup.cards);
-		// if (updateDb) {
-		// 	this.http.put(
-		// 		`${environment.serverUrl}/panel/cards/position`,
-		// 		cardsGroup.cards.concat(...this.overlappedGroups.map(g => g.cards))
-		// 	).subscribe();
-		//
-		// 	/* Si en un terminal se mueven fichas y hay solapadas, y después se actualiza en tiempo real de otro
-		// 	*  terminal distinto, las primeras fichas solapadas no deben tenerse en cuenta en este último caso. Por lo
-		// 	*  tanto, la lista debe resetearse una vez usada */
-		// 	this.overlappedGroups = [];
-		// }
+		if (updateDb) {
+			this.http.put(
+				`${environment.serverUrl}/panel/cards/position`,
+				[].concat(...groupsToUpdate.map(g => g.cards))
+			).subscribe();
+		}
 	}
 
-	resetCardsGroup(cardsGroup: CardsGroup) {
-		cardsGroup.left = undefined;
+	updateFinishedGroup(group: CardsGroup) {
+		group.status = Constants.CARD_STATUS.FINISHED;
+		for (const card of group.cards) {
+			card.status = Constants.CARD_STATUS.FINISHED;
+		}
+		this.resetCardsGroup(group);
+	}
 
-		for (let card of cardsGroup.cards) {
+	resetCardsGroup(group: CardsGroup, updateDb: boolean = true) {
+		group.left = undefined;
+
+		for (let card of group.cards) {
 			this.resetCard(card);
+		}
+
+		if (updateDb) {
+			this.http.put(
+				`${environment.serverUrl}/panel/cards/position`,
+				group.cards
+			).subscribe();
 		}
 	}
 
 	private resetCard(card: Card): void {
 		card.setDay(undefined);
 		card.setMechanicCode(undefined);
-		// card.left = undefined;
 		card.setStart(undefined);
-		// card.end = undefined;
+		card.line = undefined;
 	}
 
 	updateAppointmentsPanel(group: CardsGroup): void {
@@ -283,7 +351,7 @@ export class CardsService {
 
 			this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, cardsGroup);
 		} else {
-			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type);
+			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type, cardsGroup.status);
 			this.handleRemoveUnassignedCardsGroup(cardsGroup);
 		}
 	}
@@ -443,6 +511,16 @@ export class CardsService {
 		this.http.put(`${environment.serverUrl}/panel/cards/duration`, cards).subscribe();
 	}
 
+	handleAddFinishedCardsGroup(group: CardsGroup): void {
+		this.addFinishedCardsGroup(group);
+		this.notifyUnassigned();
+	}
+
+	handleRemoveFinishedCardsGroup(group: CardsGroup): void {
+		this.removeFinishedCardsGroup(group);
+		this.notifyUnassigned();
+	}
+
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
 		this.notifyAssigned();
@@ -468,13 +546,13 @@ export class CardsService {
 	findLeftNextCard(card: Card): Card {
 		return card.start ?
 			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
-			this.findLeftUnassignedNextCard(card.id, card.type);
+			this.findLeftUnassignedNextCard(card.id, card.type, card.status);
 	}
 
 	findRightNextCard(card: Card): Card {
 		return card.start ?
 			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
-			this.findRightUnassignedNextCard(card.id, card.type);
+			this.findRightUnassignedNextCard(card.id, card.type, card.status);
 	}
 
 	// endregion
@@ -605,6 +683,12 @@ export class CardsService {
 
 	// region Global cards map
 
+	findUnassignedGroups(type: string, status: string): CardsGroup[] {
+		let section = this.unassignedSections.find(section => section.name == status);
+		section = section ? section : this.unassignedSections.find(section => section.name == type);
+		return section.findGroups();
+	}
+
 	findCardGroup(groups: CardsGroup[], cardId: number): CardsGroup {
 		return groups.find(group => group.cards.find(card => card.id == cardId) != undefined);
 	}
@@ -668,7 +752,7 @@ export class CardsService {
 			);
 			this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
 		} else {
-			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type);
+			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type, cardsGroup.status);
 			this.handleAddUnassignedCardsGroup(cardsGroup);
 		}
 	}
@@ -687,8 +771,9 @@ export class CardsService {
 		}
 	}
 
-	private handleUnassignedMovementGroupsLinks(orderNumber: number, type: string): void {
-		const orderGroups = this.findOrderGroups(this.unassignedTypesCardsGroups[type], orderNumber);
+	private handleUnassignedMovementGroupsLinks(orderNumber: number, type: string, status: string): void {
+		const groups = this.findUnassignedGroups(type, status);
+		const orderGroups = this.findOrderGroups(groups, orderNumber);
 		orderGroups.forEach(group => {
 			group.cards.forEach(card => {
 				card.possibleLinkedPreviousId = !card.possibleLinkedPreviousId;
@@ -700,6 +785,16 @@ export class CardsService {
 	// endregion
 
 	// region Link handlers actions
+
+	private addFinishedCardsGroup(group: CardsGroup): void {
+		this.finishedCardsGroups.push(group);
+		UtilsService.sort(this.finishedCardsGroups, (g) => g.cards[0].order.code);
+	}
+
+	private removeFinishedCardsGroup(group: CardsGroup): void {
+		const index = this.finishedCardsGroups.findIndex(g => g.id == group.id);
+		this.finishedCardsGroups.splice(index, 1);
+	}
 
 	private addAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		/* Se usa concat en lugar de push para que no modifique el array original, y se actualice antes de tiempo en
@@ -745,24 +840,26 @@ export class CardsService {
 		});
 	}
 
-	private findLeftUnassignedNextCard(id: number, type: string): Card {
-		const group = this.findCardGroup(this.unassignedTypesCardsGroups[type], id);
+	private findLeftUnassignedNextCard(id: number, type: string, status: string): Card {
+		const groups = this.findUnassignedGroups(type, status);
+		const group = this.findCardGroup(groups, id);
 		const cardIndex = group.cards.findIndex(card => card.id == id);
 		if (cardIndex > 0) {
 			return group.cards[cardIndex - 1];
 		} else {
-			const leftGroup = this.findLeftOrderGroup(this.unassignedTypesCardsGroups[type], group.id, group.cards[0].order.number);
+			const leftGroup = this.findLeftOrderGroup(groups, group.id, group.cards[0].order.number);
 			return leftGroup ? leftGroup.cards[leftGroup.cards.length - 1] : undefined;
 		}
 	}
 
-	private findRightUnassignedNextCard(id: number, type: string): Card {
-		const group = this.findCardGroup(this.unassignedTypesCardsGroups[type], id);
+	private findRightUnassignedNextCard(id: number, type: string, status: string): Card {
+		const groups = this.findUnassignedGroups(type, status);
+		const group = this.findCardGroup(groups, id);
 		const cardIndex = group.cards.findIndex(card => card.id == id);
 		if (cardIndex < group.cards.length - 1) {
 			return group.cards[cardIndex + 1];
 		} else {
-			const rightGroup = this.findRightOrderGroup(this.unassignedTypesCardsGroups[type], group.id, group.cards[0].order.number);
+			const rightGroup = this.findRightOrderGroup(groups, group.id, group.cards[0].order.number);
 			return rightGroup ? rightGroup.cards[0] : undefined;
 		}
 	}
@@ -821,7 +918,7 @@ export class CardsService {
 		this.notifyAssigned();
 	}
 
-	notifyUnassigned(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger(this.unassignedCardsGroups[0])): void {
+	notifyUnassigned(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger()): void {
 		this.unassignedCardsGroupsSubject.next(cardUpdate);
 	}
 

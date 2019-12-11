@@ -13,6 +13,7 @@ import {CardsService} from "./cards.service";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
+import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
 
 @Injectable({
 	providedIn: 'root'
@@ -79,9 +80,9 @@ export class CardPositionService {
 		this.dragging$ = this.draggingSubject.asObservable();
 	}
 
-	init(unassignedTypesCardsGroups: GroupedTypeCards, assignedDaysGroups: any): void {
+	init(unassignedSections: UnassignedSection[], assignedDaysGroups: any): void {
 		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
-			this.updateDimensions(unassignedTypesCardsGroups, assignedDaysGroups);
+			this.updateDimensions(unassignedSections, assignedDaysGroups);
 			this.cardsService.notifyAll();
 		});
 	}
@@ -247,13 +248,14 @@ export class CardPositionService {
 
 	// region Update dimensions
 
-	private updateDimensions(unassignedTypesCardsGroups: GroupedTypeCards, daysGroups: any) {
-		this.updateUnassignedDimensions(unassignedTypesCardsGroups);
+	private updateDimensions(unassignedSections: UnassignedSection[], daysGroups: any) {
+		this.updateUnassignedDimensions(unassignedSections);
 		this.updateAssignedDimensions(daysGroups);
 	}
 
-	updateUnassignedDimensions(unassignedTypesCardsGroups: GroupedTypeCards): void {
-		for (const groups of Object.values(unassignedTypesCardsGroups)) {
+	updateUnassignedDimensions(unassignedSections: UnassignedSection[]): void {
+		for (const section of unassignedSections) {
+			const groups = section.findGroups();
 			groups.forEach((cardsGroup: CardsGroup, i: number) => {
 				cardsGroup.cards.forEach((card) => {
 					card.width = this.timeService.calcWidthFromDuration(card.duration);
@@ -273,12 +275,9 @@ export class CardPositionService {
 		}
 	}
 
-	updateUnassignedTypeLeft(
-		type: string,
-		unassignedTypesCardsGroups: GroupedTypeCards = this.cardsService.unassignedTypesCardsGroups
-	): void {
-		unassignedTypesCardsGroups[type].forEach((group: CardsGroup, i: number) => {
-			group.left = i == 0 ? 0 : this.timeService.calcLeftFromCardsGroups(i, unassignedTypesCardsGroups[type]);
+	updateUnassignedGroupsLeft(groups: CardsGroup[]): void {
+		groups.forEach((group: CardsGroup, i: number) => {
+			group.left = i == 0 ? 0 : this.timeService.calcLeftFromCardsGroups(i, groups);
 		});
 	}
 
@@ -313,6 +312,9 @@ export class CardPositionService {
 			} else {
 				this.originDropzone.handleNotValidatedMovement(this.helperCardsGroup);
 			}
+		} else {
+			this.originDropzone.removeGroup(this.helperCardsGroup, false);
+			this.originDropzone.handleNotValidatedMovement(this.helperCardsGroup);
 		}
 		return startPosition;
 	}
@@ -321,7 +323,7 @@ export class CardPositionService {
 		group: CardsGroup,
 		typeGroups: GroupedTypeCards = this.cardsService.unassignedTypesCardsGroups
 	): Coordinates {
-		this.updateUnassignedTypeLeft(group.type, typeGroups);
+		this.updateUnassignedGroupsLeft(typeGroups[group.type]);
 		const groupIndex = typeGroups[group.cards[0].type].indexOf(group);
 		return new Coordinates(
 			group.left + (groupIndex + 1) * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS,

@@ -3,6 +3,7 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {Mechanic} from "../mechanic";
+import {Constants} from "../constants";
 
 export interface Dropzone {
 
@@ -28,6 +29,6 @@ export interface Dropzone {
 		position: Coordinates
 	): Coordinates;
 
-	handleNotValidatedMovement(group: CardsGroup): void
+	handleNotValidatedMovement(group: CardsGroup): void;
 
 }

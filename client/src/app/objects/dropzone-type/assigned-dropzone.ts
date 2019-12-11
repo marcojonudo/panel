@@ -52,7 +52,7 @@ export class AssignedDropzone implements Dropzone {
 			this.dayMechanicGroups
 		);
 		/* Se actualiza el día y el mecánico */
-		this.cardsService.updateAssignedCards(group, this.mechanic.day, this.mechanic.code);
+		this.cardsService.updateAssignedCards(groups, group, this.mechanic.day, this.mechanic.code);
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el

@@ -6,9 +6,9 @@ export class UnassignedCardUpdateTrigger implements UnassignedCardUpdate {
 	type: string;
 	newGroup: CardsGroup;
 
-	constructor(newGroup: CardsGroup = undefined) {
+	constructor(newGroup: CardsGroup = undefined, type: string = undefined) {
 		this.newGroup = newGroup;
-		this.type = this.newGroup ? this.newGroup.type : undefined;
+		this.type = type ? type : this.newGroup ? this.newGroup.type : undefined;
 	}
 
 	update(groups: CardsGroup[]): void {}

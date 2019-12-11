@@ -10,6 +10,9 @@ import {UtilsService} from "../../services/utils.service";
 import {DaysService} from "../../services/days.service";
 import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../../objects/grouped-type-cards";
+import {UnassignedSection} from "../../objects/unassigned-sections/unassigned-section";
+import {UnassignedTypeSection} from "../../objects/unassigned-sections/unassigned-type-section";
+import {UnassignedFinishedSection} from "../../objects/unassigned-sections/unassigned-finished-section";
 
 @Component({
 	selector: 'app-band',
@@ -41,8 +44,8 @@ export class BandComponent implements OnInit, OnDestroy {
 	private _unassignedCardRelativeTop: number;
 	private _unassignedTypesCardsGroups: GroupedTypeCards;
 
-	private _cardTypes: string[];
-	private _type: string;
+	private _cardSections: UnassignedSection[];
+	private _section: UnassignedSection;
 
 	private unassignedCardsGroupsSubscription: Subscription;
 
@@ -55,8 +58,13 @@ export class BandComponent implements OnInit, OnDestroy {
 	) {
 		this.unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
 
-		this.cardTypes = [Constants.CARD_TYPE.TODAY, Constants.CARD_TYPE.APPOINTMENT, Constants.CARD_TYPE.PENDING];
-		this.type = Constants.CARD_TYPE.APPOINTMENT;
+		this.cardSections = [
+			new UnassignedTypeSection(this.cardsService, Constants.CARD_TYPE.TODAY),
+			new UnassignedTypeSection(this.cardsService, Constants.CARD_TYPE.APPOINTMENT),
+			new UnassignedTypeSection(this.cardsService, Constants.CARD_TYPE.PENDING),
+			new UnassignedFinishedSection(this.cardsService, Constants.CARD_STATUS.FINISHED)
+		];
+		this.section = this.cardSections[1];
 	}
 
 	ngOnInit(): void {
@@ -64,7 +72,10 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$
 			.subscribe((cardUpdate: UnassignedCardUpdate) => {
 				if (cardUpdate.type) {
-					this.cardPositionService.updateUnassignedTypeLeft(cardUpdate.type);
+					this.section = this.cardsService.unassignedSections.find(section => section.name == cardUpdate.type);
+					this.cardPositionService.updateUnassignedGroupsLeft(
+						this.cardsService.findUnassignedGroups(cardUpdate.type, cardUpdate.type)
+					);
 				} else {
 					this.cardPositionService.updateUnassignedLeft();
 				}
@@ -86,20 +97,20 @@ export class BandComponent implements OnInit, OnDestroy {
 		this._unassignedTypesCardsGroups = value;
 	}
 
-	get cardTypes(): string[] {
-		return this._cardTypes;
+	get cardSections(): UnassignedSection[] {
+		return this._cardSections;
 	}
 
-	set cardTypes(value: string[]) {
-		this._cardTypes = value;
+	set cardSections(value: UnassignedSection[]) {
+		this._cardSections = value;
 	}
 
-	get type(): string {
-		return this._type;
+	get section(): UnassignedSection {
+		return this._section;
 	}
 
-	set type(value: string) {
-		this._type = value;
+	set section(value: UnassignedSection) {
+		this._section = value;
 	}
 
 	get unassignedDropzoneType(): string {
@@ -134,20 +145,32 @@ export class BandComponent implements OnInit, OnDestroy {
 		return Constants.CARD_TYPE.PENDING;
 	}
 
+	get finishedStatus(): string {
+		return Constants.CARD_STATUS.FINISHED;
+	}
+
 	// endregion
+
+	checkFinishedSection(section: UnassignedSection = this.section): boolean {
+		return section.name == Constants.CARD_STATUS.FINISHED;
+	}
 
 	findGroupLeft(left: number, index: number): number {
 		return left + (index + 1) * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS;
 	}
 
-	setType(type: string): void {
-		this.type = type;
+	setSection(type: string): void {
+		this.section = this.cardSections.find(section => section.name == type);
 		this.cdRef.detectChanges();
 	}
 
-	findUnassignedTypeGroups(type: string = this.type): CardsGroup[] {
-		return this.unassignedTypesCardsGroups[type];
+	getFinishedGroups(): CardsGroup[] {
+		return this.cardsService.finishedCardsGroups;
 	}
+
+	// findUnassignedTypeGroups(type: string = this.type): CardsGroup[] {
+	// 	return this.unassignedTypesCardsGroups[type];
+	// }
 
 	setHiddenCardsGroup(group: CardsGroup): void {
 		this.cardPositionService.hiddenGroup = group;
