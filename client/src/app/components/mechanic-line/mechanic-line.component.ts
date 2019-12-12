@@ -9,6 +9,7 @@ import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardPositionService} from "../../services/card-position.service";
+import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -20,6 +21,7 @@ export class MechanicLineComponent {
 
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
+	@Input() dayCardUpdate: DayCardUpdate;
 	@Input() cardsGroups: CardsGroup;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() maxScheduleHours: number[];

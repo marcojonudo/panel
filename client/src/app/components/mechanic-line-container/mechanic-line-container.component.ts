@@ -3,6 +3,7 @@ import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {CardsGroup} from "../../objects/cards-group";
+import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -13,6 +14,7 @@ import {CardsGroup} from "../../objects/cards-group";
 export class MechanicLineContainerComponent {
 
 	@Input() day: Date;
+	@Input() dayCardUpdate: DayCardUpdate;
 	@Input() mechanic: Mechanic;
 	@Input() cardsGroups: CardsGroup[];
 	@Input() height: number;
@@ -31,7 +33,7 @@ export class MechanicLineContainerComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line container', this.mechanic, this.day)
+			console.log('checking mechanic line container', this.dayCardUpdate)
 		}
 	}
 }

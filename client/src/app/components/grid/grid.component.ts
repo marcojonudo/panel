@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {DaysService} from "../../services/days.service";
 import {Mechanic} from "../../objects/mechanic";
@@ -6,15 +6,18 @@ import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {MechanicUpdate} from "../../objects/mechanic-update/mechanic-update";
 import {CardsGroup} from "../../objects/cards-group";
+import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
 
 @Component({
 	selector: 'app-grid',
 	templateUrl: './grid.component.html',
-	styleUrls: ['./grid.component.css']
+	styleUrls: ['./grid.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GridComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
+	@Input() dayCardUpdate: DayCardUpdate;
 	@Input() dayCardsGroups: any;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
@@ -53,7 +56,14 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	// endregion
 
-	findMechanicCardsGroups(mechanicCode): CardsGroup {
+	private checkTriggerMechanicCd(
+		mechanicCode: string,
+		dayCardUpdate: DayCardUpdate = this.dayCardUpdate
+	): DayCardUpdate {
+		return dayCardUpdate && mechanicCode == dayCardUpdate.mechanicCode ? dayCardUpdate : undefined;
+	}
+
+	findMechanicCardsGroups(mechanicCode: string): CardsGroup {
 		return this.dayCardsGroups[mechanicCode];
 	}
 
@@ -67,7 +77,7 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking grid');
+			console.log('checking grid', this.dayCardUpdate);
 		}
 	}
 

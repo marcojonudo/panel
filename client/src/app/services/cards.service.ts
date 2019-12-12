@@ -460,7 +460,7 @@ export class CardsService {
 		});
 
 		group.end = UtilsService.addMinutes(group.end, durationIncrease);
-		this.notifyAssigned();
+		this.notifyAssigned(card.day, card.mechanicCode);
 	}
 
 	groupOutsideSchedule(group: CardsGroup, schedule: Schedule): boolean {
@@ -523,12 +523,12 @@ export class CardsService {
 
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned();
+		this.notifyAssigned(day, mechanicCode);
 	}
 
 	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned();
+		this.notifyAssigned(day, mechanicCode);
 	}
 
 	handleAddUnassignedCardsGroup(group: CardsGroup): void {
@@ -924,8 +924,8 @@ export class CardsService {
 		this.unassignedCardsGroupsSubject.next(cardUpdate);
 	}
 
-	notifyAssigned(dayCardUpdate: DayCardUpdate = new DayCardUpdateTrigger()): void {
-		this.assignedCardsGroupsSubject.next(dayCardUpdate);
+	notifyAssigned(day: Date = undefined, mechanicCode: string = undefined): void {
+		this.assignedCardsGroupsSubject.next(new DayCardUpdateTrigger(day, mechanicCode));
 	}
 
 	// endregion

@@ -36,6 +36,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _maxScheduleWidth: number;
 	private _maxScheduleHours: number[];
 
+	private _dayCardUpdate: DayCardUpdate;
+
 	private relativeContainer: boolean;
 	private scrollLeft: number;
 	private scrollTop: number;
@@ -72,7 +74,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
 		this.assignedCardsGroupsSubscription = this.cardsService.assignedCardsGroups$
 				.subscribe((dayCardUpdate: DayCardUpdate) => {
-			dayCardUpdate.update(this.assignedDaysCardsGroups);
+			this.dayCardUpdate = dayCardUpdate;
+			// dayCardUpdate.update(this.assignedDaysCardsGroups);
 			this.cdRef.detectChanges();
 		});
 
@@ -213,7 +216,19 @@ export class MainComponent implements OnInit, OnDestroy {
 		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
 	}
 
+	get dayCardUpdate(): DayCardUpdate {
+		return this._dayCardUpdate;
+	}
+
+	set dayCardUpdate(value: DayCardUpdate) {
+		this._dayCardUpdate = value;
+	}
+
 	// endregion
+
+	private checkTriggerCd(day: Date, dayCardUpdate: DayCardUpdate = this.dayCardUpdate): DayCardUpdate {
+		return dayCardUpdate && day.getTime() == dayCardUpdate.day.getTime() ? dayCardUpdate : undefined;
+	}
 
 	private findDayCardsGroups(day: Date): any {
 		return this.assignedDaysCardsGroups[day.getTime()];

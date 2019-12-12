@@ -6,6 +6,7 @@
 		*ngFor="let mechanic of mechanics"
 		class="mechanic-line-container-wrapper"
 		[day]="day"
+		[dayCardUpdate]="checkTriggerMechanicCd(mechanic.code)"
 		[cardsGroups]="findMechanicCardsGroups(mechanic.code)"
 		[mechanic]="mechanic"
 		[height]="mechanic.height"
