@@ -815,13 +815,15 @@ export class CardsService {
 	}
 
 	private addUnassignedCardsGroup(group: CardsGroup): void {
-		this.unassignedTypesCardsGroups[group.type] = this.unassignedTypesCardsGroups[group.type].concat([group]);
-		UtilsService.sort(this.unassignedTypesCardsGroups[group.type], (g) => g.cards[0].order.code);
+		const groups = this.findUnassignedGroups(group.type, group.status);
+		groups.push(group);
+		UtilsService.sort(groups, (g) => g.cards[0].order.code);
 	}
 
 	private removeUnassignedCardsGroup(group: CardsGroup): void {
-		const index = this.unassignedTypesCardsGroups[group.type].findIndex(g => g.id == group.id);
-		this.unassignedTypesCardsGroups[group.type].splice(index, 1);
+		const groups = this.findUnassignedGroups(group.type, group.status);
+		const index = groups.findIndex(g => g.id == group.id);
+		groups.splice(index, 1);
 	}
 
 	// endregion

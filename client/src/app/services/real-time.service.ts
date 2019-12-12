@@ -186,7 +186,6 @@ export class RealTimeService {
 		*  y si se asigna sólo el horario no tendrá información sobre su tipo */
 		appointment.appointmentType = updatedAppointment.appointmentType;
 		appointment.schedule = updatedAppointment.schedule;
-		console.log('updated mechanic', mechanic);
 		this.appointmentsService.updateAppointments(mechanic);
 	}
 

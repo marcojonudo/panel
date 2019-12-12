@@ -409,69 +409,6 @@ export class CardPositionService {
 		return position;
 	}
 
-	// handleAssignedPosition(
-	// 	lastPosition: Coordinates,
-	// 	dayMechanicCardsGroups: CardsGroup[],
-	// 	intervalWidth: number = this.timeService.intervalWidth,
-	// 	cardsGroup: CardsGroup = this.helperCardsGroup
-	// ): Coordinates {
-	// 	/* Para simplificar las operaciones, a medida que avanza el método se van actualizando propiedades como left.
-	// 	 * Se clona el objeto para evitar que, si en el último paso (fichas superpuestas) se determina que no se puede
-	// 	 * mover la ficha, se hayan actualizado erróneamente las propiedades del objeto original */
-	// 	const clonedCardsGroup = cardsGroup.clone();
-	//
-	// 	console.log(1, lastPosition);
-	// 	/* Se comprueba si los laterales del grupo están fuera de la dropzone */
-	// 	let position = this.fixGroupOutsideDropzonePosition(lastPosition, clonedCardsGroup);
-	// 	console.log(2, position);
-	// 	/* Si la ficha no cabe en el horario, se devuelve undefined para retornar a la posición original*/
-	// 	if (!position) {
-	// 		return position;
-	// 	}
-	// 	/* La posición se redondea a los múltiplos de 5 minutos */
-	// 	position = this.roundLastPosition(lastPosition, this.destinyDropzone.rect, intervalWidth);
-	// 	console.log(3, position);
-	// 	let outsideDropzone = this.checkPositionOutsideDropzone(position, clonedCardsGroup);
-	// 	console.log('outsideDropzone', outsideDropzone);
-	// 	if (outsideDropzone) {
-	// 		return undefined;
-	// 	}
-	// 	/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
-	// 	*  cuenta a la hora de identificar las fichas solapadas */
-	// 	this.updateLeft(clonedCardsGroup, position);
-	//
-	// 	const lineGroups = dayMechanicCardsGroups.filter(group => group.line == position.line);
-	// 	/* Se gestionan los movimientos de fichas solapadas */
-	// 	const overlappedGroupsToUpdate = this.handleOverlappedMovements(
-	// 		clonedCardsGroup,
-	// 		lineGroups
-	// 	);
-	//
-	// 	outsideDropzone = this.checkGroupsOutsideDropzone(overlappedGroupsToUpdate);
-	// 	if (outsideDropzone) {
-	// 		return undefined;
-	// 	}
-	// 	console.log(4);
-	//
-	// 	/* Si no se encuentra ningún grupo que, después de gestionarse el solapamiento, esté fuera del horario,
-	// 	*  se actualizan las propiedades en los grupos originales */
-	// 	overlappedGroupsToUpdate.forEach(clonedGroup => {
-	// 		/* Se obtiene el grupo de todos los del día, en lugar de sólo los de la línea, porque la ficha que se está
-	// 		*  moviendo puede provenir de otra línea. Además, se añade cardsGroup porque si se mueve desde otra línea de
-	// 		*  mecánico, no va a estar en dayMechanicsCardsGroups */
-	// 		const group = dayMechanicCardsGroups.concat(cardsGroup).find(group => group.id == clonedGroup.id);
-	// 		/* Se actualizan los valores relacionados con la posicion (left y start) */
-	// 		this.updatePositionProperties([group], [clonedGroup], this.destinyDropzone.mechanic.day, position.line);
-	// 	});
-	// 	this.cardsService.overlappedGroups = overlappedGroupsToUpdate;
-	//
-	// 	/* Se define la nueva posición, una vez tenidas en cuenta las fichas solapadas, para completar la transición
-	// 	*  en la directiva draggable */
-	// 	position.x = this.leftToAbsolutePosition(clonedCardsGroup.left);
-	// 	this.updatePositionProperties([cardsGroup], [clonedCardsGroup], this.destinyDropzone.mechanic.day, position.line);
-	// 	return position;
-	// }
-
 	private checkGroupsOutsideDropzone(
 		groups: CardsGroup[],
 		dropzone: Dropzone = this.destinyDropzone
