@@ -32,18 +32,19 @@ export class FinishDropzone implements Dropzone {
 		this.cardsService.removeFromFinished(group);
 	}
 
+	findLastPosition(): Coordinates {
+		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */
+		return undefined;
+	}
+
 	addGroup(
 		groups: CardsGroup[],
-		group: CardsGroup,
-		position: Coordinates
-	): Coordinates {
+		group: CardsGroup
+	): void {
 		this.cardsService.updateFinishedGroup(group);
 		this.cardsService.addToFinished(group);
 		this.cardPositionService.updateUnassignedGroupsLeft(this.cardsService.finishedCardsGroups);
 		NotificationService.notifyBar();
-
-		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */
-		return undefined;
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {

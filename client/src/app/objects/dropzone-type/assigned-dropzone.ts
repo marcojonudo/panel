@@ -39,18 +39,20 @@ export class AssignedDropzone implements Dropzone {
 		this.cardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup,
-		position: Coordinates
-	): Coordinates {
+	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates {
 		/* Se actualiza el left, start y end de los grupos y se retorna la posición final a la que se tendrá que
 		*  desplazar la ficha, una vez tenidos en cuenta los solapamientos */
-		const lastPosition = this.cardPositionService.updateAssignedGroupsPosition(
+		return this.cardPositionService.updateAssignedGroupsPosition(
 			position,
 			groups,
 			this.dayMechanicGroups
 		);
+	}
+
+	addGroup(
+		groups: CardsGroup[],
+		group: CardsGroup
+	): void {
 		/* Se actualiza el día y el mecánico */
 		this.cardsService.updateAssignedCards(groups, group, this.mechanic.day, this.mechanic.code);
 
@@ -64,7 +66,6 @@ export class AssignedDropzone implements Dropzone {
 			},
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
-		return lastPosition;
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {

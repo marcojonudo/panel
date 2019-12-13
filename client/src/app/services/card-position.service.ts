@@ -299,23 +299,29 @@ export class CardPositionService {
 
 	// region Handle position updates
 
-	handleDestinyPosition(position: Coordinates, startPosition: Coordinates): Coordinates {
+	handleDestinyPosition(
+		position: Coordinates,
+		startPosition: Coordinates,
+		group: CardsGroup = this.helperCardsGroup
+	): Coordinates {
 		if (this.destinyDropzone) {
 			/* Se valida si el grupo encaja en la posición de destino (podría no caber en el horario, por ejemplo) */
 			const groupsToUpdate = this.destinyDropzone.validateMovement(position);
 			/* Se elimina el grupo del dropzone de origen. En el siguiente paso, en función de si el movimiento había
 			*  validado o no, se añadirá al de destino o volverá de nuevo al de origen */
-			this.originDropzone.removeGroup(this.helperCardsGroup, groupsToUpdate != undefined);
+			this.originDropzone.removeGroup(group, groupsToUpdate != undefined);
 
 			if (groupsToUpdate) { /* Si el movimiento es válido */
-				/* Se añade el grupo al dropzone de origen */
-				return this.destinyDropzone.addGroup(groupsToUpdate, this.helperCardsGroup, position);
+				const lastPosition = this.destinyDropzone.findLastPosition(groupsToUpdate, group, position);
+				/* Se añade el grupo al dropzone de destino */
+				this.destinyDropzone.addGroup(groupsToUpdate, group);
+				return lastPosition;
 			} else {
-				this.originDropzone.handleNotValidatedMovement(this.helperCardsGroup);
+				this.originDropzone.handleNotValidatedMovement(group);
 			}
 		} else {
-			this.originDropzone.removeGroup(this.helperCardsGroup, false);
-			this.originDropzone.handleNotValidatedMovement(this.helperCardsGroup);
+			this.originDropzone.removeGroup(group, false);
+			this.originDropzone.handleNotValidatedMovement(group);
 		}
 		return startPosition;
 	}
@@ -393,20 +399,12 @@ export class CardPositionService {
 			const group = allOriginalGroups.find(group => group.id == clonedGroup.id);
 			/* Se actualizan los valores relacionados con la posicion (left y start) */
 			this.cardsService.updatePosition(group, this.destinyDropzone.mechanic.day, position.line, clonedGroup.left);
-
-			// this.updatePositionProperties(
-			// 	[g],
-			// 	[clonedGroup],
-			// 	this.destinyDropzone.mechanic.day,
-			// 	position.line
-			// );
 		});
 		this.cardsService.overlappedGroups = clonedGroups;
 
 		/* Se define la nueva posición, una vez tenidas en cuenta las fichas solapadas, para completar la transición
 		*  en la directiva draggable */
 		position.x = this.leftToAbsolutePosition(helperGroup.left);
-		// this.updatePositionProperties([cardsGroup], [clonedCardsGroup], this.destinyDropzone.mechanic.day, position.line);
 		return position;
 	}
 
@@ -582,13 +580,6 @@ export class CardPositionService {
 		let cards = [];
 		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
 		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
-	}
-
-	private updatePositionProperties(groups: CardsGroup[], clonedGroups: CardsGroup[], day: Date, line: number) {
-		groups.forEach(group => {
-			const clonedGroup = clonedGroups.find(g => g.id == group.id);
-			this.cardsService.updatePosition(group, day, line, clonedGroup.left);
-		});
 	}
 
 	// endregion

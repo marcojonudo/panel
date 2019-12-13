@@ -255,7 +255,7 @@ export class CardsService {
 	updateAssignedCards(
 		groupsToUpdate: CardsGroup[],
 		cardsGroup: CardsGroup,
-		day: Date = undefined,
+		day: Date,
 		newMechanicCode: string,
 		updateDb: boolean = true
 	) {
@@ -266,11 +266,6 @@ export class CardsService {
 			card.status = Constants.CARD_STATUS.DEFAULT;
 		});
 
-		// /* Si en un terminal se mueven fichas y hay solapadas, y después se actualiza en tiempo real de otro
-		// *  terminal distinto, las primeras fichas solapadas no deben tenerse en cuenta en este último caso. Por lo
-		// *  tanto, la lista debe resetearse una vez usada */
-		// this.overlappedGroups = [];
-		// this.appointmentsService.updateAppointmentsCounter(cardsGroup.cards);
 		if (updateDb) {
 			this.http.put(
 				`${environment.serverUrl}/panel/cards/position`,
@@ -374,7 +369,6 @@ export class CardsService {
 				this.timeService.calcStart(group.left + this.timeService.calcWidthFromDuration(leftCardsDuration),
 				day
 			));
-			// card.end = UtilsService.addMinutes(card.start, card.duration);
 		});
 		group.line = line;
 		group.start = group.cards[0].start;

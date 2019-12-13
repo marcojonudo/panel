@@ -18,9 +18,9 @@ export class DayPanelComponent {
 	constructor() { }
 
 	checkDayPanel() {
-		// if (Constants.CHECK) {
+		if (Constants.CHECK) {
 			console.log('checking day panel', this.dayCardUpdate);
-		// }
+		}
 	}
 
 }

@@ -14,20 +14,13 @@ export interface Dropzone {
 	mechanic: Mechanic;
 	rect: any;
 
-	validateMovement(
-		position: Coordinates
-	): CardsGroup[];
+	validateMovement(position: Coordinates): CardsGroup[];
 
-	removeGroup(
-		group: CardsGroup,
-		validated: boolean
-	): void;
+	removeGroup(group: CardsGroup, validated: boolean): void;
 
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup,
-		position: Coordinates
-	): Coordinates;
+	addGroup(groups: CardsGroup[], group: CardsGroup): void;
+
+	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
 

@@ -37,21 +37,22 @@ export class UnassignedDropzone implements Dropzone {
 		this.cardsService.removeFromUnassigned(group, validated);
 	}
 
+	findLastPosition(groups: CardsGroup[], group): Coordinates {
+		return this.cardPositionService.handleUnassignedPosition(group);
+	}
+
 	addGroup(
 		groups: CardsGroup[],
 		group: CardsGroup
-	): Coordinates {
+	): void {
 		this.cardsService.resetCardsGroup(group);
 		this.cardsService.addToUnassigned(group);
-		const newPosition = this.cardPositionService.handleUnassignedPosition(group);
 
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
 		setTimeout(
 			() => NotificationService.notifyBar(),
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
-
-		return newPosition;
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {

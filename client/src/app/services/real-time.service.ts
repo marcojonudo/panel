@@ -18,6 +18,10 @@ import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {UtilsService} from "./utils.service";
 import {RealTimeAppointmentUpdateType} from "../objects/real-time-update/real-time-appointment-update-type";
 import {NotificationService} from "./notification.service";
+import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
+import {CardPositionService} from "./card-position.service";
+import {UnassignedDropzone} from "../objects/dropzone-type/unassigned-dropzone";
+import {group} from "@angular/animations";
 
 @Injectable({
 	providedIn: 'root'
@@ -76,11 +80,13 @@ export class RealTimeService {
 	}
 
 	updatePosition(cards: Card[]): void {
+		const [lastAssigned, assigned] = [cards[0].lastDay != undefined, cards[0].day != undefined];
+
 		/* En función de si la ficha estaba asignada antes de moverse en otro terminal o no, se busca en los
 		*  grupos asignados o en los de la cinta */
-		const allGroups = cards[0].lastDay ?
-			this.cardsService.assignedCardsGroups :
-			this.cardsService.unassignedCardsGroups;
+		const allGroups = lastAssigned ?
+			this.cardsService.getAssignedCardsGroups(cards[0].lastDay, cards[0].lastMechanicCode) :
+			this.cardsService.findUnassignedGroups(cards[0].type, cards[0].status);
 
 		/* Si se mueve un grupo con varias fichas, para cada una de ellas se actualizaría la posición del grupo. Para
 		*  evitarlo, se almacenan los grupos ya procesados para no volver a hacerlo */
@@ -88,16 +94,25 @@ export class RealTimeService {
 		cards.forEach(card => {
 			const group = this.cardsService.findCardGroup(allGroups, card.id);
 			if (group && processedGroups.indexOf(group) == -1) {
-				/* Se actualiza la posición sólo si la ficha está asignada */
-				if (card.start) {
-					/* En este caso, left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en
-					*  otro terminal) */
-					const left = this.timeService.calcLeftFromStart(card.start);
-					this.cardsService.updatePosition(group, card.day, card.line, left);
+				/* Se elimina el grupo del origen */
+				if (lastAssigned) {
+					this.cardsService.removeFromAssigned(group, card.lastDay, card.lastMechanicCode);
+				} else {
+					this.cardsService.removeFromUnassigned(group, false);
 				}
 
-				this.cardsService.removeFromOrigin(group);
-				this.cardsService.updateTranslatedCards(group, card.day, card.mechanicCode, false);
+				/* Se actualizan propiedades y se añade el grupo al destino */
+				if (assigned) {
+					/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
+					*  terminal) */
+					const left = this.timeService.calcLeftFromStart(card.start);
+					this.cardsService.updatePosition(group, card.day, card.line, left);
+					this.cardsService.updateAssignedCards([group], group, card.day, card.mechanicCode, false);
+					this.cardsService.addToAssigned(group, card.day, card.mechanicCode);
+				} else {
+					this.cardsService.resetCardsGroup(group);
+					this.cardsService.addToUnassigned(group);
+				}
 
 				processedGroups.push(group);
 			}
