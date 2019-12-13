@@ -14,6 +14,7 @@ import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
 import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -83,7 +84,7 @@ export class CardPositionService {
 	init(unassignedSections: UnassignedSection[], assignedDaysGroups: any): void {
 		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
 			this.updateDimensions(unassignedSections, assignedDaysGroups);
-			this.cardsService.notifyAll();
+			NotificationService.notifyAll();
 		});
 	}
 

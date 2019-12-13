@@ -3,6 +3,7 @@ import {DaysService} from "../../services/days.service";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -50,7 +51,7 @@ export class ToolsBarComponent {
 			undefined,
 			this.showingFinished ? this.cardsService.unassignedSections[0].name : Constants.CARD_STATUS.FINISHED
 		);
-		this.cardsService.notifyUnassigned(unassignedCardUpdate);
+		NotificationService.notifyBar(unassignedCardUpdate);
 		this.showingFinished = !this.showingFinished;
 	}
 

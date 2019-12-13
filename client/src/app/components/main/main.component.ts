@@ -8,10 +8,11 @@ import {DaysService} from "../../services/days.service";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
-import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
+import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 import {CardsGroup} from "../../objects/cards-group";
 import {Skill} from "../../objects/skill";
 import {CommonService} from "../../services/common.service";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
 	selector: 'app-main',
@@ -36,7 +37,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _maxScheduleWidth: number;
 	private _maxScheduleHours: number[];
 
-	private _dayCardUpdate: DayCardUpdate;
+	private _dayCardUpdate: MechanicLineUpdate;
 
 	private relativeContainer: boolean;
 	private scrollLeft: number;
@@ -72,10 +73,9 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
-		this.assignedCardsGroupsSubscription = this.cardsService.assignedCardsGroups$
-				.subscribe((dayCardUpdate: DayCardUpdate) => {
+		this.assignedCardsGroupsSubscription = NotificationService.mechanicLine$
+				.subscribe((dayCardUpdate: MechanicLineUpdate) => {
 			this.dayCardUpdate = dayCardUpdate;
-			// dayCardUpdate.update(this.assignedDaysCardsGroups);
 			this.cdRef.detectChanges();
 		});
 
@@ -216,22 +216,18 @@ export class MainComponent implements OnInit, OnDestroy {
 		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
 	}
 
-	get dayCardUpdate(): DayCardUpdate {
+	get dayCardUpdate(): MechanicLineUpdate {
 		return this._dayCardUpdate;
 	}
 
-	set dayCardUpdate(value: DayCardUpdate) {
+	set dayCardUpdate(value: MechanicLineUpdate) {
 		this._dayCardUpdate = value;
 	}
 
 	// endregion
 
-	private checkTriggerCd(day: Date, dayCardUpdate: DayCardUpdate = this.dayCardUpdate): DayCardUpdate {
+	private checkTriggerCd(day: Date, dayCardUpdate: MechanicLineUpdate = this.dayCardUpdate): MechanicLineUpdate {
 		return dayCardUpdate && day.getTime() == dayCardUpdate.day.getTime() ? dayCardUpdate : undefined;
-	}
-
-	private findDayCardsGroups(day: Date): any {
-		return this.assignedDaysCardsGroups[day.getTime()];
 	}
 
 	private checkTodayScheduleExists(today: Date = this.timeService.today): boolean {

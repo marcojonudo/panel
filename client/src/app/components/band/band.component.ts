@@ -13,6 +13,7 @@ import {GroupedTypeCards} from "../../objects/grouped-type-cards";
 import {UnassignedSection} from "../../objects/unassigned-sections/unassigned-section";
 import {UnassignedTypeSection} from "../../objects/unassigned-sections/unassigned-type-section";
 import {UnassignedFinishedSection} from "../../objects/unassigned-sections/unassigned-finished-section";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
 	selector: 'app-band',
@@ -69,7 +70,7 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.unassignedTypesCardsGroups = this.cardsService.unassignedTypesCardsGroups;
-		this.unassignedCardsGroupsSubscription = this.cardsService.unassignedCardsGroups$
+		this.unassignedCardsGroupsSubscription = NotificationService.bar$
 			.subscribe((cardUpdate: UnassignedCardUpdate) => {
 				if (cardUpdate.type) {
 					this.section = this.cardsService.unassignedSections.find(section => section.name == cardUpdate.type);

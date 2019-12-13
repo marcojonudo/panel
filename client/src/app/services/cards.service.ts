@@ -13,13 +13,16 @@ import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-ca
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Schedule} from "../objects/schedule";
-import {DayCardUpdate} from "../objects/update-days-cards/day-card-update";
-import {DayCardUpdateTrigger} from "../objects/update-days-cards/day-card-update-trigger";
+import {MechanicLineUpdate} from "../objects/update-days-cards/mechanic-line-update";
+import {MechanicLineUpdateTrigger} from "../objects/update-days-cards/mechanic-line-update-trigger";
 import {AppointmentsService} from "./appointments.service";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
 import {UnassignedTypeSection} from "../objects/unassigned-sections/unassigned-type-section";
 import {UnassignedFinishedSection} from "../objects/unassigned-sections/unassigned-finished-section";
 import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
+import {DayMechanics} from "../objects/day-mechanics";
+import {Mechanic} from "../objects/mechanic";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -29,12 +32,6 @@ export class CardsService {
 	private cards: Card[];
 	private unassignedCards: Card[];
 	private assignedCards: Card[];
-
-	private assignedCardsGroupsSubject: Subject<DayCardUpdate>;
-	private _assignedCardsGroups$: Observable<DayCardUpdate>;
-
-	private unassignedCardsGroupsSubject: Subject<UnassignedCardUpdate>;
-	private _unassignedCardsGroups$: Observable<UnassignedCardUpdate>;
 
 	private _assignedDaysCardsGroups$: any;
 	private _assignedDaysCardsGroups: any;
@@ -48,7 +45,6 @@ export class CardsService {
 	private _overlappedGroups: CardsGroup[];
 
 	constructor(
-		private daysService: DaysService,
 		private timeService: TimeService,
 		private appointmentsService: AppointmentsService,
 		private http: HttpClient
@@ -97,14 +93,6 @@ export class CardsService {
 		this._assignedCardsGroups = value;
 	}
 
-	get assignedCardsGroups$(): Observable<DayCardUpdate> {
-		return this._assignedCardsGroups$;
-	}
-
-	set assignedCardsGroups$(value: Observable<DayCardUpdate>) {
-		this._assignedCardsGroups$ = value;
-	}
-
 	get assignedDaysCardsGroups(): any {
 		return this._assignedDaysCardsGroups;
 	}
@@ -121,14 +109,6 @@ export class CardsService {
 		this._overlappedGroups = value;
 	}
 
-	get unassignedCardsGroups$(): Observable<UnassignedCardUpdate> {
-		return this._unassignedCardsGroups$;
-	}
-
-	set unassignedCardsGroups$(value: Observable<UnassignedCardUpdate>) {
-		this._unassignedCardsGroups$ = value;
-	}
-
 	get unassignedSections(): UnassignedSection[] {
 		return this._unassignedSections;
 	}
@@ -141,7 +121,7 @@ export class CardsService {
 
 	// region Init
 
-	init(cards: Card[]) {
+	init(cards: Card[], daysMechanics: DayMechanics) {
 		this.cards = cards;
 
 		const finishedCards = this.cards.filter(card => card.status == Constants.CARD_STATUS.FINISHED);
@@ -155,12 +135,7 @@ export class CardsService {
 
 		this.assignedCards = notFinishedCards.filter(card => card.day);
 		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
-		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, this.daysService.daysMechanics);
-		this.assignedCardsGroupsSubject = new Subject<DayCardUpdate>();
-		this.assignedCardsGroups$ = this.assignedCardsGroupsSubject.asObservable();
-
-		this.unassignedCardsGroupsSubject = new Subject<UnassignedCardUpdate>();
-		this.unassignedCardsGroups$ = this.unassignedCardsGroupsSubject.asObservable();
+		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, daysMechanics);
 
 		console.log('Cards', this.cards);
 		console.log('Finished cards groups', this.finishedCardsGroups);
@@ -406,7 +381,7 @@ export class CardsService {
 		group.end = group.cards[group.cards.length - 1].end;
 	}
 
-	handleCardDurationUpdate(card: Card, widthIncrease: number): Card[] {
+	handleCardDurationUpdate(card: Card, widthIncrease: number, mechanic: Mechanic): Card[] {
 		const durationIncrease = this.timeService.calcDurationFromWidth(widthIncrease);
 		const group = this.findCardGroup(this.findLineGroups(card.day, card.mechanicCode, card.line), card.id);
 
@@ -423,7 +398,7 @@ export class CardsService {
 
 		/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que está
 		*  asignada*/
-		const schedule = this.daysService.findMechanic(card.day, card.mechanicCode).schedule;
+		const schedule = mechanic.schedule;
 		const groupOutsideSchedule = this.groupOutsideSchedule(group, schedule);
 		/* Si ya está en el límite, no se actualiza la información */
 		if (groupOutsideSchedule) {
@@ -460,7 +435,7 @@ export class CardsService {
 		});
 
 		group.end = UtilsService.addMinutes(group.end, durationIncrease);
-		this.notifyAssigned(card.day, card.mechanicCode);
+		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
 	}
 
 	groupOutsideSchedule(group: CardsGroup, schedule: Schedule): boolean {
@@ -513,33 +488,33 @@ export class CardsService {
 
 	handleAddFinishedCardsGroup(group: CardsGroup): void {
 		this.addFinishedCardsGroup(group);
-		this.notifyUnassigned();
+		NotificationService.notifyBar();
 	}
 
 	handleRemoveFinishedCardsGroup(group: CardsGroup): void {
 		this.removeFinishedCardsGroup(group);
-		this.notifyUnassigned();
+		NotificationService.notifyBar();
 	}
 
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned(day, mechanicCode);
+		NotificationService.notifyMechanicLine(day, mechanicCode);
 	}
 
 	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
-		this.notifyAssigned(day, mechanicCode);
+		NotificationService.notifyMechanicLine(day, mechanicCode);
 	}
 
 	handleAddUnassignedCardsGroup(group: CardsGroup): void {
 		this.addUnassignedCardsGroup(group);
-		this.notifyUnassigned(new UnassignedCardUpdateTrigger(group));
+		NotificationService.notifyBar(new UnassignedCardUpdateTrigger(group));
 	}
 
 	handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {
 		this.removeUnassignedCardsGroup(group);
 		if (notify) {
-			this.notifyUnassigned(new UnassignedCardUpdateTrigger(group));
+			NotificationService.notifyBar(new UnassignedCardUpdateTrigger(group));
 		}
 	}
 
@@ -711,7 +686,7 @@ export class CardsService {
 		return linkedCards;
 	}
 
-	private initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: any): any {
+	private initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: DayMechanics): any {
 		this.assignedDaysCardsGroups = {};
 
 		for (let dayTime in daysMechanics) {
@@ -909,23 +884,6 @@ export class CardsService {
 			return 0;
 		});
 		return cards;
-	}
-
-	// endregion
-
-	// region Notify
-
-	notifyAll(): void {
-		this.notifyUnassigned();
-		this.notifyAssigned();
-	}
-
-	notifyUnassigned(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger()): void {
-		this.unassignedCardsGroupsSubject.next(cardUpdate);
-	}
-
-	notifyAssigned(day: Date = undefined, mechanicCode: string = undefined): void {
-		this.assignedCardsGroupsSubject.next(new DayCardUpdateTrigger(day, mechanicCode));
 	}
 
 	// endregion

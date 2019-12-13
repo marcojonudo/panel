@@ -1,24 +1,22 @@
 import {Injectable} from '@angular/core';
 import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {CommonService} from "./common.service";
-import {DragScheduleInfo} from "../objects/drag-schedule-info";
 import {Schedule} from "../objects/schedule";
 import {Constants} from "../objects/constants";
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
 import {DaysService} from "./days.service";
-import {MechanicUpdateTrigger} from "../objects/mechanic-update/mechanic-update-trigger";
 import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
 import {CardsGroup} from "../objects/cards-group";
 import {AppointmentType} from "../objects/appointment-type";
 import {Card} from "../objects/card";
-import {TimeService} from "./time.service";
 import {AppointmentDay} from "../objects/appointment-day";
 import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
 import {AppointmentsCounterUpdateSubtract} from "../objects/update-appointments-counter/appointments-counter-update-subtract";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,7 +34,6 @@ export class AppointmentsService {
 	private _daysAppointmentsCounter: any;
 
 	constructor(
-		private timeService: TimeService,
 		private daysService: DaysService,
 		private commonService: CommonService,
 		private http: HttpClient
@@ -236,7 +233,7 @@ export class AppointmentsService {
 			appointment.reset();
 		}
 		mechanic.appointments = mechanic.appointments.slice();
-		this.notifyMechanic(mechanic);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
 	updateAppointmentSchedule(
@@ -267,17 +264,7 @@ export class AppointmentsService {
 				appointment
 			).subscribe()
 		}
-		this.notifyMechanic(mechanic);
-	}
-
-	updateAppointments(mechanic: Mechanic): void {
-		this.notifyMechanic(mechanic);
-	}
-
-	private notifyMechanic(mechanic: Mechanic): void {
-		/* Se usa el slice para crear un array con nueva referencia, y que así se lance el CD en mechanic-line.component */
-		mechanic.appointments = mechanic.appointments.slice();
-		this.daysService.notifyDay(mechanic.day, new MechanicUpdateTrigger());
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
 }

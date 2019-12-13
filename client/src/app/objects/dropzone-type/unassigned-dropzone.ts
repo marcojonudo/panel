@@ -6,6 +6,7 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {UnassignedCardUpdateTrigger} from "../update-cards/unassigned-card-update-trigger";
+import {NotificationService} from "../../services/notification.service";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -46,7 +47,7 @@ export class UnassignedDropzone implements Dropzone {
 
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
 		setTimeout(
-			() => this.cardsService.notifyUnassigned(),
+			() => NotificationService.notifyBar(),
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
 

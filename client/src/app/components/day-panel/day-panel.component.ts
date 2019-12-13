@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, Input,} from '@angular/core';
 import {Constants} from "../../objects/constants";
-import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
+import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 
 @Component({
 	selector: 'app-day-panel',
@@ -11,17 +11,16 @@ import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
 export class DayPanelComponent {
 
 	@Input() day: Date;
-	@Input() dayCardUpdate: DayCardUpdate;
-	@Input() dayCardsGroups: any;
+	@Input() dayCardUpdate: MechanicLineUpdate;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
 	constructor() { }
 
 	checkDayPanel() {
-		if (Constants.CHECK) {
-			console.log('checking day panel', this.day, this.dayCardsGroups);
-		}
+		// if (Constants.CHECK) {
+			console.log('checking day panel', this.dayCardUpdate);
+		// }
 	}
 
 }

@@ -17,7 +17,10 @@ import javax.inject.Singleton
 interface SchedulesDatabaseClient extends SchedulesDatabaseApi {
 
 	@Get("/mechanics")
-	List<EmployeeSchedule> getMechanics(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day, @QueryValue boolean fixedSchedules)
+	List<EmployeeSchedule> getMechanics(
+			@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from,
+			@QueryValue boolean fixedSchedules
+	)
 
 	@Get("/employeesSchedulesPosition")
 	List<Map> updateEmployeesSchedulesPosition(@Body List<EmployeeSchedule> employeesSchedules)

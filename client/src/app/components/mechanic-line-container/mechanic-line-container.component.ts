@@ -3,7 +3,7 @@ import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {CardsGroup} from "../../objects/cards-group";
-import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
+import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -14,9 +14,8 @@ import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
 export class MechanicLineContainerComponent {
 
 	@Input() day: Date;
-	@Input() dayCardUpdate: DayCardUpdate;
+	@Input() dayCardUpdate: MechanicLineUpdate;
 	@Input() mechanic: Mechanic;
-	@Input() cardsGroups: CardsGroup[];
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;

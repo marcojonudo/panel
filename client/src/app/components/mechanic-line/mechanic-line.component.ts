@@ -9,7 +9,7 @@ import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardPositionService} from "../../services/card-position.service";
-import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
+import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -21,8 +21,7 @@ export class MechanicLineComponent {
 
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
-	@Input() dayCardUpdate: DayCardUpdate;
-	@Input() cardsGroups: CardsGroup;
+	@Input() dayCardUpdate: MechanicLineUpdate;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
@@ -70,6 +69,10 @@ export class MechanicLineComponent {
 	}
 
 	// endregion
+
+	findGroups(day: Date, mechanicCode: string): CardsGroup[] {
+		return this.cardsService.getAssignedCardsGroups(day, mechanicCode);
+	}
 
 	calcScheduleWidth(duration: number): number {
 		return this.timeService.calcWidthFromDuration(duration);

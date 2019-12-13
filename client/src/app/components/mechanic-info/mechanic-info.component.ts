@@ -30,7 +30,7 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private daysService: DaysService,
-		private cardsServie: CardsService,
+		private cardsService: CardsService,
 		private commonService: CommonService,
 		private modalService: NgbModal,
 		private cdRef: ChangeDetectorRef
@@ -104,24 +104,21 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	}
 
 	checkRemoveMechanic(content): void {
-		const assignedCardsGroups = this.cardsServie.getAssignedCardsGroups(this.mechanic.day, this.mechanic.code);
+		const assignedCardsGroups = this.cardsService.getAssignedCardsGroups(this.mechanic.day, this.mechanic.code);
 		if (assignedCardsGroups.length) {
 			this.modalService.open(content, {centered: true}).result.then(
 				() => {
 					assignedCardsGroups.forEach(group => {
-						this.cardsServie.removeFromOrigin(group);
-						this.cardsServie.updateTranslatedCards(group)
+						this.cardsService.removeFromAssigned(group, this.day, this.mechanic.code);
+						this.cardsService.resetCardsGroup(group);
+						this.cardsService.addToUnassigned(group);
 					});
-					this.removeMechanic();
+					this.daysService.removeMechanic(this.day, this.mechanic);
 				},
 				() => {});
 		} else {
-			this.removeMechanic();
+			this.daysService.removeMechanic(this.day, this.mechanic);
 		}
-	}
-
-	removeMechanic() {
-		this.daysService.removeMechanic(this.day, this.mechanic);
 	}
 
 	toggleAppointmentSchedulesDialog(): void {

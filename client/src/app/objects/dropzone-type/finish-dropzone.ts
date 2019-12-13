@@ -5,6 +5,7 @@ import {Dropzone} from "./dropzone";
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
+import {NotificationService} from "../../services/notification.service";
 
 export class FinishDropzone implements Dropzone {
 
@@ -39,7 +40,7 @@ export class FinishDropzone implements Dropzone {
 		this.cardsService.updateFinishedGroup(group);
 		this.cardsService.addToFinished(group);
 		this.cardPositionService.updateUnassignedGroupsLeft(this.cardsService.finishedCardsGroups);
-		this.cardsService.notifyUnassigned();
+		NotificationService.notifyBar();
 
 		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */
 		return undefined;

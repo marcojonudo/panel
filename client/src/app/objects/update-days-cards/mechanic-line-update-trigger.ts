@@ -1,6 +1,6 @@
-import {DayCardUpdate} from "./day-card-update";
+import {MechanicLineUpdate} from "./mechanic-line-update";
 
-export class DayCardUpdateTrigger implements DayCardUpdate {
+export class MechanicLineUpdateTrigger implements MechanicLineUpdate {
 
 	day: Date;
 	mechanicCode: string;

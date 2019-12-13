@@ -2,11 +2,9 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy,
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {DaysService} from "../../services/days.service";
 import {Mechanic} from "../../objects/mechanic";
-import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
-import {MechanicUpdate} from "../../objects/mechanic-update/mechanic-update";
-import {CardsGroup} from "../../objects/cards-group";
-import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
+import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-grid',
@@ -17,8 +15,7 @@ import {DayCardUpdate} from "../../objects/update-days-cards/day-card-update";
 export class GridComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
-	@Input() dayCardUpdate: DayCardUpdate;
-	@Input() dayCardsGroups: any;
+	@Input() dayCardUpdate: MechanicLineUpdate;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
@@ -33,11 +30,6 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.mechanics = this.daysService.daysMechanics[this.day.getTime()];
-		this.mechanicsSubscription = this.daysService.daysMechanics$[this.day.getTime()]
-			.subscribe((mechanicUpdate: MechanicUpdate) => {
-				mechanicUpdate.update(this.mechanics);
-				this.cdRef.detectChanges();
-		});
 	}
 
 	ngOnDestroy(): void {
@@ -58,13 +50,9 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	private checkTriggerMechanicCd(
 		mechanicCode: string,
-		dayCardUpdate: DayCardUpdate = this.dayCardUpdate
-	): DayCardUpdate {
+		dayCardUpdate: MechanicLineUpdate = this.dayCardUpdate
+	): MechanicLineUpdate {
 		return dayCardUpdate && mechanicCode == dayCardUpdate.mechanicCode ? dayCardUpdate : undefined;
-	}
-
-	findMechanicCardsGroups(mechanicCode: string): CardsGroup {
-		return this.dayCardsGroups[mechanicCode];
 	}
 
 	drop(event: CdkDragDrop<string[]>) {

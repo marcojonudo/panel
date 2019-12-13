@@ -61,7 +61,6 @@ export class AssignedDropzone implements Dropzone {
 			() => {
 				this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
 				this.cardsService.updateAppointmentsPanel(group);
-
 			},
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);

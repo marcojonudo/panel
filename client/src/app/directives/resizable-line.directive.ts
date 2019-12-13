@@ -21,8 +21,7 @@ export class ResizableLineDirective implements OnInit {
 		private element: ElementRef,
 		private renderer: Renderer2,
 		private daysService: DaysService,
-		private cardsService: CardsService,
-		private cdRef: ChangeDetectorRef
+		private cardsService: CardsService
 	) { }
 
 	ngOnInit(): void {

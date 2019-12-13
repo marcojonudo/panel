@@ -17,6 +17,7 @@ import {AppointmentsService} from "./appointments.service";
 import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {UtilsService} from "./utils.service";
 import {RealTimeAppointmentUpdateType} from "../objects/real-time-update/real-time-appointment-update-type";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -186,7 +187,8 @@ export class RealTimeService {
 		*  y si se asigna sólo el horario no tendrá información sobre su tipo */
 		appointment.appointmentType = updatedAppointment.appointmentType;
 		appointment.schedule = updatedAppointment.schedule;
-		this.appointmentsService.updateAppointments(mechanic);
+		// this.appointmentsService.updateAppointments(mechanic);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
 	updateAppointmentType(updatedAppointment: AppointmentSchedule): void {
@@ -216,7 +218,8 @@ export class RealTimeService {
 			);
 			appointment.appointmentType = updatedAppointment.appointmentType;
 		}
-		this.appointmentsService.updateAppointments(mechanic);
+		// this.appointmentsService.updateAppointments(mechanic);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
 }

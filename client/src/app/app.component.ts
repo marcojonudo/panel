@@ -13,6 +13,7 @@ import {CommonService} from "./services/common.service";
 import {RealTimeService} from "./services/real-time.service";
 import {AppointmentsService} from "./services/appointments.service";
 import {CardPositionService} from "./services/card-position.service";
+import {NotificationService} from "./services/notification.service";
 
 @Component({
 	selector: 'app-root',
@@ -42,13 +43,14 @@ export class AppComponent implements AfterViewInit {
 			.subscribe((data: any) => {
 				console.log('Received data', data);
 
+				NotificationService.init();
 				this.commonService.init(data.jobLineTypes, data.appointmentTypes);
 
 				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics, data.skills);
 				this.daysService.init(daysMechanicsList);
 				this.timeService.init(this.daysService.daysMechanics);
 
-				this.cardsService.init(data.cards.map(card => new Card(card)));
+				this.cardsService.init(data.cards.map(card => new Card(card)), this.daysService.daysMechanics);
 				this.cardPositionService.init(
 					this.cardsService.unassignedSections,
 					this.cardsService.assignedDaysCardsGroups

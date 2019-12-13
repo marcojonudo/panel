@@ -22,7 +22,7 @@
 		}">
 	</div>
 	<app-draggable-group
-		*ngFor="let cardsGroup of cardsGroups"
+		*ngFor="let cardsGroup of findGroups(day, mechanic.code)"
 		class="assigned-card"
 		[ngClass]="{'hidden': checkHideGroup(cardsGroup.id)}"
 		[ngStyle]="{

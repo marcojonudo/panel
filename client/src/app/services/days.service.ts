@@ -5,12 +5,10 @@ import {Mechanic} from "../objects/mechanic";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Subject} from "rxjs/internal/Subject";
-import {TimeService} from "./time.service";
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
-import {MechanicUpdateRemove} from "../objects/mechanic-update/mechanic-update-remove";
-import {MechanicUpdate} from "../objects/mechanic-update/mechanic-update";
-import {MechanicUpdateTrigger} from "../objects/mechanic-update/mechanic-update-trigger";
+import {DayMechanics} from "../objects/day-mechanics";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -35,10 +33,9 @@ export class DaysService {
 	private lineHeightSubject: BehaviorSubject<number>;
 	private _lineHeight$: Observable<number>;
 
-	private daysMechanicsSubjects: any;
-	private _daysMechanics$: any;
-
-	constructor(private http: HttpClient) {
+	constructor(
+		private http: HttpClient
+	) {
 		this.oneDayMode = true;
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 
@@ -50,14 +47,6 @@ export class DaysService {
 	}
 
 	// region Getters / setters
-
-	get daysMechanics$(): any {
-		return this._daysMechanics$;
-	}
-
-	set daysMechanics$(value: any) {
-		this._daysMechanics$ = value;
-	}
 
 	get days(): Date[] {
 		return this._days;
@@ -83,11 +72,11 @@ export class DaysService {
 		this._oneDayMode$ = value;
 	}
 
-	get daysMechanics(): any {
+	get daysMechanics(): DayMechanics {
 		return this._daysMechanics;
 	}
 
-	set daysMechanics(value: any) {
+	set daysMechanics(value: DayMechanics) {
 		this._daysMechanics = value;
 	}
 
@@ -108,7 +97,6 @@ export class DaysService {
 		this.initDays(daysMechanicsList);
 		this.initDaysMechanics(daysMechanicsList);
 
-		this.initObservables(this.daysMechanics);
 		console.log('Days', this.days);
 		console.log('Days mechanics', this.daysMechanics);
 	}
@@ -126,19 +114,6 @@ export class DaysService {
 		}
 	}
 
-	initObservables(daysMechanics: any): void {
-		this.daysMechanicsSubjects = {};
-		this.daysMechanics$ = {};
-
-		for (let dayTime in daysMechanics) {
-			const subject = new Subject<MechanicUpdate>();
-			const observable = subject.asObservable();
-
-			this.daysMechanicsSubjects[dayTime] = subject;
-			this.daysMechanics$[dayTime] = observable;
-		}
-	}
-
 	// endregion
 
 	toggleDayMode() {
@@ -152,7 +127,7 @@ export class DaysService {
 		gridHeight: number,
 		today: Date,
 		lineHeight: number = this.lineHeight,
-		daysMechanics: any = this.daysMechanics,
+		daysMechanics: DayMechanics = this.daysMechanics,
 		oneDayMode: boolean = this.oneDayMode
 	): boolean {
 		if (!Object.keys(daysMechanics).length) {
@@ -173,24 +148,42 @@ export class DaysService {
 	updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.lines = newLines;
 		mechanic.height = this.lineHeight * mechanic.lines;
-		this.notifyDay(mechanic.day, new MechanicUpdateTrigger(mechanic));
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {
 		this.http.put(`${environment.serverUrl}/panel/mechanic/lines`, [mechanic]).subscribe();
 	}
 
-	removeMechanic(day: Date, mechanic: Mechanic, updateDb: boolean = true) {
+	removeMechanic(
+		day: Date,
+		mechanic: Mechanic,
+		updateDb: boolean = true,
+		mechanics: Mechanic[] = this.daysMechanics[day.getTime()]
+	) {
 		mechanic.showInPanel = false;
-		this.daysMechanics[day.getTime()] = this.daysMechanics[day.getTime()].filter(m => {
-			return m.panelPosition != mechanic.panelPosition;
-		});
-		this.notifyDay(day, new MechanicUpdateRemove(mechanic));
+
+		const index = mechanics.indexOf(mechanic);
+		this.rearrangeMechanics(mechanics, index);
+
+		NotificationService.notifyMechanicLine(day, mechanic.code);
+
 		if (updateDb) {
 			this.http.put(
 				`${environment.serverUrl}/panel/mechanic/position`,
-				this.daysMechanics[day.getTime()].concat(mechanic)
+				mechanics.concat(mechanic)
 			).subscribe();
+		}
+	}
+
+	private rearrangeMechanics(mechanics: Mechanic[], removedMechanicIndex: number): void {
+		let prevPosition = mechanics[removedMechanicIndex].panelPosition;
+		mechanics.splice(removedMechanicIndex, 1);
+
+		for (let i = removedMechanicIndex; i < mechanics.length; i++) {
+			const newPosition = mechanics[i].panelPosition;
+			mechanics[i].panelPosition = prevPosition;
+			prevPosition = newPosition;
 		}
 	}
 
@@ -200,10 +193,6 @@ export class DaysService {
 
 	findMechanic(day: Date, code: string): Mechanic {
 		return this.daysMechanics[day.getTime()].find(mechanic => mechanic.code == code);
-	}
-
-	notifyDay(day: Date, mechanicUpdate: MechanicUpdate): void {
-		this.daysMechanicsSubjects[day.getTime()].next(mechanicUpdate);
 	}
 
 }

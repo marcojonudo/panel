@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Directive, ElementRef, Input, Renderer2} from '@angul
 import {Card} from "../objects/card";
 import {CardsService} from "../services/cards.service";
 import {TimeService} from "../services/time.service";
+import {DaysService} from "../services/days.service";
 
 @Directive({
   selector: '[appResizableCard]'
@@ -22,7 +23,8 @@ export class ResizableCardDirective {
 		private renderer: Renderer2,
 		private cdRef: ChangeDetectorRef,
 		private cardsService: CardsService,
-		private timeService: TimeService
+		private timeService: TimeService,
+		private daysService: DaysService
 	) {
 		this.updatedCards = []
 	}
@@ -43,10 +45,13 @@ export class ResizableCardDirective {
 		const diff = event.clientX - this.lastX;
 		if (Math.abs(diff) >= this.timeService.intervalWidth &&
 			!(diff < 0 && this.card.width == this.timeService.intervalWidth)) {
-			this.updatedCards = this.updatedCards.concat(this.cardsService.handleCardDurationUpdate(
-				this.card,
-				this.timeService.intervalWidth * Math.sign(diff)
-			)).filter((card, i, self) => self.indexOf(card) === i);
+			this.updatedCards = this.updatedCards.concat(
+				this.cardsService.handleCardDurationUpdate(
+					this.card,
+					this.timeService.intervalWidth * Math.sign(diff),
+					this.daysService.findMechanic(this.card.day, this.card.mechanicCode)
+				)
+			).filter((card, i, self) => self.indexOf(card) === i);
 			this.lastX = event.clientX;
 		}
 	}
