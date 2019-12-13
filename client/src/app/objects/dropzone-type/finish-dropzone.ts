@@ -44,7 +44,7 @@ export class FinishDropzone implements Dropzone {
 		this.cardsService.updateFinishedGroup(group);
 		this.cardsService.addToFinished(group);
 		this.cardPositionService.updateUnassignedGroupsLeft(this.cardsService.finishedCardsGroups);
-		NotificationService.notifyBar();
+		NotificationService.notifyBand();
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {

@@ -51,7 +51,7 @@ export class ToolsBarComponent {
 			undefined,
 			this.showingFinished ? this.cardsService.unassignedSections[0].name : Constants.CARD_STATUS.FINISHED
 		);
-		NotificationService.notifyBar(unassignedCardUpdate);
+		NotificationService.notifyBand(unassignedCardUpdate);
 		this.showingFinished = !this.showingFinished;
 	}
 

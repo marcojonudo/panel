@@ -48,7 +48,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	private _cardSections: UnassignedSection[];
 	private _section: UnassignedSection;
 
-	private unassignedCardsGroupsSubscription: Subscription;
+	private bandSubscription: Subscription;
 
 	constructor(
 		private timeService: TimeService,
@@ -70,7 +70,7 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.unassignedTypesCardsGroups = this.cardsService.unassignedTypesCardsGroups;
-		this.unassignedCardsGroupsSubscription = NotificationService.bar$
+		this.bandSubscription = NotificationService.band$
 			.subscribe((cardUpdate: UnassignedCardUpdate) => {
 				if (cardUpdate.type) {
 					this.section = this.cardsService.unassignedSections.find(section => section.name == cardUpdate.type);
@@ -85,7 +85,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.unassignedCardsGroupsSubscription.unsubscribe();
+		this.bandSubscription.unsubscribe();
 	}
 
 	// region Getters / setters

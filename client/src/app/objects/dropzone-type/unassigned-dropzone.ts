@@ -50,7 +50,7 @@ export class UnassignedDropzone implements Dropzone {
 
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
 		setTimeout(
-			() => NotificationService.notifyBar(),
+			() => NotificationService.notifyBand(),
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
 	}

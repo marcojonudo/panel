@@ -18,10 +18,7 @@ import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {UtilsService} from "./utils.service";
 import {RealTimeAppointmentUpdateType} from "../objects/real-time-update/real-time-appointment-update-type";
 import {NotificationService} from "./notification.service";
-import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
-import {CardPositionService} from "./card-position.service";
-import {UnassignedDropzone} from "../objects/dropzone-type/unassigned-dropzone";
-import {group} from "@angular/animations";
+import {CardsGroup} from "../objects/cards-group";
 
 @Injectable({
 	providedIn: 'root'
@@ -79,14 +76,17 @@ export class RealTimeService {
 		};
 	}
 
-	updatePosition(cards: Card[]): void {
-		const [lastAssigned, assigned] = [cards[0].lastDay != undefined, cards[0].day != undefined];
-
+	findGroups(card: Card, day: Date, mechanicCode: string): CardsGroup[] {
 		/* En función de si la ficha estaba asignada antes de moverse en otro terminal o no, se busca en los
 		*  grupos asignados o en los de la cinta */
-		const allGroups = lastAssigned ?
-			this.cardsService.getAssignedCardsGroups(cards[0].lastDay, cards[0].lastMechanicCode) :
-			this.cardsService.findUnassignedGroups(cards[0].type, cards[0].status);
+		return day ?
+			this.cardsService.getAssignedCardsGroups(day, mechanicCode) :
+			this.cardsService.findUnassignedGroups(card.type, card.status);
+	}
+
+	updatePosition(cards: Card[]): void {
+		const [lastAssigned, assigned] = [cards[0].lastDay != undefined, cards[0].day != undefined];
+		const allGroups = this.findGroups(cards[0], cards[0].lastDay, cards[0].lastMechanicCode);
 
 		/* Si se mueve un grupo con varias fichas, para cada una de ellas se actualizaría la posición del grupo. Para
 		*  evitarlo, se almacenan los grupos ya procesados para no volver a hacerlo */
@@ -123,9 +123,7 @@ export class RealTimeService {
 		/* Por cómo se van actualizando las fichas (duración de una, desplazamientos de otras), aquella cuya duración
 		*  se actualiza es la última de la lista. El resto, son fichas que se desplazaron al aumentar la duración de
 		*  esta */
-		const allGroups = cards[0].lastDay ?
-			this.cardsService.assignedCardsGroups :
-			this.cardsService.unassignedCardsGroups;
+		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 
 		let updatedDurationCard = undefined;
 		let updatedDurationGroup = undefined;
@@ -145,6 +143,7 @@ export class RealTimeService {
 				translatedCards.push(card);
 			}
 		});
+
 		const receivedUpdatedDurationCard = cards.find(c => c.id == updatedDurationCard.id);
 		const durationDiff = receivedUpdatedDurationCard.duration - updatedDurationCard.duration;
 		const widthDiff = this.timeService.calcWidthFromDuration(durationDiff);
@@ -157,9 +156,7 @@ export class RealTimeService {
 	updateLinks(cards: Card[]): void {
 		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
 
-		const allGroups = cards[0].lastDay ?
-			this.cardsService.assignedCardsGroups :
-			this.cardsService.unassignedCardsGroups;
+		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 
 		/* Si la ficha de la izquierda tiene linkedNextId, significa que ambas se están enlazando */
 		if (cards[0].linkedNextId) {
@@ -176,8 +173,10 @@ export class RealTimeService {
 	}
 
 	updateLines(mechanic: Mechanic): void {
-		const mec = this.daysService.daysMechanics[mechanic.day.getTime()].find(m => m.panelPosition == mechanic.panelPosition);
-		this.daysService.updateMechanicLines(mec, mechanic.lines);
+		const localMechanic = this.daysService.daysMechanics[mechanic.day.getTime()].find(m =>
+			m.panelPosition == mechanic.panelPosition
+		);
+		this.daysService.updateMechanicLines(localMechanic, mechanic.lines);
 	}
 
 	updateMechanicPosition(mechanics: Mechanic[]): void {
@@ -202,7 +201,6 @@ export class RealTimeService {
 		*  y si se asigna sólo el horario no tendrá información sobre su tipo */
 		appointment.appointmentType = updatedAppointment.appointmentType;
 		appointment.schedule = updatedAppointment.schedule;
-		// this.appointmentsService.updateAppointments(mechanic);
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
@@ -233,7 +231,6 @@ export class RealTimeService {
 			);
 			appointment.appointmentType = updatedAppointment.appointmentType;
 		}
-		// this.appointmentsService.updateAppointments(mechanic);
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 

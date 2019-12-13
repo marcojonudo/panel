@@ -222,9 +222,9 @@ export class CardsService {
 		this.handleAssignedMovementGroupsLinks(
 			day,
 			mechanicCode,
-			cardsGroup.lastLine,
-			cardsGroup.lastStart,
-			cardsGroup.lastEnd
+			cardsGroup.line,
+			cardsGroup.start,
+			cardsGroup.end
 		);
 		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
 	}
@@ -482,12 +482,12 @@ export class CardsService {
 
 	handleAddFinishedCardsGroup(group: CardsGroup): void {
 		this.addFinishedCardsGroup(group);
-		NotificationService.notifyBar();
+		NotificationService.notifyBand();
 	}
 
 	handleRemoveFinishedCardsGroup(group: CardsGroup): void {
 		this.removeFinishedCardsGroup(group);
-		NotificationService.notifyBar();
+		NotificationService.notifyBand();
 	}
 
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
@@ -502,13 +502,13 @@ export class CardsService {
 
 	handleAddUnassignedCardsGroup(group: CardsGroup): void {
 		this.addUnassignedCardsGroup(group);
-		NotificationService.notifyBar(new UnassignedCardUpdateTrigger(group));
+		NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
 	}
 
 	handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {
 		this.removeUnassignedCardsGroup(group);
 		if (notify) {
-			NotificationService.notifyBar(new UnassignedCardUpdateTrigger(group));
+			NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
 		}
 	}
 
@@ -595,6 +595,11 @@ export class CardsService {
 		const groups = findGroups();
 		const group = this.findCardGroup(groups, card.id);
 		const leftGroup = this.findLeftGroup(groups, group.id);
+
+		console.log('groups', groups);
+		console.log(this.findLineGroups(card.day, card.mechanicCode, card.line));
+		console.log('group', group);
+		console.log('leftGroup', leftGroup);
 
 		leftGroup.cards[leftGroup.cards.length - 1].linkedNextId = card.id;
 		card.linkedPreviousId = leftGroup.cards[leftGroup.cards.length - 1].id;
@@ -847,6 +852,7 @@ export class CardsService {
 
 	private findLeftGroup(groups: CardsGroup[], groupId): CardsGroup {
 		const groupIndex = groups.findIndex(g => g.id == groupId);
+		console.log('gIndex', groupIndex);
 		return groupIndex > -1 && groupIndex > 0 ? groups[groupIndex - 1] : undefined;
 	}
 

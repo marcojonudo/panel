@@ -14,8 +14,8 @@ export class NotificationService {
 	private static mechanicLineSubject: Subject<MechanicLineUpdate>;
 	private static _mechanicLine$: Observable<MechanicLineUpdate>;
 
-	private static barSubject: Subject<UnassignedCardUpdate>;
-	private static _bar$: Observable<UnassignedCardUpdate>;
+	private static bandSubject: Subject<UnassignedCardUpdate>;
+	private static _band$: Observable<UnassignedCardUpdate>;
 
 	// region Init
 
@@ -23,8 +23,8 @@ export class NotificationService {
 		this.mechanicLineSubject = new Subject<MechanicLineUpdate>();
 		this.mechanicLine$ = this.mechanicLineSubject.asObservable();
 
-		this.barSubject = new Subject<UnassignedCardUpdate>();
-		this.bar$ = this.barSubject.asObservable();
+		this.bandSubject = new Subject<UnassignedCardUpdate>();
+		this.band$ = this.bandSubject.asObservable();
 	}
 
 	// endregion
@@ -39,23 +39,23 @@ export class NotificationService {
 		this._mechanicLine$ = value;
 	}
 
-	static get bar$(): Observable<UnassignedCardUpdate> {
-		return this._bar$;
+	static get band$(): Observable<UnassignedCardUpdate> {
+		return this._band$;
 	}
 
-	static set bar$(value: Observable<UnassignedCardUpdate>) {
-		this._bar$ = value;
+	static set band$(value: Observable<UnassignedCardUpdate>) {
+		this._band$ = value;
 	}
 
 	// endregion
 
 	static notifyAll(): void {
-		NotificationService.notifyBar();
+		NotificationService.notifyBand();
 		NotificationService.notifyMechanicLine();
 	}
 
-	static notifyBar(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger()): void {
-		this.barSubject.next(cardUpdate);
+	static notifyBand(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger()): void {
+		this.bandSubject.next(cardUpdate);
 	}
 
 	static notifyMechanicLine(day: Date = undefined, mechanicCode: string = undefined): void {
