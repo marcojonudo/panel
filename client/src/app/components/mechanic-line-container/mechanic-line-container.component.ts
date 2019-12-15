@@ -14,7 +14,7 @@ import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-
 export class MechanicLineContainerComponent {
 
 	@Input() day: Date;
-	@Input() dayCardUpdate: MechanicLineUpdate;
+	@Input() mechanicLineUpdate: MechanicLineUpdate;
 	@Input() mechanic: Mechanic;
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
@@ -32,7 +32,7 @@ export class MechanicLineContainerComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line container', this.dayCardUpdate)
+			console.log('checking mechanic line container', this.mechanicLineUpdate)
 		}
 	}
 }

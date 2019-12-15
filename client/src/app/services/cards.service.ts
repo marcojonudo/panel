@@ -852,7 +852,6 @@ export class CardsService {
 
 	private findLeftGroup(groups: CardsGroup[], groupId): CardsGroup {
 		const groupIndex = groups.findIndex(g => g.id == groupId);
-		console.log('gIndex', groupIndex);
 		return groupIndex > -1 && groupIndex > 0 ? groups[groupIndex - 1] : undefined;
 	}
 

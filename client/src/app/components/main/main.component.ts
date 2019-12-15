@@ -13,6 +13,7 @@ import {CardsGroup} from "../../objects/cards-group";
 import {Skill} from "../../objects/skill";
 import {CommonService} from "../../services/common.service";
 import {NotificationService} from "../../services/notification.service";
+import {UtilsService} from "../../services/utils.service";
 
 @Component({
 	selector: 'app-main',
@@ -23,6 +24,7 @@ import {NotificationService} from "../../services/notification.service";
 export class MainComponent implements OnInit, OnDestroy {
 
 	private _days: Date[];
+	private _today: Date;
 	private itemSize: number;
 	private _displayScrollbar: boolean;
 	private _showNonexistentScheduleMessage: boolean;
@@ -56,7 +58,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.daysService.days;
-
+		const today = UtilsService.clearTime(new Date()).getTime();
+		this.today = this.days.find(day => day.getTime() == today);
 		this.oneDayMode = true;
 		this.maxScheduleHours = this.timeService.updateMaxSchedule(this.oneDayMode);
 		// this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
@@ -74,8 +77,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
 		this.assignedCardsGroupsSubscription = NotificationService.mechanicLine$
-				.subscribe((dayCardUpdate: MechanicLineUpdate) => {
-			this.dayCardUpdate = dayCardUpdate;
+				.subscribe((mechanicLineUpdate: MechanicLineUpdate) => {
+			this.mechanicLineUpdate = mechanicLineUpdate;
 			this.cdRef.detectChanges();
 		});
 
@@ -134,6 +137,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set days(value: Date[]) {
 		this._days = value;
+	}
+
+	get today(): Date {
+		return this._today;
+	}
+
+	set today(value: Date) {
+		this._today = value;
 	}
 
 	get assignedDaysCardsGroups(): CardsGroup[] {
@@ -216,18 +227,22 @@ export class MainComponent implements OnInit, OnDestroy {
 		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
 	}
 
-	get dayCardUpdate(): MechanicLineUpdate {
+	get mechanicLineUpdate(): MechanicLineUpdate {
 		return this._dayCardUpdate;
 	}
 
-	set dayCardUpdate(value: MechanicLineUpdate) {
+	set mechanicLineUpdate(value: MechanicLineUpdate) {
 		this._dayCardUpdate = value;
 	}
 
 	// endregion
 
-	private checkTriggerCd(day: Date, dayCardUpdate: MechanicLineUpdate = this.dayCardUpdate): MechanicLineUpdate {
-		return dayCardUpdate && day.getTime() == dayCardUpdate.day.getTime() ? dayCardUpdate : undefined;
+	private checkTriggerCd(day: Date, mechanicLineUpdate: MechanicLineUpdate = this.mechanicLineUpdate): MechanicLineUpdate {
+		let update = undefined;
+		if (mechanicLineUpdate) {
+			update = !mechanicLineUpdate.day || day.getTime() == mechanicLineUpdate.day.getTime() ? mechanicLineUpdate : undefined;
+		}
+		return update;
 	}
 
 	private checkTodayScheduleExists(today: Date = this.timeService.today): boolean {

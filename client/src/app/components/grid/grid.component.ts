@@ -12,28 +12,21 @@ import {Constants} from "../../objects/constants";
 	styleUrls: ['./grid.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridComponent implements OnInit, OnDestroy {
+export class GridComponent implements OnInit {
 
 	@Input() day: Date;
-	@Input() dayCardUpdate: MechanicLineUpdate;
+	@Input() mechanicLineUpdate: MechanicLineUpdate;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
 	private _mechanics: Mechanic[];
 
-	private mechanicsSubscription: Subscription;
-
 	constructor(
-		private daysService: DaysService,
-		private cdRef: ChangeDetectorRef
+		private daysService: DaysService
 	) {}
 
 	ngOnInit(): void {
 		this.mechanics = this.daysService.daysMechanics[this.day.getTime()];
-	}
-
-	ngOnDestroy(): void {
-		this.mechanicsSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -50,9 +43,9 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	private checkTriggerMechanicCd(
 		mechanicCode: string,
-		dayCardUpdate: MechanicLineUpdate = this.dayCardUpdate
+		mechanicLineUpdate: MechanicLineUpdate = this.mechanicLineUpdate
 	): MechanicLineUpdate {
-		return dayCardUpdate && mechanicCode == dayCardUpdate.mechanicCode ? dayCardUpdate : undefined;
+		return mechanicLineUpdate && mechanicCode == mechanicLineUpdate.mechanicCode ? mechanicLineUpdate : undefined;
 	}
 
 	drop(event: CdkDragDrop<string[]>) {
@@ -65,7 +58,7 @@ export class GridComponent implements OnInit, OnDestroy {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking grid', this.dayCardUpdate);
+			console.log('checking grid', this.mechanicLineUpdate, this.day);
 		}
 	}
 

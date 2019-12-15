@@ -21,7 +21,7 @@ export class MechanicLineComponent {
 
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
-	@Input() dayCardUpdate: MechanicLineUpdate;
+	@Input() mechanicLineUpdate: MechanicLineUpdate;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;

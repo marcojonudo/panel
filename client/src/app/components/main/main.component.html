@@ -1,9 +1,49 @@
 <div class="container-fluid d-flex flex-column w-100 h-100">
 	<div
 		class="row assigned-orders-container">
-		<div class="col w-100 h-100 padding-0 d-flex parent-sections-container">
+		<div *ngIf="oneDayMode" class="col h-100 padding-0 d-flex">
+			<div
+				appScrollable
+				class="flex-grow-1 h-100 panel-container padding-0"
+				[ngClass]="{
+					'width-0-scrollbar': !displayScrollbar,
+					'overflow-scroll': !showNonexistentScheduleMessage,
+					'overflow-hidden': showNonexistentScheduleMessage
+				}">
+				<div
+					class="h-100"
+					[style.width.px]="maxScheduleWidth">
+					<app-day-panel
+						class="animated slideInRight"
+						[day]="today"
+						[mechanicLineUpdate]="checkTriggerCd(today)"
+						[maxScheduleHours]="maxScheduleHours"
+						[maxScheduleWidth]="maxScheduleWidth">
+					</app-day-panel>
+				</div>
+				<div
+					*ngIf="showNonexistentScheduleMessage"
+					class="w-100 h-100 align-center nonexistent-today-schedules-container">
+					No hay horarios definidos para hoy. ¡Puedes tomarte el día libre!
+				</div>
+			</div>
+			<app-skills-details
+				*ngIf="showSkills"
+				[skills]="skills"
+				[style.right.px]="skillsDetailsRight"
+				class="h-100">
+			</app-skills-details>
+			<app-day-info-panel
+				class="h-100"
+				[style.min-width.px]="dayPanelWidth"
+				[day]="today">
+			</app-day-info-panel>
+			<app-tools-bar class="h-100"></app-tools-bar>
+		</div>
+		<div *ngIf="!oneDayMode" class="col w-100 h-100 padding-0 d-flex parent-sections-container">
 			<div
 				class="d-flex flex-column"
+				appScrollable
 				[style.width.px]="dayContainerWidth"
 				[ngClass]="{'overflow-y-scroll': !oneDayMode}">
 				<div
@@ -11,7 +51,6 @@
 					class="w-100 h-auto d-flex"
 					[ngClass]="{'overflow-hidden': oneDayMode}">
 					<div
-						appScrollable
 						class="h-100 panel-container padding-0"
 						[ngClass]="{
 							'width-0-scrollbar': !oneDayMode || !displayScrollbar,
@@ -24,7 +63,7 @@
 							<app-day-panel
 								class="animated slideInRight"
 								[day]="day"
-								[dayCardUpdate]="checkTriggerCd(day)"
+								[mechanicLineUpdate]="checkTriggerCd(day)"
 								[maxScheduleHours]="maxScheduleHours"
 								[maxScheduleWidth]="maxScheduleWidth">
 							</app-day-panel>
@@ -41,7 +80,8 @@
 				*ngIf="showSkills"
 				[skills]="skills"
 				[style.right.px]="skillsDetailsRight"
-				class="h-100"></app-skills-details>
+				class="h-100">
+			</app-skills-details>
 			<app-tools-bar class="h-100"></app-tools-bar>
 		</div>
 	</div>

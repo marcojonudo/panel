@@ -11,7 +11,7 @@ import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-
 export class DayPanelComponent {
 
 	@Input() day: Date;
-	@Input() dayCardUpdate: MechanicLineUpdate;
+	@Input() mechanicLineUpdate: MechanicLineUpdate;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
@@ -19,7 +19,7 @@ export class DayPanelComponent {
 
 	checkDayPanel() {
 		if (Constants.CHECK) {
-			console.log('checking day panel', this.dayCardUpdate);
+			console.log('checking day panel', this.mechanicLineUpdate);
 		}
 	}
 
