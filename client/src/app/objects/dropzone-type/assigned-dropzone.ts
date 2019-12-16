@@ -5,11 +5,13 @@ import {Dropzone} from "./dropzone";
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
+import {AppointmentsService} from "../../services/appointments.service";
 
 export class AssignedDropzone implements Dropzone {
 
 	cardPositionService: CardPositionService;
 	cardsService: CardsService;
+	appointmentsService: AppointmentsService;
 
 	type: string = Constants.DROPZONE_TYPE.ASSIGNED;
 	mechanic: Mechanic;
@@ -20,10 +22,12 @@ export class AssignedDropzone implements Dropzone {
 	constructor(
 		cardPositionService: CardPositionService,
 		cardsService: CardsService,
+		appointmentsService: AppointmentsService,
 		mechanic: Mechanic
 	) {
 		this.cardPositionService = cardPositionService;
 		this.cardsService = cardsService;
+		this.appointmentsService = appointmentsService;
 		this.mechanic = mechanic;
 	}
 
@@ -35,7 +39,10 @@ export class AssignedDropzone implements Dropzone {
 		);
 	}
 
-	removeGroup(group: CardsGroup, validated: boolean): void {
+	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
+		if (destinyDropzone) {
+			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
+		}
 		this.cardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
@@ -51,10 +58,12 @@ export class AssignedDropzone implements Dropzone {
 
 	addGroup(
 		groups: CardsGroup[],
-		group: CardsGroup
+		group: CardsGroup,
+		originDropzone: Dropzone
 	): void {
 		/* Se actualiza el día y el mecánico */
 		this.cardsService.updateAssignedCards(groups, group, this.mechanic.day, this.mechanic.code);
+		this.updateAppointmentsCounterAdd(group, originDropzone);
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
@@ -62,7 +71,7 @@ export class AssignedDropzone implements Dropzone {
 		setTimeout(
 			() => {
 				this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
-				this.cardsService.updateAppointmentsPanel(group);
+				// this.cardsService.updateAppointmentsPanel(group);
 			},
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
@@ -75,6 +84,21 @@ export class AssignedDropzone implements Dropzone {
 			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
+	}
+
+	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
+		/* Sólo se tiene que reducir el contador de citas si una ficha se mueve de asignada a asignada (restar en una
+		*  categoría y sumar en otra), o de asignada a no asignada (restar en una categoría). si se mueve a otra
+		*  dropzone (finalizada), no se resta nada al contador de citas */
+		if (destinyDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
+			this.appointmentsService.updateAppointmentSubtract(group.cards, group.cards[0].day);
+		}
+	}
+
+	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
+		if (originDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
+			this.appointmentsService.updateAppointmentAdd(group.cards, group.cards[0].day)
+		}
 	}
 
 }

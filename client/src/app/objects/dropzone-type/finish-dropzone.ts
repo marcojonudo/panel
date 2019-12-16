@@ -6,11 +6,13 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
+import {AppointmentsService} from "../../services/appointments.service";
 
 export class FinishDropzone implements Dropzone {
 
 	cardPositionService: CardPositionService;
 	cardsService: CardsService;
+	appointmentsService: AppointmentsService;
 
 	type: string = Constants.DROPZONE_TYPE.FINISH;
 	mechanic: Mechanic;
@@ -18,10 +20,12 @@ export class FinishDropzone implements Dropzone {
 
 	constructor(
 		cardPositionService: CardPositionService,
-		cardsService: CardsService
+		cardsService: CardsService,
+		appointmentsService: AppointmentsService
 	) {
 		this.cardPositionService = cardPositionService;
 		this.cardsService = cardsService;
+		this.appointmentsService = appointmentsService;
 	}
 
 	validateMovement(position: Coordinates): CardsGroup[] {
@@ -39,9 +43,11 @@ export class FinishDropzone implements Dropzone {
 
 	addGroup(
 		groups: CardsGroup[],
-		group: CardsGroup
+		group: CardsGroup,
+		originDropzone: Dropzone
 	): void {
 		this.cardsService.updateFinishedGroup(group);
+		this.updateAppointmentsCounterAdd(group, originDropzone);
 		this.cardsService.addToFinished(group);
 		this.cardPositionService.updateUnassignedGroupsLeft(this.cardsService.finishedCardsGroups);
 		NotificationService.notifyBand();
@@ -49,6 +55,14 @@ export class FinishDropzone implements Dropzone {
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		this.cardsService.addToFinished(group);
+	}
+
+	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {}
+
+	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
+		if (originDropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED) {
+			this.appointmentsService.updateAppointmentAdd(group.cards, group.cards[0].day)
+		}
 	}
 
 }

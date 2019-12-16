@@ -5,6 +5,7 @@ import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-ca
 import {MechanicLineUpdate} from "../objects/update-days-cards/mechanic-line-update";
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
+import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -17,6 +18,9 @@ export class NotificationService {
 	private static bandSubject: Subject<UnassignedCardUpdate>;
 	private static _band$: Observable<UnassignedCardUpdate>;
 
+	private static appointmentsCounterSubject: Subject<AppointmentsCounterUpdate>;
+	private static _appointmentsCounter$: Observable<AppointmentsCounterUpdate>;
+
 	// region Init
 
 	static init(): void {
@@ -25,6 +29,9 @@ export class NotificationService {
 
 		this.bandSubject = new Subject<UnassignedCardUpdate>();
 		this.band$ = this.bandSubject.asObservable();
+
+		this.appointmentsCounterSubject = new Subject<AppointmentsCounterUpdate>();
+		this.appointmentsCounter$ = this.appointmentsCounterSubject.asObservable();
 	}
 
 	// endregion
@@ -47,6 +54,14 @@ export class NotificationService {
 		this._band$ = value;
 	}
 
+	static get appointmentsCounter$(): Observable<AppointmentsCounterUpdate> {
+		return this._appointmentsCounter$;
+	}
+
+	static set appointmentsCounter$(value: Observable<AppointmentsCounterUpdate>) {
+		this._appointmentsCounter$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -61,4 +76,9 @@ export class NotificationService {
 	static notifyMechanicLine(day: Date = undefined, mechanicCode: string = undefined): void {
 		this.mechanicLineSubject.next(new MechanicLineUpdateTrigger(day, mechanicCode));
 	}
+
+	static notifyAppointmentsCounter(update: AppointmentsCounterUpdate): void {
+		this.appointmentsCounterSubject.next(update);
+	}
+
 }

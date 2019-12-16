@@ -6,17 +6,15 @@ import {Constants} from "../objects/constants";
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
-import {DaysService} from "./days.service";
-import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
-import {Subject} from "rxjs/internal/Subject";
-import {Observable} from "rxjs/internal/Observable";
 import {CardsGroup} from "../objects/cards-group";
 import {AppointmentType} from "../objects/appointment-type";
 import {Card} from "../objects/card";
 import {AppointmentDay} from "../objects/appointment-day";
-import {AppointmentsCounterUpdateAdd} from "../objects/update-appointments-counter/appointments-counter-update-add";
-import {AppointmentsCounterUpdateSubtract} from "../objects/update-appointments-counter/appointments-counter-update-subtract";
 import {NotificationService} from "./notification.service";
+import {UtilsService} from "./utils.service";
+import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
+import {Url} from "../objects/url";
+import {AppointmentsCounterUpdateTrigger} from "../objects/update-appointments-counter/appointments-counter-update-trigger";
 
 @Injectable({
 	providedIn: 'root'
@@ -29,17 +27,12 @@ export class AppointmentsService {
 	private appointmentTypes: AppointmentType[];
 	private appointmentDays: AppointmentDay[];
 
-	private appointmentsCounterSubject: Subject<AppointmentsCounterUpdate>;
-	private _appointmentsCounter$: Observable<AppointmentsCounterUpdate>;
-	private _daysAppointmentsCounter: any;
+	private _daysAppointmentsCounter: DaysAppointmentsCounter;
 
 	constructor(
-		private daysService: DaysService,
 		private commonService: CommonService,
 		private http: HttpClient
 	) {
-		this.appointmentsCounterSubject = new Subject<AppointmentsCounterUpdate>();
-		this.appointmentsCounter$ = this.appointmentsCounterSubject.asObservable();
 		this.daysAppointmentsCounter = {}
 	}
 
@@ -100,14 +93,6 @@ export class AppointmentsService {
 
 	// region Getters / setters
 
-	get appointmentsCounter$(): Observable<AppointmentsCounterUpdate> {
-		return this._appointmentsCounter$;
-	}
-
-	set appointmentsCounter$(value: Observable<AppointmentsCounterUpdate>) {
-		this._appointmentsCounter$ = value;
-	}
-
 	get daysAppointmentsCounter(): any {
 		return this._daysAppointmentsCounter;
 	}
@@ -118,71 +103,53 @@ export class AppointmentsService {
 
 	// endregion
 
-	updateAppointmentsCounter(cards: Card[]): void {
-		this.notifyAppointment(new AppointmentsCounterUpdateSubtract(cards[0].lastDay, cards));
-		this.notifyAppointment(new AppointmentsCounterUpdateAdd(cards[0].day, cards));
-
-		const daysAppointmentsDayCreate = [];
-		const daysAppointmentsDayUpdate = [];
+	updateAppointmentSubtract(
+		cards: Card[],
+		day: Date,
+		daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
+	): void {
+		const appointmentDaysToUpdate = [];
 		cards.forEach((card: Card) => {
-			const appointmentTypeCode = card.group.appointmentType.code;
-			/* Si tiene lastDay, ya había sido asignada con anterioridad (no sale de la cinta) */
-			if (cards[0].lastDay) {
-				this.updateAppointmentDayUpdateList(
-					card.lastDay,
-					appointmentTypeCode,
-					daysAppointmentsDayCreate,
-					daysAppointmentsDayUpdate
-				)
-			}
-			/* Si tiene día, no está siendo bajada a la cinta */
-			if (cards[0].day) {
-				this.updateAppointmentDayUpdateList(
-					card.day,
-					appointmentTypeCode,
-					daysAppointmentsDayCreate,
-					daysAppointmentsDayUpdate
-				)
+			const appointmentDay = daysAppointmentsCounter[day.getTime()][card.group.appointmentType.code];
+			this.updateAppointmentDay(appointmentDay, card, false);
+
+			appointmentDaysToUpdate.push(appointmentDay);
+		});
+		NotificationService.notifyAppointmentsCounter(new AppointmentsCounterUpdateTrigger(day, cards));
+
+		this.http.put(Url.updateAppointmentsDays(), appointmentDaysToUpdate).subscribe();
+	}
+
+	updateAppointmentAdd(
+		cards: Card[],
+		day: Date,
+		daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
+	): void {
+		const [create, update] = [[], []];
+		cards.forEach((card: Card) => {
+			const appointmentDay = daysAppointmentsCounter[day.getTime()][card.group.appointmentType.code];
+			this.updateAppointmentDay(appointmentDay, card);
+
+			if (appointmentDay.day) {
+				update.push(appointmentDay);
+			} else {
+				appointmentDay.day = card.day;
+				create.push(appointmentDay);
 			}
 		});
+		NotificationService.notifyAppointmentsCounter(new AppointmentsCounterUpdateTrigger(day, cards));
 
-		if (daysAppointmentsDayCreate.length) {
-			this.http.post(
-				`${environment.serverUrl}/panel/appointmentDay`,
-				daysAppointmentsDayCreate
-			).subscribe();
+		if (create.length) {
+			this.http.post(Url.createAppointmentDays(), create).subscribe();
 		}
-		if (daysAppointmentsDayUpdate.length) {
-			this.http.put(
-				`${environment.serverUrl}/panel/appointmentDay/counters`,
-				daysAppointmentsDayUpdate
-			).subscribe();
+		if (update.length) {
+			this.http.put(Url.updateAppointmentsDays(), update).subscribe();
 		}
 	}
 
-	private updateAppointmentDayUpdateList(
-		day: Date,
-		appointmentTypeCode: string,
-		createList: AppointmentDay[],
-		updateList: AppointmentDay[]
-	): void {
-		const appointmentDay = this.daysAppointmentsCounter[day.getTime()][appointmentTypeCode];
-		if (this.checkCreateAppointmentDay(appointmentDay)) {
-			appointmentDay.day = day;
-			createList.push(appointmentDay);
-		} else {
-			updateList.push(appointmentDay);
-		}
-	}
-
-	private checkCreateAppointmentDay(appointmentDay: AppointmentDay): boolean {
-		/* Si el AppointmentDay no tiene día, significa que no hay ningún registro en DB y es necesario crearlo,
-		*  no actualizarlo */
-		return appointmentDay.day == undefined;
-	}
-
-	notifyAppointment(counterUpdate: AppointmentsCounterUpdate): void {
-		this.appointmentsCounterSubject.next(counterUpdate);
+	updateAppointmentDay(appointmentDay: AppointmentDay, card: Card, add: boolean = true): void {
+		const scheduleType = UtilsService.findScheduleType(card.start, card.end);
+		appointmentDay[`${scheduleType.toLowerCase()}`] += add ? 1 : -1;
 	}
 
 	updateMaxDb(appointmentDay: AppointmentDay, day: Date): void {

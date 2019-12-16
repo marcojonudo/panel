@@ -4,6 +4,7 @@ import {Subscription} from "rxjs/internal/Subscription";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {AppointmentDay} from "../../objects/appointment-day";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -29,7 +30,7 @@ export class AppointmentsPanelComponent implements OnInit {
 
 	ngOnInit() {
 		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
-		this.appointmentsCounterSubscription = this.appointmentsService.appointmentsCounter$.subscribe(update => {
+		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(update => {
 			update.update(this.daysAppointmentsCounter);
 			this.cdRef.detectChanges();
 		});

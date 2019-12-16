@@ -16,12 +16,16 @@ export interface Dropzone {
 
 	validateMovement(position: Coordinates): CardsGroup[];
 
-	removeGroup(group: CardsGroup, validated: boolean): void;
+	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void;
 
-	addGroup(groups: CardsGroup[], group: CardsGroup): void;
+	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void;
 
 	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
+
+	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void;
+
+	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void;
 
 }

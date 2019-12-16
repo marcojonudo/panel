@@ -304,58 +304,6 @@ export class CardsService {
 		card.line = undefined;
 	}
 
-	updateAppointmentsPanel(group: CardsGroup): void {
-		this.appointmentsService.updateAppointmentsCounter(group.cards);
-	}
-
-	removeFromOrigin(cardsGroup: CardsGroup): any {
-		const card = cardsGroup.cards[0];
-		if (card.mechanicCode) {
-			this.handleAssignedMovementGroupsLinks(
-				card.day,
-				card.mechanicCode,
-				cardsGroup.lastLine,
-				cardsGroup.lastStart,
-				cardsGroup.lastEnd
-			);
-
-			this.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, cardsGroup);
-		} else {
-			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type, cardsGroup.status);
-			this.handleRemoveUnassignedCardsGroup(cardsGroup);
-		}
-	}
-
-	updateTranslatedCards(
-		cardsGroup: CardsGroup,
-		day: Date = undefined,
-		newMechanicCode: string = undefined,
-		updateDb: boolean = true
-	) {
-		if (newMechanicCode) {
-			cardsGroup.cards.forEach(card => {
-				card.setDay(day);
-				card.setMechanicCode(newMechanicCode);
-			});
-		} else {
-			this.resetCardsGroup(cardsGroup);
-		}
-
-		this.addToDestiny(cardsGroup, day, newMechanicCode);
-		this.appointmentsService.updateAppointmentsCounter(cardsGroup.cards);
-		if (updateDb) {
-			this.http.put(
-				`${environment.serverUrl}/panel/cards/position`,
-				cardsGroup.cards.concat(...this.overlappedGroups.map(g => g.cards))
-			).subscribe();
-
-			/* Si en un terminal se mueven fichas y hay solapadas, y después se actualiza en tiempo real de otro
-			*  terminal distinto, las primeras fichas solapadas no deben tenerse en cuenta en este último caso. Por lo
-			*  tanto, la lista debe resetearse una vez usada */
-			this.overlappedGroups = [];
-		}
-	}
-
 	updatePosition(group: CardsGroup, day: Date, line: number, left: number) {
 		/* Sólo se puede mover un grupo a la vez, ya que es lo que se arrastra cuando se desplazan fichas por el
 		*  panel; sin embargo, en caso de haber solapamientos, son varios los que deben ser actualizados. Por ese

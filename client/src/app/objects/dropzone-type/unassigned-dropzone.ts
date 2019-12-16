@@ -5,13 +5,14 @@ import {Dropzone} from "./dropzone";
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
-import {UnassignedCardUpdateTrigger} from "../update-cards/unassigned-card-update-trigger";
 import {NotificationService} from "../../services/notification.service";
+import {AppointmentsService} from "../../services/appointments.service";
 
 export class UnassignedDropzone implements Dropzone {
 
 	cardPositionService: CardPositionService;
 	cardsService: CardsService;
+	appointmentsService: AppointmentsService;
 
 	type: string = Constants.DROPZONE_TYPE.UNASSIGNED;
 	mechanic: Mechanic;
@@ -19,10 +20,12 @@ export class UnassignedDropzone implements Dropzone {
 
 	constructor(
 		cardPositionService: CardPositionService,
-		cardsService: CardsService
+		cardsService: CardsService,
+		appointmentsService: AppointmentsService
 	) {
 		this.cardPositionService = cardPositionService;
 		this.cardsService = cardsService;
+		this.appointmentsService = appointmentsService;
 	}
 
 	validateMovement(): CardsGroup[] {
@@ -61,5 +64,9 @@ export class UnassignedDropzone implements Dropzone {
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
 	}
+
+	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {}
+
+	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {}
 
 }

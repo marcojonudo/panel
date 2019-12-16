@@ -17,6 +17,7 @@ import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
 import {UnassignedDropzone} from "../objects/dropzone-type/unassigned-dropzone";
 import {CardsService} from "../services/cards.service";
 import {FinishDropzone} from "../objects/dropzone-type/finish-dropzone";
+import {AppointmentsService} from "../services/appointments.service";
 
 @Directive({
 	selector: '[appDropzone]'
@@ -42,12 +43,13 @@ export class DropzoneDirective implements OnInit {
 		private renderer: Renderer2,
 		private cdRef: ChangeDetectorRef,
 		private cardPositionService: CardPositionService,
-		private cardsService: CardsService
+		private cardsService: CardsService,
+		private appointmentsService: AppointmentsService
 	) {
 		this.DROPZONE_TYPE = {};
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] = () => new AssignedDropzone(this.cardPositionService, this.cardsService, this.mechanic);
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] = () => new UnassignedDropzone(this.cardPositionService, this.cardsService);
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.FINISH] = () => new FinishDropzone(this.cardPositionService, this.cardsService);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] = () => new AssignedDropzone(this.cardPositionService, this.cardsService, this.appointmentsService, this.mechanic);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] = () => new UnassignedDropzone(this.cardPositionService, this.cardsService, this.appointmentsService);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.FINISH] = () => new FinishDropzone(this.cardPositionService, this.cardsService, this.appointmentsService);
 	}
 
 	ngOnInit() {

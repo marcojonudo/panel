@@ -309,18 +309,18 @@ export class CardPositionService {
 			const groupsToUpdate = this.destinyDropzone.validateMovement(position);
 			/* Se elimina el grupo del dropzone de origen. En el siguiente paso, en función de si el movimiento había
 			*  validado o no, se añadirá al de destino o volverá de nuevo al de origen */
-			this.originDropzone.removeGroup(group, groupsToUpdate != undefined);
+			this.originDropzone.removeGroup(group, groupsToUpdate != undefined, this.destinyDropzone);
 
 			if (groupsToUpdate) { /* Si el movimiento es válido */
 				const lastPosition = this.destinyDropzone.findLastPosition(groupsToUpdate, group, position);
 				/* Se añade el grupo al dropzone de destino */
-				this.destinyDropzone.addGroup(groupsToUpdate, group);
+				this.destinyDropzone.addGroup(groupsToUpdate, group, this.originDropzone);
 				return lastPosition;
 			} else {
 				this.originDropzone.handleNotValidatedMovement(group);
 			}
 		} else {
-			this.originDropzone.removeGroup(group, false);
+			this.originDropzone.removeGroup(group, false, this.destinyDropzone);
 			this.originDropzone.handleNotValidatedMovement(group);
 		}
 		return startPosition;
