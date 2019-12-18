@@ -78,13 +78,6 @@ export class CardPositionService {
 		this.dragging$ = this.draggingSubject.asObservable();
 	}
 
-	init(unassignedSections: UnassignedSection[], assignedDaysGroups: DaysAssignedGroups): void {
-		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(() => {
-			this.updateDimensions(unassignedSections, assignedDaysGroups);
-			NotificationService.notifyAll();
-		});
-	}
-
 	// region Getters / setters
 
 	get dragging(): boolean {
@@ -246,7 +239,7 @@ export class CardPositionService {
 
 	// region Update dimensions
 
-	private updateDimensions(unassignedSections: UnassignedSection[], daysGroups: any) {
+	updateDimensions(unassignedSections: UnassignedSection[], daysGroups: DaysAssignedGroups) {
 		this.updateUnassignedDimensions(unassignedSections);
 		this.updateAssignedDimensions(daysGroups);
 	}

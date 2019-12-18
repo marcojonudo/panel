@@ -49,10 +49,6 @@ export class AppComponent implements AfterViewInit {
 				this.mechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
 				this.cardsService.init(data.cards.map(card => new Card(card)), this.mechanicsService.daysMechanics);
-				this.cardPositionService.init(
-					this.cardsService.unassignedSections,
-					this.cardsService.assignedDaysCardsGroups
-				);
 				this.appointmentsService.init(
 					data.appointmentTypes,
 					data.appointmentDays,
@@ -61,6 +57,11 @@ export class AppComponent implements AfterViewInit {
 				);
 
 				DimensionsService.init(this.mechanicsService.daysMechanics);
+
+				this.cardPositionService.updateDimensions(
+					this.cardsService.unassignedSections,
+					this.cardsService.assignedDaysCardsGroups
+				);
 				this.loading = false;
 				this.cdRef.detectChanges();
 			});

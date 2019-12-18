@@ -1,16 +1,20 @@
 <div class="d-flex align-items-center mechanic-line-container"
 	 [style.height.px]="mechanic.height">
 	<app-mechanic-info
-		class="h-100 mechanic-info-container"
 		[style.width.px]="mechanicInfoWidth"
 		[day]="day"
 		[mechanic]="mechanic"
-		[position]="position"></app-mechanic-info>
-	<app-mechanic-line [day]="day"
-					   [mechanic]="mechanic"
-					   [mechanicLineUpdate]="mechanicLineUpdate"
-					   [appointments]="mechanic.appointments"
-					   class="h-100 flex-grow-1"></app-mechanic-line>
+		[position]="position"
+		class="h-100 mechanic-info-container">
+	</app-mechanic-info>
+	<app-mechanic-line
+		[day]="day"
+		[mechanic]="mechanic"
+		[mechanicLineUpdate]="mechanicLineUpdate"
+		[maxScheduleWidth]="maxScheduleWidth"
+		[appointments]="mechanic.appointments"
+		class="h-100 flex-grow-1">
+	</app-mechanic-line>
 	<div appResizableLine [mechanic]="mechanic" class="w-100 resizable cursor-resize"></div>
 </div>
 <div>{{check()}}</div>

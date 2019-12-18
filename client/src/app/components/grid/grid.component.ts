@@ -15,6 +15,7 @@ export class GridComponent implements OnInit {
 
 	@Input() day: Date;
 	@Input() mechanicLineUpdate: MechanicLineUpdate;
+	@Input() maxScheduleWidth: number;
 
 	private _mechanics: Mechanic[];
 

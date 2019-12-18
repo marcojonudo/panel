@@ -15,6 +15,7 @@ export class MechanicLineContainerComponent {
 
 	@Input() day: Date;
 	@Input() mechanicLineUpdate: MechanicLineUpdate;
+	@Input() maxScheduleWidth: number;
 	@Input() mechanic: Mechanic;
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];

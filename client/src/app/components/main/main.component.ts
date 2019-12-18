@@ -15,6 +15,7 @@ import {UtilsService} from "../../services/utils.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
+import {CardPositionService} from "../../services/card-position.service";
 
 @Component({
 	selector: 'app-main',
@@ -56,6 +57,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		private cardsService: CardsService,
 		private mechanicsService: MechanicsService,
 		private commonService: CommonService,
+		private cardPositionService: CardPositionService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.mechanicsService.days;
@@ -101,7 +103,13 @@ export class MainComponent implements OnInit, OnDestroy {
 			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
 			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
 			*  del slider */
+			console.log('HOOOOOOOOOOOOOOOOOOOLA');
 			this.maxScheduleWidth = maxScheduleWidth;
+			this.cardPositionService.updateDimensions(
+				this.cardsService.unassignedSections,
+				this.cardsService.assignedDaysCardsGroups
+			);
+			NotificationService.notifyAll();
 			this.cdRef.detectChanges();
 		});
 

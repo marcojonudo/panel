@@ -19,6 +19,7 @@ export class MechanicLineComponent {
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
 	@Input() mechanicLineUpdate: MechanicLineUpdate;
+	@Input() maxScheduleWidth: number;
 	@Input() appointments: AppointmentSchedule[];
 
 	private _hiddenCardsGroup: CardsGroup;
