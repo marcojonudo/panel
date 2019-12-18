@@ -3,8 +3,6 @@ import {
 	Component,
 	OnDestroy, OnInit,
 } from '@angular/core';
-import {TimeService} from "../../services/time.service";
-import {DaysService} from "../../services/days.service";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
@@ -14,6 +12,9 @@ import {Skill} from "../../objects/skill";
 import {CommonService} from "../../services/common.service";
 import {NotificationService} from "../../services/notification.service";
 import {UtilsService} from "../../services/utils.service";
+import {DimensionsService} from "../../services/dimensions.service";
+import {MechanicsService} from "../../services/mechanics.service";
+import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
 
 @Component({
 	selector: 'app-main',
@@ -31,13 +32,14 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _dayContainerWidth: number;
 	private _showSkills: boolean;
 
-	private _assignedDaysCardsGroups: CardsGroup[];
+	private _assignedDaysCardsGroups: DaysAssignedGroups;
 
 	private _skills: Skill[];
 
 	private _oneDayMode: boolean;
-	private _maxScheduleWidth: number;
 	private _maxScheduleHours: number[];
+	private _maxScheduleWidth: number;
+	private _maxScheduleMaxWidth: number;
 
 	private _dayCardUpdate: MechanicLineUpdate;
 
@@ -51,17 +53,19 @@ export class MainComponent implements OnInit, OnDestroy {
 	private skillsSubscription: Subscription;
 
 	constructor(
-		private daysService: DaysService,
-		private timeService: TimeService,
 		private cardsService: CardsService,
+		private mechanicsService: MechanicsService,
 		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
-		this.days = this.daysService.days;
+		this.days = this.mechanicsService.days;
 		const today = UtilsService.clearTime(new Date()).getTime();
 		this.today = this.days.find(day => day.getTime() == today);
 		this.oneDayMode = true;
-		this.maxScheduleHours = this.timeService.updateMaxSchedule(this.oneDayMode);
+		// this.maxScheduleHours = this.timeService.updateMaxSchedule(this.oneDayMode);
+		this.maxScheduleHours = DimensionsService.maxScheduleHours;
+		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
+		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
 		// this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
 
 		this.relativeContainer = true;
@@ -82,13 +86,18 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
+		this.oneDayModeSubscription = NotificationService.oneDayMode$.subscribe((oneDayMode: boolean) => {
 			this.oneDayMode = oneDayMode;
-			this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
+			DimensionsService.updateMaxSchedule(this.oneDayMode);
+			this.maxScheduleHours = DimensionsService.maxScheduleHours;
+			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
+			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
+			// this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
 			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
-			this.timeService.calcMaxScheduleWidth(oneDayMode);
+			// this.timeService.calcMaxScheduleWidth(oneDayMode);
+			this.cdRef.detectChanges();
 		});
-		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
+		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
 			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
 			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
 			*  del slider */
@@ -96,16 +105,16 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		/* Observer utilizado para determinar si es necesario mostrar o no la scrollbar */
-		this.daysService.lineHeight$.subscribe((lineHeight: number) => {
-			this.displayScrollbar = this.daysService.checkDisplayScrollbar(
-				//TODO Modificar comparación de maxScheduleWidth
-				this.timeService.gridHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
-				this.timeService.today,
-				lineHeight
-			);
-			this.cdRef.detectChanges();
-		});
+		// /* Observer utilizado para determinar si es necesario mostrar o no la scrollbar */
+		// this.daysService.lineHeight$.subscribe((lineHeight: number) => {
+		// 	this.displayScrollbar = this.daysService.checkDisplayScrollbar(
+		// 		//TODO Modificar comparación de maxScheduleWidth
+		// 		this.timeService.gridHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
+		// 		this.timeService.today,
+		// 		lineHeight
+		// 	);
+		// 	this.cdRef.detectChanges();
+		// });
 
 		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
 			if (skills.length) {
@@ -147,11 +156,11 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._today = value;
 	}
 
-	get assignedDaysCardsGroups(): CardsGroup[] {
+	get assignedDaysCardsGroups(): DaysAssignedGroups {
 		return this._assignedDaysCardsGroups;
 	}
 
-	set assignedDaysCardsGroups(value: CardsGroup[]) {
+	set assignedDaysCardsGroups(value: DaysAssignedGroups) {
 		this._assignedDaysCardsGroups = value;
 	}
 
@@ -185,6 +194,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set maxScheduleWidth(value: number) {
 		this._maxScheduleWidth = value;
+	}
+
+	get maxScheduleMaxWidth(): number {
+		return this._maxScheduleMaxWidth;
+	}
+
+	set maxScheduleMaxWidth(value: number) {
+		this._maxScheduleMaxWidth = value;
 	}
 
 	get maxScheduleHours(): number[] {
@@ -245,8 +262,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		return update;
 	}
 
-	private checkTodayScheduleExists(today: Date = this.timeService.today): boolean {
-		return this.daysService.findDayMechanics(today) != undefined;
+	private checkTodayScheduleExists(today: Date = this.today): boolean {
+		return this.mechanicsService.findDayMechanics(today) != undefined;
 	}
 
 	trackByDay(index, item) {

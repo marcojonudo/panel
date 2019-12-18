@@ -11,8 +11,13 @@ export class TimelineContainerComponent {
 
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleWidth: number;
 
 	constructor() {
+	}
+
+	get timelineHeight(): number {
+		return Constants.VALUE.TIMELINE_HEIGHT;
 	}
 
 	check() {

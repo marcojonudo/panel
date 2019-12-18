@@ -1,10 +1,9 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-import {DaysService} from "../../services/days.service";
 import {Mechanic} from "../../objects/mechanic";
-import {Subscription} from "rxjs/internal/Subscription";
 import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 import {Constants} from "../../objects/constants";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-grid',
@@ -16,17 +15,15 @@ export class GridComponent implements OnInit {
 
 	@Input() day: Date;
 	@Input() mechanicLineUpdate: MechanicLineUpdate;
-	@Input() maxScheduleHours: number[];
-	@Input() maxScheduleWidth: number;
 
 	private _mechanics: Mechanic[];
 
 	constructor(
-		private daysService: DaysService
+		private mechanicsService: MechanicsService
 	) {}
 
 	ngOnInit(): void {
-		this.mechanics = this.daysService.daysMechanics[this.day.getTime()];
+		this.mechanics = this.mechanicsService.findDayMechanics(this.day);
 	}
 
 	// region Getters / setters
@@ -37,6 +34,10 @@ export class GridComponent implements OnInit {
 
 	set mechanics(value: Mechanic[]) {
 		this._mechanics = value;
+	}
+
+	get mechanicBottomMargin(): number {
+		return Constants.VALUE.MECHANIC_BOTTOM_MARGIN;
 	}
 
 	// endregion
@@ -50,10 +51,6 @@ export class GridComponent implements OnInit {
 
 	drop(event: CdkDragDrop<string[]>) {
 		moveItemInArray(this.mechanics, event.previousIndex, event.currentIndex);
-	}
-
-	get lineHeight$() {
-		return this.daysService.lineHeight$;
 	}
 
 	check() {

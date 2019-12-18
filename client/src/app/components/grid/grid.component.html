@@ -4,14 +4,12 @@
 	(cdkDropListDropped)="drop($event)">
 	<app-mechanic-line-container
 		*ngFor="let mechanic of mechanics"
-		class="mechanic-line-container-wrapper"
+		[style.margin-bottom.px]="mechanicBottomMargin"
 		[day]="day"
 		[mechanic]="mechanic"
 		[mechanicLineUpdate]="checkTriggerMechanicCd(mechanic.code)"
 		[appointments]="mechanic.appointments"
-		[position]="mechanic.panelPosition"
-		[maxScheduleHours]="maxScheduleHours"
-		[maxScheduleWidth]="maxScheduleWidth">
+		[position]="mechanic.panelPosition">
 	</app-mechanic-line-container>
 </div>
 <div>{{check()}}</div>

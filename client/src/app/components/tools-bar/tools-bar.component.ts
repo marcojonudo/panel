@@ -1,9 +1,9 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component} from '@angular/core';
-import {DaysService} from "../../services/days.service";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
 import {NotificationService} from "../../services/notification.service";
+import {DimensionsService} from "../../services/dimensions.service";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -13,10 +13,12 @@ import {NotificationService} from "../../services/notification.service";
 })
 export class ToolsBarComponent {
 
+	@Input() maxScheduleWidth: number;
+	@Input() maxScheduleMaxWidth: number;
+
 	private _showingFinished: boolean;
 
 	constructor(
-		private daysService: DaysService,
 		private cardsService: CardsService
 	) {
 		this.showingFinished = false;
@@ -43,7 +45,7 @@ export class ToolsBarComponent {
 	// endregion
 
 	toggleDayMode(): void {
-		this.daysService.toggleDayMode();
+		DimensionsService.toggleDayMode();
 	}
 
 	showFinishedCardsBar(): void {

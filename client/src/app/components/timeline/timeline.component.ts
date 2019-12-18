@@ -1,7 +1,6 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {TimeService} from "../../services/time.service";
-import {DaysService} from "../../services/days.service";
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
+import {DimensionsService} from "../../services/dimensions.service";
 
 @Component({
 	selector: 'app-timeline',
@@ -9,65 +8,23 @@ import {Constants} from "../../objects/constants";
 	styleUrls: ['./timeline.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent implements OnInit, OnDestroy {
+export class TimelineComponent {
 
 	@Input() day: Date;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleWidth: number;
 
 	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 2500;
-
-	private _displayMinutes: boolean;
-	private _quarters: string[];
-
-	private _maxScheduleWidthSubscription: any;
-
-	constructor(
-		private daysService: DaysService,
-		private timeService: TimeService,
-		private cdRef: ChangeDetectorRef
-	) {	}
-
-	ngOnInit(): void {
-		this.quarters = this.timeService.QUARTERS;
-
-		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
-			this.displayMinutes = maxScheduleWidth > this.MAX_SCHEDULE_WIDTH_THRESHOLD;
-			this.cdRef.detectChanges();
-		})
-	}
-
-	ngOnDestroy(): void {
-		this.maxScheduleWidthSubscription.unsubscribe();
-	}
+	private readonly QUARTERS: string[] = ['00', '15', '30', '45'];
 
 	// region Getters / setters
 
-	get displayMinutes(): boolean {
-		return this._displayMinutes;
-	}
-
-	set displayMinutes(value: boolean) {
-		this._displayMinutes = value;
-	}
-
 	get quarters(): string[] {
-		return this._quarters;
-	}
-
-	set quarters(value: string[]) {
-		this._quarters = value;
-	}
-
-	get maxScheduleWidthSubscription(): any {
-		return this._maxScheduleWidthSubscription;
-	}
-
-	set maxScheduleWidthSubscription(value: any) {
-		this._maxScheduleWidthSubscription = value;
+		return this.QUARTERS;
 	}
 
 	get quarterWidth(): number {
-		return parseFloat((this.timeService.intervalWidth * 3).toFixed(2));
+		return parseFloat((DimensionsService.intervalWidth * 3).toFixed(2));
 	}
 
 	// endregion
@@ -92,6 +49,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
 			#a2a2a2 ${this.quarterWidth*4 - 2}px,
 			#a2a2a2 ${this.quarterWidth*4}px
 		)`;
+	}
+
+	checkDisplayMinutes(): boolean {
+		return this.maxScheduleWidth > this.MAX_SCHEDULE_WIDTH_THRESHOLD;
 	}
 
 	check() {

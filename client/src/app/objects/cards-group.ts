@@ -1,5 +1,6 @@
 import {Card} from "./card";
 import {UtilsService} from "../services/utils.service";
+import {Constants} from "./constants";
 
 export class CardsGroup {
 
@@ -142,6 +143,10 @@ export class CardsGroup {
 		this.cards.splice(fromIndex, toIndex);
 		this.id = this.cards[0].id;
 		this.end = this.cards[this.cards.length-1].end;
+	}
+
+	findDuration(): number {
+		return UtilsService.sum(this.cards, Constants.PROPERTY.DURATION);
 	}
 
 }

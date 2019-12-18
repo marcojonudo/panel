@@ -1,15 +1,12 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {TimeService} from "../../services/time.service";
 import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
-import {DaysService} from "../../services/days.service";
 import {CardsGroup} from "../../objects/cards-group";
-import {UnassignedCardUpdate} from "../../objects/update-cards/unassigned-card-update";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
-import {Subscription} from "rxjs/internal/Subscription";
 import {CardPositionService} from "../../services/card-position.service";
 import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
+import {DimensionsService} from "../../services/dimensions.service";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -23,18 +20,14 @@ export class MechanicLineComponent {
 	@Input() mechanic: Mechanic;
 	@Input() mechanicLineUpdate: MechanicLineUpdate;
 	@Input() appointments: AppointmentSchedule[];
-	@Input() maxScheduleHours: number[];
-	@Input() maxScheduleWidth: number;
 
 	private _hiddenCardsGroup: CardsGroup;
 
 	private quarterBackground: any;
 
 	constructor(
-		private timeService: TimeService,
 		private cardsService: CardsService,
 		private cardPositionService: CardPositionService,
-		private daysService: DaysService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.quarterBackground = {
@@ -55,17 +48,17 @@ export class MechanicLineComponent {
 		this._hiddenCardsGroup = value;
 	}
 
-	get lineHeight$() {
-		return this.daysService.lineHeight$;
-	}
-
 	get quarterWidth(): number {
 		/* El navegador redondea a 2 decimales, por lo que se hace lo mismo para que las distancias sean equivalentes */
-		return +(this.timeService.intervalWidth * 3).toFixed(2);
+		return +(DimensionsService.intervalWidth * 3).toFixed(2);
 	}
 
 	get assignedDropzoneType(): string {
 		return Constants.DROPZONE_TYPE.ASSIGNED;
+	}
+
+	get lineDefaultHeight() {
+		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
 	}
 
 	// endregion
@@ -75,11 +68,11 @@ export class MechanicLineComponent {
 	}
 
 	calcScheduleWidth(duration: number): number {
-		return this.timeService.calcWidthFromDuration(duration);
+		return DimensionsService.calcWidthFromDuration(duration);
 	}
 
 	calcScheduleLeft(start: Date): number {
-		return start ? this.timeService.calcLeftFromStart(start) : 0;
+		return start ? DimensionsService.calcLeftFromStart(start) : 0;
 	}
 
 	calcScheduleLineBackground(quarters: number[]): any {
@@ -119,7 +112,7 @@ export class MechanicLineComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line', this.maxScheduleHours);
+			console.log('checking mechanic line');
 		}
 	}
 

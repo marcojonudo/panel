@@ -1,7 +1,8 @@
-import {ChangeDetectorRef, Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
+import {Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
 import {Mechanic} from "../objects/mechanic";
-import {DaysService} from "../services/days.service";
 import {CardsService} from "../services/cards.service";
+import {MechanicsService} from "../services/mechanics.service";
+import {DimensionsService} from "../services/dimensions.service";
 
 @Directive({
   selector: '[appResizableLine]'
@@ -20,7 +21,7 @@ export class ResizableLineDirective implements OnInit {
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
-		private daysService: DaysService,
+		private mechanicsService: MechanicsService,
 		private cardsService: CardsService
 	) { }
 
@@ -41,15 +42,15 @@ export class ResizableLineDirective implements OnInit {
 		const diff = event.clientY - this.lastY;
 		/* Se actualiza la altura sólo si se arrastra el ratón la distancia de una línea, y nunca se permite reducir
 		*  el número de ellas más allá de 2 */
-		if (Math.abs(diff) >= this.daysService.lineHeight &&
-			!(diff < 0 && this.mechanic.height == this.daysService.lineHeight*2)) {
+		if (Math.abs(diff) >= DimensionsService.lineHeight &&
+			!(diff < 0 && this.mechanic.height == DimensionsService.lineHeight*2)) {
 			const nextLine = this.line + Math.sign(diff);
 			const lineGroups = this.cardsService.findLineGroups(this.mechanic.day, this.mechanic.code, nextLine);
 
 			/* Sólo se actualiza la altura si no hay fichas asignadas para la línea */
 			if (!lineGroups.length) {
 				this.line = this.line + Math.sign(diff);
-				this.daysService.updateMechanicLines(this.mechanic, this.line);
+				this.mechanicsService.updateMechanicLines(this.mechanic, this.line);
 				this.lastY = event.clientY;
 			}
 		}
@@ -59,7 +60,7 @@ export class ResizableLineDirective implements OnInit {
 		this.pointerMoveListener();
 		this.pointerUpListener();
 
-		this.daysService.updateDbMechanicLines(this.mechanic);
+		this.mechanicsService.updateDbMechanicLines(this.mechanic);
 	}
 
 }

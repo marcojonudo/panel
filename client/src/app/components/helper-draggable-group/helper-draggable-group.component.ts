@@ -19,4 +19,8 @@ export class HelperDraggableGroupComponent {
 		}
 	}
 
+	get lineDefaultHeight() {
+		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
+	}
+
 }

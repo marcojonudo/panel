@@ -4,9 +4,6 @@ import {Card} from "./objects/card";
 import {HttpClient} from "@angular/common/http";
 import {CardsService} from "./services/cards.service";
 import {UtilsService} from "./services/utils.service";
-import {DaysService} from "./services/days.service";
-import {TimeService} from "./services/time.service";
-import {environment} from "../environments/environment";
 import {Mechanic} from "./objects/mechanic";
 import {Constants} from "./objects/constants";
 import {CommonService} from "./services/common.service";
@@ -14,6 +11,10 @@ import {RealTimeService} from "./services/real-time.service";
 import {AppointmentsService} from "./services/appointments.service";
 import {CardPositionService} from "./services/card-position.service";
 import {NotificationService} from "./services/notification.service";
+import {MechanicsService} from "./services/mechanics.service";
+import {SkillsService} from "./services/skills.service";
+import {DimensionsService} from "./services/dimensions.service";
+import {Url} from "./objects/url";
 
 @Component({
 	selector: 'app-root',
@@ -28,29 +29,26 @@ export class AppComponent implements AfterViewInit {
 
 	constructor(
 		private cdRef: ChangeDetectorRef,
-		private daysService: DaysService,
-		private timeService: TimeService,
 		private cardsService: CardsService,
 		private cardPositionService: CardPositionService,
 		private appointmentsService: AppointmentsService,
 		private realTimeService: RealTimeService,
 		private commonService: CommonService,
+		private mechanicsService: MechanicsService,
 		private http: HttpClient
 	) {
 		this.loading = true;
 		this.generateRandomId();
-		this.http.get(`${environment.serverUrl}/panel/get`)
+		this.http.get(Url.getInitialData())
 			.subscribe((data: any) => {
 				console.log('Received data', data);
 
 				NotificationService.init();
 				this.commonService.init(data.jobLineTypes, data.appointmentTypes);
 
-				const daysMechanicsList = this.parseDaysMechanics(data.daysMechanics, data.skills);
-				this.daysService.init(daysMechanicsList);
-				this.timeService.init(this.daysService.daysMechanics);
+				this.mechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
-				this.cardsService.init(data.cards.map(card => new Card(card)), this.daysService.daysMechanics);
+				this.cardsService.init(data.cards.map(card => new Card(card)), this.mechanicsService.daysMechanics);
 				this.cardPositionService.init(
 					this.cardsService.unassignedSections,
 					this.cardsService.assignedDaysCardsGroups
@@ -62,6 +60,7 @@ export class AppComponent implements AfterViewInit {
 					this.cardsService.unassignedCardsGroups
 				);
 
+				DimensionsService.init(this.mechanicsService.daysMechanics);
 				this.loading = false;
 				this.cdRef.detectChanges();
 			});
@@ -88,28 +87,6 @@ export class AppComponent implements AfterViewInit {
 		*  propias actualizaciones. Para ello, cada navegador genera un código aleatorio, que se adjuntará en la
 		*  petición y se usará como ID del evento del PublishSubject */
 		this.realTimeService.sessionId = Math.random().toString(36).slice(2);
-	}
-
-	parseDaysMechanics(daysMechanics: any, skills: any[]) {
-		let daysMechanicsList = [];
-		if (daysMechanics) {
-			for (const dayString of Object.keys(daysMechanics)) {
-				const day = UtilsService.parseDateFromString(dayString);
-				const mechanics = daysMechanics[dayString];
-				daysMechanicsList.push(
-					{day: day, mechanics: mechanics.map(mechanic =>
-							new Mechanic(
-								day,
-								mechanic,
-								skills,
-								this.commonService.highlightedSkills
-							)
-						)
-					}
-				);
-			}
-		}
-		return daysMechanicsList;
 	}
 
 	check() {

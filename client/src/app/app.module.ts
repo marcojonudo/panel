@@ -16,8 +16,6 @@ import {AppointmentsPanelComponent} from './components/appointments-panel/appoin
 import {DayPanelComponent} from './components/day-panel/day-panel.component';
 import {DimensionSlidersComponent} from './components/dimension-sliders/dimension-sliders.component';
 
-import {TimeService} from "./services/time.service";
-
 import {DaysPipe} from './pipes/days.pipe'
 
 import {DragDropModule} from '@angular/cdk/drag-drop';
@@ -99,7 +97,6 @@ import { CardSectionPipe } from './pipes/card-section.pipe';
 		NgbModule
 	],
 	providers: [
-		TimeService,
 		{
 			provide: HTTP_INTERCEPTORS,
 			useClass: SessionIdInterceptor,

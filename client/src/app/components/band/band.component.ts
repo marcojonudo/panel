@@ -1,13 +1,10 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit,} from '@angular/core';
-import {TimeService} from "../../services/time.service";
 import {Draggable, Droppable} from "@shopify/draggable"
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
 import {UnassignedCardUpdate} from "../../objects/update-cards/unassigned-card-update";
-import {UtilsService} from "../../services/utils.service";
-import {DaysService} from "../../services/days.service";
 import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../../objects/grouped-type-cards";
 import {UnassignedSection} from "../../objects/unassigned-sections/unassigned-section";
@@ -51,8 +48,6 @@ export class BandComponent implements OnInit, OnDestroy {
 	private bandSubscription: Subscription;
 
 	constructor(
-		private timeService: TimeService,
-		private daysService: DaysService,
 		private cardPositionService: CardPositionService,
 		private cardsService: CardsService,
 		private cdRef: ChangeDetectorRef

@@ -1,8 +1,8 @@
 import {ChangeDetectorRef, Directive, ElementRef, Input, Renderer2} from '@angular/core';
 import {Card} from "../objects/card";
 import {CardsService} from "../services/cards.service";
-import {TimeService} from "../services/time.service";
-import {DaysService} from "../services/days.service";
+import {DimensionsService} from "../services/dimensions.service";
+import {MechanicsService} from "../services/mechanics.service";
 
 @Directive({
   selector: '[appResizableCard]'
@@ -23,8 +23,7 @@ export class ResizableCardDirective {
 		private renderer: Renderer2,
 		private cdRef: ChangeDetectorRef,
 		private cardsService: CardsService,
-		private timeService: TimeService,
-		private daysService: DaysService
+		private mechanicsService: MechanicsService
 	) {
 		this.updatedCards = []
 	}
@@ -43,13 +42,13 @@ export class ResizableCardDirective {
 
 	onPointerMove(event: PointerEvent): void {
 		const diff = event.clientX - this.lastX;
-		if (Math.abs(diff) >= this.timeService.intervalWidth &&
-			!(diff < 0 && this.card.width == this.timeService.intervalWidth)) {
+		if (Math.abs(diff) >= DimensionsService.intervalWidth &&
+			!(diff < 0 && this.card.width == DimensionsService.intervalWidth)) {
 			this.updatedCards = this.updatedCards.concat(
 				this.cardsService.handleCardDurationUpdate(
 					this.card,
-					this.timeService.intervalWidth * Math.sign(diff),
-					this.daysService.findMechanic(this.card.day, this.card.mechanicCode)
+					DimensionsService.intervalWidth * Math.sign(diff),
+					this.mechanicsService.findMechanic(this.card.day, this.card.mechanicCode)
 				)
 			).filter((card, i, self) => self.indexOf(card) === i);
 			this.lastX = event.clientX;

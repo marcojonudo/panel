@@ -26,7 +26,7 @@
 		class="assigned-card"
 		[ngClass]="{'hidden': checkHideGroup(cardsGroup.id)}"
 		[ngStyle]="{
-			'height.px': lineHeight$ | async,
+			'height.px': lineDefaultHeight,
 			'transform': 'translateX(' + cardsGroup.left + 'px) translateY(' + cardsGroup.cards[0].line * 100 + '%)'
 		}"
 		(hiddenCardsGroup)="setHiddenCardsGroup($event)"

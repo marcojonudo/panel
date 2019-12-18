@@ -1,7 +1,8 @@
 export class Constants {
 	public static PROPERTY: any = {
 		SCROLL_LEFT: 'scrollLeft',
-		SCROLL_TOP: 'scrollTop'
+		SCROLL_TOP: 'scrollTop',
+		DURATION: 'duration'
 	};
 	public static ELEMENT: any = {
 		SCROLLABLE_CONTAINER: 'scrollableContainer'
@@ -15,7 +16,13 @@ export class Constants {
 		CARD_MIN_DURATION: 10,
 		UNASSIGNED_BAR_HEIGHT: 75,
 		UNASSIGNED_MARGIN_BETWEEN_GROUPS: 10,
-		CARD_MOVEMENT_DURATION: 200
+		CARD_MOVEMENT_DURATION: 200,
+		MECHANIC_BOTTOM_MARGIN: 10,
+		TIMELINE_HEIGHT: 30,
+		SCROLLBAR_SIZE: 7,
+		UNASSIGNED_BAND_CONTAINER_HEIGHT: 100,
+		QUARTERS_PER_HOUR: 4,
+		INTERVALS_PER_QUARTER: 3,
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
@@ -32,7 +39,7 @@ export class Constants {
 		AFTERNOON: 'AFTERNOON',
 		FULL_TIME: 'FULL_TIME'
 	};
-	public static readonly QUARTERS: any = {
+	public static readonly QUARTERS: { [key: string]: number } = {
 		STEP_0: 0,
 		STEP_15: 15,
 		STEP_30: 30,

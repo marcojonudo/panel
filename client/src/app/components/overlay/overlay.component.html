@@ -2,8 +2,10 @@
 	*ngIf="helperCardsGroup"
 	appMovable
 	class="helper-cards-group"
-	[ngStyle]="{'transition': (dragging ? 'none' : 'transform') + ' ' + translateDuration + 'ms'}"
-	[style.height.px]="lineHeight$ | async"
+	[ngStyle]="{
+		'height.px': lineDefaultHeight,
+		'transition': (dragging ? 'none' : 'transform') + ' ' + translateDuration + 'ms'
+	}"
 	[cardsGroup]="helperCardsGroup"
 	[coordinates]="coordinates"
 	(transitionend)="updateCard()">

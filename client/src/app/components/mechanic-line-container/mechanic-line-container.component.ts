@@ -19,8 +19,6 @@ export class MechanicLineContainerComponent {
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;
-	@Input() maxScheduleHours: number[];
-	@Input() maxScheduleWidth: number;
 
 	// region Getters / setters
 

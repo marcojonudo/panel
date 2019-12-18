@@ -6,6 +6,7 @@ import {MechanicLineUpdate} from "../objects/update-days-cards/mechanic-line-upd
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
 import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
+import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 
 @Injectable({
 	providedIn: 'root'
@@ -21,6 +22,12 @@ export class NotificationService {
 	private static appointmentsCounterSubject: Subject<AppointmentsCounterUpdate>;
 	private static _appointmentsCounter$: Observable<AppointmentsCounterUpdate>;
 
+	private static oneDayModeSubject: Subject<boolean>;
+	private static _oneDayMode$: Observable<boolean>;
+
+	private static maxScheduleWidthSubject: Subject<number>;
+	private static _maxScheduleWidth$: Observable<number>;
+
 	// region Init
 
 	static init(): void {
@@ -32,6 +39,12 @@ export class NotificationService {
 
 		this.appointmentsCounterSubject = new Subject<AppointmentsCounterUpdate>();
 		this.appointmentsCounter$ = this.appointmentsCounterSubject.asObservable();
+
+		this.oneDayModeSubject = new Subject<boolean>();
+		this.oneDayMode$ = this.oneDayModeSubject.asObservable();
+
+		this.maxScheduleWidthSubject = new Subject<number>();
+		this.maxScheduleWidth$ = this.maxScheduleWidthSubject.asObservable();
 	}
 
 	// endregion
@@ -62,6 +75,22 @@ export class NotificationService {
 		this._appointmentsCounter$ = value;
 	}
 
+	static get oneDayMode$(): Observable<boolean> {
+		return this._oneDayMode$;
+	}
+
+	static set oneDayMode$(value: Observable<boolean>) {
+		this._oneDayMode$ = value;
+	}
+
+	static get maxScheduleWidth$(): Observable<number> {
+		return this._maxScheduleWidth$;
+	}
+
+	static set maxScheduleWidth$(value: Observable<number>) {
+		this._maxScheduleWidth$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -79,6 +108,14 @@ export class NotificationService {
 
 	static notifyAppointmentsCounter(update: AppointmentsCounterUpdate): void {
 		this.appointmentsCounterSubject.next(update);
+	}
+
+	static notifyOneDayMode(oneDayMode: boolean): void {
+		this.oneDayModeSubject.next(oneDayMode);
+	}
+
+	static notifyMaxScheduleWidth(maxScheduleWidth: number): void {
+		this.maxScheduleWidthSubject.next(maxScheduleWidth);
 	}
 
 }

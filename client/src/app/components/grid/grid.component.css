@@ -15,8 +15,3 @@
 .grid.cdk-drop-list-dragging .mechanic-line-container-wrapper:not(.cdk-drag-placeholder) {
 	transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
-
-.mechanic-line-container-wrapper {
-	margin-bottom: 10px;
-}
-

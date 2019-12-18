@@ -9,7 +9,11 @@
 		</div>
 	</div>
 	<hr class="w-75">
-	<app-dimension-sliders class="w-100 flex-grow-1"></app-dimension-sliders>
+	<app-dimension-sliders
+		[maxScheduleWidth]="maxScheduleWidth"
+		[maxScheduleMaxWidth]="maxScheduleMaxWidth"
+		class="w-100 flex-grow-1">
+	</app-dimension-sliders>
 	<div
 		appDropzone
 		[type]="finishDropzoneType"

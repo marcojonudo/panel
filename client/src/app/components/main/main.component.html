@@ -38,7 +38,11 @@
 				[style.min-width.px]="dayPanelWidth"
 				[day]="today">
 			</app-day-info-panel>
-			<app-tools-bar class="h-100"></app-tools-bar>
+			<app-tools-bar
+				[maxScheduleWidth]="maxScheduleWidth"
+				[maxScheduleMaxWidth]="maxScheduleMaxWidth"
+				class="h-100">
+			</app-tools-bar>
 		</div>
 		<div *ngIf="!oneDayMode" class="col w-100 h-100 padding-0 d-flex parent-sections-container">
 			<div
@@ -82,7 +86,11 @@
 				[style.right.px]="skillsDetailsRight"
 				class="h-100">
 			</app-skills-details>
-			<app-tools-bar class="h-100"></app-tools-bar>
+			<app-tools-bar
+				[maxScheduleWidth]="maxScheduleWidth"
+				[maxScheduleMaxWidth]="maxScheduleMaxWidth"
+				class="h-100">
+			</app-tools-bar>
 		</div>
 	</div>
 	<div class="row unassigned-orders-container">

@@ -1,5 +1,4 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {DaysService} from "../../services/days.service";
 import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
 import {JobLineType} from "../../objects/job-line-type";
@@ -8,6 +7,7 @@ import {Skill} from "../../objects/skill";
 import {CardsService} from "../../services/cards.service";
 import {NgbModal, NgbModalConfig} from "@ng-bootstrap/ng-bootstrap";
 import {Subscription} from "rxjs/internal/Subscription";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -29,7 +29,7 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	private _showAppointmentSchedulesDialog: boolean;
 
 	constructor(
-		private daysService: DaysService,
+		private mechanicsService: MechanicsService,
 		private cardsService: CardsService,
 		private commonService: CommonService,
 		private modalService: NgbModal,
@@ -41,10 +41,10 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
-			// TODO Añadir detectChanges
-			this.oneDayMode = oneDayMode;
-		});
+		// this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
+		// 	// TODO Añadir detectChanges
+		// 	this.oneDayMode = oneDayMode;
+		// });
 		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
 			if (!(skills.length && this.mechanic.skills == skills)) {
 				this.highlightMechanic = false;
@@ -113,11 +113,11 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 						this.cardsService.resetCardsGroup(group);
 						this.cardsService.addToUnassigned(group);
 					});
-					this.daysService.removeMechanic(this.day, this.mechanic);
+					this.mechanicsService.removeMechanic(this.day, this.mechanic);
 				},
 				() => {});
 		} else {
-			this.daysService.removeMechanic(this.day, this.mechanic);
+			this.mechanicsService.removeMechanic(this.day, this.mechanic);
 		}
 	}
 

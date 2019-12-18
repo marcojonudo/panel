@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {CardPositionService} from "../../services/card-position.service";
-import {DaysService} from "../../services/days.service";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
@@ -26,7 +25,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private cardPositionService: CardPositionService,
-		private daysService: DaysService,
 		private cardsService: CardsService,
 		private cdRef: ChangeDetectorRef
 	) { }
@@ -64,10 +62,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	set helperCardsGroup(value: CardsGroup) {
 		this._helperCardsGroup = value;
-	}
-
-	get lineHeight$() {
-		return this.daysService.lineHeight$;
 	}
 
 	get translateDuration(): number {

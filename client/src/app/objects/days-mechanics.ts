@@ -1,6 +1,6 @@
 import {Mechanic} from "./mechanic";
 
-export interface DayMechanics {
+export interface DaysMechanics {
 
 	[key: number]: Mechanic[];
 

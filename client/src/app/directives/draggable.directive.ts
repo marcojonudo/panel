@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import {Coordinates} from "../objects/coordinates";
 import {CardPositionService} from "../services/card-position.service";
-import {TimeService} from "../services/time.service";
 import {Card} from "../objects/card";
 import {CardsGroup} from "../objects/cards-group";
 import {CardsService} from "../services/cards.service";
@@ -45,7 +44,6 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		private renderer: Renderer2,
 		private cardPositionService: CardPositionService,
 		private cardsService: CardsService,
-		private timeService: TimeService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.dragging = false;

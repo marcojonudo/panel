@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Card} from "../objects/card";
 import {CardsService} from "./cards.service";
-import {TimeService} from "./time.service";
 import {environment} from "../../environments/environment";
 import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-card-update-position";
 import {RealTimeCardUpdateDuration} from "../objects/real-time-update/real-time-card-update-duration";
@@ -9,7 +8,6 @@ import {RealTimeCardUpdateLinks} from "../objects/real-time-update/real-time-car
 import {Constants} from "../objects/constants";
 import {RealTimeMechanicUpdateLines} from "../objects/real-time-update/real-time-mechanic-update-lines";
 import {Mechanic} from "../objects/mechanic";
-import {DaysService} from "./days.service";
 import {RealTimeMechanicUpdatePosition} from "../objects/real-time-update/real-time-mechanic-update-position";
 import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-info";
 import {RealTimeAppointmentUpdateSchedule} from "../objects/real-time-update/real-time-appointment-update-schedule";
@@ -19,6 +17,8 @@ import {UtilsService} from "./utils.service";
 import {RealTimeAppointmentUpdateType} from "../objects/real-time-update/real-time-appointment-update-type";
 import {NotificationService} from "./notification.service";
 import {CardsGroup} from "../objects/cards-group";
+import {DimensionsService} from "./dimensions.service";
+import {MechanicsService} from "./mechanics.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -43,8 +43,7 @@ export class RealTimeService {
 
 	constructor(
 		private cardsService: CardsService,
-		private timeService: TimeService,
-		private daysService: DaysService,
+		private mechanicsService: MechanicsService,
 		private appointmentsService: AppointmentsService
 	) {
 		this.connectUpdatePublisher();
@@ -105,7 +104,7 @@ export class RealTimeService {
 				if (assigned) {
 					/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
 					*  terminal) */
-					const left = this.timeService.calcLeftFromStart(card.start);
+					const left = DimensionsService.calcLeftFromStart(card.start);
 					this.cardsService.updatePosition(group, card.day, card.line, left);
 					this.cardsService.updateAssignedCards([group], group, card.day, card.mechanicCode, false);
 					this.cardsService.addToAssigned(group, card.day, card.mechanicCode);
@@ -146,7 +145,7 @@ export class RealTimeService {
 
 		const receivedUpdatedDurationCard = cards.find(c => c.id == updatedDurationCard.id);
 		const durationDiff = receivedUpdatedDurationCard.duration - updatedDurationCard.duration;
-		const widthDiff = this.timeService.calcWidthFromDuration(durationDiff);
+		const widthDiff = DimensionsService.calcWidthFromDuration(durationDiff);
 		this.cardsService.updateDurationProperties(updatedDurationCard, updatedDurationGroup, widthDiff, durationDiff);
 		if (translatedCards.length) {
 			this.updatePosition(translatedCards);
@@ -173,22 +172,21 @@ export class RealTimeService {
 	}
 
 	updateLines(mechanic: Mechanic): void {
-		const localMechanic = this.daysService.daysMechanics[mechanic.day.getTime()].find(m =>
-			m.panelPosition == mechanic.panelPosition
-		);
-		this.daysService.updateMechanicLines(localMechanic, mechanic.lines);
+		const localMechanic = this.mechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
+		this.mechanicsService.updateMechanicLines(localMechanic, mechanic.lines);
 	}
 
 	updateMechanicPosition(mechanics: Mechanic[]): void {
 		/* El último elemento de la lista es el mecánico eliminado */
-		const removedMechanic = this.daysService.daysMechanics[mechanics[0].day.getTime()].find(m =>
-			m.panelPosition == mechanics[mechanics.length-1].panelPosition
+		const removedMechanic = this.mechanicsService.findMechanicByPosition(
+			mechanics[0].day,
+			mechanics[mechanics.length-1].panelPosition
 		);
-		this.daysService.removeMechanic(removedMechanic.day, removedMechanic, false);
+		this.mechanicsService.removeMechanic(removedMechanic.day, removedMechanic, false);
 	}
 
 	updateAppointmentSchedule(updatedAppointment: AppointmentSchedule): void {
-		const dayMechanics = this.daysService.findDayMechanics(
+		const dayMechanics = this.mechanicsService.findDayMechanics(
 			UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
 		);
 		const [mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
@@ -207,7 +205,7 @@ export class RealTimeService {
 	updateAppointmentType(updatedAppointment: AppointmentSchedule): void {
 		let mechanic, appointment;
 		if (!updatedAppointment.appointmentType) {
-			for (const mechanics of Object.values(this.daysService.daysMechanics)) {
+			for (const mechanics of Object.values(this.mechanicsService.daysMechanics)) {
 				if (!mechanic) {
 					let [mec, app] = this.appointmentsService.findMechanicAppointmentByMechanic(
 						<Mechanic[]> mechanics,
@@ -221,7 +219,7 @@ export class RealTimeService {
 			}
 			appointment.reset();
 		} else {
-			const dayMechanics = this.daysService.findDayMechanics(
+			const dayMechanics = this.mechanicsService.findDayMechanics(
 				UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
 			);
 			[mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(

@@ -5,6 +5,7 @@ import {Skill} from "./skill";
 import {AppointmentSchedule} from "./appointment-schedule";
 import {UtilsService} from "../services/utils.service";
 import {ScheduleInterval} from "./schedule-interval";
+import {DimensionsService} from "../services/dimensions.service";
 
 export class Mechanic {
 
@@ -65,6 +66,11 @@ export class Mechanic {
 			}
 			return new AppointmentSchedule(this.id, i);
 		});
+	}
+
+	setLines(lines: number): void {
+		this.lines = lines;
+		this.height = this.lines * DimensionsService.lineHeight;
 	}
 
 }

@@ -5,16 +5,15 @@ import {Coordinates} from "../objects/coordinates";
 import {Card} from "../objects/card";
 import {CardsGroup} from "../objects/cards-group";
 import {UtilsService} from "./utils.service";
-import {TimeService} from "./time.service";
-import {DaysService} from "./days.service";
 import {Constants} from "../objects/constants";
-import {isNullOrUndefined} from "util";
 import {CardsService} from "./cards.service";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
 import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
 import {NotificationService} from "./notification.service";
+import {DimensionsService} from "./dimensions.service";
+import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 
 @Injectable({
 	providedIn: 'root'
@@ -54,9 +53,7 @@ export class CardPositionService {
 	private maxScheduleWidthSubscription: Subscription;
 
 	constructor(
-		private cardsService: CardsService,
-		private timeService: TimeService,
-		private daysService: DaysService
+		private cardsService: CardsService
 	) {
 		/* Este valor se utiliza para llevar a cabo una transición al soltar una ficha en la cinta. El top de una ficha
 		*  no asignada siempre es el mismo, y se toma como referencia window.innerHeight porque la transicíon se llevará
@@ -81,8 +78,8 @@ export class CardPositionService {
 		this.dragging$ = this.draggingSubject.asObservable();
 	}
 
-	init(unassignedSections: UnassignedSection[], assignedDaysGroups: any): void {
-		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(() => {
+	init(unassignedSections: UnassignedSection[], assignedDaysGroups: DaysAssignedGroups): void {
+		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(() => {
 			this.updateDimensions(unassignedSections, assignedDaysGroups);
 			NotificationService.notifyAll();
 		});
@@ -259,9 +256,9 @@ export class CardPositionService {
 			const groups = section.findGroups();
 			groups.forEach((cardsGroup: CardsGroup, i: number) => {
 				cardsGroup.cards.forEach((card) => {
-					card.width = this.timeService.calcWidthFromDuration(card.duration);
+					card.width = DimensionsService.calcWidthFromDuration(card.duration);
 				});
-				cardsGroup.left = this.timeService.calcLeftFromCardsGroups(i, groups);
+				cardsGroup.left = DimensionsService.calcLeftFromCardsGroups(i, groups);
 			});
 		}
 	}
@@ -271,14 +268,14 @@ export class CardPositionService {
 	): void {
 		for (const groups of Object.values(unassignedTypesCardsGroups)) {
 			groups.forEach((cardsGroup: CardsGroup, i: number) => {
-				cardsGroup.left = this.timeService.calcLeftFromCardsGroups(i, groups);
+				cardsGroup.left = DimensionsService.calcLeftFromCardsGroups(i, groups);
 			});
 		}
 	}
 
 	updateUnassignedGroupsLeft(groups: CardsGroup[]): void {
 		groups.forEach((group: CardsGroup, i: number) => {
-			group.left = i == 0 ? 0 : this.timeService.calcLeftFromCardsGroups(i, groups);
+			group.left = i == 0 ? 0 : DimensionsService.calcLeftFromCardsGroups(i, groups);
 		});
 	}
 
@@ -287,9 +284,9 @@ export class CardPositionService {
 			for (let mechanic in daysGroups[dayTime]) {
 				daysGroups[dayTime][mechanic].forEach((cardsGroup: CardsGroup) => {
 					cardsGroup.cards.forEach((card: Card) => {
-						card.width = this.timeService.calcWidthFromDuration(card.duration);
+						card.width = DimensionsService.calcWidthFromDuration(card.duration);
 					});
-					cardsGroup.left = this.timeService.calcLeftFromStart(cardsGroup.cards[0].start);
+					cardsGroup.left = DimensionsService.calcLeftFromStart(cardsGroup.cards[0].start);
 				});
 			}
 		}
@@ -342,7 +339,7 @@ export class CardPositionService {
 		position: Coordinates,
 		dayMechanicCardsGroups: CardsGroup[],
 		destinyDropzone: Dropzone = this.destinyDropzone,
-		intervalWidth: number = this.timeService.intervalWidth,
+		intervalWidth: number = DimensionsService.intervalWidth,
 		group: CardsGroup = this.helperCardsGroup
 	): CardsGroup[] {
 		/* Se comprueba si los laterales del grupo están fuera de la dropzone. Si lo están, se actualiza la posición
@@ -416,7 +413,7 @@ export class CardPositionService {
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
 		return groups.find(group => {
-			const duration = this.timeService.calcWidthFromDuration(this.timeService.calcDurationFromCardsGroup(group));
+			const duration = DimensionsService.calcWidthFromDuration(group.findDuration());
 			return this.checkOutsideLeft(group.left, dropzoneLeft) ||
 				this.checkOutsideRight(group.left + duration, dropzoneRight)
 		}) != undefined;
@@ -428,9 +425,7 @@ export class CardPositionService {
 		dropzone: Dropzone = this.destinyDropzone
 	): Coordinates {
 		const leftX = this.absolutePositionToLeft(position.x);
-		const durationWidth = this.timeService.calcWidthFromDuration(
-			this.timeService.calcDurationFromCardsGroup(cardsGroup)
-		);
+		const durationWidth = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
 		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.rect.x);
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
@@ -452,7 +447,7 @@ export class CardPositionService {
 		dropzone: Dropzone = this.destinyDropzone
 	): boolean {
 		const leftX = this.absolutePositionToLeft(position.x);
-		const duration = this.timeService.calcWidthFromDuration(this.timeService.calcDurationFromCardsGroup(cardsGroup));
+		const duration = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
 		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.rect.x, 2));
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
@@ -477,10 +472,10 @@ export class CardPositionService {
 
 		const line = Math.abs(
 			Math.round(
-				(this.absolutePositionToTop(position.y) - this.dropzoneAbsolutePositionToTop(rect.top)) / this.daysService.lineHeight
+				(this.absolutePositionToTop(position.y) - this.dropzoneAbsolutePositionToTop(rect.top)) / DimensionsService.lineHeight
 			)
 		);
-		const y = this.dropzoneTopToAbsolutePosition(rect.top) + line * this.daysService.lineHeight;
+		const y = this.dropzoneTopToAbsolutePosition(rect.top) + line * DimensionsService.lineHeight;
 		[position.x, position.y, position.line] = [x, y, line];
 		return position;
 	}
@@ -551,7 +546,7 @@ export class CardPositionService {
 	): CardsGroup[] {
 		lineGroups = lineGroups.filter(group => group.id != cardsGroup.id);
 		let newCardsMinutes = this.getDurationArray(
-			this.timeService.calcStart(cardsGroup.left, new Date()),
+			DimensionsService.calcStartFromLeft(cardsGroup.left, new Date()),
 			cardsGroup.cards
 		);
 		newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);

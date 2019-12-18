@@ -1,5 +1,6 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import {TimeService} from "../../services/time.service";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {DimensionsService} from "../../services/dimensions.service";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
 	selector: 'app-dimension-sliders',
@@ -7,42 +8,32 @@ import {TimeService} from "../../services/time.service";
 	styleUrls: ['./dimension-sliders.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DimensionSlidersComponent implements OnInit, OnDestroy {
+export class DimensionSlidersComponent implements OnInit {
+
+	@Input() maxScheduleWidth: number;
+	@Input() maxScheduleMaxWidth: number;
 
 	private readonly ZOOM_LEVELS: number = 4;
 
 	private _min: number;
 	private _max: number;
-	private _step: number;
 	private _width: number;
 
-	private maxScheduleWidthSubscription: any;
-	private maxScheduleMaxWidthSubscription: any;
-
-	constructor(
-		private timeService: TimeService,
-		private cdRef: ChangeDetectorRef
-	) {
-		this.min = this.timeService.gridWidth;
+	constructor() {
+		this.min = DimensionsService.gridWidth;
 	}
 
 	ngOnInit(): void {
-		this.maxScheduleWidthSubscription = this.timeService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
-			this.width = maxScheduleWidth;
-			this.cdRef.detectChanges();
-		});
-		this.maxScheduleMaxWidthSubscription = this.timeService.maxScheduleMaxWidth$.subscribe(maxScheduleMaxWidth => {
-			this.max = maxScheduleMaxWidth;
-			/* Se limitan los decimales porque con el número por defecto, el step no llega al max y en el slider se
-			*  muestra la bola en un punto medio del eje */
-			this.step = parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));
-			this.cdRef.detectChanges();
-		});
-	}
-
-	ngOnDestroy(): void {
-		this.maxScheduleWidthSubscription.unsubscribe();
-		this.maxScheduleMaxWidthSubscription.unsubscribe();
+		this.width = this.maxScheduleWidth;
+		this.max = this.maxScheduleMaxWidth;
+		// this.maxScheduleMaxWidthSubscription = this.timeService.maxScheduleMaxWidth$.subscribe(maxScheduleMaxWidth => {
+		// 	this.max = maxScheduleMaxWidth;
+		// 	/* Se limitan los decimales porque con el número por defecto, el step no llega al max y en el slider se
+		// 	*  muestra la bola en un punto medio del eje */
+		// 	this.step = parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));
+		// 	console.log(111111111111111, this.max, this.step);
+		// 	this.cdRef.detectChanges();
+		// });
 	}
 
 	// region Getters / setters
@@ -63,14 +54,6 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 		this._max = value;
 	}
 
-	get step(): number {
-		return this._step;
-	}
-
-	set step(value: number) {
-		this._step = value;
-	}
-
 	get width(): number {
 		return this._width;
 	}
@@ -81,8 +64,13 @@ export class DimensionSlidersComponent implements OnInit, OnDestroy {
 
 	// endregion
 
+	findStep(): number {
+		return parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));
+	}
+
 	updateWidth() {
-		this.timeService.updateMaxScheduleWidth(this.width);
+		DimensionsService.updateMaxScheduleWidth(this.width);
+		NotificationService.notifyMaxScheduleWidth(this.width);
 	}
 
 }

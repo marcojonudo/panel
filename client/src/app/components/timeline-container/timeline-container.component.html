@@ -1,5 +1,10 @@
-<div class="d-flex timeline-container">
+<div class="d-flex timeline-container" [style.height.px]="timelineHeight">
 	<div class="day h-100 align-center">{{day | date : 'dd/MM/yyyy'}}</div>
-	<app-timeline [day]="day" [maxScheduleHours]="maxScheduleHours" class="flex-grow-1"></app-timeline>
+	<app-timeline
+		[day]="day"
+		[maxScheduleHours]="maxScheduleHours"
+		[maxScheduleWidth]="maxScheduleWidth"
+		class="flex-grow-1">
+	</app-timeline>
 </div>
 <div>{{check()}}</div>

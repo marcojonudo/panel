@@ -1,28 +1,23 @@
 import {Injectable} from '@angular/core';
-import {Observable} from "rxjs/internal/Observable";
 import {Card} from "../objects/card";
-import {TimeService} from "./time.service";
-import {DaysService} from "./days.service";
 
 import {CardsGroup} from "../objects/cards-group";
 import {HttpClient} from "@angular/common/http";
-import {Subject} from "rxjs/internal/Subject";
 import {environment} from "../../environments/environment";
-import {UnassignedCardUpdate} from "../objects/update-cards/unassigned-card-update";
 import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {Schedule} from "../objects/schedule";
-import {MechanicLineUpdate} from "../objects/update-days-cards/mechanic-line-update";
-import {MechanicLineUpdateTrigger} from "../objects/update-days-cards/mechanic-line-update-trigger";
 import {AppointmentsService} from "./appointments.service";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
 import {UnassignedTypeSection} from "../objects/unassigned-sections/unassigned-type-section";
 import {UnassignedFinishedSection} from "../objects/unassigned-sections/unassigned-finished-section";
 import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
-import {DayMechanics} from "../objects/day-mechanics";
+import {DaysMechanics} from "../objects/days-mechanics";
 import {Mechanic} from "../objects/mechanic";
 import {NotificationService} from "./notification.service";
+import {DaysAssignedGroups} from "../objects/days-assigned-groups";
+import {DimensionsService} from "./dimensions.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -34,7 +29,7 @@ export class CardsService {
 	private assignedCards: Card[];
 
 	private _assignedDaysCardsGroups$: any;
-	private _assignedDaysCardsGroups: any;
+	private _assignedDaysCardsGroups: DaysAssignedGroups;
 	private _assignedCardsGroups: CardsGroup[];
 	private _finishedCardsGroups: CardsGroup[];
 	private _unassignedCardsGroups: CardsGroup[];
@@ -45,7 +40,6 @@ export class CardsService {
 	private _overlappedGroups: CardsGroup[];
 
 	constructor(
-		private timeService: TimeService,
 		private appointmentsService: AppointmentsService,
 		private http: HttpClient
 	) {
@@ -93,11 +87,11 @@ export class CardsService {
 		this._assignedCardsGroups = value;
 	}
 
-	get assignedDaysCardsGroups(): any {
+	get assignedDaysCardsGroups(): DaysAssignedGroups {
 		return this._assignedDaysCardsGroups;
 	}
 
-	set assignedDaysCardsGroups(value: any) {
+	set assignedDaysCardsGroups(value: DaysAssignedGroups) {
 		this._assignedDaysCardsGroups = value;
 	}
 
@@ -121,7 +115,7 @@ export class CardsService {
 
 	// region Init
 
-	init(cards: Card[], daysMechanics: DayMechanics) {
+	init(cards: Card[], daysMechanics: DaysMechanics) {
 		this.cards = cards;
 
 		const finishedCards = this.cards.filter(card => card.status == Constants.CARD_STATUS.FINISHED);
@@ -314,7 +308,7 @@ export class CardsService {
 			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setLine(line);
 			card.setStart(
-				this.timeService.calcStart(group.left + this.timeService.calcWidthFromDuration(leftCardsDuration),
+				DimensionsService.calcStartFromLeft(group.left + DimensionsService.calcWidthFromDuration(leftCardsDuration),
 				day
 			));
 		});
@@ -324,7 +318,7 @@ export class CardsService {
 	}
 
 	handleCardDurationUpdate(card: Card, widthIncrease: number, mechanic: Mechanic): Card[] {
-		const durationIncrease = this.timeService.calcDurationFromWidth(widthIncrease);
+		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
 		const group = this.findCardGroup(this.findLineGroups(card.day, card.mechanicCode, card.line), card.id);
 
 		/* Si la ficha se está reduciendo, no es necesario hacer comprobaciones relativas a los límites del horario
@@ -480,7 +474,7 @@ export class CardsService {
 		let findGroups, createGroup, handleUpdate;
 		if (card.start) {
 			findGroups = () => this.findLineGroups(card.day, card.mechanicCode, card.line);
-			createGroup = (cards, group, cardIndex, offset) => new CardsGroup(cards, this.timeService.calcLeftFromStart(group.cards[cardIndex + offset].start));
+			createGroup = (cards, group, cardIndex, offset) => new CardsGroup(cards, DimensionsService.calcLeftFromStart(group.cards[cardIndex + offset].start));
 			handleUpdate = (newGroup) => this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup)
 		} else {
 			findGroups = () => this.unassignedTypesCardsGroups[card.type];
@@ -633,7 +627,7 @@ export class CardsService {
 		return linkedCards;
 	}
 
-	private initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: DayMechanics): any {
+	private initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: DaysMechanics): any {
 		this.assignedDaysCardsGroups = {};
 
 		for (let dayTime in daysMechanics) {
