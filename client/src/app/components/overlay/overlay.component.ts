@@ -5,6 +5,7 @@ import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {Coordinates} from "../../objects/coordinates";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
 	selector: 'app-overlay',
@@ -30,20 +31,20 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	) { }
 
 	ngOnInit(): void {
-		this.coordinatesSubscription = this.cardPositionService.coordinates$.subscribe(coordinates => {
+		this.coordinatesSubscription = NotificationService.coordinates$.subscribe(coordinates => {
 			this.coordinates = coordinates;
 			this.cdRef.detectChanges();
 		});
 
 		/* Permite asignar la clase CSS de transición justo cuando se levanta el ratón, y forzar el último CD una vez
 		*  se ha establecido la última posición */
-		this.draggingSubscription = this.cardPositionService.dragging$.subscribe(dragging => {
+		this.draggingSubscription = NotificationService.dragging$.subscribe(dragging => {
 			this.dragging = dragging;
 			this.cdRef.detectChanges();
 		});
 
 		/* Permite mostrar o eliminar la ficha auxiliar en pantalla */
-		this.helperCardsGroupSubscription = this.cardPositionService.helperCardsGroup$.subscribe(helperCardsGroup => {
+		this.helperCardsGroupSubscription = NotificationService.helperCardsGroup$.subscribe(helperCardsGroup => {
 			this.helperCardsGroup = helperCardsGroup;
 			this.cdRef.detectChanges();
 		});
@@ -52,6 +53,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.coordinatesSubscription.unsubscribe();
 		this.draggingSubscription.unsubscribe();
+		this.helperCardsGroupSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -77,8 +79,8 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	}
 
 	updateCard() {
-		this.cardPositionService.hiddenGroup = undefined;
-		this.cardPositionService.emitHelperCardsGroup(undefined);
+		CardPositionService.hiddenGroup = undefined;
+		CardPositionService.setHelperGroup(undefined);
 	}
 
 }

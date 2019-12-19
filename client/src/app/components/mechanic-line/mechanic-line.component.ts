@@ -65,7 +65,7 @@ export class MechanicLineComponent {
 	// endregion
 
 	findGroups(day: Date, mechanicCode: string): CardsGroup[] {
-		return this.cardsService.getAssignedCardsGroups(day, mechanicCode);
+		return this.cardsService.findDayMechanicGroups(day, mechanicCode);
 	}
 
 	calcScheduleWidth(duration: number): number {
@@ -99,12 +99,12 @@ export class MechanicLineComponent {
 	}
 
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {
-		this.cardPositionService.hiddenGroup = cardsGroup;
+		CardPositionService.hiddenGroup = cardsGroup;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(groupId: number): boolean {
-		return this.cardPositionService.hiddenGroup ? this.cardPositionService.hiddenGroup.id == groupId : false;
+		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 
 	trackByItem(index, item) {

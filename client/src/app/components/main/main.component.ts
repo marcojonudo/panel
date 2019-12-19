@@ -103,9 +103,8 @@ export class MainComponent implements OnInit, OnDestroy {
 			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
 			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
 			*  del slider */
-			console.log('HOOOOOOOOOOOOOOOOOOOLA');
 			this.maxScheduleWidth = maxScheduleWidth;
-			this.cardPositionService.updateDimensions(
+			CardPositionService.updateDimensions(
 				this.cardsService.unassignedSections,
 				this.cardsService.assignedDaysCardsGroups
 			);

@@ -10,7 +10,6 @@ import {AppointmentsService} from "../../services/appointments.service";
 
 export class UnassignedDropzone implements Dropzone {
 
-	cardPositionService: CardPositionService;
 	cardsService: CardsService;
 	appointmentsService: AppointmentsService;
 
@@ -19,11 +18,9 @@ export class UnassignedDropzone implements Dropzone {
 	rect: any;
 
 	constructor(
-		cardPositionService: CardPositionService,
 		cardsService: CardsService,
 		appointmentsService: AppointmentsService
 	) {
-		this.cardPositionService = cardPositionService;
 		this.cardsService = cardsService;
 		this.appointmentsService = appointmentsService;
 	}
@@ -41,7 +38,7 @@ export class UnassignedDropzone implements Dropzone {
 	}
 
 	findLastPosition(groups: CardsGroup[], group): Coordinates {
-		return this.cardPositionService.handleUnassignedPosition(group);
+		return CardPositionService.handleUnassignedPosition(group, this.cardsService.unassignedTypesCardsGroups);
 	}
 
 	addGroup(

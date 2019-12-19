@@ -18,6 +18,7 @@ import {UnassignedDropzone} from "../objects/dropzone-type/unassigned-dropzone";
 import {CardsService} from "../services/cards.service";
 import {FinishDropzone} from "../objects/dropzone-type/finish-dropzone";
 import {AppointmentsService} from "../services/appointments.service";
+import {NotificationService} from "../services/notification.service";
 
 @Directive({
 	selector: '[appDropzone]'
@@ -47,14 +48,14 @@ export class DropzoneDirective implements OnInit {
 		private appointmentsService: AppointmentsService
 	) {
 		this.DROPZONE_TYPE = {};
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] = () => new AssignedDropzone(this.cardPositionService, this.cardsService, this.appointmentsService, this.mechanic);
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] = () => new UnassignedDropzone(this.cardPositionService, this.cardsService, this.appointmentsService);
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.FINISH] = () => new FinishDropzone(this.cardPositionService, this.cardsService, this.appointmentsService);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] = () => new AssignedDropzone(this.cardsService, this.appointmentsService, this.mechanic);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] = () => new UnassignedDropzone(this.cardsService, this.appointmentsService);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.FINISH] = () => new FinishDropzone(this.cardsService, this.appointmentsService);
 	}
 
 	ngOnInit() {
 		this.dropzone = this.DROPZONE_TYPE[this.type]();
-		this.cardPositionService.dragging$.subscribe(dragging => {
+		NotificationService.dragging$.subscribe(dragging => {
 			if (dragging) {
 				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
 				this.pointerLeaveListener = this.renderer.listen(this.element.nativeElement, 'pointerleave', this.onPointerLeave.bind(this));
@@ -69,14 +70,14 @@ export class DropzoneDirective implements OnInit {
 	}
 
 	onPointerMove(): void {
-		if (!this.cardPositionService.originDropzone) {
-			this.cardPositionService.originDropzone = this.dropzone;
+		if (!CardPositionService.originDropzone) {
+			CardPositionService.originDropzone = this.dropzone;
 		}
-		this.cardPositionService.destinyDropzone = this.dropzone;
+		CardPositionService.destinyDropzone = this.dropzone;
 	}
 
 	onPointerLeave(): void {
-		this.cardPositionService.destinyDropzone = undefined;
+		CardPositionService.destinyDropzone = undefined;
 	}
 
 }

@@ -9,7 +9,6 @@ import {AppointmentsService} from "../../services/appointments.service";
 
 export class AssignedDropzone implements Dropzone {
 
-	cardPositionService: CardPositionService;
 	cardsService: CardsService;
 	appointmentsService: AppointmentsService;
 
@@ -20,20 +19,18 @@ export class AssignedDropzone implements Dropzone {
 	dayMechanicGroups: CardsGroup[];
 
 	constructor(
-		cardPositionService: CardPositionService,
 		cardsService: CardsService,
 		appointmentsService: AppointmentsService,
 		mechanic: Mechanic
 	) {
-		this.cardPositionService = cardPositionService;
 		this.cardsService = cardsService;
 		this.appointmentsService = appointmentsService;
 		this.mechanic = mechanic;
 	}
 
 	validateMovement(position: Coordinates): CardsGroup[] {
-		this.dayMechanicGroups = this.cardsService.getAssignedCardsGroups(this.mechanic.day, this.mechanic.code);
-		return this.cardPositionService.validateAssignedPosition(
+		this.dayMechanicGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		return CardPositionService.validateAssignedPosition(
 			position,
 			this.dayMechanicGroups
 		);
@@ -49,20 +46,29 @@ export class AssignedDropzone implements Dropzone {
 	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates {
 		/* Se actualiza el left, start y end de los grupos y se retorna la posición final a la que se tendrá que
 		*  desplazar la ficha, una vez tenidos en cuenta los solapamientos */
-		return this.cardPositionService.updateAssignedGroupsPosition(
+		return CardPositionService.updateAssignedGroupsPosition(
 			position,
-			groups,
-			this.dayMechanicGroups
+			groups
+			// this.dayMechanicGroups
 		);
 	}
 
 	addGroup(
 		groups: CardsGroup[],
 		group: CardsGroup,
-		originDropzone: Dropzone
+		originDropzone: Dropzone,
+		lastPosition: Coordinates
 	): void {
 		/* Se actualiza el día y el mecánico */
-		this.cardsService.updateAssignedCards(groups, group, this.mechanic.day, this.mechanic.code);
+		//TODO Añadir position para actualizar propiedades de cards
+		this.cardsService.updateAssignedCards(
+			groups,
+			group,
+			this.mechanic.day,
+			this.mechanic.code,
+			lastPosition.line,
+			this.dayMechanicGroups
+		);
 		this.updateAppointmentsCounterAdd(group, originDropzone);
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el

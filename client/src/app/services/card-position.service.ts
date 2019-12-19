@@ -8,53 +8,149 @@ import {UtilsService} from "./utils.service";
 import {Constants} from "../objects/constants";
 import {CardsService} from "./cards.service";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
-import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
 import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
-import {NotificationService} from "./notification.service";
 import {DimensionsService} from "./dimensions.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class CardPositionService {
 
-	private readonly GROUP_ROUND_POSITION_OFFSET: number = 5;
+	private static readonly GROUP_ROUND_POSITION_OFFSET: number = 5;
 	// private scrollLeftSubject;
 	// scrollLeft$: Observable<number>;
-	private _dragging: boolean;
-	private _hiddenGroup: CardsGroup;
-	private _dropzone: Dropzone;
-	private _destinyDropzone: Dropzone;
-	private _originDropzone: Dropzone;
+	private static _dragging: boolean;
+	private static _hiddenGroup: CardsGroup;
+	private static _dropzone: Dropzone;
+	private static _destinyDropzone: Dropzone;
+	private static _originDropzone: Dropzone;
 
-	private _unassignedCardTop: number;
+	private static _unassignedCardTop: number;
 
-	private _initialScrollLeft: number;
-	private _initialScrollTop: number;
-	private _scrollLeft: number;
-	private _scrollTop: number;
-	private _relativeScrollLeft: number;
-	private _relativeScrollTop: number;
+	private static _initialScrollLeft: number;
+	private static _initialScrollTop: number;
+	private static _scrollLeft: number;
+	private static _scrollTop: number;
+	private static _relativeScrollLeft: number;
+	private static _relativeScrollTop: number;
 
-	private _position: Coordinates;
-	private _helperCardsGroup: CardsGroup;
+	private static _position: Coordinates;
+	private static _helperGroup: CardsGroup;
 
-	private coordinatesSubject: BehaviorSubject<Coordinates>;
-	private _coordinates$: Observable<Coordinates>;
+	// region Getters / setters
 
-	private helperCardsGroupSubject: BehaviorSubject<CardsGroup>;
-	private _helperCardsGroup$: Observable<CardsGroup>;
+	static get dragging(): boolean {
+		return this._dragging;
+	}
 
-	private draggingSubject: BehaviorSubject<boolean>;
-	private _dragging$: Observable<boolean>;
+	static set dragging(value: boolean) {
+		this._dragging = value;
+	}
 
-	private maxScheduleWidthSubscription: Subscription;
+	static get hiddenGroup(): CardsGroup {
+		return this._hiddenGroup;
+	}
 
-	constructor(
-		private cardsService: CardsService
-	) {
+	static set hiddenGroup(value: CardsGroup) {
+		this._hiddenGroup = value;
+	}
+
+	static get originDropzone(): Dropzone {
+		return this._originDropzone;
+	}
+
+	static set originDropzone(value: Dropzone) {
+		this._originDropzone = value;
+	}
+
+	static get destinyDropzone(): Dropzone {
+		return this._destinyDropzone;
+	}
+
+	static set destinyDropzone(value: Dropzone) {
+		this._destinyDropzone = value;
+	}
+
+	static get position(): Coordinates {
+		return this._position;
+	}
+
+	static set position(value: Coordinates) {
+		this._position = value;
+	}
+
+	static get helperGroup(): CardsGroup {
+		return this._helperGroup;
+	}
+
+	static set helperGroup(value: CardsGroup) {
+		this._helperGroup = value;
+	}
+
+	static get initialScrollTop(): number {
+		return this._initialScrollTop;
+	}
+
+	static set initialScrollTop(value: number) {
+		this._initialScrollTop = value;
+	}
+
+	static get initialScrollLeft(): number {
+		return this._initialScrollLeft;
+	}
+
+	static set initialScrollLeft(value: number) {
+		this._initialScrollLeft = value;
+	}
+
+	static get scrollLeft(): number {
+		return this._scrollLeft;
+	}
+
+	static set scrollLeft(value: number) {
+		this._scrollLeft = value;
+	}
+
+	static get scrollTop(): number {
+		return this._scrollTop;
+	}
+
+	static set scrollTop(value: number) {
+		this._scrollTop = value;
+	}
+
+	static get relativeScrollLeft(): number {
+		return this._relativeScrollLeft;
+	}
+
+	static set relativeScrollLeft(value: number) {
+		this._relativeScrollLeft = value;
+	}
+
+	static get relativeScrollTop(): number {
+		return this._relativeScrollTop;
+	}
+
+	static set relativeScrollTop(value: number) {
+		this._relativeScrollTop = value;
+	}
+
+	static get unassignedCardTop(): number {
+		return this._unassignedCardTop;
+	}
+
+	static set unassignedCardTop(value: number) {
+		this._unassignedCardTop = value;
+	}
+
+	// endregion
+
+	// region Init
+
+	static init(): void {
 		/* Este valor se utiliza para llevar a cabo una transición al soltar una ficha en la cinta. El top de una ficha
 		*  no asignada siempre es el mismo, y se toma como referencia window.innerHeight porque la transicíon se llevará
 		*  a cabo sobre la ficha auxiliar dentro del overlay (que ocupa toda la pantalla) */
@@ -67,184 +163,27 @@ export class CardPositionService {
 		this.scrollTop = 0;
 		this.relativeScrollLeft = 0;
 		this.relativeScrollTop = 0;
-
-		this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
-		this.coordinates$ = this.coordinatesSubject.asObservable();
-
-		this.helperCardsGroupSubject = new BehaviorSubject<CardsGroup>(undefined);
-		this.helperCardsGroup$ = this.helperCardsGroupSubject.asObservable();
-
-		this.draggingSubject = new BehaviorSubject<boolean>(false);
-		this.dragging$ = this.draggingSubject.asObservable();
-	}
-
-	// region Getters / setters
-
-	get dragging(): boolean {
-		return this._dragging;
-	}
-
-	set dragging(value: boolean) {
-		this._dragging = value;
-	}
-
-	get hiddenGroup(): CardsGroup {
-		return this._hiddenGroup;
-	}
-
-	set hiddenGroup(value: CardsGroup) {
-		this._hiddenGroup = value;
-	}
-
-	get dropzone(): Dropzone {
-		return this._dropzone;
-	}
-
-	set dropzone(value: Dropzone) {
-		this._dropzone = value;
-	}
-
-	get originDropzone(): Dropzone {
-		return this._originDropzone;
-	}
-
-	set originDropzone(value: Dropzone) {
-		this._originDropzone = value;
-	}
-
-	get destinyDropzone(): Dropzone {
-		return this._destinyDropzone;
-	}
-
-	set destinyDropzone(value: Dropzone) {
-		this._destinyDropzone = value;
-	}
-
-	get position(): Coordinates {
-		return this._position;
-	}
-
-	set position(value: Coordinates) {
-		this._position = value;
-	}
-
-	get helperCardsGroup(): CardsGroup {
-		return this._helperCardsGroup;
-	}
-
-	set helperCardsGroup(value: CardsGroup) {
-		this._helperCardsGroup = value;
-	}
-
-	get coordinates$(): Observable<Coordinates> {
-		return this._coordinates$;
-	}
-
-	set coordinates$(value: Observable<Coordinates>) {
-		this._coordinates$ = value;
-	}
-
-	get helperCardsGroup$(): Observable<any> {
-		return this._helperCardsGroup$;
-	}
-
-	set helperCardsGroup$(value: Observable<any>) {
-		this._helperCardsGroup$ = value;
-	}
-
-	get dragging$(): Observable<any> {
-		return this._dragging$;
-	}
-
-	set dragging$(value: Observable<any>) {
-		this._dragging$ = value;
-	}
-
-	get initialScrollTop(): number {
-		return this._initialScrollTop;
-	}
-
-	set initialScrollTop(value: number) {
-		this._initialScrollTop = value;
-	}
-
-	get initialScrollLeft(): number {
-		return this._initialScrollLeft;
-	}
-
-	set initialScrollLeft(value: number) {
-		this._initialScrollLeft = value;
-	}
-
-	get scrollLeft(): number {
-		return this._scrollLeft;
-	}
-
-	set scrollLeft(value: number) {
-		this._scrollLeft = value;
-	}
-
-	get scrollTop(): number {
-		return this._scrollTop;
-	}
-
-	set scrollTop(value: number) {
-		this._scrollTop = value;
-	}
-
-	get relativeScrollLeft(): number {
-		return this._relativeScrollLeft;
-	}
-
-	set relativeScrollLeft(value: number) {
-		this._relativeScrollLeft = value;
-	}
-
-	get relativeScrollTop(): number {
-		return this._relativeScrollTop;
-	}
-
-	set relativeScrollTop(value: number) {
-		this._relativeScrollTop = value;
-	}
-
-	get unassignedCardTop(): number {
-		return this._unassignedCardTop;
-	}
-
-	set unassignedCardTop(value: number) {
-		this._unassignedCardTop = value;
 	}
 
 	// endregion
 
 	// region Emitters
 
-	emitPosition(coordinates: Coordinates) {
-		this.position = coordinates;
-		this.coordinatesSubject.next(coordinates);
-	}
-
-	emitHelperCardsGroup(cardsGroup: CardsGroup) {
-		this.helperCardsGroup = cardsGroup;
-		this.helperCardsGroupSubject.next(this.helperCardsGroup);
-	}
-
-	emitDragging(value: boolean) {
-		this.dragging = value;
-		this.draggingSubject.next(this.dragging);
+	static setHelperGroup(cardsGroup: CardsGroup) {
+		this.helperGroup = cardsGroup;
+		NotificationService.notifyHelperGroup(this.helperGroup);
 	}
 
 	// endregion
 
 	// region Update dimensions
 
-	updateDimensions(unassignedSections: UnassignedSection[], daysGroups: DaysAssignedGroups) {
+	static updateDimensions(unassignedSections: UnassignedSection[], daysGroups: DaysAssignedGroups) {
 		this.updateUnassignedDimensions(unassignedSections);
 		this.updateAssignedDimensions(daysGroups);
 	}
 
-	updateUnassignedDimensions(unassignedSections: UnassignedSection[]): void {
+	private static updateUnassignedDimensions(unassignedSections: UnassignedSection[]): void {
 		for (const section of unassignedSections) {
 			const groups = section.findGroups();
 			groups.forEach((cardsGroup: CardsGroup, i: number) => {
@@ -256,8 +195,8 @@ export class CardPositionService {
 		}
 	}
 
-	updateUnassignedLeft(
-		unassignedTypesCardsGroups: GroupedTypeCards = this.cardsService.unassignedTypesCardsGroups
+	static updateUnassignedLeft(
+		unassignedTypesCardsGroups: GroupedTypeCards
 	): void {
 		for (const groups of Object.values(unassignedTypesCardsGroups)) {
 			groups.forEach((cardsGroup: CardsGroup, i: number) => {
@@ -266,13 +205,13 @@ export class CardPositionService {
 		}
 	}
 
-	updateUnassignedGroupsLeft(groups: CardsGroup[]): void {
+	static updateUnassignedGroupsLeft(groups: CardsGroup[]): void {
 		groups.forEach((group: CardsGroup, i: number) => {
 			group.left = i == 0 ? 0 : DimensionsService.calcLeftFromCardsGroups(i, groups);
 		});
 	}
 
-	updateAssignedDimensions(daysGroups: any): void {
+	private static updateAssignedDimensions(daysGroups: any): void {
 		for (let dayTime in daysGroups) {
 			for (let mechanic in daysGroups[dayTime]) {
 				daysGroups[dayTime][mechanic].forEach((cardsGroup: CardsGroup) => {
@@ -289,10 +228,10 @@ export class CardPositionService {
 
 	// region Handle position updates
 
-	handleDestinyPosition(
+	static handleDestinyPosition(
 		position: Coordinates,
 		startPosition: Coordinates,
-		group: CardsGroup = this.helperCardsGroup
+		group: CardsGroup = this.helperGroup
 	): Coordinates {
 		if (this.destinyDropzone) {
 			/* Se valida si el grupo encaja en la posición de destino (podría no caber en el horario, por ejemplo) */
@@ -304,7 +243,7 @@ export class CardPositionService {
 			if (groupsToUpdate) { /* Si el movimiento es válido */
 				const lastPosition = this.destinyDropzone.findLastPosition(groupsToUpdate, group, position);
 				/* Se añade el grupo al dropzone de destino */
-				this.destinyDropzone.addGroup(groupsToUpdate, group, this.originDropzone);
+				this.destinyDropzone.addGroup(groupsToUpdate, group, this.originDropzone, lastPosition);
 				return lastPosition;
 			} else {
 				this.originDropzone.handleNotValidatedMovement(group);
@@ -316,9 +255,9 @@ export class CardPositionService {
 		return startPosition;
 	}
 
-	handleUnassignedPosition(
+	static handleUnassignedPosition(
 		group: CardsGroup,
-		typeGroups: GroupedTypeCards = this.cardsService.unassignedTypesCardsGroups
+		typeGroups: GroupedTypeCards
 	): Coordinates {
 		this.updateUnassignedGroupsLeft(typeGroups[group.type]);
 		const groupIndex = typeGroups[group.cards[0].type].indexOf(group);
@@ -328,12 +267,12 @@ export class CardPositionService {
 		);
 	}
 
-	validateAssignedPosition(
+	static validateAssignedPosition(
 		position: Coordinates,
 		dayMechanicCardsGroups: CardsGroup[],
 		destinyDropzone: Dropzone = this.destinyDropzone,
 		intervalWidth: number = DimensionsService.intervalWidth,
-		group: CardsGroup = this.helperCardsGroup
+		group: CardsGroup = this.helperGroup
 	): CardsGroup[] {
 		/* Se comprueba si los laterales del grupo están fuera de la dropzone. Si lo están, se actualiza la posición
 		 * para ajustar a los límites */
@@ -373,32 +312,19 @@ export class CardPositionService {
 		return groupsToUpdate;
 	}
 
-	updateAssignedGroupsPosition(
+	static updateAssignedGroupsPosition(
 		position: Coordinates,
 		clonedGroups: CardsGroup[],
-		dayMechanicCardsGroups: CardsGroup[],
-		helperGroup: CardsGroup = this.helperCardsGroup
+		// dayMechanicCardsGroups: CardsGroup[],
+		helperGroup: CardsGroup = this.helperGroup
 	): Coordinates {
-		const allOriginalGroups = dayMechanicCardsGroups.concat(helperGroup);
-		/* Si no se encuentra ningún grupo que, después de gestionarse el solapamiento, esté fuera del horario,
-		*  se actualizan las propiedades en los grupos originales */
-		clonedGroups.forEach(clonedGroup => {
-			/* Se obtiene el grupo de todos los del día, en lugar de sólo los de la línea, porque la ficha que se está
-			*  moviendo puede provenir de otra línea. Además, se añade cardsGroup porque si se mueve desde otra línea de
-			*  mecánico, no va a estar en dayMechanicsCardsGroups */
-			const group = allOriginalGroups.find(group => group.id == clonedGroup.id);
-			/* Se actualizan los valores relacionados con la posicion (left y start) */
-			this.cardsService.updatePosition(group, this.destinyDropzone.mechanic.day, position.line, clonedGroup.left);
-		});
-		this.cardsService.overlappedGroups = clonedGroups;
+		const helperClonedGroup = clonedGroups.find(group => group.id == helperGroup.id);
 
-		/* Se define la nueva posición, una vez tenidas en cuenta las fichas solapadas, para completar la transición
-		*  en la directiva draggable */
-		position.x = this.leftToAbsolutePosition(helperGroup.left);
+		position.x = this.leftToAbsolutePosition(helperClonedGroup.left);
 		return position;
 	}
 
-	private checkGroupsOutsideDropzone(
+	private static checkGroupsOutsideDropzone(
 		groups: CardsGroup[],
 		dropzone: Dropzone = this.destinyDropzone
 	): boolean {
@@ -412,7 +338,7 @@ export class CardPositionService {
 		}) != undefined;
 	}
 
-	private fixGroupOutsideDropzonePosition(
+	private static fixGroupOutsideDropzonePosition(
 		position: Coordinates,
 		cardsGroup: CardsGroup,
 		dropzone: Dropzone = this.destinyDropzone
@@ -434,7 +360,7 @@ export class CardPositionService {
 		return outsideLeft && outsideRight ? undefined : position;
 	}
 
-	private checkPositionOutsideDropzone(
+	private static checkPositionOutsideDropzone(
 		position: Coordinates,
 		cardsGroup: CardsGroup,
 		dropzone: Dropzone = this.destinyDropzone
@@ -448,18 +374,18 @@ export class CardPositionService {
 			|| this.checkOutsideRight(leftX + duration, dropzoneRight, this.GROUP_ROUND_POSITION_OFFSET);
 	}
 
-	private checkOutsideLeft(leftX: number, dropzoneLeft: number): boolean {
+	private static checkOutsideLeft(leftX: number, dropzoneLeft: number): boolean {
 		/* Si la coordenada x está fuera de la dropzone, se le asigna el valor izquierdo de la misma, más una cifra.
 		*  Esta cifra permite que a la hora de redondear en el método roundLastPosition, la ficha quede dentro de la
 		*  dropzone, en lugar de justo a la izquierda */
 		return dropzoneLeft - leftX > 2;
 	}
 
-	private checkOutsideRight(rightX: number, dropzoneRight: number, offset: number = 0): boolean {
+	private static checkOutsideRight(rightX: number, dropzoneRight: number, offset: number = 0): boolean {
 		return rightX - dropzoneRight > 2;
 	}
 
-	private roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {
+	private static roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {
 		const leftIntervals = Math.floor(this.absolutePositionToLeft(position.x) / intervalWidth);
 		const x = this.leftToAbsolutePosition(leftIntervals * intervalWidth);
 
@@ -473,16 +399,16 @@ export class CardPositionService {
 		return position;
 	}
 
-	private updateLeft(cardsGroup: CardsGroup, position: Coordinates): void {
+	private static updateLeft(cardsGroup: CardsGroup, position: Coordinates): void {
 		cardsGroup.left = this.absolutePositionToLeft(position.x);
 	}
 
-	private handleOverlappedMovements(
+	private static handleOverlappedMovements(
 		dayMechanicsGroups: CardsGroup[],
 		clonedGroup: CardsGroup,
 		position: Coordinates
 	): CardsGroup[] {
-		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperCardsGroup para que se tengan en
+		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperGroup para que se tengan en
 		*  cuenta a la hora de identificar las fichas solapadas */
 		this.updateLeft(clonedGroup, position);
 
@@ -491,7 +417,7 @@ export class CardPositionService {
 		return overlappedGroups.includes(clonedGroup) ? overlappedGroups : overlappedGroups.concat(clonedGroup);
 	}
 
-	private iterateSuccessiveMovements(
+	private static iterateSuccessiveMovements(
 		clonedGroup: CardsGroup,
 		lineGroups: CardsGroup[],
 		groupsToUpdate: CardsGroup[] = []
@@ -533,7 +459,7 @@ export class CardPositionService {
 		return groupsToUpdate;
 	}
 
-	private findOverlappedCardsGroups(
+	private static findOverlappedCardsGroups(
 		cardsGroup: CardsGroup,
 		lineGroups: CardsGroup[]
 	): CardsGroup[] {
@@ -550,21 +476,21 @@ export class CardPositionService {
 		});
 	}
 
-	private getDurationArray(start: Date, cards: Card[]) {
+	private static getDurationArray(start: Date, cards: Card[]) {
 		return UtilsService.createMinutesArray(
 			UtilsService.getTotalMinutes(start),
 			UtilsService.getTotalMinutes(UtilsService.addMinutes(start, UtilsService.sum(cards, 'duration')))
 		);
 	}
 
-	private calcLeft(cardsGroups: CardsGroup[]) {
+	private static calcLeft(cardsGroups: CardsGroup[]) {
 		cardsGroups.forEach((cardsGroup, index) => {
 			const width = this.findCardsGroupsWidth(cardsGroups.slice(0, index));
 			cardsGroup.left = cardsGroups[0].left + width;
 		});
 	}
 
-	private findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
+	private static findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
 		let cards = [];
 		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
 		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
@@ -577,7 +503,7 @@ export class CardPositionService {
 	/* La posición del cursor en pantalla cuenta el eje de las X desde el inicio de la misma. Sin embargo, para hacer
 	 * cálculos relativos al horario, se deben restar los 180px de ancho que tiene la info del
 	 * mecánico */
-	private absolutePositionToLeft(
+	private static absolutePositionToLeft(
 		value: number,
 		initialScrollLeft: number = this.initialScrollLeft,
 		scrollLeft: number = this.scrollLeft,
@@ -586,14 +512,14 @@ export class CardPositionService {
 		return value + (relativeScrollLeft != 0 ? initialScrollLeft + relativeScrollLeft : scrollLeft) - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	private dropzoneAbsolutePositionToLeft(
+	private static dropzoneAbsolutePositionToLeft(
 		value: number,
 		initialScrollLeft: number = this.initialScrollLeft
 	): number {
 		return value + initialScrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	private leftToAbsolutePosition(
+	private static leftToAbsolutePosition(
 		value: number,
 		initialScrollLeft: number = this.initialScrollLeft,
 		scrollLeft: number = this.scrollLeft,
@@ -602,7 +528,7 @@ export class CardPositionService {
 		return value - (relativeScrollLeft != 0 ? initialScrollLeft + relativeScrollLeft : scrollLeft) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	private absolutePositionToTop(
+	private static absolutePositionToTop(
 		value: number,
 		initialScrollTop: number = this.initialScrollTop,
 		scrollTop: number = this.scrollTop,
@@ -611,14 +537,14 @@ export class CardPositionService {
 		return value + (relativeScrollTop != 0 ? initialScrollTop + relativeScrollTop : scrollTop);
 	}
 
-	private dropzoneAbsolutePositionToTop(
+	private static dropzoneAbsolutePositionToTop(
 		value: number,
 		initialScrollTop: number = this.initialScrollTop
 	): number {
 		return value + initialScrollTop;
 	}
 
-	private dropzoneTopToAbsolutePosition(
+	private static dropzoneTopToAbsolutePosition(
 		top: number,
 		relativeScrollTop: number = this.relativeScrollTop
 	) {

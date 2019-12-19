@@ -69,11 +69,11 @@ export class BandComponent implements OnInit, OnDestroy {
 			.subscribe((cardUpdate: UnassignedCardUpdate) => {
 				if (cardUpdate.type) {
 					this.section = this.cardsService.unassignedSections.find(section => section.name == cardUpdate.type);
-					this.cardPositionService.updateUnassignedGroupsLeft(
+					CardPositionService.updateUnassignedGroupsLeft(
 						this.cardsService.findUnassignedGroups(cardUpdate.type, cardUpdate.type)
 					);
 				} else {
-					this.cardPositionService.updateUnassignedLeft();
+					CardPositionService.updateUnassignedLeft(this.cardsService.unassignedTypesCardsGroups);
 				}
 				this.cdRef.detectChanges();
 			});
@@ -169,12 +169,12 @@ export class BandComponent implements OnInit, OnDestroy {
 	// }
 
 	setHiddenCardsGroup(group: CardsGroup): void {
-		this.cardPositionService.hiddenGroup = group;
+		CardPositionService.hiddenGroup = group;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(groupId: number): boolean {
-		return this.cardPositionService.hiddenGroup ? this.cardPositionService.hiddenGroup.id == groupId : false;
+		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 
 	check() {

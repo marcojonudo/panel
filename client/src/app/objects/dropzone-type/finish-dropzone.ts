@@ -10,7 +10,6 @@ import {AppointmentsService} from "../../services/appointments.service";
 
 export class FinishDropzone implements Dropzone {
 
-	cardPositionService: CardPositionService;
 	cardsService: CardsService;
 	appointmentsService: AppointmentsService;
 
@@ -19,11 +18,9 @@ export class FinishDropzone implements Dropzone {
 	rect: any;
 
 	constructor(
-		cardPositionService: CardPositionService,
 		cardsService: CardsService,
 		appointmentsService: AppointmentsService
 	) {
-		this.cardPositionService = cardPositionService;
 		this.cardsService = cardsService;
 		this.appointmentsService = appointmentsService;
 	}
@@ -49,7 +46,7 @@ export class FinishDropzone implements Dropzone {
 		this.cardsService.updateFinishedGroup(group);
 		this.updateAppointmentsCounterAdd(group, originDropzone);
 		this.cardsService.addToFinished(group);
-		this.cardPositionService.updateUnassignedGroupsLeft(this.cardsService.finishedCardsGroups);
+		CardPositionService.updateUnassignedGroupsLeft(this.cardsService.finishedCardsGroups);
 		NotificationService.notifyBand();
 	}
 

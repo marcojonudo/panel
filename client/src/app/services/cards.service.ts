@@ -18,6 +18,7 @@ import {Mechanic} from "../objects/mechanic";
 import {NotificationService} from "./notification.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {DimensionsService} from "./dimensions.service";
+import {Coordinates} from "../objects/coordinates";
 
 @Injectable({
 	providedIn: 'root'
@@ -37,14 +38,10 @@ export class CardsService {
 
 	private _unassignedSections: UnassignedSection[];
 
-	private _overlappedGroups: CardsGroup[];
-
 	constructor(
 		private appointmentsService: AppointmentsService,
 		private http: HttpClient
 	) {
-		this.overlappedGroups = [];
-
 		this.unassignedSections = [
 			new UnassignedTypeSection(this, Constants.CARD_TYPE.TODAY),
 			new UnassignedTypeSection(this, Constants.CARD_TYPE.APPOINTMENT),
@@ -93,14 +90,6 @@ export class CardsService {
 
 	set assignedDaysCardsGroups(value: DaysAssignedGroups) {
 		this._assignedDaysCardsGroups = value;
-	}
-
-	get overlappedGroups(): CardsGroup[] {
-		return this._overlappedGroups;
-	}
-
-	set overlappedGroups(value: CardsGroup[]) {
-		this._overlappedGroups = value;
 	}
 
 	get unassignedSections(): UnassignedSection[] {
@@ -247,23 +236,29 @@ export class CardsService {
 	}
 
 	updateAssignedCards(
-		groupsToUpdate: CardsGroup[],
-		cardsGroup: CardsGroup,
+		clonedGroups: CardsGroup[],
+		helperGroup: CardsGroup,
 		day: Date,
 		newMechanicCode: string,
+		line: number,
+		dayMechanicGroups: CardsGroup[],
 		updateDb: boolean = true
 	) {
-		cardsGroup.status = Constants.CARD_STATUS.DEFAULT;
-		cardsGroup.cards.forEach((card: Card) => {
-			card.setDay(day);
-			card.setMechanicCode(newMechanicCode);
-			card.status = Constants.CARD_STATUS.DEFAULT;
+		const allOriginalGroups = dayMechanicGroups.concat(helperGroup);
+
+		clonedGroups.forEach(clonedGroup => {
+			/* Se obtiene el grupo de todos los del día, en lugar de sólo los de la línea, porque la ficha que se está
+			*  moviendo puede provenir de otra línea. Además, se añade cardsGroup porque si se mueve desde otra línea de
+			*  mecánico, no va a estar en dayMechanicsCardsGroups */
+			const group = allOriginalGroups.find(group => group.id == clonedGroup.id);
+			/* Se actualizan los valores relacionados con la posicion (left y start) */
+			this.updatePosition(group, day, newMechanicCode, line, clonedGroup.left);
 		});
 
 		if (updateDb) {
 			this.http.put(
 				`${environment.serverUrl}/panel/cards/position`,
-				[].concat(...groupsToUpdate.map(g => g.cards))
+				[].concat(...clonedGroups.map(g => g.cards))
 			).subscribe();
 		}
 	}
@@ -298,21 +293,26 @@ export class CardsService {
 		card.line = undefined;
 	}
 
-	updatePosition(group: CardsGroup, day: Date, line: number, left: number) {
+	updatePosition(group: CardsGroup, day: Date, mechanicCode: string, line: number, left: number) {
 		/* Sólo se puede mover un grupo a la vez, ya que es lo que se arrastra cuando se desplazan fichas por el
 		*  panel; sin embargo, en caso de haber solapamientos, son varios los que deben ser actualizados. Por ese
 		*  motivo se usa un array en lugar de un sólo grupo */
 		group.left = left;
+		group.status = Constants.CARD_STATUS.DEFAULT;
+		group.line = line;
 
 		group.cards.forEach((card, index) => {
-			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
+			card.setDay(day);
+			card.setMechanicCode(mechanicCode);
+			card.status = Constants.CARD_STATUS.DEFAULT;
 			card.setLine(line);
+
+			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setStart(
 				DimensionsService.calcStartFromLeft(group.left + DimensionsService.calcWidthFromDuration(leftCardsDuration),
 				day
 			));
 		});
-		group.line = line;
 		group.start = group.cards[0].start;
 		group.end = group.cards[group.cards.length - 1].end;
 	}
@@ -582,16 +582,16 @@ export class CardsService {
 		}
 	}
 
-	getAssignedCardsGroups(day: Date, mechanicCode: string): CardsGroup[] {
+	findDayMechanicGroups(day: Date, mechanicCode: string): CardsGroup[] {
 		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
 	}
 
 	findLineGroups(day: Date, mechanicCode: string, line: number): CardsGroup[] {
-		return this.getAssignedCardsGroups(day, mechanicCode).filter(group => group.line == line);
+		return this.findDayMechanicGroups(day, mechanicCode).filter(group => group.line == line);
 	}
 
 	findLineCards(day: Date, mechanicCode: string, line: number): Card[] {
-		const groups = this.getAssignedCardsGroups(day, mechanicCode).filter(group => group.cards[0].line == line);
+		const groups = this.findDayMechanicGroups(day, mechanicCode).filter(group => group.cards[0].line == line);
 		return [].concat(...groups.map(group => group.cards));
 	}
 

@@ -87,35 +87,6 @@ export class MechanicsService {
 
 	// endregion
 
-	// toggleDayMode() {
-	// 	this.oneDayMode = !this.oneDayMode;
-	// 	// this.lineHeight = this.oneDayMode ? Constants.VALUE.LINE_HEIGHT_DEFAULT : Constants.VALUE.LINE_HEIGHT_NARROW;
-	// 	this.oneDayModeSubject.next(this.oneDayMode);
-	// 	// this.lineHeightSubject.next(this.lineHeight);
-	// }
-	//
-	// checkDisplayScrollbar(
-	// 	gridHeight: number,
-	// 	today: Date,
-	// 	lineHeight: number = this.lineHeight,
-	// 	daysMechanics: DaysMechanics = this.daysMechanics,
-	// 	oneDayMode: boolean = this.oneDayMode
-	// ): boolean {
-	// 	if (!Object.keys(daysMechanics).length) {
-	// 		return false;
-	// 	}
-	// 	const mechanics = oneDayMode ? daysMechanics[today.getTime()] : [].concat(...Object.values(daysMechanics));
-	// 	if (mechanics.length) {
-	// 		const mechanicsHeight =
-	// 			UtilsService.sum(mechanics, 'lines') * lineHeight +
-	// 			mechanics.length * (this.MECHANIC_BOTTOM_MARGIN + 4) +
-	// 			this.TIMELINE_HEIGHT
-	// 		;
-	// 		return gridHeight < mechanicsHeight;
-	// 	}
-	// 	return false;
-	// }
-	//
 	updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.setLines(newLines);
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);

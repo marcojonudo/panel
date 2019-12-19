@@ -14,6 +14,7 @@ import {Card} from "../objects/card";
 import {CardsGroup} from "../objects/cards-group";
 import {CardsService} from "../services/cards.service";
 import {Constants} from "../objects/constants";
+import {NotificationService} from "../services/notification.service";
 
 @Directive({
 	selector: '[appDraggable]',
@@ -82,14 +83,14 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 			this.startPosition = new Coordinates(this.cardRect.left, this.cardRect.top);
 			this.position = new Coordinates(this.cardRect.left, this.cardRect.top);
-			this.cardPositionService.emitPosition(this.startPosition);
+			NotificationService.notifyCoordinates(this.startPosition);
 
 			this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 			/* Se envía el grupo para mostrar el helper en el overlay */
-			this.cardPositionService.emitHelperCardsGroup(this.cardsGroup);
+			CardPositionService.setHelperGroup(this.cardsGroup);
 			/* Permite asignar o eliminar la clase que añade una transición al helper, para desplazarse a la posicíon
 			*  final */
-			this.cardPositionService.emitDragging(true);
+			NotificationService.notifyDragging(true);
 
 			this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
 			this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));
@@ -100,7 +101,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		if (this.dragging) {
 			this.position.x = this.startPosition.x + event.clientX - this.startEventCoordinates.x;
 			this.position.y = this.startPosition.y + event.clientY - this.startEventCoordinates.y;
-			this.cardPositionService.emitPosition(this.position);
+			NotificationService.notifyCoordinates(this.position);
 		}
 	}
 
@@ -110,27 +111,27 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 		/* Si emitHelperCard es true, se emite el evento inmediatamente en lugar de al terminar la transición en
 		*  overlay. Significa que la ficha se soltó en la barra inferior */
-		const position = this.cardPositionService.handleDestinyPosition(this.position, this.startPosition);
+		const position = CardPositionService.handleDestinyPosition(this.position, this.startPosition);
 		if (position) {
 			this.position = position;
 
 			/* Se emite la última posición ya redondeada */
-			this.cardPositionService.emitPosition(this.position);
+			NotificationService.notifyCoordinates(this.position);
 
 			/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
 			 * de su posición de origen */
-			this.cardPositionService.emitDragging(this.dragging);
+			NotificationService.notifyDragging(this.dragging);
 		} else {
-			this.cardPositionService.emitDragging(this.dragging);
-			this.cardPositionService.emitHelperCardsGroup(undefined);
+			NotificationService.notifyDragging(this.dragging);
+			CardPositionService.setHelperGroup(undefined);
 		}
 
 		this.pointerMoveListener();
 		this.pointerUpListener();
 
 		// TODO Revisar hiddenGroup y comprobar si hace falta emitter
-		this.cardPositionService.hiddenGroup = undefined;
-		this.cardPositionService.originDropzone = undefined;
+		CardPositionService.hiddenGroup = undefined;
+		CardPositionService.originDropzone = undefined;
 	}
 
 }

@@ -30,7 +30,6 @@ export class AppComponent implements AfterViewInit {
 	constructor(
 		private cdRef: ChangeDetectorRef,
 		private cardsService: CardsService,
-		private cardPositionService: CardPositionService,
 		private appointmentsService: AppointmentsService,
 		private realTimeService: RealTimeService,
 		private commonService: CommonService,
@@ -44,11 +43,21 @@ export class AppComponent implements AfterViewInit {
 				console.log('Received data', data);
 
 				NotificationService.init();
-				this.commonService.init(data.jobLineTypes, data.appointmentTypes);
 
 				this.mechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
 				this.cardsService.init(data.cards.map(card => new Card(card)), this.mechanicsService.daysMechanics);
+
+				DimensionsService.init(this.mechanicsService.daysMechanics);
+				CardPositionService.init();
+
+				CardPositionService.updateDimensions(
+					this.cardsService.unassignedSections,
+					this.cardsService.assignedDaysCardsGroups
+				);
+
+				this.commonService.init(data.jobLineTypes, data.appointmentTypes);
+
 				this.appointmentsService.init(
 					data.appointmentTypes,
 					data.appointmentDays,
@@ -56,12 +65,6 @@ export class AppComponent implements AfterViewInit {
 					this.cardsService.unassignedCardsGroups
 				);
 
-				DimensionsService.init(this.mechanicsService.daysMechanics);
-
-				this.cardPositionService.updateDimensions(
-					this.cardsService.unassignedSections,
-					this.cardsService.assignedDaysCardsGroups
-				);
 				this.loading = false;
 				this.cdRef.detectChanges();
 			});

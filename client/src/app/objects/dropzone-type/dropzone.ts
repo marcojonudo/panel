@@ -7,7 +7,6 @@ import {Constants} from "../constants";
 
 export interface Dropzone {
 
-	cardPositionService: CardPositionService;
 	cardsService: CardsService;
 
 	type: string;
@@ -18,9 +17,9 @@ export interface Dropzone {
 
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void;
 
-	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void;
-
 	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
+
+	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone, lastPosition: Coordinates): void;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
 

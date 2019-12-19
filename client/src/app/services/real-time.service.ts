@@ -79,7 +79,7 @@ export class RealTimeService {
 		/* En función de si la ficha estaba asignada antes de moverse en otro terminal o no, se busca en los
 		*  grupos asignados o en los de la cinta */
 		return day ?
-			this.cardsService.getAssignedCardsGroups(day, mechanicCode) :
+			this.cardsService.findDayMechanicGroups(day, mechanicCode) :
 			this.cardsService.findUnassignedGroups(card.type, card.status);
 	}
 
@@ -104,9 +104,17 @@ export class RealTimeService {
 				if (assigned) {
 					/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
 					*  terminal) */
-					const left = DimensionsService.calcLeftFromStart(card.start);
-					this.cardsService.updatePosition(group, card.day, card.line, left);
-					this.cardsService.updateAssignedCards([group], group, card.day, card.mechanicCode, false);
+					group.left = DimensionsService.calcLeftFromStart(card.start);
+					// this.cardsService.updatePosition(group, card.day, card.line, left);
+					this.cardsService.updateAssignedCards(
+						[group],
+						group,
+						card.day,
+						card.mechanicCode,
+						card.line,
+						this.cardsService.findDayMechanicGroups(card.day, card.mechanicCode),
+						false
+					);
 					this.cardsService.addToAssigned(group, card.day, card.mechanicCode);
 				} else {
 					this.cardsService.resetCardsGroup(group);

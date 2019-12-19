@@ -1,6 +1,7 @@
 import {Directive, ElementRef, HostListener, OnInit, Renderer2} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {CardPositionService} from "../services/card-position.service";
+import {NotificationService} from "../services/notification.service";
 
 @Directive({
 	selector: '[appScrollable]'
@@ -47,7 +48,7 @@ export class ScrollableDirective implements OnInit {
 	}
 
 	ngOnInit() {
-		this.cardPositionService.dragging$.subscribe(dragging => {
+		NotificationService.dragging$.subscribe(dragging => {
 			if (dragging) {
 				if (!this.top) {
 					this.setPositionValues(this.element.nativeElement.getBoundingClientRect());
@@ -55,13 +56,13 @@ export class ScrollableDirective implements OnInit {
 				this.dragging = true;
 				this.lastScrollTop = this.scrollTop;
 				this.lastScrollLeft = this.scrollLeft;
-				this.cardPositionService.initialScrollTop = this.scrollTop;
-				this.cardPositionService.initialScrollLeft = this.scrollLeft;
+				CardPositionService.initialScrollTop = this.scrollTop;
+				CardPositionService.initialScrollLeft = this.scrollLeft;
 				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
 			} else {
 				this.dragging = false;
-				this.cardPositionService.relativeScrollTop = 0;
-				this.cardPositionService.relativeScrollLeft = 0;
+				CardPositionService.relativeScrollTop = 0;
+				CardPositionService.relativeScrollLeft = 0;
 				if (this.pointerMoveListener) {
 					this.pointerMoveListener();
 				}
@@ -127,17 +128,17 @@ export class ScrollableDirective implements OnInit {
 
 	setPositionScrollLeft(scrollLeft: number, setRelative: boolean) {
 		this.scrollLeft = scrollLeft;
-		this.cardPositionService.scrollLeft = this.scrollLeft;
+		CardPositionService.scrollLeft = this.scrollLeft;
 		if (setRelative) {
-			this.cardPositionService.relativeScrollLeft = this.scrollLeft - this.lastScrollLeft;
+			CardPositionService.relativeScrollLeft = this.scrollLeft - this.lastScrollLeft;
 		}
 	}
 
 	setPositionScrollTop(scrollTop: number, setRelative: boolean) {
 		this.scrollTop = scrollTop;
-		this.cardPositionService.scrollTop = this.scrollTop;
+		CardPositionService.scrollTop = this.scrollTop;
 		if (setRelative) {
-			this.cardPositionService.relativeScrollTop = this.scrollTop - this.lastScrollTop;
+			CardPositionService.relativeScrollTop = this.scrollTop - this.lastScrollTop;
 		}
 	}
 

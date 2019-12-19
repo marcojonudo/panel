@@ -7,6 +7,8 @@ import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
 import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
+import {Coordinates} from "../objects/coordinates";
+import {CardsGroup} from "../objects/cards-group";
 
 @Injectable({
 	providedIn: 'root'
@@ -28,6 +30,15 @@ export class NotificationService {
 	private static maxScheduleWidthSubject: Subject<number>;
 	private static _maxScheduleWidth$: Observable<number>;
 
+	private static coordinatesSubject: Subject<Coordinates>;
+	private static _coordinates$: Observable<Coordinates>;
+
+	private static helperCardsGroupSubject: Subject<CardsGroup>;
+	private static _helperCardsGroup$: Observable<CardsGroup>;
+
+	private static draggingSubject: Subject<boolean>;
+	private static _dragging$: Observable<boolean>;
+
 	// region Init
 
 	static init(): void {
@@ -45,6 +56,15 @@ export class NotificationService {
 
 		this.maxScheduleWidthSubject = new Subject<number>();
 		this.maxScheduleWidth$ = this.maxScheduleWidthSubject.asObservable();
+
+		this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
+		this.coordinates$ = this.coordinatesSubject.asObservable();
+
+		this.helperCardsGroupSubject = new BehaviorSubject<CardsGroup>(undefined);
+		this.helperCardsGroup$ = this.helperCardsGroupSubject.asObservable();
+
+		this.draggingSubject = new BehaviorSubject<boolean>(false);
+		this.dragging$ = this.draggingSubject.asObservable();
 	}
 
 	// endregion
@@ -91,6 +111,30 @@ export class NotificationService {
 		this._maxScheduleWidth$ = value;
 	}
 
+	static get dragging$(): Observable<boolean> {
+		return this._dragging$;
+	}
+
+	static set dragging$(value: Observable<boolean>) {
+		this._dragging$ = value;
+	}
+
+	static get helperCardsGroup$(): Observable<CardsGroup> {
+		return this._helperCardsGroup$;
+	}
+
+	static set helperCardsGroup$(value: Observable<CardsGroup>) {
+		this._helperCardsGroup$ = value;
+	}
+
+	static get coordinates$(): Observable<Coordinates> {
+		return this._coordinates$;
+	}
+
+	static set coordinates$(value: Observable<Coordinates>) {
+		this._coordinates$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -116,6 +160,18 @@ export class NotificationService {
 
 	static notifyMaxScheduleWidth(maxScheduleWidth: number): void {
 		this.maxScheduleWidthSubject.next(maxScheduleWidth);
+	}
+
+	static notifyCoordinates(coordinates: Coordinates): void {
+		this.coordinatesSubject.next(coordinates);
+	}
+
+	static notifyHelperGroup(group: CardsGroup): void {
+		this.helperCardsGroupSubject.next(group);
+	}
+
+	static notifyDragging(dragging: boolean): void {
+		this.draggingSubject.next(dragging);
 	}
 
 }
