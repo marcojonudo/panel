@@ -70,6 +70,10 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		return Constants.VALUE.CARD_MOVEMENT_DURATION;
 	}
 
+	get lineDefaultHeight() {
+		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
+	}
+
 	// endregion
 
 	check(): void {

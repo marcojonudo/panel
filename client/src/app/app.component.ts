@@ -3,8 +3,6 @@ import {Draggable, Droppable} from "@shopify/draggable"
 import {Card} from "./objects/card";
 import {HttpClient} from "@angular/common/http";
 import {CardsService} from "./services/cards.service";
-import {UtilsService} from "./services/utils.service";
-import {Mechanic} from "./objects/mechanic";
 import {Constants} from "./objects/constants";
 import {CommonService} from "./services/common.service";
 import {RealTimeService} from "./services/real-time.service";
@@ -38,18 +36,17 @@ export class AppComponent implements AfterViewInit {
 	) {
 		this.loading = true;
 		this.generateRandomId();
+		NotificationService.init();
+		CardPositionService.init();
 		this.http.get(Url.getInitialData())
 			.subscribe((data: any) => {
 				console.log('Received data', data);
-
-				NotificationService.init();
 
 				this.mechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
 				this.cardsService.init(data.cards.map(card => new Card(card)), this.mechanicsService.daysMechanics);
 
 				DimensionsService.init(this.mechanicsService.daysMechanics);
-				CardPositionService.init();
 
 				CardPositionService.updateDimensions(
 					this.cardsService.unassignedSections,

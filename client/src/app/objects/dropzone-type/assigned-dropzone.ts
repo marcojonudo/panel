@@ -59,8 +59,6 @@ export class AssignedDropzone implements Dropzone {
 		originDropzone: Dropzone,
 		lastPosition: Coordinates
 	): void {
-		/* Se actualiza el día y el mecánico */
-		//TODO Añadir position para actualizar propiedades de cards
 		this.cardsService.updateAssignedCards(
 			groups,
 			group,

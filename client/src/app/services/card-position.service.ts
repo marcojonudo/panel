@@ -272,11 +272,11 @@ export class CardPositionService {
 		dayMechanicCardsGroups: CardsGroup[],
 		destinyDropzone: Dropzone = this.destinyDropzone,
 		intervalWidth: number = DimensionsService.intervalWidth,
-		group: CardsGroup = this.helperGroup
+		helperGroup: CardsGroup = this.helperGroup
 	): CardsGroup[] {
 		/* Se comprueba si los laterales del grupo están fuera de la dropzone. Si lo están, se actualiza la posición
 		 * para ajustar a los límites */
-		position = this.fixGroupOutsideDropzonePosition(position, group);
+		position = this.fixGroupOutsideDropzonePosition(position, helperGroup);
 		/* Si la ficha no cabe en el horario, se devuelve undefined para retornar a la posición original*/
 		if (!position) {
 			return undefined;
@@ -287,7 +287,7 @@ export class CardPositionService {
 
 		/* Se comprueba si, una vez arreglada y redondeada la posición, el intervalo que ocupa el grupo sigue saliéndose
 		*  del horario. Si es así, se retorna undefined para volver a la posición original */
-		const positionOutsideDropzone = this.checkPositionOutsideDropzone(position, group);
+		const positionOutsideDropzone = this.checkPositionOutsideDropzone(position, helperGroup);
 		if (positionOutsideDropzone) {
 			return undefined;
 		}
@@ -295,7 +295,7 @@ export class CardPositionService {
 		/* En este punto, modificar las propiedades reales del grupo puede ser problemático, ya que no se han completado
 		*  todas las validaciones; todavía faltan aquellas relativas a los grupos solapados. Por lo tanto, se clona para
 		*  poder modificarlo sin hacerlo en el objeto original */
-		const clonedGroup = group.clone();
+		const clonedGroup = helperGroup.clone();
 
 		/* Se gestionan los movimientos de fichas solapadas. La lista que se retorna contiene tanto los grupos
 		 * solapados, como el grupo original; es decir, todos los que se deben actualizar tras completar el movimiento */
@@ -420,11 +420,12 @@ export class CardPositionService {
 	private static iterateSuccessiveMovements(
 		clonedGroup: CardsGroup,
 		lineGroups: CardsGroup[],
-		groupsToUpdate: CardsGroup[] = []
+		groupsToUpdate: CardsGroup[] = [],
+		alreadyProcessedGroups: CardsGroup[] = [],
 	): CardsGroup[] {
 		/* Se obtienen los grupos solapados. Se clonan para evitar que se actualice el left de los grupos originales,
 		 * ya que si al final se determina que la ficha no se puede mover, ya se habría actualizado este valor */
-		const overlappedCardsGroups = this.findOverlappedCardsGroups(clonedGroup, lineGroups);
+		const overlappedCardsGroups = this.findOverlappedCardsGroups(clonedGroup, lineGroups, alreadyProcessedGroups);
 		/* Se hacen los cálculos sólo si se encuentran fichas solapadas */
 		if (overlappedCardsGroups.length) {
 			const clonedOverlappedGroups = overlappedCardsGroups.map(group => group.clone());
@@ -451,7 +452,7 @@ export class CardPositionService {
 			if (checkNewOverlapped.length) {
 				return groupsToUpdate.concat(
 					...checkNewOverlapped.map(group =>
-						this.iterateSuccessiveMovements(group, lineGroups, [group])
+						this.iterateSuccessiveMovements(group, lineGroups, [group], allCardsGroups)
 					)
 				);
 			}
@@ -460,18 +461,26 @@ export class CardPositionService {
 	}
 
 	private static findOverlappedCardsGroups(
-		cardsGroup: CardsGroup,
-		lineGroups: CardsGroup[]
+		clonedGroup: CardsGroup,
+		lineGroups: CardsGroup[],
+		alreadyProcessedGroups: CardsGroup[]
 	): CardsGroup[] {
-		lineGroups = lineGroups.filter(group => group.id != cardsGroup.id);
+		/* Para calcular solapamientos, sólo se tienen en cuenta grupos que no hayan sido procesados con anterioridad.
+		*  Si, por ejmeplo, en la primera iteración se procesa el grupo 7 y se actualiza su left, no debe tenerse en
+		*  cuenta en la siguiente, ya que todas las operaciones que se le tenían que realizar finalizaron en su
+		*  iteración */
+		lineGroups = lineGroups.filter(group =>
+			alreadyProcessedGroups.find(g => g.id == group.id) == undefined && group.id != clonedGroup.id
+		);
+
 		let newCardsMinutes = this.getDurationArray(
-			DimensionsService.calcStartFromLeft(cardsGroup.left, new Date()),
-			cardsGroup.cards
+			DimensionsService.calcStartFromLeft(clonedGroup.left, new Date()),
+			clonedGroup.cards
 		);
 		newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);
 
-		return lineGroups.filter(cardsGroup => {
-			const minutesArray = this.getDurationArray(cardsGroup.cards[0].start, cardsGroup.cards);
+		return lineGroups.filter(group => {
+			const minutesArray = this.getDurationArray(group.cards[0].start, group.cards);
 			return minutesArray.find(minutes => newCardsMinutes.indexOf(minutes) >= 0);
 		});
 	}
