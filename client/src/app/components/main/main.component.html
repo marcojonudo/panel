@@ -16,7 +16,8 @@
 					<app-day-panel
 						class="animated slideInRight"
 						[day]="today"
-						[mechanicLineUpdate]="checkTriggerCd(today)"
+						[mechanicLineUpdate]="checkTriggerLineCd(today)"
+						[dayMechanicSkills]="checkTriggerInfoCd(today)"
 						[maxScheduleHours]="maxScheduleHours"
 						[maxScheduleWidth]="maxScheduleWidth">
 					</app-day-panel>
@@ -28,8 +29,8 @@
 				</div>
 			</div>
 			<app-skills-details
-				*ngIf="showSkills"
-				[skills]="skills"
+				*ngIf="checkShowSkills(today)"
+				[skills]="findSkills(today)"
 				[style.right.px]="skillsDetailsRight"
 				class="h-100">
 			</app-skills-details>
@@ -67,12 +68,19 @@
 							<app-day-panel
 								class="animated slideInRight"
 								[day]="day"
-								[mechanicLineUpdate]="checkTriggerCd(day)"
+								[mechanicLineUpdate]="checkTriggerLineCd(day)"
+								[dayMechanicSkills]="checkTriggerInfoCd(day)"
 								[maxScheduleHours]="maxScheduleHours"
 								[maxScheduleWidth]="maxScheduleWidth">
 							</app-day-panel>
 						</div>
 					</div>
+					<app-skills-details
+						*ngIf="checkShowSkills(day)"
+						[skills]="findSkills(day)"
+						[style.right.px]="skillsDetailsRight"
+						class="h-100">
+					</app-skills-details>
 					<app-day-info-panel
 						class="h-100"
 						[style.min-width.px]="dayPanelWidth"
@@ -80,12 +88,6 @@
 					</app-day-info-panel>
 				</div>
 			</div>
-			<app-skills-details
-				*ngIf="showSkills"
-				[skills]="skills"
-				[style.right.px]="skillsDetailsRight"
-				class="h-100">
-			</app-skills-details>
 			<app-tools-bar
 				[maxScheduleWidth]="maxScheduleWidth"
 				[maxScheduleMaxWidth]="maxScheduleMaxWidth"

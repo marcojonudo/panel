@@ -8,7 +8,8 @@
 		[day]="day"
 		[mechanic]="mechanic"
 		[maxScheduleWidth]="maxScheduleWidth"
-		[mechanicLineUpdate]="checkTriggerMechanicCd(mechanic.code)"
+		[mechanicLineUpdate]="checkTriggerMechanicLineCd(mechanic.code)"
+		[dayMechanicSkills]="checkTriggerMechanicInfoCd(mechanic.code)"
 		[appointments]="mechanic.appointments"
 		[position]="mechanic.panelPosition">
 	</app-mechanic-line-container>

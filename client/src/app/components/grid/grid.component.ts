@@ -1,9 +1,10 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Mechanic} from "../../objects/mechanic";
-import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
+import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Constants} from "../../objects/constants";
 import {MechanicsService} from "../../services/mechanics.service";
+import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 
 @Component({
 	selector: 'app-grid',
@@ -14,7 +15,8 @@ import {MechanicsService} from "../../services/mechanics.service";
 export class GridComponent implements OnInit {
 
 	@Input() day: Date;
-	@Input() mechanicLineUpdate: MechanicLineUpdate;
+	@Input() mechanicLineUpdate: MechanicUpdate;
+	@Input() dayMechanicSkills: DayMechanicSkills;
 	@Input() maxScheduleWidth: number;
 
 	private _mechanics: Mechanic[];
@@ -43,11 +45,18 @@ export class GridComponent implements OnInit {
 
 	// endregion
 
-	private checkTriggerMechanicCd(
+	private checkTriggerMechanicLineCd(
 		mechanicCode: string,
-		mechanicLineUpdate: MechanicLineUpdate = this.mechanicLineUpdate
-	): MechanicLineUpdate {
+		mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate
+	): MechanicUpdate {
 		return mechanicLineUpdate && mechanicCode == mechanicLineUpdate.mechanicCode ? mechanicLineUpdate : undefined;
+	}
+
+	private checkTriggerMechanicInfoCd(
+		mechanicCode: string,
+		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
+	): MechanicUpdate {
+		return dayMechanicSkills && mechanicCode == dayMechanicSkills.mechanicCode ? dayMechanicSkills : undefined;
 	}
 
 	drop(event: CdkDragDrop<string[]>) {

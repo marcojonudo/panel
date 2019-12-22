@@ -8,6 +8,9 @@ import {CardsService} from "../../services/cards.service";
 import {NgbModal, NgbModalConfig} from "@ng-bootstrap/ng-bootstrap";
 import {Subscription} from "rxjs/internal/Subscription";
 import {MechanicsService} from "../../services/mechanics.service";
+import {NotificationService} from "../../services/notification.service";
+import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
+import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -15,16 +18,14 @@ import {MechanicsService} from "../../services/mechanics.service";
 	styleUrls: ['./mechanic-info.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicInfoComponent implements OnInit, OnDestroy {
+export class MechanicInfoComponent {
 
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
 	@Input() position: string;
-
-	private skillsSubscription: Subscription;
+	@Input() dayMechanicSkills: DayMechanicSkills;
 
 	private _oneDayMode: boolean;
-	private oneDayModeSubscription: Subscription;
 	private _highlightMechanic: boolean;
 	private _showAppointmentSchedulesDialog: boolean;
 
@@ -40,23 +41,18 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		this.showAppointmentSchedulesDialog = false;
 	}
 
-	ngOnInit(): void {
-		// this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
-		// 	// TODO Añadir detectChanges
-		// 	this.oneDayMode = oneDayMode;
-		// });
-		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
-			if (!(skills.length && this.mechanic.skills == skills)) {
-				this.highlightMechanic = false;
-				this.cdRef.detectChanges();
-			}
-		});
-	}
-
-	ngOnDestroy(): void {
-		this.oneDayModeSubscription.unsubscribe();
-		this.skillsSubscription.unsubscribe();
-	}
+	// ngOnInit(): void {
+	// 	// this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
+	// 	// 	// TODO Añadir detectChanges
+	// 	// 	this.oneDayMode = oneDayMode;
+	// 	// });
+	// 	this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
+	// 		if (!(skills.length && this.mechanic.skills == skills)) {
+	// 			this.highlightMechanic = false;
+	// 			this.cdRef.detectChanges();
+	// 		}
+	// 	});
+	// }
 
 	// region Getters / setters
 
@@ -126,10 +122,21 @@ export class MechanicInfoComponent implements OnInit, OnDestroy {
 		this.cdRef.detectChanges();
 	}
 
-	showSkills(skills: Skill[]) {
-		this.highlightMechanic = !this.highlightMechanic;
-		this.commonService.emitSkills(this.highlightMechanic ? skills : []);
-		this.cdRef.detectChanges();
+	checkHighlightMechanic(
+		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
+	): boolean {
+		return dayMechanicSkills && dayMechanicSkills.skills.length != 0;
+	}
+
+	showSkills(
+		skills: Skill[],
+		day: Date,
+		mechanicCode: string,
+		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
+	) {
+		NotificationService.notifySkills(
+			new DayMechanicSkills(day, mechanicCode, dayMechanicSkills && dayMechanicSkills.skills.length ? [] : skills)
+		);
 	}
 
 	check() {

@@ -538,11 +538,6 @@ export class CardsService {
 		const group = this.findCardGroup(groups, card.id);
 		const leftGroup = this.findLeftGroup(groups, group.id);
 
-		console.log('groups', groups);
-		console.log(this.findLineGroups(card.day, card.mechanicCode, card.line));
-		console.log('group', group);
-		console.log('leftGroup', leftGroup);
-
 		leftGroup.cards[leftGroup.cards.length - 1].linkedNextId = card.id;
 		card.linkedPreviousId = leftGroup.cards[leftGroup.cards.length - 1].id;
 

@@ -1,8 +1,5 @@
-:host {
-	position: absolute;
-}
-
 .skills-container {
+	overflow-y: auto;
 	background-color: #ffffff;
 }
 

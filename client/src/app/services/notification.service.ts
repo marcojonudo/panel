@@ -1,22 +1,24 @@
 import {Injectable} from '@angular/core';
 import {UnassignedCardUpdate} from "../objects/update-cards/unassigned-card-update";
-import {MechanicLineUpdateTrigger} from "../objects/update-days-cards/mechanic-line-update-trigger";
-import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
 import {MechanicLineUpdate} from "../objects/update-days-cards/mechanic-line-update";
+import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
+import {MechanicUpdate} from "../objects/update-days-cards/mechanic-update";
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
 import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Coordinates} from "../objects/coordinates";
 import {CardsGroup} from "../objects/cards-group";
+import {Skill} from "../objects/skill";
+import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class NotificationService {
 
-	private static mechanicLineSubject: Subject<MechanicLineUpdate>;
-	private static _mechanicLine$: Observable<MechanicLineUpdate>;
+	private static mechanicLineSubject: Subject<MechanicUpdate>;
+	private static _mechanicLine$: Observable<MechanicUpdate>;
 
 	private static bandSubject: Subject<UnassignedCardUpdate>;
 	private static _band$: Observable<UnassignedCardUpdate>;
@@ -39,10 +41,13 @@ export class NotificationService {
 	private static draggingSubject: Subject<boolean>;
 	private static _dragging$: Observable<boolean>;
 
+	private static skillsSubject: Subject<DayMechanicSkills>;
+	private static _skills$: Observable<DayMechanicSkills>;
+
 	// region Init
 
 	static init(): void {
-		this.mechanicLineSubject = new Subject<MechanicLineUpdate>();
+		this.mechanicLineSubject = new Subject<MechanicUpdate>();
 		this.mechanicLine$ = this.mechanicLineSubject.asObservable();
 
 		this.bandSubject = new Subject<UnassignedCardUpdate>();
@@ -65,17 +70,20 @@ export class NotificationService {
 
 		this.draggingSubject = new BehaviorSubject<boolean>(false);
 		this.dragging$ = this.draggingSubject.asObservable();
+
+		this.skillsSubject = new Subject<DayMechanicSkills>();
+		this.skills$ = this.skillsSubject.asObservable();
 	}
 
 	// endregion
 
 	// region Getters / setters
 
-	static get mechanicLine$(): Observable<MechanicLineUpdate> {
+	static get mechanicLine$(): Observable<MechanicUpdate> {
 		return this._mechanicLine$;
 	}
 
-	static set mechanicLine$(value: Observable<MechanicLineUpdate>) {
+	static set mechanicLine$(value: Observable<MechanicUpdate>) {
 		this._mechanicLine$ = value;
 	}
 
@@ -135,6 +143,14 @@ export class NotificationService {
 		this._coordinates$ = value;
 	}
 
+	static get skills$(): Observable<DayMechanicSkills> {
+		return this._skills$;
+	}
+
+	static set skills$(value: Observable<DayMechanicSkills>) {
+		this._skills$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -147,7 +163,7 @@ export class NotificationService {
 	}
 
 	static notifyMechanicLine(day: Date = undefined, mechanicCode: string = undefined): void {
-		this.mechanicLineSubject.next(new MechanicLineUpdateTrigger(day, mechanicCode));
+		this.mechanicLineSubject.next(new MechanicLineUpdate(day, mechanicCode));
 	}
 
 	static notifyAppointmentsCounter(update: AppointmentsCounterUpdate): void {
@@ -172,6 +188,10 @@ export class NotificationService {
 
 	static notifyDragging(dragging: boolean): void {
 		this.draggingSubject.next(dragging);
+	}
+
+	static notifySkills(daySkills: DayMechanicSkills): void {
+		this.skillsSubject.next(daySkills);
 	}
 
 }

@@ -5,7 +5,7 @@ import {CardsGroup} from "../../objects/cards-group";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
 import {CardPositionService} from "../../services/card-position.service";
-import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
+import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DimensionsService} from "../../services/dimensions.service";
 
 @Component({
@@ -18,7 +18,7 @@ export class MechanicLineComponent {
 
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
-	@Input() mechanicLineUpdate: MechanicLineUpdate;
+	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() appointments: AppointmentSchedule[];
 

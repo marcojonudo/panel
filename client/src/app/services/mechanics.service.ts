@@ -65,7 +65,7 @@ export class MechanicsService {
 	}
 
 	initDays(daysMechanics: { [key: string]: any[] }): Date[] {
-		return Object.keys(daysMechanics).map(day => UtilsService.parseDateFromString(day));
+		return Object.keys(daysMechanics).map(day => UtilsService.parseDateFromString(day)).sort();
 	}
 
 	initDaysMechanics(

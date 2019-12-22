@@ -11,24 +11,12 @@ import {AppointmentType} from "../objects/appointment-type";
 export class CommonService {
 
 	private _jobLineTypes: JobLineType[];
-	private _highlightedSkills: Skill[];
 	private _appointmentTypes: AppointmentType[];
 
 	private skillsSubject: Subject<Skill[]>;
 	private _skills$: Observable<Skill[]>;
 
 	constructor() {
-		this.highlightedSkills = [
-			new Skill({name: 'Montaje', code: 'N', backgroundColor: '#008000', color: '#FFFFFF'}),
-			new Skill({name: 'Convergencia', code: 'AL', backgroundColor: '#FF0000', color: '#FFFFFF'}),
-			new Skill({name: 'Aceite', code: 'AC', backgroundColor: '#FFFF00', color: '#000000'}),
-			new Skill({name: 'Pastillas/discos/líq. frenos', code: 'FR', backgroundColor: '#00BFFF', color: '#000000'}),
-			new Skill({name: 'Amortiguadores', code: 'AM', backgroundColor: '#0000FF', color: '#FFFFFF'}),
-			new Skill({name: 'Correas distribución', code: 'DIS', backgroundColor: '#0000FF', color: '#FFFFFF'}),
-			new Skill({name: 'Otras op. pesadas', code: 'ENG', backgroundColor: '#0000FF', color: '#FFFFFF'}),
-			new Skill({name: 'Aire acondicionado', code: 'AA', backgroundColor: '#000000', color: '#FFFFFF'})
-		];
-
 		this.skillsSubject = new Subject<Skill[]>();
 		this.skills$ = this.skillsSubject.asObservable();
 	}
@@ -54,14 +42,6 @@ export class CommonService {
 		this._jobLineTypes = value;
 	}
 
-	get highlightedSkills(): Skill[] {
-		return this._highlightedSkills;
-	}
-
-	set highlightedSkills(value: Skill[]) {
-		this._highlightedSkills = value;
-	}
-
 	get skills$(): Observable<Skill[]> {
 		return this._skills$;
 	}
@@ -79,10 +59,6 @@ export class CommonService {
 	}
 
 	// endregion
-
-	emitSkills(skills: Skill[]): void {
-		this.skillsSubject.next(skills);
-	}
 
 	findAppointmentType(code: string): AppointmentType {
 		return this.appointmentTypes.find(appointmentType => appointmentType.code == code);

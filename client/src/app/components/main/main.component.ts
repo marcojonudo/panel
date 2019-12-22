@@ -6,7 +6,7 @@ import {
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
-import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
+import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {CardsGroup} from "../../objects/cards-group";
 import {Skill} from "../../objects/skill";
 import {CommonService} from "../../services/common.service";
@@ -16,6 +16,10 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
 import {CardPositionService} from "../../services/card-position.service";
+import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
+import {DaysSkills} from "../../objects/days-skills";
+import {MechanicInfoUpdate} from "../../objects/update-days-cards/mechanic-info-update";
+import {DaysMechanicSkills} from "../../objects/days-mechanic-skills";
 
 @Component({
 	selector: 'app-main',
@@ -27,22 +31,24 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _days: Date[];
 	private _today: Date;
+	private _skillsDay: Date;
 	private itemSize: number;
 	private _displayScrollbar: boolean;
 	private _showNonexistentScheduleMessage: boolean;
 	private _dayContainerWidth: number;
-	private _showSkills: boolean;
 
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
 
 	private _skills: Skill[];
+	private _daysMechanicSkills: DaysMechanicSkills;
 
 	private _oneDayMode: boolean;
 	private _maxScheduleHours: number[];
 	private _maxScheduleWidth: number;
 	private _maxScheduleMaxWidth: number;
 
-	private _dayCardUpdate: MechanicLineUpdate;
+	private _mechanicLineUpdate: MechanicUpdate;
+	private _mechanicInfoUpdate: MechanicUpdate;
 
 	private relativeContainer: boolean;
 	private scrollLeft: number;
@@ -61,6 +67,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.mechanicsService.days;
+		this.daysMechanicSkills = this.initDaysMechanicSkills();
+
 		const today = UtilsService.clearTime(new Date()).getTime();
 		this.today = this.days.find(day => day.getTime() == today);
 		this.oneDayMode = true;
@@ -83,7 +91,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
 		this.assignedCardsGroupsSubscription = NotificationService.mechanicLine$
-				.subscribe((mechanicLineUpdate: MechanicLineUpdate) => {
+				.subscribe((mechanicLineUpdate: MechanicUpdate) => {
 			this.mechanicLineUpdate = mechanicLineUpdate;
 			this.cdRef.detectChanges();
 		});
@@ -95,6 +103,10 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
 			// this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
+			CardPositionService.updateDimensions(
+				this.cardsService.unassignedSections,
+				this.cardsService.assignedDaysCardsGroups
+			);
 			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
 			// this.timeService.calcMaxScheduleWidth(oneDayMode);
 			this.cdRef.detectChanges();
@@ -123,26 +135,30 @@ export class MainComponent implements OnInit, OnDestroy {
 		// 	this.cdRef.detectChanges();
 		// });
 
-		this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
-			if (skills.length) {
-				skills.forEach((parent: Skill) => {
-					this.skills.push(parent);
-					parent.children.forEach((child: Skill) => {
-						this.skills.push(child);
-					});
-				});
-			} else {
-				this.skills = skills;
-			}
-			this.showSkills = this.skills.length != 0;
+		this.skillsSubscription = NotificationService.skills$.subscribe((dayMechanicSkills: DayMechanicSkills) => {
+			dayMechanicSkills.skills = this.buildAllSkillsArray(dayMechanicSkills.skills);
+			this.daysMechanicSkills[dayMechanicSkills.day.getTime()] = dayMechanicSkills;
+			this.mechanicInfoUpdate = new MechanicInfoUpdate(dayMechanicSkills.day, dayMechanicSkills.mechanicCode);
 			this.cdRef.detectChanges();
 		});
+	}
+
+	private buildAllSkillsArray(parentSkills: Skill[]): Skill[] {
+		const skills = [];
+		parentSkills.forEach((parent: Skill) => {
+			skills.push(parent);
+			parent.children.forEach((child: Skill) => {
+				skills.push(child);
+			});
+		});
+		return skills;
 	}
 
 	ngOnDestroy(): void {
 		this.oneDayModeSubscription.unsubscribe();
 		this.maxScheduleWidthSubscription.unsubscribe();
 		this.assignedCardsGroupsSubscription.unsubscribe();
+		this.skillsSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -161,6 +177,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set today(value: Date) {
 		this._today = value;
+	}
+
+	get skillsDay(): Date {
+		return this._skillsDay;
+	}
+
+	set skillsDay(value: Date) {
+		this._skillsDay = value;
 	}
 
 	get assignedDaysCardsGroups(): DaysAssignedGroups {
@@ -231,14 +255,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._dayContainerWidth = value;
 	}
 
-	get showSkills(): boolean {
-		return this._showSkills;
-	}
-
-	set showSkills(value: boolean) {
-		this._showSkills = value;
-	}
-
 	get skills(): Skill[] {
 		return this._skills;
 	}
@@ -251,17 +267,41 @@ export class MainComponent implements OnInit, OnDestroy {
 		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
 	}
 
-	get mechanicLineUpdate(): MechanicLineUpdate {
-		return this._dayCardUpdate;
+	get mechanicLineUpdate(): MechanicUpdate {
+		return this._mechanicLineUpdate;
 	}
 
-	set mechanicLineUpdate(value: MechanicLineUpdate) {
-		this._dayCardUpdate = value;
+	set mechanicLineUpdate(value: MechanicUpdate) {
+		this._mechanicLineUpdate = value;
+	}
+
+	get mechanicInfoUpdate(): MechanicUpdate {
+		return this._mechanicInfoUpdate;
+	}
+
+	set mechanicInfoUpdate(value: MechanicUpdate) {
+		this._mechanicInfoUpdate = value;
+	}
+
+	get daysMechanicSkills(): DaysMechanicSkills {
+		return this._daysMechanicSkills;
+	}
+
+	set daysMechanicSkills(value: DaysMechanicSkills) {
+		this._daysMechanicSkills = value;
 	}
 
 	// endregion
 
-	private checkTriggerCd(day: Date, mechanicLineUpdate: MechanicLineUpdate = this.mechanicLineUpdate): MechanicLineUpdate {
+	private initDaysMechanicSkills(): DaysMechanicSkills {
+		const daysMechanicSkills = {};
+		this.days.forEach((day: Date) => {
+			daysMechanicSkills[day.getTime()] = new DayMechanicSkills(undefined, undefined, [])
+		});
+		return daysMechanicSkills;
+	}
+
+	checkTriggerLineCd(day: Date, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
 		let update = undefined;
 		if (mechanicLineUpdate) {
 			update = !mechanicLineUpdate.day || day.getTime() == mechanicLineUpdate.day.getTime() ? mechanicLineUpdate : undefined;
@@ -269,8 +309,23 @@ export class MainComponent implements OnInit, OnDestroy {
 		return update;
 	}
 
+	checkTriggerInfoCd(
+		day: Date,
+		daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills
+	): DayMechanicSkills {
+		return daysMechanicSkills[day.getTime()];
+	}
+
 	private checkTodayScheduleExists(today: Date = this.today): boolean {
 		return this.mechanicsService.findDayMechanics(today) != undefined;
+	}
+
+	checkShowSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): boolean {
+		return daysMechanicSkills[day.getTime()].skills.length != 0;
+	}
+
+	findSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): Skill[] {
+		return daysMechanicSkills[day.getTime()].skills;
 	}
 
 	trackByDay(index, item) {

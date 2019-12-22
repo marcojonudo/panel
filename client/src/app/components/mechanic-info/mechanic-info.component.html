@@ -1,6 +1,6 @@
 <div
 	class="h-100 d-flex align-items-center mechanic-info border-right-2 border-semi-dark"
-	[ngClass]="{'mechanic-info-highlight': highlightMechanic}">
+	[ngClass]="{'mechanic-info-highlight': checkHighlightMechanic()}">
 	<div
 		*ngIf="oneDayMode; else minLayout"
 		class="d-flex flex-wrap"
@@ -18,7 +18,7 @@
 		</div>
 		<div
 			class="w-75 h-75 d-flex flex-wrap align-items-center justify-content-between"
-			(click)="showSkills(mechanic.skills)">
+			(click)="showSkills(mechanic.skills, mechanic.day, mechanic.code)">
 			<div
 				*ngFor="let skill of mechanic.highlightedSkills"
 				class="rounded-circle skill align-center"

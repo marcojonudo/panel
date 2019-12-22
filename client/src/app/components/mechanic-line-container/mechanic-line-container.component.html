@@ -1,11 +1,12 @@
 <div class="d-flex align-items-center mechanic-line-container"
 	 [style.height.px]="mechanic.height">
 	<app-mechanic-info
-		[style.width.px]="mechanicInfoWidth"
 		[day]="day"
 		[mechanic]="mechanic"
 		[position]="position"
-		class="h-100 mechanic-info-container">
+		[dayMechanicSkills]="dayMechanicSkills"
+		class="h-100 mechanic-info-container"
+		[style.width.px]="mechanicInfoWidth">
 	</app-mechanic-info>
 	<app-mechanic-line
 		[day]="day"
