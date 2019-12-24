@@ -1,0 +1,9 @@
+.card-details-container {
+	overflow-y: auto;
+	background-color: #ffffff;
+}
+
+.detail-section-title {
+	font-weight: bold;
+	background-color: #e1e1e1;
+}

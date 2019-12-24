@@ -6,7 +6,7 @@ export class DayMechanicSkills {
 	mechanicCode: string;
 	skills: Skill[];
 
-	constructor(day: Date, mechanicCode: string, skills: Skill[]) {
+	constructor(day: Date = undefined, mechanicCode: string = undefined, skills: Skill[] = []) {
 		this.day = day;
 		this.mechanicCode = mechanicCode;
 		this.skills = skills;

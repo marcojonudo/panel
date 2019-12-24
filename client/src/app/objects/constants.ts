@@ -5,7 +5,13 @@ export class Constants {
 		DURATION: 'duration'
 	};
 	public static ELEMENT: any = {
+		DOCUMENT: 'document',
 		SCROLLABLE_CONTAINER: 'scrollableContainer'
+	};
+	public static EVENT: any = {
+		POINTER_DOWN: 'pointerdown',
+		POINTER_MOVE: 'pointermove',
+		POINTER_UP: 'pointerup'
 	};
 	public static VALUE: any = {
 		LINE_HEIGHT_DEFAULT: 40,
@@ -23,6 +29,8 @@ export class Constants {
 		UNASSIGNED_BAND_CONTAINER_HEIGHT: 100,
 		QUARTERS_PER_HOUR: 4,
 		INTERVALS_PER_QUARTER: 3,
+		SKILLS_PANEL_WIDTH: 250,
+		CARD_DETAILS_PANEL_WIDTH: 250
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
@@ -33,6 +41,14 @@ export class Constants {
 	public static readonly NEXT_CARD_DIRECTION: any = {
 		LEFT: 'LEFT',
 		RIGHT: 'RIGHT'
+	};
+	public static readonly ORDER_STATE_NAME: any = {
+		V: 'VENDIDA',
+		X: 'ANULADA',
+		C: 'CERRADA',
+		P: 'PAUSADA',
+		A: 'ABIERTA',
+		E: 'EMPEZADA'
 	};
 	public static readonly SCHEDULE_TYPE: any = {
 		MORNING: 'MORNING',

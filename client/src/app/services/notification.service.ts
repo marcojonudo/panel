@@ -11,6 +11,7 @@ import {Coordinates} from "../objects/coordinates";
 import {CardsGroup} from "../objects/cards-group";
 import {Skill} from "../objects/skill";
 import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
+import {DayCardDetails} from "../objects/card-details-update/day-card-details";
 
 @Injectable({
 	providedIn: 'root'
@@ -44,6 +45,9 @@ export class NotificationService {
 	private static skillsSubject: Subject<DayMechanicSkills>;
 	private static _skills$: Observable<DayMechanicSkills>;
 
+	private static cardDetailsSubject: Subject<DayCardDetails>;
+	private static _cardDetails$: Observable<DayCardDetails>;
+
 	// region Init
 
 	static init(): void {
@@ -73,6 +77,9 @@ export class NotificationService {
 
 		this.skillsSubject = new Subject<DayMechanicSkills>();
 		this.skills$ = this.skillsSubject.asObservable();
+
+		this.cardDetailsSubject = new Subject<DayCardDetails>();
+		this.cardDetails$ = this.cardDetailsSubject.asObservable();
 	}
 
 	// endregion
@@ -151,6 +158,14 @@ export class NotificationService {
 		this._skills$ = value;
 	}
 
+	static get cardDetails$(): Observable<DayCardDetails> {
+		return this._cardDetails$;
+	}
+
+	static set cardDetails$(value: Observable<DayCardDetails>) {
+		this._cardDetails$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -192,6 +207,10 @@ export class NotificationService {
 
 	static notifySkills(daySkills: DayMechanicSkills): void {
 		this.skillsSubject.next(daySkills);
+	}
+
+	static notifyCardDetails(dayCardDetails: DayCardDetails): void {
+		this.cardDetailsSubject.next(dayCardDetails);
 	}
 
 }

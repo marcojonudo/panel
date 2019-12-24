@@ -9,7 +9,3 @@
 .draggable:not(.hidden) {
 	transition: transform .25s ease-in-out, visibility 0s .2s;
 }
-
-.hidden {
-	visibility: hidden;
-}

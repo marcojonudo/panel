@@ -22,15 +22,15 @@
 		}">
 	</div>
 	<app-draggable-group
-		*ngFor="let cardsGroup of findGroups(day, mechanic.code)"
+		*ngFor="let group of findGroups(day, mechanic.code)"
 		class="assigned-card"
-		[ngClass]="{'hidden': checkHideGroup(cardsGroup.id)}"
+		[ngClass]="{'hidden': checkHideGroup(group.id)}"
 		[ngStyle]="{
 			'height.px': lineDefaultHeight,
-			'transform': 'translateX(' + cardsGroup.left + 'px) translateY(' + cardsGroup.cards[0].line * 100 + '%)'
+			'transform': 'translateX(' + group.left + 'px) translateY(' + group.cards[0].line * 100 + '%)'
 		}"
 		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
-		[cardsGroup]="cardsGroup">
+		[cardsGroup]="group">
 	</app-draggable-group>
 </div>
 <div>{{check()}}</div>

@@ -10,6 +10,7 @@ import {
 import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
 import {Subscription} from "rxjs/internal/Subscription";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-skills-details',
@@ -27,12 +28,10 @@ export class SkillsDetailsComponent {
 		HIGH: '#008000'
 	};
 
-	private DEFAULT_WIDTH: number = 250;
-
 	// region Getters / setters
 
 	get skillsPanelWidth(): number {
-		return this.DEFAULT_WIDTH;
+		return Constants.VALUE.SKILLS_PANEL_WIDTH;
 	}
 
 	// endregion

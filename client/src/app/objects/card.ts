@@ -1,6 +1,8 @@
 import {Order} from "./order";
 import {UtilsService} from "../services/utils.service";
 import {Group} from "./group";
+import {Client} from "./client";
+import {Vehicle} from "./vehicle";
 
 export class Card {
 
@@ -27,6 +29,10 @@ export class Card {
 
 	order: Order;
 
+	client: Client;
+
+	vehicle: Vehicle;
+
 	linkedNextId: number;
 	linkedPreviousId: number;
 
@@ -45,6 +51,8 @@ export class Card {
 		this.line = card.line;
 		this.group = new Group(card.group);
 		this.order = new Order(card.order);
+		this.client = new Client(card.client);
+		this.vehicle = new Vehicle(card.vehicle);
 		this.linkedPreviousId = card.linkedPreviousId;
 		this.linkedNextId = card.linkedNextId;
 

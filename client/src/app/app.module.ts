@@ -48,6 +48,7 @@ import { AppointmentSchedulePanelComponent } from './components/appointment-sche
 import { DraggableScheduleDirective } from './directives/draggable-schedule.directive';
 import { AppointmentsPipe } from './pipes/appointments.pipe';
 import { CardSectionPipe } from './pipes/card-section.pipe';
+import { CardDetailsComponent } from './components/card-details/card-details.component';
 
 @NgModule({
 	declarations: [
@@ -82,7 +83,8 @@ import { CardSectionPipe } from './pipes/card-section.pipe';
 		AppointmentSchedulePanelComponent,
 		DraggableScheduleDirective,
 		AppointmentsPipe,
-		CardSectionPipe
+		CardSectionPipe,
+		CardDetailsComponent
 	],
 	imports: [
 		BrowserModule,

@@ -7,7 +7,6 @@ import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
-import {CardsGroup} from "../../objects/cards-group";
 import {Skill} from "../../objects/skill";
 import {CommonService} from "../../services/common.service";
 import {NotificationService} from "../../services/notification.service";
@@ -17,9 +16,11 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
 import {CardPositionService} from "../../services/card-position.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
-import {DaysSkills} from "../../objects/days-skills";
 import {MechanicInfoUpdate} from "../../objects/update-days-cards/mechanic-info-update";
 import {DaysMechanicSkills} from "../../objects/days-mechanic-skills";
+import {DaysCardDetails} from "../../objects/days-card-details";
+import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
+import {Card} from "../../objects/card";
 
 @Component({
 	selector: 'app-main',
@@ -31,7 +32,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _days: Date[];
 	private _today: Date;
-	private _skillsDay: Date;
 	private itemSize: number;
 	private _displayScrollbar: boolean;
 	private _showNonexistentScheduleMessage: boolean;
@@ -39,8 +39,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
 
-	private _skills: Skill[];
 	private _daysMechanicSkills: DaysMechanicSkills;
+	private _daysCardDetails: DaysCardDetails;
 
 	private _oneDayMode: boolean;
 	private _maxScheduleHours: number[];
@@ -58,6 +58,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private maxScheduleWidthSubscription: Subscription;
 	private assignedCardsGroupsSubscription: Subscription;
 	private skillsSubscription: Subscription;
+	private cardDetailsSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
@@ -67,7 +68,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.mechanicsService.days;
-		this.daysMechanicSkills = this.initDaysMechanicSkills();
+		this.initDaysUpdateObjects();
 
 		const today = UtilsService.clearTime(new Date()).getTime();
 		this.today = this.days.find(day => day.getTime() == today);
@@ -81,8 +82,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.relativeContainer = true;
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
-
-		this.skills = [];
 
 		this.showNonexistentScheduleMessage = !this.checkTodayScheduleExists();
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
@@ -141,6 +140,11 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.mechanicInfoUpdate = new MechanicInfoUpdate(dayMechanicSkills.day, dayMechanicSkills.mechanicCode);
 			this.cdRef.detectChanges();
 		});
+		this.cardDetailsSubscription = NotificationService.cardDetails$.subscribe((dayCardDetails: DayCardDetails) => {
+			dayCardDetails.card = this.daysCardDetails[dayCardDetails.day.getTime()].card ? undefined : dayCardDetails.card;
+			this.daysCardDetails[dayCardDetails.day.getTime()] = dayCardDetails;
+			this.cdRef.detectChanges();
+		});
 	}
 
 	private buildAllSkillsArray(parentSkills: Skill[]): Skill[] {
@@ -159,6 +163,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.maxScheduleWidthSubscription.unsubscribe();
 		this.assignedCardsGroupsSubscription.unsubscribe();
 		this.skillsSubscription.unsubscribe();
+		this.cardDetailsSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -177,14 +182,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set today(value: Date) {
 		this._today = value;
-	}
-
-	get skillsDay(): Date {
-		return this._skillsDay;
-	}
-
-	set skillsDay(value: Date) {
-		this._skillsDay = value;
 	}
 
 	get assignedDaysCardsGroups(): DaysAssignedGroups {
@@ -255,14 +252,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._dayContainerWidth = value;
 	}
 
-	get skills(): Skill[] {
-		return this._skills;
-	}
-
-	set skills(value: Skill[]) {
-		this._skills = value;
-	}
-
 	get skillsDetailsRight(): number {
 		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
 	}
@@ -291,14 +280,23 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._daysMechanicSkills = value;
 	}
 
+	get daysCardDetails(): DaysCardDetails {
+		return this._daysCardDetails;
+	}
+
+	set daysCardDetails(value: DaysCardDetails) {
+		this._daysCardDetails = value;
+	}
+
 	// endregion
 
-	private initDaysMechanicSkills(): DaysMechanicSkills {
-		const daysMechanicSkills = {};
-		this.days.forEach((day: Date) => {
-			daysMechanicSkills[day.getTime()] = new DayMechanicSkills(undefined, undefined, [])
+	private initDaysUpdateObjects(days: Date[] = this.days): void {
+		this.daysMechanicSkills = {};
+		this.daysCardDetails = {};
+		days.forEach((day: Date) => {
+			this.daysMechanicSkills[day.getTime()] = new DayMechanicSkills();
+			this.daysCardDetails[day.getTime()] = new DayCardDetails()
 		});
-		return daysMechanicSkills;
 	}
 
 	checkTriggerLineCd(day: Date, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
@@ -318,6 +316,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private checkTodayScheduleExists(today: Date = this.today): boolean {
 		return this.mechanicsService.findDayMechanics(today) != undefined;
+	}
+
+	checkShowCardDetails(day: Date, daysCardDetails: DaysCardDetails = this.daysCardDetails): boolean {
+		return daysCardDetails[day.getTime()].card != undefined;
+	}
+
+	findCard(day: Date, daysCardDetails: DaysCardDetails = this.daysCardDetails): Card {
+		return daysCardDetails[day.getTime()].card;
 	}
 
 	checkShowSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): boolean {
