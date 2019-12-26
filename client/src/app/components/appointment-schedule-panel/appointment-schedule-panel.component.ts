@@ -34,7 +34,6 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 
 	constructor(
 		private appointmentsService: AppointmentsService,
-		private commonService: CommonService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.dragTypeSchedule = {};
@@ -86,7 +85,7 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 	}
 
 	get appointmentTypes(): AppointmentType[] {
-		return this.commonService.appointmentTypes.filter(appointmentType => appointmentType.workingLine);
+		return this.appointmentsService.appointmentTypes.filter(appointmentType => appointmentType.workingLine);
 	}
 
 	get quarters(): number[] {

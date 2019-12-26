@@ -24,17 +24,44 @@ export class AppointmentsService {
 	private readonly TOTAL: string = 'TOTAL';
 	private readonly MAX: string = 'MAX';
 
-	private appointmentTypes: AppointmentType[];
+	private _appointmentTypes: AppointmentType[];
 	private appointmentDays: AppointmentDay[];
 
 	private _daysAppointmentsCounter: DaysAppointmentsCounter;
 
 	constructor(
-		private commonService: CommonService,
 		private http: HttpClient
 	) {
 		this.daysAppointmentsCounter = {}
 	}
+
+	// region Getters / setters
+
+	get appointmentTypes(): AppointmentType[] {
+		return this._appointmentTypes;
+	}
+
+	set appointmentTypes(value: AppointmentType[]) {
+		this._appointmentTypes = value;
+	}
+
+	get daysAppointmentsCounter(): any {
+		return this._daysAppointmentsCounter;
+	}
+
+	set daysAppointmentsCounter(value: any) {
+		this._daysAppointmentsCounter = value;
+	}
+
+	// endregion
+
+	// region Finders
+
+	findAppointmentType(code: string): AppointmentType {
+		return this.appointmentTypes.find(appointmentType => appointmentType.code == code);
+	}
+
+	// endregion
 
 	// region Init
 
@@ -87,18 +114,6 @@ export class AppointmentsService {
 				appointmentsCounter[appointmentType.code] = new AppointmentDay(appointmentType)
 			});
 		return appointmentsCounter;
-	}
-
-	// endregion
-
-	// region Getters / setters
-
-	get daysAppointmentsCounter(): any {
-		return this._daysAppointmentsCounter;
-	}
-
-	set daysAppointmentsCounter(value: any) {
-		this._daysAppointmentsCounter = value;
 	}
 
 	// endregion
@@ -182,7 +197,7 @@ export class AppointmentsService {
 		newAppointmentTypeCode: string
 	): void {
 		if (newAppointmentTypeCode) {
-			appointment.appointmentType = this.commonService.findAppointmentType(newAppointmentTypeCode);
+			appointment.appointmentType = this.findAppointmentType(newAppointmentTypeCode);
 
 			/* La info se guarda en DB sólo si ya tiene horario. Al definir una nueva cita, y escoger sólo el tipo, no
 			*  se guarda para no tener una cita sin horario (aunque sea temporalmente) en DB */

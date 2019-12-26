@@ -31,9 +31,9 @@ export class RealTimeService {
 			lines: (updateInfo) => new RealTimeMechanicUpdateLines(updateInfo.mechanics)
 		},
 		cards: {
-			position: (updateInfo) => new RealTimeCardUpdatePosition(updateInfo.cards),
-			duration: (updateInfo) => new RealTimeCardUpdateDuration(updateInfo.cards),
-			links: (updateInfo) => new RealTimeCardUpdateLinks(updateInfo.cards)
+			position: (updateInfo) => new RealTimeCardUpdatePosition(this.cardsService, updateInfo.cards),
+			duration: (updateInfo) => new RealTimeCardUpdateDuration(this.cardsService, updateInfo.cards),
+			links: (updateInfo) => new RealTimeCardUpdateLinks(this.cardsService, updateInfo.cards)
 		},
 		appointment: {
 			schedule: (updateInfo) => new RealTimeAppointmentUpdateSchedule(updateInfo.appointment),

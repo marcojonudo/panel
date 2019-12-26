@@ -29,7 +29,6 @@ export class CardsService {
 	private unassignedCards: Card[];
 	private assignedCards: Card[];
 
-	private _assignedDaysCardsGroups$: any;
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
 	private _assignedCardsGroups: CardsGroup[];
 	private _finishedCardsGroups: CardsGroup[];
@@ -173,6 +172,11 @@ export class CardsService {
 
 	private findAllLinkedCards(cards: Card[], card: Card): Card[] {
 		return this.findPreviousCards(cards, card, [card]).concat(this.findNextCards(cards, card));
+	}
+
+	buildPanelId(cards: Card[], card: Card): string {
+		const dividedIndex = this.findDividedCardIndex(cards, card);
+		return `${card.order.code}-${card.group.code}-${dividedIndex}`;
 	}
 
 	// endregion
@@ -740,6 +744,14 @@ export class CardsService {
 	// endregion
 
 	// region Find cards and groups
+
+	findDividedCardIndex(previousCards: Card[], card: Card, index: number = 0): number {
+		const dividedPreviousCard = previousCards.find(c => c.id == card.dividedPreviousId);
+		if (dividedPreviousCard) {
+			return this.findDividedCardIndex(previousCards, dividedPreviousCard, ++index);
+		}
+		return index;
+	}
 
 	private findLeftAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, start: Date): Card {
 		return this.findLineCards(day, mechanicCode, line).find(card => {

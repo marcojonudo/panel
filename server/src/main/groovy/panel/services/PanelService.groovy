@@ -241,14 +241,17 @@ class PanelService {
 	 * @return boolean
 	 */
 	static boolean handleExistentGroupCard(List<Card> dayOrderCards, Card builtCard, UpdateCards updateCards) {
-		Card dayGroupOrderCard = dayOrderCards.find { it.group.code == builtCard.group.code }
-		if (dayGroupOrderCard) {
-			/* El grupo sigue siendo el mismo, por lo que se comprueba si ha cambiado alguna propiedad de la orden */
-			if (checkUpdatedOrderInfo(dayGroupOrderCard, builtCard)) {
-				updateCards.updatedCards << updateCardOrderInfo(dayGroupOrderCard, builtCard)
+		/* Se buscan todas las fichas, y no sólo una, ya que puede haber alguna dividida */
+		List<Card> dayGroupOrderCards = dayOrderCards.findAll { it.group.code == builtCard.group.code }
+		if (dayGroupOrderCards) {
+			/* El grupo sigue siendo el mismo, por lo que se comprueba si ha cambiado alguna propiedad de la orden.
+			 * Se obtiene el elemento 0, ya que si la ficha estaba dividida, las propiedades de la orden son las mismas
+			 * en todas ellas */
+			if (checkUpdatedOrderInfo(dayGroupOrderCards[0], builtCard)) {
+				updateCards.updatedCards += dayGroupOrderCards.collect { updateCardOrderInfo(it, builtCard) }
 			} else {
 				/* Fichas que no han sufrido ningún cambio, pero deben devolverse para que se carguen en panel */
-				updateCards.sameCards << dayGroupOrderCard
+				updateCards.sameCards += dayGroupOrderCards
 			}
 			return true
 		}

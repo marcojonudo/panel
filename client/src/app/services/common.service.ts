@@ -11,23 +11,12 @@ import {AppointmentType} from "../objects/appointment-type";
 export class CommonService {
 
 	private _jobLineTypes: JobLineType[];
-	private _appointmentTypes: AppointmentType[];
-
-	private skillsSubject: Subject<Skill[]>;
-	private _skills$: Observable<Skill[]>;
-
-	constructor() {
-		this.skillsSubject = new Subject<Skill[]>();
-		this.skills$ = this.skillsSubject.asObservable();
-	}
 
 	// region Init
 
 	init(jobLineTypes: JobLineType[], appointmentTypes: AppointmentType[]): void {
 		this.jobLineTypes = jobLineTypes;
-		this.appointmentTypes = appointmentTypes;
 		console.log('Job line types', this.jobLineTypes);
-		console.log('Appointment types', this.appointmentTypes);
 	}
 
 	// endregion
@@ -42,26 +31,6 @@ export class CommonService {
 		this._jobLineTypes = value;
 	}
 
-	get skills$(): Observable<Skill[]> {
-		return this._skills$;
-	}
-
-	set skills$(value: Observable<Skill[]>) {
-		this._skills$ = value;
-	}
-
-	get appointmentTypes(): AppointmentType[] {
-		return this._appointmentTypes;
-	}
-
-	set appointmentTypes(value: AppointmentType[]) {
-		this._appointmentTypes = value;
-	}
-
 	// endregion
-
-	findAppointmentType(code: string): AppointmentType {
-		return this.appointmentTypes.find(appointmentType => appointmentType.code == code);
-	}
 
 }

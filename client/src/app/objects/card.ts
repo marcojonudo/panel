@@ -7,6 +7,7 @@ import {Vehicle} from "./vehicle";
 export class Card {
 
 	id: number;
+	panelId: string;
 	day: Date;
 	lastDay: Date;
 	mechanicCode: string;
@@ -36,10 +37,13 @@ export class Card {
 	linkedNextId: number;
 	linkedPreviousId: number;
 
+	dividedPreviousId: number;
+	dividedNextId: number;
+
 	possibleLinkedNextId: boolean;
 	possibleLinkedPreviousId: boolean;
 
-	constructor(card: any, initialLoad: boolean = true) {
+	constructor(card: any, panelId: string, initialLoad: boolean = true) {
 		this.id = card.id;
 		this.type = card.type;
 		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;
@@ -55,6 +59,9 @@ export class Card {
 		this.vehicle = new Vehicle(card.vehicle);
 		this.linkedPreviousId = card.linkedPreviousId;
 		this.linkedNextId = card.linkedNextId;
+		this.dividedPreviousId = card.dividedPreviousId;
+		this.dividedNextId = card.dividedNextId;
+		this.panelId = panelId;
 
 		this.lastDay = card.lastDay ? UtilsService.parseDateFromLong(card.lastDay) : initialLoad ? this.day : undefined;
 		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : initialLoad ? this.mechanicCode : undefined;

@@ -63,7 +63,8 @@ class PanelServiceSpec extends Specification {
 					new OrderLine(article: new Article(code: 99129)),
 					new OrderLine(article: new Article(code: 99169)),
 			],
-			vehicle: new Vehicle([:])
+			vehicle: new Vehicle([:]),
+			client: new Client([:])
 	)
 
 	@Shared
@@ -73,7 +74,8 @@ class PanelServiceSpec extends Specification {
 			lines: [
 					new OrderLine(article: new Article(code: 1))
 			],
-			vehicle: new Vehicle([:])
+			vehicle: new Vehicle([:]),
+			client: new Client([:])
 	)
 
 	// endregion
@@ -1927,6 +1929,44 @@ class PanelServiceSpec extends Specification {
 		handled
 		updateCards.updatedCards
 		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		!updateCards.sameCards
+	}
+
+	void "test handle existent group card not updated divided day order cards"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+		]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+
+		when:
+		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		handled
+		updateCards.sameCards
+		updateCards.sameCards.size() == 2
+	}
+
+	void "test handle existent group card same group updated divided day order cards"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+		]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])
+
+		when:
+		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		handled
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 2
 		updateCards.updatedCards[0].vehicle.brand == 'FV'
 		!updateCards.sameCards
 	}
