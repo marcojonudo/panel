@@ -33,7 +33,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<AppointmentType> getAppointmentTypes()
 
 	@Get("/appointmentDays")
-	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day)
+	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
 
 	@Post("/durations")
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
@@ -58,6 +58,12 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 
 	@Post("/appointmentDay")
 	void createAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
+
+	@Post("/appointmentDay/total")
+	void createAppointmentDaysTotal(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
+
+	@Put("/appointmentDay/total")
+	void updateAppointmentDaysTotal(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
 
 	@Put("/appointmentDay/counters")
 	void updateAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)

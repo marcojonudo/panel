@@ -9,8 +9,11 @@ import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseClient
 import panel.clients.skills.SkillsDatabaseClient
 import panel.pogos.CompleteInfo
+import panel.pogos.UpdateAppointmentDays
 import panel.pogos.UpdateCards
 import panel.utils.Constants
+import utils.DateFormat
+import utils.Utils
 import utils.pogos.fviberi.Article
 import utils.pogos.fviberi.Order
 import utils.pogos.panel.*
@@ -55,10 +58,20 @@ class PanelService {
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
 		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-		List<Card> dayCards = panelDatabaseClient.getCards(day)
+		List<Card> dbCards = panelDatabaseClient.getCards(day)
 
-		UpdateCards updateCards = syncOrders(orders, dayCards)
+		UpdateCards updateCards = syncOrders(orders, dbCards)
 		List<Card> cards = saveCards(updateCards)
+
+		/* Una vez cargados los horarios definidos y las nuevas fichas para crear, se sincroniza la información de
+		*  citas. Para cada día, se crean los registros de contador de cita asociadaso, inicializándolos con el número
+		*  de fichas correspondiente */
+		appointmentDays = syncAppointmentDays(
+				daysMechanics,
+				appointmentDays,
+				appointmentTypes.findAll { it.counter },
+				updateCards.newCards
+		)
 		return new CompleteInfo(
 				daysMechanics,
 				skills,
@@ -180,7 +193,7 @@ class PanelService {
 	 * @param orders List of Order
 	 * @return List of Card
 	 */
-	UpdateCards syncOrders(List<Order> orders, List<Card> dayCards) {
+	UpdateCards syncOrders(List<Order> orders, List<Card> dbCards) {
 		/* Se obtiene una lista de todas las tareas de las distintas órdenes */
 		List<Integer> articlesCodes = ((List<Article>) orders.lines.article.flatten()).findAll { it.labour }.code.unique()
 		List<Task> ordersTasks = panelDatabaseClient.getTasks(articlesCodes)
@@ -193,28 +206,28 @@ class PanelService {
 
 		/* A partir de las órdenes, las fichas guardadas y las recién construidas, se obtienen aquellas que deben ser
 		*  actualizadas en DB */
-		UpdateCards updateCards = getCardsToUpdate(orders, dayCards, ordersCards)
+		UpdateCards updateCards = getCardsToUpdate(orders, dbCards, ordersCards)
 		return updateCards
 	}
 
-	static UpdateCards getCardsToUpdate(List<Order> orders, List<Card> dayCards, List<Card> builtCards) {
+	static UpdateCards getCardsToUpdate(List<Order> orders, List<Card> dbCards, List<Card> builtCards) {
 		/* Se obtienen las órdenes cuyas fichas deben ser creadas (número de orden no existe en las fichas actuales) */
-		UpdateCards updateCards = getNewOrUpdatedCards(dayCards, builtCards)
-		updateCards.deletedCards = getDeletedCards(orders, dayCards, builtCards)
+		UpdateCards updateCards = getNewOrUpdatedCards(dbCards, builtCards)
+		updateCards.deletedCards = getDeletedCards(orders, dbCards, builtCards)
 
 		return updateCards
 	}
 
 	/**
 	 * Get cards to create from existent orders, or cards to update
-	 * @param dayCards List of cards of the day
+	 * @param dbCards List of cards of the day
 	 * @param builtCards Cards built based on orders info
 	 * @return UpdateCardsInfo with newCards and cardsToUpdate
 	 */
-	static UpdateCards getNewOrUpdatedCards(List<Card> dayCards, List<Card> builtCards) {
+	static UpdateCards getNewOrUpdatedCards(List<Card> dbCards, List<Card> builtCards) {
 		UpdateCards updateCards = new UpdateCards()
 		builtCards.each { Card builtCard ->
-			List<Card> dayOrderCards = dayCards.findAll { it.order.number == builtCard.order.number }
+			List<Card> dayOrderCards = dbCards.findAll { it.order.number == builtCard.order.number }
 
 			if (dayOrderCards) {
 				boolean handledCards = handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
@@ -343,9 +356,9 @@ class PanelService {
 	 * @param builtCards List of built cards
 	 * @return List of updated cards
 	 */
-	static List<Card> getDeletedCards(List<Order> orders, List<Card> dayCards, List<Card> builtCards) {
-		List<Card> cardsToDelete = getDeletedOrdersCards(orders, dayCards)
-		cardsToDelete += getUpdatedGroupDeletedCards(dayCards, builtCards)
+	static List<Card> getDeletedCards(List<Order> orders, List<Card> dbCards, List<Card> builtCards) {
+		List<Card> cardsToDelete = getDeletedOrdersCards(orders, dbCards)
+		cardsToDelete += getUpdatedGroupDeletedCards(dbCards, builtCards)
 		List<Card> deletedCards = cardsToDelete.collect { deleteCard(it) }
 		return deletedCards
 	}
@@ -356,8 +369,8 @@ class PanelService {
 	 * @param builtCards Cards saved for day
 	 * @return List of cards to delete
 	 */
-	static List<Card> getDeletedOrdersCards(List<Order> orders, List<Card> dayCards) {
-		List<Card> cardsToDelete = dayCards.findAll {
+	static List<Card> getDeletedOrdersCards(List<Order> orders, List<Card> dbCards) {
+		List<Card> cardsToDelete = dbCards.findAll {
 			!(it.order.number in orders.number) && it.status != Card.Status.TEMPORAL
 		}
 		return cardsToDelete
@@ -369,8 +382,8 @@ class PanelService {
 	 * @param builtCards Cards built based on orders info
 	 * @return List of cards to delete
 	 */
-	static List<Card> getUpdatedGroupDeletedCards(List<Card> dayCards, List<Card> builtCards) {
-		List<Card> cardsToDelete = dayCards.findAll { Card dayCard ->
+	static List<Card> getUpdatedGroupDeletedCards(List<Card> dbCards, List<Card> builtCards) {
+		List<Card> cardsToDelete = dbCards.findAll { Card dayCard ->
 			List<Card> builtOrderCards = builtCards.findAll { it.order.number == dayCard.order.number }
 			Card orderAndGroupCard = builtOrderCards.find { it.group.code == dayCard.group.code }
 			return builtOrderCards && !orderAndGroupCard
@@ -425,6 +438,128 @@ class PanelService {
 				card.linkedNextId = i < orderCards.size()-1 && orderCards[i+1].order.number == card.order.number ? orderCards[i+1].id : (Long) null
 			}
 		}
+	}
+
+	// endregion
+
+	// region Appointment days
+
+	List<AppointmentDay> syncAppointmentDays(
+			Map<String, List<EmployeeSchedule>> daysMechanics,
+			List<AppointmentDay> appointmentDays,
+			List<AppointmentType> appointmentTypes,
+			List<Card> createdCards
+	) {
+		/* Se sincronizan los horarios con las citas */
+		UpdateAppointmentDays schedulesUpdateInfo = syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDays,
+				appointmentTypes,
+				createdCards
+		)
+		/* Se sincronizan las fichas con las citas. Se hace por si alguna ficha tiene como día de la orden
+		*  uno superior al último horario definido */
+		UpdateAppointmentDays cardsUpdateInfo = syncCardsAppointmentDays(
+				daysMechanics,
+				appointmentDays,
+				appointmentTypes,
+				createdCards
+		)
+
+		if (schedulesUpdateInfo.created || cardsUpdateInfo.created) {
+			panelDatabaseClient.createAppointmentDaysTotal(
+					"",
+					schedulesUpdateInfo.created + cardsUpdateInfo.created
+			)
+		}
+		if (schedulesUpdateInfo.updated || cardsUpdateInfo.updated) {
+			panelDatabaseClient.updateAppointmentDaysTotal(
+					"",
+					schedulesUpdateInfo.updated + cardsUpdateInfo.updated
+			)
+		}
+		return appointmentDays + schedulesUpdateInfo.created + cardsUpdateInfo.created
+	}
+
+	static UpdateAppointmentDays syncSchedulesAppointmentDays(
+			Map<String, List<EmployeeSchedule>> daysMechanics,
+			List<AppointmentDay> appointmentDays,
+			List<AppointmentType> appointmentTypes,
+			List<Card> createdCards
+	) {
+		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
+		daysMechanics.each {
+			java.sql.Date day = Utils.newDate(Utils.parse(it.key, DateFormat.MYSQL))
+			/* Se obtienen los appointmentDay para cada tipo de cita para el día en concreto */
+			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == day }
+			/* Se obtienen las fichas cuya orden figura en el día en concreto */
+			List<Card> dayOrderCards = createdCards.findAll { it.order.day == day }
+			/* Si existen appointmentDay para el día, significa que se habían creado con anterioridad, y por tanto
+			*  sólo es necesario comprobar si alguna de las fichas es de este día para sumar al total */
+			if (appointmentDayTypes) {
+				if (dayOrderCards) {
+					updateInfo.updated += updateAppointmentDays(appointmentDayTypes, dayOrderCards)
+				}
+			} else {
+				updateInfo.created += createAppointmentDays(day, appointmentTypes, dayOrderCards)
+			}
+		}
+
+		return updateInfo
+	}
+
+	static UpdateAppointmentDays syncCardsAppointmentDays(
+			Map<String, List<EmployeeSchedule>> daysMechanics,
+			List<AppointmentDay> appointmentDays,
+			List<AppointmentType> appointmentTypes,
+			List<Card> createdCards
+	) {
+		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
+
+		java.sql.Date maxDay = daysMechanics.collect { it.value[0] }.day.max()
+		List<Card> futureScheduleCards = createdCards.findAll { it.order.day > maxDay }
+		futureScheduleCards.groupBy { it.order.day }.each { java.sql.Date orderDay, List<Card> cards ->
+			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == orderDay }
+			if (appointmentDayTypes) {
+				updateInfo.updated += updateAppointmentDays(appointmentDayTypes, cards)
+			} else {
+				updateInfo.created += createAppointmentDays(orderDay, appointmentTypes, cards)
+			}
+		}
+		return updateInfo
+	}
+
+	static List<AppointmentDay> updateAppointmentDays(List<AppointmentDay> appointmentDayTypes, List<Card> dayOrderCards) {
+		List<AppointmentDay> updatedAppointmentDayTypes = []
+		appointmentDayTypes.each { AppointmentDay appointmentDay ->
+			List<Card> typeCards = dayOrderCards.findAll {
+				it.group.appointmentType.code == appointmentDay.appointmentType.code
+			}
+			if (typeCards) {
+				appointmentDay.total += typeCards.size()
+				updatedAppointmentDayTypes << appointmentDay
+			}
+		}
+		return updatedAppointmentDayTypes
+	}
+
+	static List<AppointmentDay> createAppointmentDays(
+			java.sql.Date day,
+			List<AppointmentType> appointmentTypes,
+			List<Card> dayOrderCards
+	) {
+		List<AppointmentDay> createdAppointmentDays = []
+		appointmentTypes.each { AppointmentType appointmentType ->
+			List<Card> typeCards = dayOrderCards.findAll {
+				it.group.appointmentType.code == appointmentType.code
+			}
+			createdAppointmentDays << new AppointmentDay(
+					day: day,
+					appointmentType: appointmentType,
+					total: typeCards.size()
+			)
+		}
+		return createdAppointmentDays
 	}
 
 	// endregion

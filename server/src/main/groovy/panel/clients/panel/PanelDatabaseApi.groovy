@@ -22,7 +22,7 @@ interface PanelDatabaseApi {
 
 	List<AppointmentType> getAppointmentTypes()
 
-	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day)
+	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
 
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 
@@ -39,6 +39,10 @@ interface PanelDatabaseApi {
 	Map updateCardDuration(@Header String sessionId, @Body Map<String, Object> card)
 
 	void createAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
+
+	void createAppointmentDaysTotal(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
+
+	void updateAppointmentDaysTotal(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
 
 	void updateAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
 

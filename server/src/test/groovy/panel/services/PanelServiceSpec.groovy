@@ -8,14 +8,14 @@ import panel.clients.panel.PanelDatabaseApi
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.schedules.SchedulesDatabaseApi
 import panel.clients.schedules.SchedulesDatabaseClient
+import panel.pogos.UpdateAppointmentDays
 import panel.pogos.UpdateCards
 import spock.lang.Shared
 import spock.lang.Specification
+import utils.DateFormat
+import utils.Utils
 import utils.pogos.fviberi.*
-import utils.pogos.panel.Card
-import utils.pogos.panel.Group
-import utils.pogos.panel.GroupUnits
-import utils.pogos.panel.Task
+import utils.pogos.panel.*
 import utils.pogos.schedules.EmployeeSchedule
 
 import javax.inject.Inject
@@ -2404,6 +2404,615 @@ class PanelServiceSpec extends Specification {
 		cards[2].linkedNextId == 2
 		cards[3].linkedPreviousId == 2
 		cards[3].linkedNextId == 1
+	}
+
+	// endregion
+
+	// region Update appointment days
+
+	void "test update appointment days different card appointment type"() {
+		given:
+		List<AppointmentDay> appointmentDayTypes = [
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP'), total: 1),
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 2
+	}
+
+	void "test update appointment days same card appointment type"() {
+		given:
+		List<AppointmentDay> appointmentDayTypes = [
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP')),
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		!appointmentDays.find { it.appointmentType.code == 'TP' }
+	}
+
+	// endregion
+
+	// region Create appointment days
+
+	void "test create appointment days no cards"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.createAppointmentDays(today, appointmentTypes, [])
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 0
+		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 0
+	}
+
+	void "test create appointment days different card appointment type"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.createAppointmentDays(today, appointmentTypes, cards)
+
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	// endregion
+
+	// region Sync schedule appointment days
+
+	void "test sync schedule appointments no existent appointment days"() {
+		given:
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: Utils.newDate(new Date()))
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				[]
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		updateInfo.updated.size() == 0
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 0
+		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 0
+	}
+
+	void "test sync schedule appointments existent appointment days without new cards"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				[]
+		)
+
+		then:
+		updateInfo.created.size() == 0
+		updateInfo.updated.size() == 0
+	}
+
+	void "test sync schedule appointments existent appointment days new cards different appointment types"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 0
+		updateInfo.updated.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	void "test sync schedule appointments existent appointment days new cards same appointment types"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.updated.size() == 1
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+	}
+
+	void "test sync schedule appointments existent appointment days future new cards"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		!updateInfo.created
+		!updateInfo.updated
+	}
+
+	void "test sync schedule appointments no appointment days new cards same appointment types"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		!updateInfo.updated
+	}
+
+	// endregion
+
+	// region Sync cards appointments days
+
+	void "test sync cards appointments no future cards"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		!updateInfo.created
+		!updateInfo.updated
+	}
+
+	void "test sync cards appointments different future cards existent appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.updated.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	void "test sync cards appointments same type future cards existent appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.updated.size() == 1
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		!updateInfo.created
+	}
+
+	void "test sync cards appointments different type future cards no appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	void "test sync cards appointments same type future cards no appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 0
 	}
 
 	// endregion
