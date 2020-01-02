@@ -14,12 +14,12 @@ export class Url {
 		return `${environment.serverUrl}/panel/mechanic/lines`;
 	}
 
-	public static createAppointmentDays(): string {
-		return `${environment.serverUrl}/panel/appointmentDay`;
-	}
-
 	public static updateAppointmentsDays(): string {
 		return `${environment.serverUrl}/panel/appointmentDay/counters`;
+	}
+
+	public static updateCardsPosition(): string {
+		return `${environment.serverUrl}/panel/cards/position`;
 	}
 
 }

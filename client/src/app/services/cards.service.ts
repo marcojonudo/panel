@@ -18,7 +18,7 @@ import {Mechanic} from "../objects/mechanic";
 import {NotificationService} from "./notification.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {DimensionsService} from "./dimensions.service";
-import {Coordinates} from "../objects/coordinates";
+import {Url} from "../objects/url";
 
 @Injectable({
 	providedIn: 'root'
@@ -271,8 +271,12 @@ export class CardsService {
 		group.status = Constants.CARD_STATUS.FINISHED;
 		for (const card of group.cards) {
 			card.status = Constants.CARD_STATUS.FINISHED;
+			/* Se definen las propiedades last para poder manejar los contadores de citas */
+			card.lastDay = card.day;
+			card.lastStart = card.start;
+			card.lastEnd = card.end;
 		}
-		this.resetCardsGroup(group);
+		this.http.put(Url.updateCardsPosition(), group.cards).subscribe();
 	}
 
 	resetCardsGroup(group: CardsGroup, updateDb: boolean = true) {

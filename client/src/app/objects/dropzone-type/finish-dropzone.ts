@@ -7,6 +7,7 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
+import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 
 export class FinishDropzone implements Dropzone {
 
@@ -14,6 +15,7 @@ export class FinishDropzone implements Dropzone {
 	appointmentsService: AppointmentsService;
 
 	type: string = Constants.DROPZONE_TYPE.FINISH;
+	subType: string;
 	mechanic: Mechanic;
 	rect: any;
 
@@ -58,7 +60,14 @@ export class FinishDropzone implements Dropzone {
 
 	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
 		if (originDropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED) {
-			this.appointmentsService.updateAppointmentAdd(group.cards, group.cards[0].day)
+			// this.appointmentsService.updateAppointment(group.cards,true, true);
+			this.appointmentsService.updateAppointment(
+				group.cards[0].day,
+				group.cards,
+				true,
+				new UpdateAppointmentDayParams(false, true),
+				true
+			)
 		}
 	}
 

@@ -26,6 +26,7 @@ import {NotificationService} from "../services/notification.service";
 export class DropzoneDirective implements OnInit {
 
 	@Input() type: string;
+	@Input() subType?: string;
 	@Input() mechanic: Mechanic;
 
 	//TODO Revisar comportamiento dragging
@@ -48,17 +49,28 @@ export class DropzoneDirective implements OnInit {
 		private appointmentsService: AppointmentsService
 	) {
 		this.DROPZONE_TYPE = {};
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] = () => new AssignedDropzone(this.cardsService, this.appointmentsService, this.mechanic);
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] = () => new UnassignedDropzone(this.cardsService, this.appointmentsService);
-		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.FINISH] = () => new FinishDropzone(this.cardsService, this.appointmentsService);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.ASSIGNED] =
+			() => new AssignedDropzone(this.cardsService, this.appointmentsService, this.mechanic);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] =
+			() => new UnassignedDropzone(this.cardsService, this.appointmentsService, this.subType);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.FINISH] =
+			() => new FinishDropzone(this.cardsService, this.appointmentsService);
 	}
 
 	ngOnInit() {
 		this.dropzone = this.DROPZONE_TYPE[this.type]();
 		NotificationService.dragging$.subscribe(dragging => {
 			if (dragging) {
-				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
-				this.pointerLeaveListener = this.renderer.listen(this.element.nativeElement, 'pointerleave', this.onPointerLeave.bind(this));
+				this.pointerMoveListener = this.renderer.listen(
+					this.element.nativeElement,
+					Constants.EVENT.POINTER_MOVE,
+					this.onPointerMove.bind(this)
+				);
+				this.pointerLeaveListener = this.renderer.listen(
+					this.element.nativeElement,
+					Constants.EVENT.POINTER_LEAVE,
+					this.onPointerLeave.bind(this)
+				);
 				this.dropzone.rect = this.element.nativeElement.getBoundingClientRect();
 			} else {
 				if (this.pointerMoveListener) {
@@ -71,6 +83,7 @@ export class DropzoneDirective implements OnInit {
 
 	onPointerMove(): void {
 		if (!CardPositionService.originDropzone) {
+			console.log(0, this.dropzone);
 			CardPositionService.originDropzone = this.dropzone;
 		}
 		CardPositionService.destinyDropzone = this.dropzone;

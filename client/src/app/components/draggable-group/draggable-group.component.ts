@@ -28,10 +28,6 @@ export class DraggableGroupComponent {
 		this.hiddenCardsGroup.emit(cardsGroup);
 	}
 
-	test(): void {
-		console.log('testing');
-	}
-
 	check(): void {
 		if (Constants.CHECK) {
 			console.log('checking draggable group', this.cardsGroup.cards[0].order.code);

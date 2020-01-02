@@ -1,6 +1,5 @@
 import {AppointmentsCounterUpdate} from "./appointments-counter-update";
 import {Card} from "../card";
-import {UtilsService} from "../../services/utils.service";
 
 export class AppointmentsCounterUpdateTrigger implements AppointmentsCounterUpdate {
 

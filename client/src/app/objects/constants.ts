@@ -11,7 +11,8 @@ export class Constants {
 	public static EVENT: any = {
 		POINTER_DOWN: 'pointerdown',
 		POINTER_MOVE: 'pointermove',
-		POINTER_UP: 'pointerup'
+		POINTER_UP: 'pointerup',
+		POINTER_LEAVE: 'pointerleave'
 	};
 	public static VALUE: any = {
 		LINE_HEIGHT_DEFAULT: 40,
@@ -51,9 +52,9 @@ export class Constants {
 		E: 'EMPEZADA'
 	};
 	public static readonly SCHEDULE_TYPE: any = {
-		MORNING: 'MORNING',
-		AFTERNOON: 'AFTERNOON',
-		FULL_TIME: 'FULL_TIME'
+		MORNING: 'morning',
+		AFTERNOON: 'afternoon',
+		FULL_TIME: 'full_time'
 	};
 	public static readonly QUARTERS: { [key: string]: number } = {
 		STEP_0: 0,
@@ -76,6 +77,7 @@ export class Constants {
 		UNASSIGNED: 'UNASSIGNED',
 		FINISH: 'FINISH'
 	};
+	public static readonly APPOINTMENT_COUNTER_TOTAL: string = "total";
 	public static readonly APPOINTMENT_CARD_TYPE_ID: string = "C";
 	public static readonly HOUR_MINUTES: number = 60;
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/", "/appointment"];

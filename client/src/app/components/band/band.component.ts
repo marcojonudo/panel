@@ -113,6 +113,10 @@ export class BandComponent implements OnInit, OnDestroy {
 		return Constants.DROPZONE_TYPE.UNASSIGNED;
 	}
 
+	get finishDropzoneType(): string {
+		return Constants.DROPZONE_TYPE.FINISH;
+	}
+
 	get unassignedBarHeight(): number {
 		return Constants.VALUE.UNASSIGNED_BAR_HEIGHT;
 	}

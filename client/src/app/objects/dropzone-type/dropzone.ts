@@ -10,6 +10,7 @@ export interface Dropzone {
 	cardsService: CardsService;
 
 	type: string;
+	subType: string;
 	mechanic: Mechanic;
 	rect: any;
 

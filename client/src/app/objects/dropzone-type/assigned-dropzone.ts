@@ -6,6 +6,7 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {AppointmentsService} from "../../services/appointments.service";
+import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -13,6 +14,7 @@ export class AssignedDropzone implements Dropzone {
 	appointmentsService: AppointmentsService;
 
 	type: string = Constants.DROPZONE_TYPE.ASSIGNED;
+	subType: string;
 	mechanic: Mechanic;
 	rect: any;
 
@@ -92,17 +94,26 @@ export class AssignedDropzone implements Dropzone {
 
 	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
 		/* Sólo se tiene que reducir el contador de citas si una ficha se mueve de asignada a asignada (restar en una
-		*  categoría y sumar en otra), o de asignada a no asignada (restar en una categoría). si se mueve a otra
+		*  categoría y sumar en otra), o de asignada a no asignada (restar en una categoría). Si se mueve a otra
 		*  dropzone (finalizada), no se resta nada al contador de citas */
 		if (destinyDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
-			this.appointmentsService.updateAppointmentSubtract(group.cards, group.cards[0].day);
+			this.appointmentsService.updateAppointment(
+				group.cards[0].day,
+				group.cards,
+				false,
+				new UpdateAppointmentDayParams(false, true)
+			);
 		}
 	}
 
 	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
-		if (originDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
-			this.appointmentsService.updateAppointmentAdd(group.cards, group.cards[0].day)
-		}
+		this.appointmentsService.updateAppointment(
+			group.cards[0].day,
+			group.cards,
+			true,
+			new UpdateAppointmentDayParams(false, true),
+			true
+		)
 	}
 
 }

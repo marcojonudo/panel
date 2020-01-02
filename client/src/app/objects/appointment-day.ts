@@ -7,6 +7,7 @@ export class AppointmentDay {
 	day: Date;
 	morning: number = 0;
 	afternoon: number = 0;
+	total: number = 0;
 	max: number = 0;
 
 	constructor(appointmentType: any, day: number = undefined, appointmentDay: any = undefined) {
@@ -15,7 +16,16 @@ export class AppointmentDay {
 		if (appointmentDay) {
 			this.morning = appointmentDay.morning;
 			this.afternoon = appointmentDay.afternoon;
+			this.total = appointmentDay.total;
 			this.max = appointmentDay.max;
+		}
+	}
+
+	reset(resetTotal: boolean = false) {
+		this.morning = 0;
+		this.afternoon = 0;
+		if (resetTotal) {
+			this.total = 0;
 		}
 	}
 

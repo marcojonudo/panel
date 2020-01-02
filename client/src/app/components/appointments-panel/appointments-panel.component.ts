@@ -31,7 +31,6 @@ export class AppointmentsPanelComponent implements OnInit {
 	ngOnInit() {
 		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
 		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(update => {
-			update.update(this.daysAppointmentsCounter);
 			this.cdRef.detectChanges();
 		});
 	}
