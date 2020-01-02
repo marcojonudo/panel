@@ -58,7 +58,7 @@ class PanelService {
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
 		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-		List<Card> dbCards = panelDatabaseClient.getCards(day)
+		List<Card> dbCards = getCards(day, orders)
 
 		UpdateCards updateCards = syncOrders(orders, dbCards)
 		List<Card> cards = saveCards(updateCards)
@@ -93,6 +93,19 @@ class PanelService {
 		List<EmployeeSchedule> mechanics = schedulesDatabaseClient.getMechanics(date, true)
 		Map<String, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day?.toString() }
 		return daysMechanics
+	}
+
+	// endregion
+
+	// region Get cards
+
+	List<Card> getCards(Date day, List<Order> orders) {
+		List<Card> dbCards = panelDatabaseClient.getCards(day)
+		dbCards.each { Card card ->
+			Order order = orders.find { it.number == card.order.number }
+			card.order.lines = order.lines
+		}
+		return dbCards
 	}
 
 	// endregion

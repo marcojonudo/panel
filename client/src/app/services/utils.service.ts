@@ -93,10 +93,6 @@ export class UtilsService {
 		return array.filter(item => property(item) == value);
 	}
 
-	public static createArray(length: number) {
-		return Array(length).fill(0);
-	}
-
 	public static getScheduleHours(start: Date, end: Date): number[] {
 		const startHour = start.getHours();
 		const endHour = end.getHours() + (Math.ceil(end.getMinutes()/60) > 0 ? 1 : 0);

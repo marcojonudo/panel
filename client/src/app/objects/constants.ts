@@ -31,7 +31,7 @@ export class Constants {
 		QUARTERS_PER_HOUR: 4,
 		INTERVALS_PER_QUARTER: 3,
 		SKILLS_PANEL_WIDTH: 250,
-		CARD_DETAILS_PANEL_WIDTH: 250
+		CARD_DETAILS_PANEL_WIDTH: 350
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
