@@ -8,6 +8,7 @@ import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
+import {UtilsService} from "../../services/utils.service";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -76,12 +77,16 @@ export class UnassignedDropzone implements Dropzone {
 			*  para el total, no para morngin o afternoon */
 			if (this.subType != Constants.DROPZONE_TYPE.FINISH) {
 				const originDay = group.cards[0].order.day;
-				this.appointmentsService.updateAppointment(
-					originDay,
-					group.cards,
-					false,
-					new UpdateAppointmentDayParams(false, false)
-				)
+				/* El día de la orden podría haber pasado. De ser así, no se actualiza nada del contador de citas, ya
+				*  directamente no hay panel para días anteriores a hoy */
+				if (originDay.getTime() >= UtilsService.clearTime(new Date()).getTime()) {
+					this.appointmentsService.updateAppointment(
+						originDay,
+						group.cards,
+						false,
+						new UpdateAppointmentDayParams(false, false)
+					)
+				}
 			} else {
 				/* Si la ficha estaba finalizada, se debe actualizar la info del último día en el que estuvo asignada
 				*  (tanto morning o afternoon, como total, ya que en este caso sí se había contado la ficha según el
