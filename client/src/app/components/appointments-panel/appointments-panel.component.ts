@@ -60,17 +60,13 @@ export class AppointmentsPanelComponent implements OnInit {
 	}
 
 	addMax(appointmentDay: AppointmentDay): void {
-		appointmentDay.max = appointmentDay.max + 1;
+		this.appointmentsService.addMax(appointmentDay);
 		this.cdRef.detectChanges();
-		this.appointmentsService.updateMaxDb(appointmentDay, this.day);
 	}
 
-	subtractMax(appointmentDay: any): void {
-		if (appointmentDay.max - 1 >= 0) {
-			appointmentDay.max = appointmentDay.max - 1 < 0 ? appointmentDay.max : appointmentDay.max - 1;
-			this.cdRef.detectChanges();
-			this.appointmentsService.updateMaxDb(appointmentDay, this.day);
-		}
+	subtractMax(appointmentDay: AppointmentDay): void {
+		this.appointmentsService.subtractMax(appointmentDay);
+		this.cdRef.detectChanges();
 	}
 
 }

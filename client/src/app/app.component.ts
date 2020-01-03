@@ -38,7 +38,7 @@ export class AppComponent implements AfterViewInit {
 		this.generateRandomId();
 		NotificationService.init();
 		CardPositionService.init();
-		this.http.get(Url.getInitialData())
+		this.http.get(Url.initialData())
 			.subscribe((data: any) => {
 				console.log('Received data', data);
 

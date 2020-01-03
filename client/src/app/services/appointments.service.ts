@@ -73,6 +73,15 @@ export class AppointmentsService {
 		return this.appointmentTypes.find(appointmentType => appointmentType.code == code);
 	}
 
+	findMechanicAppointmentByMechanic(
+		dayMechanics: Mechanic[],
+		mechanicId: number,
+		appointmentIndex: number
+	): any[] {
+		const mechanic = dayMechanics.find(mechanic => mechanic.id == mechanicId);
+		return [mechanic, mechanic.appointments[appointmentIndex]];
+	}
+
 	// endregion
 
 	// region Init
@@ -129,25 +138,27 @@ export class AppointmentsService {
 		updateDb: boolean = false,
 		daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
 	): void {
-		const appointmentDayCounters = daysAppointmentsCounter[day.getTime()];
-		for (const [typeCode, appointmentDay] of Object.entries(appointmentDayCounters)) {
-			const typeCards = cards.filter((card: Card) => card.group.appointmentType.code == typeCode);
-			typeCards.forEach(card => {
-				if (updateParams.updateAll) {
-					this.updateAppointmentDay(appointmentDay, card, updateParams.lastDay, add, updateParams.updateTotal);
-				} else {
-					this.updateAppointmentDayTotal(appointmentDay, add);
-				}
-				if (this.appointmentDaysToUpdate.indexOf(appointmentDay) == -1) {
-					this.appointmentDaysToUpdate.push(appointmentDay);
-				}
-			});
-		}
-		NotificationService.notifyAppointmentsCounter(new AppointmentsCounterUpdateTrigger(day, cards));
+		if (cards[0].type == Constants.CARD_TYPE.APPOINTMENT) {
+			const appointmentDayCounters = daysAppointmentsCounter[day.getTime()];
+			for (const [typeCode, appointmentDay] of Object.entries(appointmentDayCounters)) {
+				const typeCards = cards.filter((card: Card) => card.group.appointmentType.code == typeCode);
+				typeCards.forEach(card => {
+					if (updateParams.updateAll) {
+						this.updateAppointmentDay(appointmentDay, card, updateParams.lastDay, add, updateParams.updateTotal);
+					} else {
+						this.updateAppointmentDayTotal(appointmentDay, add);
+					}
+					if (this.appointmentDaysToUpdate.indexOf(appointmentDay) == -1) {
+						this.appointmentDaysToUpdate.push(appointmentDay);
+					}
+				});
+			}
+			NotificationService.notifyAppointmentsCounter(new AppointmentsCounterUpdateTrigger(day, cards));
 
-		if (updateDb) {
-			this.http.put(Url.updateAppointmentsDays(), this.appointmentDaysToUpdate).subscribe();
-			this.appointmentDaysToUpdate = [];
+			if (updateDb) {
+				this.http.put(Url.appointmentsDaysCounters(), this.appointmentDaysToUpdate).subscribe();
+				this.appointmentDaysToUpdate = [];
+			}
 		}
 	}
 
@@ -166,35 +177,33 @@ export class AppointmentsService {
 		}
 	}
 
-	// endregion
-
 	private updateAppointmentDayTotal(appointmentDay: AppointmentDay, add: boolean = true): void {
 		appointmentDay[Constants.APPOINTMENT_COUNTER_TOTAL] += add ? 1 : -1;
 	}
 
-	updateMaxDb(appointmentDay: AppointmentDay, day: Date): void {
-		if (appointmentDay.day) {
-			this.http.put(
-				`${environment.serverUrl}/panel/appointmentDay/max`,
-				appointmentDay
-			).subscribe();
-		} else {
-			appointmentDay.day = day;
-			this.http.post(
-				`${environment.serverUrl}/panel/appointmentDay`,
-				[appointmentDay]
-			).subscribe();
+	// endregion
+
+	// region Update max
+
+	addMax(appointmentDay: AppointmentDay): void {
+		appointmentDay.max = appointmentDay.max + 1;
+		this.updateMaxDb(appointmentDay);
+	}
+
+	subtractMax(appointmentDay: any): void {
+		if (appointmentDay.max - 1 >= 0) {
+			appointmentDay.max = appointmentDay.max - 1 < 0 ? appointmentDay.max : appointmentDay.max - 1;
+			this.updateMaxDb(appointmentDay);
 		}
 	}
 
-	findMechanicAppointmentByMechanic(
-		dayMechanics: Mechanic[],
-		mechanicId: number,
-		appointmentIndex: number
-	): any[] {
-		const mechanic = dayMechanics.find(mechanic => mechanic.id == mechanicId);
-		return [mechanic, mechanic.appointments[appointmentIndex]];
+	private updateMaxDb(appointmentDay: AppointmentDay): void {
+		this.http.put(Url.appointmentDayMax(), appointmentDay).subscribe();
 	}
+
+	// endregion
+
+	// region Appointment schedule
 
 	updateAppointmentType(
 		mechanic: Mechanic,
@@ -207,14 +216,11 @@ export class AppointmentsService {
 			/* La info se guarda en DB sólo si ya tiene horario. Al definir una nueva cita, y escoger sólo el tipo, no
 			*  se guarda para no tener una cita sin horario (aunque sea temporalmente) en DB */
 			if (appointment.schedule) {
-				this.http.put(
-					`${environment.serverUrl}/panel/appointment/type`,
-					appointment
-				).subscribe();
+				this.http.put(Url.appointmentType(), appointment).subscribe();
 			}
 		} else {
 			this.http.delete(
-				`${environment.serverUrl}/panel/appointment/type`,
+				Url.appointmentType(),
 				{params: {id: `${appointment.id}`, mechanicId: `${mechanic.id}`, index: `${appointment.index}`}}
 			).subscribe();
 			appointment.reset();
@@ -239,19 +245,18 @@ export class AppointmentsService {
 		mechanic.appointments = mechanic.appointments.slice();
 		if (insertNewAppointment) {
 			this.http.post(
-				`${environment.serverUrl}/panel/appointment/schedule`,
+				Url.appointmentSchedule(),
 				appointment,
 				{params: {mechanicId: `${mechanic.id}`}}
 			).subscribe((createdAppointment: AppointmentSchedule) => {
 				appointment.id = createdAppointment.id;
 			});
 		} else {
-			this.http.put(
-				`${environment.serverUrl}/panel/appointment/schedule`,
-				appointment
-			).subscribe()
+			this.http.put(Url.appointmentSchedule(), appointment).subscribe()
 		}
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
+
+	// endregion
 
 }

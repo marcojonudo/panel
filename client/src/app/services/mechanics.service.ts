@@ -96,7 +96,7 @@ export class MechanicsService {
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {
-		this.http.put(Url.updateMechanicLines(), [mechanic]).subscribe();
+		this.http.put(Url.mechanicLines(), [mechanic]).subscribe();
 	}
 
 	removeMechanic(
@@ -113,7 +113,7 @@ export class MechanicsService {
 		NotificationService.notifyMechanicLine(day, mechanic.code);
 
 		if (updateDb) {
-			this.http.put(Url.updateMechanicsPosition(), mechanics.concat(mechanic)).subscribe();
+			this.http.put(Url.mechanicsPosition(), mechanics.concat(mechanic)).subscribe();
 		}
 	}
 

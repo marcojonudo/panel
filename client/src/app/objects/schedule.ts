@@ -18,7 +18,7 @@ export class Schedule {
 		if (morningStart) {
 			this.morningStart = UtilsService.parseTimeFromString(morningStart);
 			this.morningEnd = UtilsService.parseTimeFromString(morningEnd);
-			this.type = Constants.SCHEDULE_TYPE.MORNING;
+			this.type = Constants.SCHEDULE_TYPE.MORNING.toUpperCase();
 			this.intervals.push(new ScheduleInterval(morningStart, morningEnd));
 			this.start = this.morningStart;
 			this.end = this.morningEnd;
@@ -28,8 +28,8 @@ export class Schedule {
 			this.afternoonEnd = UtilsService.parseTimeFromString(afternoonEnd);
 			this.start = this.start ? this.start : this.afternoonStart;
 			this.end = this.afternoonEnd;
-			this.type = this.start == this.morningStart
-				? Constants.SCHEDULE_TYPE.FULL_TIME : Constants.SCHEDULE_TYPE.AFTERNOON;
+			this.type = (this.start == this.morningStart
+				? Constants.SCHEDULE_TYPE.FULL_TIME : Constants.SCHEDULE_TYPE.AFTERNOON).toUpperCase();
 			this.intervals.push(new ScheduleInterval(afternoonStart, afternoonEnd));
 		}
 	}

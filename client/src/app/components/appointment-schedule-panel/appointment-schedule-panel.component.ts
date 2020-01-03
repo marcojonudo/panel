@@ -57,7 +57,7 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 			if (appointment.schedule) {
 				appointment.schedule.intervals[0].hourQuarters.forEach((hourQuarters: HourQuarters) => {
 					hourQuarters.quarters.forEach(quarter => {
-						this.dragTypeSchedule[appointment.schedule.type].push(
+						this.dragTypeSchedule[appointment.schedule.type.toLowerCase()].push(
 							new DragScheduleInfo(hourQuarters.hour, quarter, hourQuarters.type)
 						);
 					});

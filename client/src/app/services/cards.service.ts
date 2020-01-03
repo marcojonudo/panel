@@ -298,7 +298,7 @@ export class CardsService {
 			card.lastStart = card.start;
 			card.lastEnd = card.end;
 		}
-		this.http.put(Url.updateCardsPosition(), group.cards).subscribe();
+		this.http.put(Url.cardsPosition(), group.cards).subscribe();
 	}
 
 	resetCardsGroup(group: CardsGroup, updateDb: boolean = true) {
