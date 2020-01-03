@@ -1,6 +1,8 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {DimensionsService} from "../../services/dimensions.service";
+import {QuartersSaturation} from "../../objects/quarters-saturation";
+import {UtilsService} from "../../services/utils.service";
 
 @Component({
 	selector: 'app-timeline',
@@ -11,6 +13,7 @@ import {DimensionsService} from "../../services/dimensions.service";
 export class TimelineComponent {
 
 	@Input() day: Date;
+	@Input() quartersSaturation: QuartersSaturation;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
@@ -49,6 +52,19 @@ export class TimelineComponent {
 			#a2a2a2 ${this.quarterWidth*4 - 2}px,
 			#a2a2a2 ${this.quarterWidth*4}px
 		)`;
+	}
+
+	findQuarterBackground(
+		hour: number,
+		quarter: number,
+		quartersSaturation: QuartersSaturation = this.quartersSaturation,
+		mechanicsSaturationPercentage: number = Constants.VALUE.MECHANICS_SATURATION_PERCENTAGE
+	): boolean {
+		const quarterSaturation = quartersSaturation[UtilsService.calcMinutes(hour, quarter)];
+		if (!quarterSaturation) {
+			return false;
+		}
+		return quarterSaturation.cards > quarterSaturation.mechanics * mechanicsSaturationPercentage/100;
 	}
 
 	checkDisplayMinutes(): boolean {

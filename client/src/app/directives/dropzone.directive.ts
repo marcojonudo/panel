@@ -83,7 +83,6 @@ export class DropzoneDirective implements OnInit {
 
 	onPointerMove(): void {
 		if (!CardPositionService.originDropzone) {
-			console.log(0, this.dropzone);
 			CardPositionService.originDropzone = this.dropzone;
 		}
 		CardPositionService.destinyDropzone = this.dropzone;

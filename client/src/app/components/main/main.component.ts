@@ -21,6 +21,9 @@ import {DaysMechanicSkills} from "../../objects/days-mechanic-skills";
 import {DaysCardDetails} from "../../objects/days-card-details";
 import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
 import {Card} from "../../objects/card";
+import {QuartersSaturation} from "../../objects/quarters-saturation";
+import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/days-quarters-saturation";
+import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
 
 @Component({
 	selector: 'app-main',
@@ -41,6 +44,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _daysMechanicSkills: DaysMechanicSkills;
 	private _daysCardDetails: DaysCardDetails;
+	private _daysQuartersSaturation: DaysQuartersSaturation;
 
 	private _oneDayMode: boolean;
 	private _maxScheduleHours: number[];
@@ -56,9 +60,10 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private oneDayModeSubscription: Subscription;
 	private maxScheduleWidthSubscription: Subscription;
-	private assignedCardsGroupsSubscription: Subscription;
+	private mechanicLineSubscription: Subscription;
 	private skillsSubscription: Subscription;
 	private cardDetailsSubscription: Subscription;
+	private quartersSaturationSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
@@ -69,6 +74,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	) {
 		this.days = this.mechanicsService.days;
 		this.initDaysUpdateObjects();
+		this.initDaysQuartersSaturation();
 
 		const today = UtilsService.clearTime(new Date()).getTime();
 		this.today = this.days.find(day => day.getTime() == today);
@@ -89,9 +95,16 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
-		this.assignedCardsGroupsSubscription = NotificationService.mechanicLine$
+		this.mechanicLineSubscription = NotificationService.mechanicLine$
 				.subscribe((mechanicLineUpdate: MechanicUpdate) => {
 			this.mechanicLineUpdate = mechanicLineUpdate;
+			this.cdRef.detectChanges();
+		});
+
+		// this.daysQuartersSaturation[this.today.getTime()].quartersSaturation = this.cardsService.quartersSaturation;
+		this.quartersSaturationSubscription = NotificationService.quartersSaturation$
+				.subscribe((dayQuartersSaturation: DayQuartersSaturation) => {
+			this.daysQuartersSaturation[dayQuartersSaturation.day.getTime()] = dayQuartersSaturation;
 			this.cdRef.detectChanges();
 		});
 
@@ -101,13 +114,11 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.maxScheduleHours = DimensionsService.maxScheduleHours;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-			// this.maxScheduleHours = this.timeService.updateMaxSchedule(oneDayMode);
 			CardPositionService.updateDimensions(
 				this.cardsService.unassignedSections,
 				this.cardsService.assignedDaysCardsGroups
 			);
 			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
-			// this.timeService.calcMaxScheduleWidth(oneDayMode);
 			this.cdRef.detectChanges();
 		});
 		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
@@ -161,9 +172,10 @@ export class MainComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.oneDayModeSubscription.unsubscribe();
 		this.maxScheduleWidthSubscription.unsubscribe();
-		this.assignedCardsGroupsSubscription.unsubscribe();
+		this.mechanicLineSubscription.unsubscribe();
 		this.skillsSubscription.unsubscribe();
 		this.cardDetailsSubscription.unsubscribe();
+		this.quartersSaturationSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -288,6 +300,14 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._daysCardDetails = value;
 	}
 
+	get daysQuartersSaturation(): DaysQuartersSaturation {
+		return this._daysQuartersSaturation;
+	}
+
+	set daysQuartersSaturation(value: DaysQuartersSaturation) {
+		this._daysQuartersSaturation = value;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
@@ -295,7 +315,17 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.daysCardDetails = {};
 		days.forEach((day: Date) => {
 			this.daysMechanicSkills[day.getTime()] = new DayMechanicSkills();
-			this.daysCardDetails[day.getTime()] = new DayCardDetails()
+			this.daysCardDetails[day.getTime()] = new DayCardDetails();
+		});
+	}
+
+	private initDaysQuartersSaturation(days: Date[] = this.days): void {
+		this.daysQuartersSaturation = {};
+		days.forEach((day: Date) => {
+			this.daysQuartersSaturation[day.getTime()] = new DayQuartersSaturation(
+				day,
+				this.cardsService.checkQuarterSaturation(day)
+			);
 		});
 	}
 
@@ -305,6 +335,13 @@ export class MainComponent implements OnInit, OnDestroy {
 			update = !mechanicLineUpdate.day || day.getTime() == mechanicLineUpdate.day.getTime() ? mechanicLineUpdate : undefined;
 		}
 		return update;
+	}
+
+	findQuartersSaturation(
+		day: Date,
+		daysQuartersSaturation: DaysQuartersSaturation = this.daysQuartersSaturation
+	): QuartersSaturation {
+		return daysQuartersSaturation[day.getTime()].quartersSaturation;
 	}
 
 	checkTriggerInfoCd(

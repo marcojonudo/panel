@@ -1,10 +1,9 @@
 <div
-	class="d-flex h-100 timeline"
-	[ngStyle]="{background: calcTimelineBackground()}">
+	class="d-flex h-100 timeline">
 	<div *ngFor="let hour of maxScheduleHours" class="flex-grow-1 flex-basis-0 timeline-hour d-flex">
 		<div *ngFor="let quarter of quarters; first as isFirst"
-			class="flex-grow-1 flex-basis-0 align-center"
-			[ngClass]="{'quarter': isFirst}">
+			class="flex-grow-1 flex-basis-0 align-center border-right border-semi-dark"
+			[ngClass]="{'quarter border-left': isFirst, 'red-background': findQuarterBackground(hour, +quarter)}">
 			<span *ngIf="isFirst">{{hour}}<span *ngIf="checkDisplayMinutes()">:</span></span>
 			<span *ngIf="checkDisplayMinutes()">{{quarter}}</span>
 		</div>

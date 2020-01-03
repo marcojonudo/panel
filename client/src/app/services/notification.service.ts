@@ -9,9 +9,9 @@ import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Coordinates} from "../objects/coordinates";
 import {CardsGroup} from "../objects/cards-group";
-import {Skill} from "../objects/skill";
 import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
 import {DayCardDetails} from "../objects/card-details-update/day-card-details";
+import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
 
 @Injectable({
 	providedIn: 'root'
@@ -48,6 +48,9 @@ export class NotificationService {
 	private static cardDetailsSubject: Subject<DayCardDetails>;
 	private static _cardDetails$: Observable<DayCardDetails>;
 
+	private static quartersSaturationSubject: Subject<DayQuartersSaturation>;
+	private static _quartersSaturation$: Observable<DayQuartersSaturation>;
+
 	// region Init
 
 	static init(): void {
@@ -80,6 +83,9 @@ export class NotificationService {
 
 		this.cardDetailsSubject = new Subject<DayCardDetails>();
 		this.cardDetails$ = this.cardDetailsSubject.asObservable();
+
+		this.quartersSaturationSubject = new Subject<DayQuartersSaturation>();
+		this.quartersSaturation$ = this.quartersSaturationSubject.asObservable();
 	}
 
 	// endregion
@@ -166,6 +172,14 @@ export class NotificationService {
 		this._cardDetails$ = value;
 	}
 
+	static get quartersSaturation$(): Observable<DayQuartersSaturation> {
+		return this._quartersSaturation$;
+	}
+
+	static set quartersSaturation$(value: Observable<DayQuartersSaturation>) {
+		this._quartersSaturation$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -211,6 +225,10 @@ export class NotificationService {
 
 	static notifyCardDetails(dayCardDetails: DayCardDetails): void {
 		this.cardDetailsSubject.next(dayCardDetails);
+	}
+
+	static notifyQuartersSaturation(dayQuartersSaturation: DayQuartersSaturation): void {
+		this.quartersSaturationSubject.next(dayQuartersSaturation);
 	}
 
 }

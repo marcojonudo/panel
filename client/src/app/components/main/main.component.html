@@ -16,6 +16,7 @@
 					<app-day-panel
 						class="animated slideInRight"
 						[day]="today"
+						[quartersSaturation]="findQuartersSaturation(today)"
 						[mechanicLineUpdate]="checkTriggerLineCd(today)"
 						[dayMechanicSkills]="checkTriggerInfoCd(today)"
 						[maxScheduleHours]="maxScheduleHours"
@@ -74,6 +75,7 @@
 							<app-day-panel
 								class="animated slideInRight"
 								[day]="day"
+								[quartersSaturation]="findQuartersSaturation(day)"
 								[mechanicLineUpdate]="checkTriggerLineCd(day)"
 								[dayMechanicSkills]="checkTriggerInfoCd(day)"
 								[maxScheduleHours]="maxScheduleHours"

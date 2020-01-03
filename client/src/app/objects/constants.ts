@@ -31,7 +31,8 @@ export class Constants {
 		QUARTERS_PER_HOUR: 4,
 		INTERVALS_PER_QUARTER: 3,
 		SKILLS_PANEL_WIDTH: 250,
-		CARD_DETAILS_PANEL_WIDTH: 350
+		CARD_DETAILS_PANEL_WIDTH: 350,
+		MECHANICS_SATURATION_PERCENTAGE: 60,
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
@@ -56,7 +57,7 @@ export class Constants {
 		AFTERNOON: 'afternoon',
 		FULL_TIME: 'full_time'
 	};
-	public static readonly QUARTERS: { [key: string]: number } = {
+	public static readonly QUARTERS: any = {
 		STEP_0: 0,
 		STEP_15: 15,
 		STEP_30: 30,

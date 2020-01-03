@@ -2,10 +2,14 @@
 	background-color: #ffffff;
 }
 
-.timeline-hour > div:last-child {
-	border-right: 0 !important;
-}
+/*.timeline-hour > div:last-child {*/
+	/*border-right: 0 !important;*/
+/*}*/
 
 .quarter {
 	font-weight: bold;
+}
+
+.red-background {
+	background-color: red;
 }

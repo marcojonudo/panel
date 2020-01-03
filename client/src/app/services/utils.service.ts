@@ -62,6 +62,14 @@ export class UtilsService {
 		return date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0
 	}
 
+	public static calcMinutesFromDate(date: Date): number {
+		return this.calcMinutes(date.getHours(), date.getMinutes());
+	}
+
+	public static calcMinutes(hour: number, minutes: number): number {
+		return hour * Constants.HOUR_MINUTES + minutes;
+	}
+
 	// endregion
 
 	public static createMinutesArray(from: number, to: number): number[] {
@@ -111,6 +119,14 @@ export class UtilsService {
 
 	public static roundToDecimal(n: number, decimal: number): number {
 		return +n.toFixed(decimal);
+	}
+
+	public static roundCeil(n: number, roundTo: number): number {
+		return Math.ceil(n/roundTo) * roundTo;
+	}
+
+	public static roundFloor(n: number, roundTo: number): number {
+		return Math.floor(n/roundTo) * roundTo;
 	}
 
 }

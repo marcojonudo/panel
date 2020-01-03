@@ -19,6 +19,12 @@ import {NotificationService} from "./notification.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {DimensionsService} from "./dimensions.service";
 import {Url} from "../objects/url";
+import {MechanicsService} from "./mechanics.service";
+import {ScheduleInterval} from "../objects/schedule-interval";
+import {HourQuarters} from "../objects/hour-quarters";
+import {QuartersSaturation} from "../objects/quarters-saturation";
+import {QuarterSaturation} from "../objects/quarter-saturation";
+import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
 
 @Injectable({
 	providedIn: 'root'
@@ -37,8 +43,11 @@ export class CardsService {
 
 	private _unassignedSections: UnassignedSection[];
 
+	private _quartersSaturation: QuartersSaturation;
+
 	constructor(
 		private appointmentsService: AppointmentsService,
+		private mechanicsService: MechanicsService,
 		private http: HttpClient
 	) {
 		this.unassignedSections = [
@@ -99,6 +108,14 @@ export class CardsService {
 		this._unassignedSections = value;
 	}
 
+	get quartersSaturation(): QuartersSaturation {
+		return this._quartersSaturation;
+	}
+
+	set quartersSaturation(value: QuartersSaturation) {
+		this._quartersSaturation = value;
+	}
+
 	// endregion
 
 	// region Init
@@ -119,12 +136,15 @@ export class CardsService {
 		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
 		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, daysMechanics);
 
+		// this.quartersSaturation = this.checkQuarterSaturation(UtilsService.clearTime(new Date()));
+
 		console.log('Cards', this.cards);
 		console.log('Finished cards groups', this.finishedCardsGroups);
 		console.log('Unassigned cards groups', this.unassignedCardsGroups);
 		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
 		console.log('Assigned cards groups', this.assignedCardsGroups);
 		console.log('Assigned days cards groups', this.assignedDaysCardsGroups);
+		console.log('Cards quarters saturation', );
 	}
 
 	private initUnassignedCardsGroups(unassignedCards: Card[]): CardsGroup[] {
@@ -214,6 +234,7 @@ export class CardsService {
 			cardsGroup.end
 		);
 		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
+		this.checkQuarterSaturation(day);
 	}
 
 	addToAssigned(cardsGroup: CardsGroup, day: Date, newMechanicCode: string): void {
@@ -227,6 +248,7 @@ export class CardsService {
 			cardsGroup.end
 		);
 		this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
+		this.checkQuarterSaturation(day);
 	}
 
 	removeFromUnassigned(group: CardsGroup, notify: boolean = true): void {
@@ -658,24 +680,6 @@ export class CardsService {
 
 	// region Link handlers checks
 
-	private addToDestiny(cardsGroup: CardsGroup, day: Date, newMechanicCode: string): void {
-		if (newMechanicCode) {
-			/* Al añadir un grupo a una línea, se comprueba si tiene grupos al lado para activar o desactivar los
-			*  iconos de los enlaces */
-			this.handleAssignedMovementGroupsLinks(
-				day,
-				newMechanicCode,
-				cardsGroup.line,
-				cardsGroup.start,
-				cardsGroup.end
-			);
-			this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
-		} else {
-			this.handleUnassignedMovementGroupsLinks(cardsGroup.cards[0].order.number, cardsGroup.type, cardsGroup.status);
-			this.handleAddUnassignedCardsGroup(cardsGroup);
-		}
-	}
-
 	private handleAssignedMovementGroupsLinks(day: Date, mechanicCode: string, line: number, start: Date, end: Date): void {
 		const groups = this.findLineGroups(day, mechanicCode, line);
 		const leftGroup = this.findLeftAssignedGroup(groups, start);
@@ -748,6 +752,10 @@ export class CardsService {
 	// endregion
 
 	// region Find cards and groups
+
+	findDayGroups(day: Date): CardsGroup[] {
+		return [].concat(...Object.values(this.assignedDaysCardsGroups[day.getTime()]));
+	}
 
 	findDividedCardIndex(previousCards: Card[], card: Card, index: number = 0): number {
 		const dividedPreviousCard = previousCards.find(c => c.id == card.dividedPreviousId);
@@ -836,6 +844,48 @@ export class CardsService {
 			return 0;
 		});
 		return cards;
+	}
+
+	// endregion
+
+	// region Quarter saturation
+
+	checkQuarterSaturation(day: Date): QuartersSaturation {
+		const dayGroups = this.findDayGroups(day);
+		const dayMechanics = this.mechanicsService.findDayMechanics(day);
+
+		const quartersSaturation = {};
+		dayGroups.forEach((group: CardsGroup) => {
+			const startMinutes = UtilsService.roundFloor(
+				UtilsService.calcMinutesFromDate(group.start),
+				Constants.QUARTERS.STEP_15
+			);
+			const endMinutes = UtilsService.roundCeil(
+				UtilsService.calcMinutesFromDate(group.end),
+				Constants.QUARTERS.STEP_15
+			);
+			for (let quarter = startMinutes; quarter < endMinutes; quarter = quarter + Constants.QUARTERS.STEP_15) {
+				if (!quartersSaturation[quarter]) {
+					const mechanics = this.findQuarterMechanics(dayMechanics, quarter);
+					quartersSaturation[quarter] = new QuarterSaturation(0, mechanics.length);
+				}
+				quartersSaturation[quarter].cards++;
+			}
+		});
+		NotificationService.notifyQuartersSaturation(new DayQuartersSaturation(day, quartersSaturation));
+		return quartersSaturation;
+	}
+
+	findQuarterMechanics(dayMechanics: Mechanic[], quarter: number): Mechanic[] {
+		return dayMechanics.filter((mechanic: Mechanic) => {
+			return mechanic.schedule.intervals.find((interval: ScheduleInterval) =>
+				interval.hourQuarters.find((hourQuarter: HourQuarters) =>
+					hourQuarter.quarters.find((q: number) =>
+						quarter == UtilsService.calcMinutes(hourQuarter.hour, q)
+					) != undefined
+				) != undefined
+			) != undefined;
+		});
 	}
 
 	// endregion

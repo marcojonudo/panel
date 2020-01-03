@@ -75,10 +75,7 @@ export class AssignedDropzone implements Dropzone {
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
 		*  desplazamiento */
 		setTimeout(
-			() => {
-				this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
-				// this.cardsService.updateAppointmentsPanel(group);
-			},
+			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
 			Constants.VALUE.CARD_MOVEMENT_DURATION
 		);
 	}
