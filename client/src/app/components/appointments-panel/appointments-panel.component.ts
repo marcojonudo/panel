@@ -53,10 +53,22 @@ export class AppointmentsPanelComponent implements OnInit {
 		return Constants.SCHEDULE_TYPE.AFTERNOON;
 	}
 
+	get morningAppointmentSaturation(): number {
+		return Constants.APPOINTMENT_SATURATION.MORNING;
+	}
+
+	get afternoonAppointmentSaturation(): number {
+		return Constants.APPOINTMENT_SATURATION.AFTERNOON;
+	}
+
 	// endregion
 
 	findDayAppointmentsCounter(day: Date): any {
 		return this.daysAppointmentsCounter[day.getTime()];
+	}
+
+	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
+		return appointments > Math.round(max * appointmentSaturation);
 	}
 
 	addMax(appointmentDay: AppointmentDay): void {

@@ -11,10 +11,20 @@
 		<tbody>
 			<tr *ngFor="let item of findDayAppointmentsCounter(day) | keyvalue">
 				<th scope="row">{{item.key}}</th>
-				<td>{{item.value.morning}}</td>
-				<td>{{item.value.afternoon}}</td>
+				<td
+					[ngClass]="{'red-background': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
+					{{item.value.morning}}
+				</td>
+				<td
+					[ngClass]="{'red-background': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">
+					{{item.value.afternoon}}
+				</td>
 				<td class="d-flex">
-					<div class="flex-grow-1 flex-basis-0 align-center">{{item.value.total}}</div>
+					<div
+						class="h-100 flex-grow-1 flex-basis-0 align-center"
+						[ngClass]="{'red-background': checkSaturation(item.value.total, item.value.max)}">
+						{{item.value.total}}
+					</div>
 					<div class="w-25 h-100 d-flex flex-column border-left">
 						<div class="h-25 appointment-number-icon align-center" (click)="addMax(item.value)">
 							<i class="fas fa-chevron-up"></i>
