@@ -7,8 +7,7 @@
 		*ngFor="let card of cardsGroup.cards"
 		[card]="card"
 		[width]="card.width"
-		[linkedNextId]="card.linkedNextId"
-		[possibleLinkedNextId]="card.possibleLinkedNextId"
-		[possibleLinkedPreviousId]="card.possibleLinkedPreviousId"></app-card>
+		[possibleLinkedNext]="card.possibleLinkedNext"
+		[possibleLinkedPrevious]="card.possibleLinkedPrevious"></app-card>
 </div>
 <div>{{check()}}</div>

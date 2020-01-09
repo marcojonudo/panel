@@ -6,7 +6,7 @@ export class CardsGroup {
 
 	private _cards: Card[];
 
-	private _id: number;
+	private _id: string;
 
 	private _type: string;
 	private _status: string;
@@ -22,7 +22,7 @@ export class CardsGroup {
 
 	constructor(cards: Card[], left: number = undefined) {
 		this.cards = cards;
-		this.id = this.cards[0].id;
+		this.id = this.cards[0].panelId;
 		this.type = this.cards[0].type;
 		this.status = this.cards[0].status;
 		this.start = this.cards[0].start;
@@ -41,11 +41,11 @@ export class CardsGroup {
 		this._cards = value;
 	}
 
-	get id(): number {
+	get id(): string {
 		return this._id;
 	}
 
-	set id(value: number) {
+	set id(value: string) {
 		this._id = value;
 	}
 
@@ -141,7 +141,7 @@ export class CardsGroup {
 
 	removeCards(fromIndex, toIndex): void {
 		this.cards.splice(fromIndex, toIndex);
-		this.id = this.cards[0].id;
+		this.id = this.cards[0].panelId;
 		this.end = this.cards[this.cards.length-1].end;
 	}
 

@@ -177,7 +177,7 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.cdRef.detectChanges();
 	}
 
-	checkHideGroup(groupId: number): boolean {
+	checkHideGroup(groupId: string): boolean {
 		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 

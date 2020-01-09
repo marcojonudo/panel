@@ -16,11 +16,11 @@ export class Order {
 		this.number = order.number;
 		this.code = order.code;
 		this.state = order.state;
-		this.day = UtilsService.parseDateFromLong(order.day);
+		this.day = order.day ? UtilsService.parseDateFromLong(order.day) : undefined;
 		this.creatorCode = order.creatorCode;
-		this.created = UtilsService.parseTimeFromString(order.created);
+		this.created = order.created ? UtilsService.parseTimeFromString(order.created) : undefined;
 		this.deadline = order.deadline ? UtilsService.parseTimeFromString(order.deadline) : undefined;
-		this.lines = order.lines.map(line => new OrderLine(line));
+		this.lines = order.lines ? order.lines.map(line => new OrderLine(line)) : [];
 	}
 
 }

@@ -2,6 +2,7 @@ package panel.clients.panel
 
 import groovy.transform.CompileStatic
 import io.micronaut.core.convert.format.Format
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import panel.utils.Constants
@@ -51,7 +52,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<Card> deleteCards(@Body List<Long> ids)
 
 	@Put("/cards/position")
-	List<Map> updateCardsPosition(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	HttpResponse<Void> updateCardsPosition(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
 	@Put("/cards/duration")
 	List<Map> updateCardDuration(@Header String sessionId, @Body List<Map<String, Object>> cards)

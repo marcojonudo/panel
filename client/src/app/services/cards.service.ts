@@ -144,7 +144,6 @@ export class CardsService {
 		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
 		console.log('Assigned cards groups', this.assignedCardsGroups);
 		console.log('Assigned days cards groups', this.assignedDaysCardsGroups);
-		console.log('Cards quarters saturation', );
 	}
 
 	private initUnassignedCardsGroups(unassignedCards: Card[]): CardsGroup[] {
@@ -179,7 +178,7 @@ export class CardsService {
 		let groups: CardsGroup[] = [];
 		let processedCards = [];
 		for (let card of assignedCards) {
-			const alreadyProcessedCard = processedCards.find(c => c.id == card.id);
+			const alreadyProcessedCard = processedCards.find((c: Card) => c.panelId == card.panelId);
 			if (!alreadyProcessedCard) {
 				const linkedCards = this.findAllLinkedCards(assignedCards, card);
 				groups.push(new CardsGroup(UtilsService.sort(linkedCards, (c) => c.start)));
@@ -192,11 +191,6 @@ export class CardsService {
 
 	private findAllLinkedCards(cards: Card[], card: Card): Card[] {
 		return this.findPreviousCards(cards, card, [card]).concat(this.findNextCards(cards, card));
-	}
-
-	buildPanelId(cards: Card[], card: Card): string {
-		const dividedIndex = this.findDividedCardIndex(cards, card);
-		return `${card.order.code}-${card.group.code}-${dividedIndex}`;
 	}
 
 	// endregion
@@ -349,7 +343,7 @@ export class CardsService {
 
 	handleCardDurationUpdate(card: Card, widthIncrease: number, mechanic: Mechanic): Card[] {
 		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
-		const group = this.findCardGroup(this.findLineGroups(card.day, card.mechanicCode, card.line), card.id);
+		const group = this.findCardGroup(this.findLineGroups(card.day, card.mechanicCode, card.line), card.panelId);
 
 		/* Si la ficha se está reduciendo, no es necesario hacer comprobaciones relativas a los límites del horario
 		*  u otros grupos desplazados, ya que no los afectaría */
@@ -393,8 +387,8 @@ export class CardsService {
 
 	updateDurationProperties(card: Card, group: CardsGroup, widthIncrease: number, durationIncrease: number): void {
 		card.setWidth(widthIncrease, durationIncrease);
-		group.cards.forEach(c => {
-			if (c.id != card.id && c.start > card.start) {
+		group.cards.forEach((c: Card) => {
+			if (c.panelId != card.panelId && c.start > card.start) {
 				c.start = UtilsService.addMinutes(c.start, durationIncrease);
 				c.end = UtilsService.addMinutes(c.start, c.duration);
 			}
@@ -487,13 +481,13 @@ export class CardsService {
 	findLeftNextCard(card: Card): Card {
 		return card.start ?
 			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
-			this.findLeftUnassignedNextCard(card.id, card.type, card.status);
+			this.findLeftUnassignedNextCard(card.panelId, card.type, card.status);
 	}
 
 	findRightNextCard(card: Card): Card {
 		return card.start ?
 			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
-			this.findRightUnassignedNextCard(card.id, card.type, card.status);
+			this.findRightUnassignedNextCard(card.panelId, card.type, card.status);
 	}
 
 	// endregion
@@ -514,10 +508,10 @@ export class CardsService {
 
 		/* Se obtienen los grupos de la línea o sin asignar, y a continuación el grupo al que pertence la ficha */
 		const cardsGroups = findGroups();
-		const group = this.findCardGroup(cardsGroups, card.id);
+		const group = this.findCardGroup(cardsGroups, card.panelId);
 
 		/* Se actualizan las propiedades de las fichas */
-		const cardIndex = group.cards.findIndex(c => c.id == card.id);
+		const cardIndex = group.cards.findIndex(c => c.panelId == card.panelId);
 		let offset = this.updateLinks(card, group, cardIndex, direction);
 
 		/* Se definen los nuevos grupos, tanto el nuevo como la actualización de fichas del antiguo */
@@ -543,12 +537,12 @@ export class CardsService {
 	updateLinks(card: Card, group: CardsGroup, cardIndex: number, direction: string): number {
 		let offset;
 		if (direction == Constants.NEXT_CARD_DIRECTION.RIGHT) {
-			card.linkedNextId = undefined;
-			group.cards[cardIndex + 1].linkedPreviousId = undefined;
+			card.linkedNext = undefined;
+			group.cards[cardIndex + 1].linkedPrevious = undefined;
 			offset = 1;
 		} else {
-			card.linkedPreviousId = undefined;
-			group.cards[cardIndex - 1].linkedNextId = undefined;
+			card.linkedPrevious = undefined;
+			group.cards[cardIndex - 1].linkedNext = undefined;
 			offset = 0;
 		}
 		return offset;
@@ -565,11 +559,11 @@ export class CardsService {
 		}
 
 		const groups = findGroups();
-		const group = this.findCardGroup(groups, card.id);
+		const group = this.findCardGroup(groups, card.panelId);
 		const leftGroup = this.findLeftGroup(groups, group.id);
 
-		leftGroup.cards[leftGroup.cards.length - 1].linkedNextId = card.id;
-		card.linkedPreviousId = leftGroup.cards[leftGroup.cards.length - 1].id;
+		leftGroup.cards[leftGroup.cards.length - 1].linkedNext = card;
+		card.linkedPrevious = leftGroup.cards[leftGroup.cards.length - 1];
 
 		const lastLeftGroupCardIndex = leftGroup.cards.length - 1;
 		leftGroup.addCards(group.cards);
@@ -590,11 +584,11 @@ export class CardsService {
 			handleUpdate = (group) => this.handleRemoveUnassignedCardsGroup(group)
 		}
 		const groups = findGroups();
-		const group = this.findCardGroup(groups, card.id);
+		const group = this.findCardGroup(groups, card.panelId);
 		const rightGroup = this.findRightGroup(groups, group.id);
 
-		rightGroup.cards[0].linkedPreviousId = card.id;
-		card.linkedNextId = rightGroup.cards[0].id;
+		rightGroup.cards[0].linkedPrevious = card;
+		card.linkedNext = rightGroup.cards[0];
 
 		const lastGroupCardIndex = group.cards.length - 1;
 		group.addCards(rightGroup.cards);
@@ -630,13 +624,13 @@ export class CardsService {
 		return section.findGroups();
 	}
 
-	findCardGroup(groups: CardsGroup[], cardId: number): CardsGroup {
-		return groups.find(group => group.cards.find(card => card.id == cardId) != undefined);
+	findCardGroup(groups: CardsGroup[], cardPanelId: string): CardsGroup {
+		return groups.find(group => group.cards.find(card => card.panelId == cardPanelId) != undefined);
 	}
 
 	private findPreviousCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
-		if (card.linkedPreviousId) {
-			const previousCard = cards.find(c => c.id == card.linkedPreviousId);
+		if (card.linkedPrevious) {
+			const previousCard = cards.find((c: Card) => c.panelId == card.linkedPrevious.panelId);
 			linkedCards.push(previousCard);
 			this.findPreviousCards(cards, previousCard, linkedCards);
 		}
@@ -644,8 +638,8 @@ export class CardsService {
 	}
 
 	private findNextCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
-		if (card.linkedNextId) {
-			const nextCard = cards.find(c => c.id == card.linkedNextId);
+		if (card.linkedNext) {
+			const nextCard = cards.find((c: Card) => c.panelId == card.linkedNext.panelId);
 			linkedCards.push(nextCard);
 			this.findNextCards(cards, nextCard, linkedCards);
 		}
@@ -670,12 +664,6 @@ export class CardsService {
 		}
 	}
 
-	private cardInGroup(cards: Card[], card: Card): boolean {
-		return cards.find(groupCard =>
-			groupCard.linkedPreviousId == card.id || groupCard.linkedNextId == card.id
-		) != undefined;
-	}
-
 	// endregion
 
 	// region Link handlers checks
@@ -686,11 +674,11 @@ export class CardsService {
 		const rightGroup = this.findRightAssignedGroup(groups, end);
 
 		if (leftGroup) {
-			leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNextId =
-				!leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNextId;
+			leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNext =
+				!leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNext;
 		}
 		if (rightGroup) {
-			rightGroup.cards[0].possibleLinkedPreviousId = !rightGroup.cards[0].possibleLinkedPreviousId;
+			rightGroup.cards[0].possibleLinkedPrevious = !rightGroup.cards[0].possibleLinkedPrevious;
 		}
 	}
 
@@ -699,8 +687,8 @@ export class CardsService {
 		const orderGroups = this.findOrderGroups(groups, orderNumber);
 		orderGroups.forEach(group => {
 			group.cards.forEach(card => {
-				card.possibleLinkedPreviousId = !card.possibleLinkedPreviousId;
-				card.possibleLinkedNextId = !card.possibleLinkedNextId;
+				card.possibleLinkedPrevious = !card.possibleLinkedPrevious;
+				card.possibleLinkedNext = !card.possibleLinkedNext;
 			});
 		});
 	}
@@ -758,7 +746,7 @@ export class CardsService {
 	}
 
 	findDividedCardIndex(previousCards: Card[], card: Card, index: number = 0): number {
-		const dividedPreviousCard = previousCards.find(c => c.id == card.dividedPreviousId);
+		const dividedPreviousCard = previousCards.find((c: Card) => c.panelId == card.dividedPrevious.panelId);
 		if (dividedPreviousCard) {
 			return this.findDividedCardIndex(previousCards, dividedPreviousCard, ++index);
 		}
@@ -777,10 +765,10 @@ export class CardsService {
 		});
 	}
 
-	private findLeftUnassignedNextCard(id: number, type: string, status: string): Card {
+	private findLeftUnassignedNextCard(panelId: string, type: string, status: string): Card {
 		const groups = this.findUnassignedGroups(type, status);
-		const group = this.findCardGroup(groups, id);
-		const cardIndex = group.cards.findIndex(card => card.id == id);
+		const group = this.findCardGroup(groups, panelId);
+		const cardIndex = group.cards.findIndex(card => card.panelId == panelId);
 		if (cardIndex > 0) {
 			return group.cards[cardIndex - 1];
 		} else {
@@ -789,10 +777,10 @@ export class CardsService {
 		}
 	}
 
-	private findRightUnassignedNextCard(id: number, type: string, status: string): Card {
+	private findRightUnassignedNextCard(panelId: string, type: string, status: string): Card {
 		const groups = this.findUnassignedGroups(type, status);
-		const group = this.findCardGroup(groups, id);
-		const cardIndex = group.cards.findIndex(card => card.id == id);
+		const group = this.findCardGroup(groups, panelId);
+		const cardIndex = group.cards.findIndex(card => card.panelId == panelId);
 		if (cardIndex < group.cards.length - 1) {
 			return group.cards[cardIndex + 1];
 		} else {
@@ -801,17 +789,17 @@ export class CardsService {
 		}
 	}
 
-	private findLeftOrderGroup(groups: CardsGroup[], groupId: number, orderNumber: number): CardsGroup {
+	private findLeftOrderGroup(groups: CardsGroup[], groupId: string, orderNumber: number): CardsGroup {
 		const group = this.findLeftGroup(groups, groupId);
 		return group && group.cards[0].order.number == orderNumber ? group : undefined;
 	}
 
-	private findRightOrderGroup(groups: CardsGroup[], groupId: number, orderNumber: number): CardsGroup {
+	private findRightOrderGroup(groups: CardsGroup[], groupId: string, orderNumber: number): CardsGroup {
 		const group = this.findRightGroup(groups, groupId);
 		return group && group.cards[0].order.number == orderNumber ? group : undefined;
 	}
 
-	private findLeftGroup(groups: CardsGroup[], groupId): CardsGroup {
+	private findLeftGroup(groups: CardsGroup[], groupId: string): CardsGroup {
 		const groupIndex = groups.findIndex(g => g.id == groupId);
 		return groupIndex > -1 && groupIndex > 0 ? groups[groupIndex - 1] : undefined;
 	}
@@ -835,10 +823,10 @@ export class CardsService {
 
 	private sortLinkedCards(cards: Card[]): Card[] {
 		cards.sort((a, b) => {
-			if (!a.linkedPreviousId || !b.linkedNextId) {
+			if (!a.linkedPrevious || !b.linkedNext) {
 				return -1
 			}
-			else if (!a.linkedNextId || !b.linkedPreviousId) {
+			else if (!a.linkedNext || !b.linkedPrevious) {
 				return 1
 			}
 			return 0;

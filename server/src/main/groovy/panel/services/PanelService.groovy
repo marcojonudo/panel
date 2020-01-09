@@ -186,10 +186,14 @@ class PanelService {
 		List<Card> ordersCards = []
 		durationGroupsUnits.each { Integer orderNumber, List<GroupUnits> groupsUnits ->
 			Order order = orders.find { it.number == orderNumber }
+			List<Card> orderCards = []
 			if (groupsUnits.duration) {
 				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
-					ordersCards << new Card(order, groupUnits.group, groupUnits.units[0], groupUnits.duration)
+					Card card = new Card(order, groupUnits.group, groupUnits.units[0], groupUnits.duration)
+					orderCards << card
 				}
+				orderCards.sort { it.group.color.order }
+				ordersCards = ordersCards + orderCards
 			} else {
 				LOG.warn("Duration not found for group: ${groupsUnits.group.code}")
 			}
@@ -425,11 +429,12 @@ class PanelService {
 	List<Card> saveCards(UpdateCards updateCards) {
 		List<Card> cards = []
 		if (updateCards.newCards) {
-			cards = panelDatabaseClient.createCards(updateCards.newCards)
+			panelDatabaseClient.createCards(updateCards.newCards)
 			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
 			* para poder relacionar los IDS enlazados */
-			relateCardsIds(cards)
-			panelDatabaseClient.updateCardsLinks("", cards.collect { it.properties })
+			relateCards(updateCards.newCards)
+			panelDatabaseClient.updateCardsLinks("", updateCards.newCards.collect { it.properties })
+			cards += updateCards.newCards
 		}
 		if (updateCards.updatedCards) {
 			cards += panelDatabaseClient.updateCards(updateCards.updatedCards)
@@ -444,11 +449,15 @@ class PanelService {
 	 * Relate linked cards IDs once the cards where saved in DB
 	 * @param cards List of recently created cards
 	 */
-	static void relateCardsIds(List<Card> cards) {
+	static void relateCards(List<Card> cards) {
 		cards.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
-			orderCards.sort { it.group.color.order }.eachWithIndex { Card card, int i ->
-				card.linkedPreviousId = i > 0 && orderCards[i-1].order.number == card.order.number ? orderCards[i-1].id : (Long) null
-				card.linkedNextId = i < orderCards.size()-1 && orderCards[i+1].order.number == card.order.number ? orderCards[i+1].id : (Long) null
+			orderCards.eachWithIndex { Card card, int i ->
+				if (i != 0) {
+					card.linkedPrevious = orderCards[i-1]
+				}
+				if (i != orderCards.size() - 1) {
+					card.linkedNext = orderCards[i+1]
+				}
 			}
 		}
 	}

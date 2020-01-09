@@ -90,8 +90,8 @@ export class RealTimeService {
 		/* Si se mueve un grupo con varias fichas, para cada una de ellas se actualizaría la posición del grupo. Para
 		*  evitarlo, se almacenan los grupos ya procesados para no volver a hacerlo */
 		const processedGroups = [];
-		cards.forEach(card => {
-			const group = this.cardsService.findCardGroup(allGroups, card.id);
+		cards.forEach((card: Card) => {
+			const group = this.cardsService.findCardGroup(allGroups, card.panelId);
 			if (group && processedGroups.indexOf(group) == -1) {
 				/* Se elimina el grupo del origen */
 				if (lastAssigned) {
@@ -132,13 +132,13 @@ export class RealTimeService {
 		*  esta */
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 
-		let updatedDurationCard = undefined;
+		let updatedDurationCard: Card = undefined;
 		let updatedDurationGroup = undefined;
 		const translatedCards = [];
-		cards.forEach(card => {
-			const group = this.cardsService.findCardGroup(allGroups, card.id);
-			const updatedDurationGroupCard = group.cards.find(c => {
-				const receivedCard = cards.find(receivedCard => receivedCard.id == c.id);
+		cards.forEach((card: Card) => {
+			const group = this.cardsService.findCardGroup(allGroups, card.panelId);
+			const updatedDurationGroupCard = group.cards.find((c: Card) => {
+				const receivedCard = cards.find((receivedCard: Card) => receivedCard.panelId == c.panelId);
 				return receivedCard.duration != c.duration;
 			});
 			if (updatedDurationGroupCard) {
@@ -151,7 +151,7 @@ export class RealTimeService {
 			}
 		});
 
-		const receivedUpdatedDurationCard = cards.find(c => c.id == updatedDurationCard.id);
+		const receivedUpdatedDurationCard = cards.find((c: Card) => c.panelId == updatedDurationCard.panelId);
 		const durationDiff = receivedUpdatedDurationCard.duration - updatedDurationCard.duration;
 		const widthDiff = DimensionsService.calcWidthFromDuration(durationDiff);
 		this.cardsService.updateDurationProperties(updatedDurationCard, updatedDurationGroup, widthDiff, durationDiff);
@@ -166,14 +166,14 @@ export class RealTimeService {
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 
 		/* Si la ficha de la izquierda tiene linkedNextId, significa que ambas se están enlazando */
-		if (cards[0].linkedNextId) {
-			const card = this.cardsService.findCardGroup(allGroups, cards[0].id).cards.find(c => {
-				return c.id == cards[0].id
+		if (cards[0].linkedNext) {
+			const card = this.cardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
+				return c.panelId == cards[0].panelId
 			});
 			this.cardsService.linkNext(card, false);
 		} else {
-			const card = this.cardsService.findCardGroup(allGroups, cards[0].id).cards.find(c => {
-				return c.id == cards[0].id
+			const card = this.cardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
+				return c.panelId == cards[0].panelId
 			});
 			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, false);
 		}

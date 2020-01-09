@@ -37,14 +37,14 @@
 				id="left-link-handler"
 				class="fas fa-magnet"
 				*ngIf="checkShowLeftLinkHandler(card)"
-				[ngClass]="card.linkedPreviousId ? 'fa-rotate-270' : 'fa-rotate-90'"></i>
+				[ngClass]="card.linkedPrevious ? 'fa-rotate-270' : 'fa-rotate-90'"></i>
 		</div>
 		<div (click)="handleLinkNext(card)">
 			<i
 				id="right-link-handler"
 				class="fas fa-magnet"
 				*ngIf="checkShowRightLinkHandler(card)"
-				[ngClass]="card.linkedNextId ? 'fa-rotate-90' : 'fa-rotate-270'"></i>
+				[ngClass]="card.linkedNext ? 'fa-rotate-90' : 'fa-rotate-270'"></i>
 		</div>
 	</div>
 	<div appResizableCard [card]="card" class="h-100 resizable-card-handler cursor-resize ml-auto"></div>

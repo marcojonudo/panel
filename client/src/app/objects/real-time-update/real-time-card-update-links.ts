@@ -9,7 +9,7 @@ export class RealTimeCardUpdateLinks extends RealTimeUpdate {
 
 	constructor(cardsService: CardsService, cards: any[]) {
 		super();
-		this.cards = cards.map(c => new Card(c, cardsService.buildPanelId(cards, c), false));
+		this.cards = cards.map(c => new Card(c, false));
 	}
 
 	update(realTimeService: RealTimeService): void {

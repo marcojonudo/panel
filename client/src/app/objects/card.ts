@@ -6,7 +6,6 @@ import {Vehicle} from "./vehicle";
 
 export class Card {
 
-	id: number;
 	panelId: string;
 	day: Date;
 	lastDay: Date;
@@ -34,17 +33,18 @@ export class Card {
 
 	vehicle: Vehicle;
 
-	linkedNextId: number;
-	linkedPreviousId: number;
+	linkedNext: Card;
+	linkedPrevious: Card;
 
-	dividedPreviousId: number;
-	dividedNextId: number;
+	dividedPrevious: Card;
+	dividedNext: Card;
 
-	possibleLinkedNextId: boolean;
-	possibleLinkedPreviousId: boolean;
+	divisionIndex: number;
 
-	constructor(card: any, panelId: string, initialLoad: boolean = true) {
-		this.id = card.id;
+	possibleLinkedNext: boolean;
+	possibleLinkedPrevious: boolean;
+
+	constructor(card: any, initialLoad: boolean = true) {
 		this.type = card.type;
 		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;
 		this.status = card.status;
@@ -55,13 +55,14 @@ export class Card {
 		this.line = card.line;
 		this.group = new Group(card.group);
 		this.order = new Order(card.order);
-		this.client = new Client(card.client);
-		this.vehicle = new Vehicle(card.vehicle);
-		this.linkedPreviousId = card.linkedPreviousId;
-		this.linkedNextId = card.linkedNextId;
-		this.dividedPreviousId = card.dividedPreviousId;
-		this.dividedNextId = card.dividedNextId;
-		this.panelId = panelId;
+		this.client = card.client ? new Client(card.client) : undefined;
+		this.vehicle = card.vehicle ? new Vehicle(card.vehicle) : undefined;
+		this.linkedPrevious = card.linkedPrevious ? new Card(card.linkedPrevious) : undefined;
+		this.linkedNext = card.linkedNext ? new Card(card.linkedNext) : undefined;
+		this.dividedPrevious = card.dividedPrevious ? new Card(card.dividedPrevious) : undefined;
+		this.dividedNext = card.dividedNext ? new Card(card.dividedNext) : undefined;
+		this.divisionIndex = card.divisionIndex;
+		this.panelId = this.buildPanelId();
 
 		this.lastDay = card.lastDay ? UtilsService.parseDateFromLong(card.lastDay) : initialLoad ? this.day : undefined;
 		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : initialLoad ? this.mechanicCode : undefined;
@@ -99,6 +100,10 @@ export class Card {
 	setLine(line: number): void {
 		this.lastLine = this.line;
 		this.line = line;
+	}
+
+	buildPanelId(): string {
+		return `${this.order.code}-${this.group.code}-${this.divisionIndex}`;
 	}
 
 }

@@ -2319,11 +2319,11 @@ class PanelServiceSpec extends Specification {
 		]
 
 		when:
-		panelService.relateCardsIds(cards)
+		panelService.relateCards(cards)
 
 		then:
-		!cards[0].linkedPreviousId
-		!cards[0].linkedNextId
+		!cards[0].linkedPrevious
+		!cards[0].linkedNext
 	}
 
 	void "test relate cards IDs different orders"() {
@@ -2334,13 +2334,13 @@ class PanelServiceSpec extends Specification {
 		]
 
 		when:
-		panelService.relateCardsIds(cards)
+		panelService.relateCards(cards)
 
 		then:
-		!cards[0].linkedPreviousId
-		!cards[0].linkedNextId
-		!cards[1].linkedPreviousId
-		!cards[1].linkedNextId
+		!cards[0].linkedPrevious
+		!cards[0].linkedNext
+		!cards[1].linkedPrevious
+		!cards[1].linkedNext
 	}
 
 	void "test relate cards IDs same order"() {
@@ -2351,13 +2351,13 @@ class PanelServiceSpec extends Specification {
 		]
 
 		when:
-		panelService.relateCardsIds(cards)
+		panelService.relateCards(cards)
 
 		then:
-		!cards[0].linkedPreviousId
-		cards[0].linkedNextId == 2
-		cards[1].linkedPreviousId == 1
-		!cards[1].linkedNextId
+		!cards[0].linkedPrevious
+		cards[0].linkedNext == 2
+		cards[1].linkedPrevious == 1
+		!cards[1].linkedNext
 	}
 
 	void "test relate cards IDs same order several cards rising order"() {
@@ -2370,17 +2370,17 @@ class PanelServiceSpec extends Specification {
 		]
 
 		when:
-		panelService.relateCardsIds(cards)
+		panelService.relateCards(cards)
 
 		then:
-		!cards[0].linkedPreviousId
-		cards[0].linkedNextId == 2
-		cards[1].linkedPreviousId == 1
-		cards[1].linkedNextId == 3
-		cards[2].linkedPreviousId == 2
-		cards[2].linkedNextId == 4
-		cards[3].linkedPreviousId == 3
-		!cards[3].linkedNextId
+		!cards[0].linkedPrevious
+		cards[0].linkedNext == 2
+		cards[1].linkedPrevious == 1
+		cards[1].linkedNext == 3
+		cards[2].linkedPrevious == 2
+		cards[2].linkedNext == 4
+		cards[3].linkedPrevious == 3
+		!cards[3].linkedNext
 	}
 
 	void "test relate cards IDs same order several cards random order"() {
@@ -2393,17 +2393,17 @@ class PanelServiceSpec extends Specification {
 		]
 
 		when:
-		panelService.relateCardsIds(cards)
+		panelService.relateCards(cards)
 
 		then:
-		cards[0].linkedPreviousId == 4
-		!cards[0].linkedNextId
-		cards[1].linkedPreviousId == 3
-		cards[1].linkedNextId == 4
-		!cards[2].linkedPreviousId
-		cards[2].linkedNextId == 2
-		cards[3].linkedPreviousId == 2
-		cards[3].linkedNextId == 1
+		cards[0].linkedPrevious == 4
+		!cards[0].linkedNext
+		cards[1].linkedPrevious == 3
+		cards[1].linkedNext == 4
+		!cards[2].linkedPrevious
+		cards[2].linkedNext == 2
+		cards[3].linkedPrevious == 2
+		cards[3].linkedNext == 1
 	}
 
 	// endregion

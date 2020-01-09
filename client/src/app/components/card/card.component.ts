@@ -1,5 +1,5 @@
 import {
-	ChangeDetectionStrategy, ChangeDetectorRef,
+	ChangeDetectionStrategy,
 	Component,
 	Input,
 } from '@angular/core';
@@ -17,9 +17,8 @@ export class CardComponent {
 
 	@Input() card: Card;
 	@Input() width: number;
-	@Input() linkedNextId: number;
-	@Input() possibleLinkedNextId: boolean;
-	@Input() possibleLinkedPreviousId: boolean;
+	@Input() possibleLinkedNext: boolean;
+	@Input() possibleLinkedPrevious: boolean;
 
 	private readonly CARD_STATE_COLOR: any;
 
@@ -48,12 +47,12 @@ export class CardComponent {
 	}
 
 	handleLinkPrevious(card: Card): void {
-		card.linkedPreviousId ?
+		card.linkedPrevious ?
 			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.LEFT) : this.cardsService.linkPrevious(card);
 	}
 
 	handleLinkNext(card: Card): void {
-		card.linkedNextId ?
+		card.linkedNext ?
 			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT) : this.cardsService.linkNext(card);
 	}
 
@@ -61,7 +60,7 @@ export class CardComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking card', this.card, this.possibleLinkedNextId);
+			console.log('checking card', this.card, this.possibleLinkedNext);
 		}
 	}
 

@@ -45,7 +45,7 @@ export class AppComponent implements AfterViewInit {
 				this.mechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
 				this.cardsService.init(
-					data.cards.map(card => new Card(card, this.cardsService.buildPanelId(data.cards, card))),
+					data.cards.map(card => new Card(card, data.cards)),
 					this.mechanicsService.daysMechanics
 				);
 

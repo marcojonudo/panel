@@ -11,10 +11,10 @@ export class Group {
 
 	constructor(group: any) {
 		this.code = group.code;
-		this.color = new GroupColor(group.color);
+		this.color = group.color ? new GroupColor(group.color) : undefined;
 		this.name = group.name;
 		this.shortName = group.shortName;
-		this.appointmentType = new AppointmentType(group.appointmentType);
+		this.appointmentType = group.appointmentType ? new AppointmentType(group.appointmentType) : undefined;
 	}
 
 }
