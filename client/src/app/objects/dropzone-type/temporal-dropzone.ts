@@ -10,12 +10,12 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {UtilsService} from "../../services/utils.service";
 
-export class TemporalDropzone implements Dropzone {
+export class AuxiliaryDropzone implements Dropzone {
 
 	cardsService: CardsService;
 	appointmentsService: AppointmentsService;
 
-	type: string = Constants.DROPZONE_TYPE.TEMPORAL;
+	type: string = Constants.DROPZONE_TYPE.AUXILIARY;
 	subType: string;
 	mechanic: Mechanic;
 	rect: any;

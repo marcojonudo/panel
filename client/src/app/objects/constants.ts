@@ -68,14 +68,14 @@ export class Constants {
 		STEP_45: 45,
 	};
 	public static readonly CARD_TYPE: any = {
-		TEMPORAL: 'TEMPORAL',
+		AUXILIARY: 'AUXILIARY',
 		APPOINTMENT: 'APPOINTMENT',
 		TODAY: 'TODAY',
 		PENDING: 'PENDING'
 	};
 	public static readonly CARD_STATUS: any = {
 		DEFAULT: 'DEFAULT',
-		TEMPORAL: 'TEMPORAL',
+		AUXILIARY: 'AUXILIARY',
 		FINISHED: 'FINISHED'
 	};
 	public static readonly DROPZONE_TYPE: any = {
@@ -83,9 +83,13 @@ export class Constants {
 		UNASSIGNED: 'UNASSIGNED',
 		UNASSIGNED_FINISHED: 'UNASSIGNED_FINISHED',
 		FINISH: 'FINISH',
-		TEMPORAL: 'TEMPORAL'
+		AUXILIARY: 'AUXILIARY'
 	};
-	public static readonly TEMPORAL_DEFAULT_ORDER_CODE: string = "Fx";
+	public static readonly CARD_TYPE_BACKGROUND: any = {
+		DEFAULT: '#FFFFFF',
+		AUXILIARY: '#FFE4AA'
+	};
+	public static readonly AUXILIARY_DEFAULT_ORDER_CODE: string = "Fx";
 	public static readonly APPOINTMENT_COUNTER_TOTAL: string = "total";
 	public static readonly APPOINTMENT_CARD_TYPE_ID: string = "C";
 	public static readonly HOUR_MINUTES: number = 60;

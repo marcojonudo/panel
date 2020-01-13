@@ -1745,8 +1745,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card same fields"() {
 		given:
-		Card builtCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.TEMPORAL, vehicle: [brand: 'FV'])
-		Card dayCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.TEMPORAL, vehicle: [brand: 'FV'])
+		Card builtCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV'])
+		Card dayCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV'])
 
 		when:
 		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)

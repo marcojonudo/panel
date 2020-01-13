@@ -132,13 +132,13 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	get temporalType(): string {
-		return Constants.CARD_TYPE.TEMPORAL;
+		return Constants.CARD_TYPE.AUXILIARY;
 	}
 
 	// endregion
 
-	checkTemporalSection(section: UnassignedSection = this.section): boolean {
-		return section.name == Constants.CARD_TYPE.TEMPORAL;
+	checkAuxiliarySection(section: UnassignedSection = this.section): boolean {
+		return section.name == Constants.CARD_TYPE.AUXILIARY;
 	}
 
 	checkFinishedSection(section: UnassignedSection = this.section): boolean {
@@ -164,7 +164,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	checkHideGroup(sectionName: string, groupId: string): boolean {
-		return sectionName != Constants.CARD_TYPE.TEMPORAL
+		return sectionName != Constants.CARD_TYPE.AUXILIARY
 			&& CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 

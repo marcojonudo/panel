@@ -3,7 +3,7 @@
 		<button (click)="setSection(todayType)" class="btn btn-danger align-center padding-0">En curso</button>
 		<button (click)="setSection(appointmentType)" class="btn btn-primary align-center padding-0">Cita previa</button>
 		<button (click)="setSection(pendingType)" class="btn btn-success align-center padding-0">Pendientes</button>
-		<button (click)="setSection(temporalType)" class="btn btn-warning align-center padding-0">Temporales</button>
+		<button (click)="setSection(temporalType)" class="btn btn-warning align-center padding-0">Auxiliares</button>
 	</div>
 	<div *ngIf="checkFinishedSection()" class="d-flex">
 		<button class="btn btn-danger align-center padding-0">Finalizadas</button>

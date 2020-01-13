@@ -36,6 +36,10 @@ export class CardComponent {
 		return this.CARD_STATE_COLOR[state];
 	}
 
+	findBackground(type: string): string {
+		return Constants.CARD_TYPE_BACKGROUND[type] || Constants.CARD_TYPE_BACKGROUND['DEFAULT'];
+	}
+
 	// region Link handlers
 
 	checkShowLeftLinkHandler(card: Card): boolean {

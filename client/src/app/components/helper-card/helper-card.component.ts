@@ -23,6 +23,10 @@ export class HelperCardComponent {
 		};
 	}
 
+	findBackground(type: string): string {
+		return Constants.CARD_TYPE_BACKGROUND[type] || Constants.CARD_TYPE_BACKGROUND['DEFAULT'];
+	}
+
 	getOrderStateColor(state: string): string {
 		return this.CARD_STATE_COLOR[state];
 	}

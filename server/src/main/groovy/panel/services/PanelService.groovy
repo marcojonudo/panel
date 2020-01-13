@@ -59,10 +59,10 @@ class PanelService {
 		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 		List<Card> dbCards = panelDatabaseClient.getCards(day)
-		List<Card> temporalCards = dbCards.findAll { checkTemporalCard(it) }
-		List<Card> notTemporalCards = handleOrdersCards(orders, dbCards.findAll { !checkTemporalCard(it) })
+		List<Card> temporalCards = dbCards.findAll { checkAuxiliaryCard(it) }
+		List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
 
-		UpdateCards updateCards = syncOrders(orders, notTemporalCards)
+		UpdateCards updateCards = syncOrders(orders, notAuxiliaryCards)
 		List<Card> cards = saveCards(updateCards)
 
 		/* Una vez cargados los horarios definidos y las nuevas fichas para crear, se sincroniza la información de
@@ -84,8 +84,8 @@ class PanelService {
 		)
 	}
 
-	static boolean checkTemporalCard(Card card) {
-		return card.type == Card.CardType.TEMPORAL
+	static boolean checkAuxiliaryCard(Card card) {
+		return card.type == Card.CardType.AUXILIARY
 	}
 
 	// region Mechanics
@@ -393,7 +393,7 @@ class PanelService {
 	 */
 	static List<Card> getDeletedOrdersCards(List<Order> orders, List<Card> dbCards) {
 		List<Card> cardsToDelete = dbCards.findAll {
-			!(it.order.number in orders.number) && it.type != Card.CardType.TEMPORAL
+			!(it.order.number in orders.number) && it.type != Card.CardType.AUXILIARY
 		}
 		return cardsToDelete
 	}

@@ -1,6 +1,6 @@
 <div
 	class="h-100 panel-card resizable"
-	[style.width.px]="card.width">
+	[ngStyle]="{'width.px': card.width, 'background-color': findBackground(card.type)}">
 	<div class="h-100 d-flex flex-column">
 		<div class="flex-grow-1 flex-basis-0 d-flex">
 			<div class="flex-grow-1 flex-basis-0 align-center">

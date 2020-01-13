@@ -3,7 +3,7 @@ import {CardsService} from "../../services/cards.service";
 import {UnassignedSection} from "./unassigned-section";
 import {Constants} from "../constants";
 
-export class UnassignedTemporalSection implements UnassignedSection {
+export class UnassignedAuxiliarySection implements UnassignedSection {
 
 	cardsService: CardsService;
 	name: string;
@@ -12,11 +12,11 @@ export class UnassignedTemporalSection implements UnassignedSection {
 	constructor(cardsService: CardsService, name: string) {
 		this.cardsService = cardsService;
 		this.name = name;
-		this.dropzoneType = Constants.DROPZONE_TYPE.TEMPORAL;
+		this.dropzoneType = Constants.DROPZONE_TYPE.AUXILIARY;
 	}
 
 	findGroups(): CardsGroup[] {
-		return this.cardsService.unassignedTemporalCardsGroups;
+		return this.cardsService.unassignedAuxiliaryCardsGroups;
 	}
 
 }
