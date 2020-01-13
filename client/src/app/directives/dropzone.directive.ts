@@ -19,6 +19,9 @@ import {CardsService} from "../services/cards.service";
 import {FinishDropzone} from "../objects/dropzone-type/finish-dropzone";
 import {AppointmentsService} from "../services/appointments.service";
 import {NotificationService} from "../services/notification.service";
+import {UnassignedFinishedSection} from "../objects/unassigned-sections/unassigned-finished-section";
+import {UnassignedFinishedDropzone} from "../objects/dropzone-type/unassigned-finished-dropzone";
+import {TemporalDropzone} from "../objects/dropzone-type/temporal-dropzone";
 
 @Directive({
 	selector: '[appDropzone]'
@@ -53,6 +56,10 @@ export class DropzoneDirective implements OnInit {
 			() => new AssignedDropzone(this.cardsService, this.appointmentsService, this.mechanic);
 		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED] =
 			() => new UnassignedDropzone(this.cardsService, this.appointmentsService, this.subType);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED] =
+			() => new UnassignedFinishedDropzone(this.cardsService, this.appointmentsService, this.subType);
+		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.TEMPORAL] =
+			() => new TemporalDropzone(this.cardsService, this.appointmentsService, this.subType);
 		this.DROPZONE_TYPE[Constants.DROPZONE_TYPE.FINISH] =
 			() => new FinishDropzone(this.cardsService, this.appointmentsService);
 	}

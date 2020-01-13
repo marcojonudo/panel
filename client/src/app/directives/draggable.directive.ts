@@ -102,7 +102,9 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.initCoordinates(event);
 
 		/* Se envía el grupo para mostrar el helper en el overlay */
-		CardPositionService.setHelperGroup(this.cardsGroup);
+		CardPositionService.setHelperGroup(
+			this.cardsGroup.cards[0].type == Constants.CARD_TYPE.TEMPORAL ? this.cardsGroup.clone(true) : this.cardsGroup
+		);
 		/* Permite asignar o eliminar la clase que añade una transición al helper, para desplazarse a la posicíon
 		*  final */
 		NotificationService.notifyDragging(true);

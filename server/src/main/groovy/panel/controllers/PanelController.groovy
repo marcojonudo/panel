@@ -44,6 +44,11 @@ class PanelController {
 		return PanelPublisher.get()
 	}
 
+	@Post("/cards")
+	void createCards(@Header String sessionId, @Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.createCards(sessionId, cards)
+	}
+
 	@Put("/cards/position")
 	void updatePosition(@Header String sessionId, @Body List<Map<String, Object>> cards) {
 		panelDatabaseClient.updateCardsPosition(sessionId, cards)

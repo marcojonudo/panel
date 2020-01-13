@@ -27,7 +27,7 @@ interface PanelDatabaseApi {
 
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 
-	List<Card> createCards(@Body List<Card> cards)
+	List<Card> createCards(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
 	List<Card> updateCards(@Body List<Card> cards)
 

@@ -133,9 +133,12 @@ export class CardsGroup {
 		this.end = cards[cards.length-1].end;
 	}
 
-	clone(): CardsGroup {
+	clone(cloneCards: boolean = false): CardsGroup {
 		const newCardsGroup = new CardsGroup(this.cards);
 		newCardsGroup.left = this.left;
+		if (cloneCards) {
+			newCardsGroup.cards = this.cards.map((card: Card) => card.clone());
+		}
 		return newCardsGroup;
 	}
 

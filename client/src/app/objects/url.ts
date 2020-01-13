@@ -18,6 +18,10 @@ export class Url {
 		return `${environment.serverUrl}/panel/appointmentDay/counters`;
 	}
 
+	public static createCards(): string {
+		return `${environment.serverUrl}/panel/cards`;
+	}
+
 	public static cardsPosition(): string {
 		return `${environment.serverUrl}/panel/cards/position`;
 	}

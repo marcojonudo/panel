@@ -31,9 +31,7 @@ export class FinishDropzone implements Dropzone {
 		return [];
 	}
 
-	removeGroup(group: CardsGroup, validated: boolean): void {
-		this.cardsService.removeFromFinished(group);
-	}
+	removeGroup(group: CardsGroup, validated: boolean): void {}
 
 	findLastPosition(): Coordinates {
 		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */

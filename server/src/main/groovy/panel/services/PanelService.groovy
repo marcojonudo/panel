@@ -58,9 +58,11 @@ class PanelService {
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
 		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-		List<Card> dbCards = getCards(day, orders)
+		List<Card> dbCards = panelDatabaseClient.getCards(day)
+		List<Card> temporalCards = dbCards.findAll { checkTemporalCard(it) }
+		List<Card> notTemporalCards = handleOrdersCards(orders, dbCards.findAll { !checkTemporalCard(it) })
 
-		UpdateCards updateCards = syncOrders(orders, dbCards)
+		UpdateCards updateCards = syncOrders(orders, notTemporalCards)
 		List<Card> cards = saveCards(updateCards)
 
 		/* Una vez cargados los horarios definidos y las nuevas fichas para crear, se sincroniza la información de
@@ -78,8 +80,12 @@ class PanelService {
 				jobLineTypes,
 				appointmentTypes,
 				appointmentDays,
-				cards + updateCards.sameCards
+				cards + updateCards.sameCards + temporalCards
 		)
+	}
+
+	static boolean checkTemporalCard(Card card) {
+		return card.type == Card.CardType.TEMPORAL
 	}
 
 	// region Mechanics
@@ -99,13 +105,12 @@ class PanelService {
 
 	// region Get cards
 
-	List<Card> getCards(Date day, List<Order> orders) {
-		List<Card> dbCards = panelDatabaseClient.getCards(day)
-		dbCards.each { Card card ->
+	static List<Card> handleOrdersCards(List<Order> orders, List<Card> dbOrdersCards) {
+		dbOrdersCards.each { Card card ->
 			Order order = orders.find { it.number == card.order.number }
 			card.order.lines = order.lines
 		}
-		return dbCards
+		return dbOrdersCards
 	}
 
 	// endregion
@@ -388,7 +393,7 @@ class PanelService {
 	 */
 	static List<Card> getDeletedOrdersCards(List<Order> orders, List<Card> dbCards) {
 		List<Card> cardsToDelete = dbCards.findAll {
-			!(it.order.number in orders.number) && it.status != Card.Status.TEMPORAL
+			!(it.order.number in orders.number) && it.type != Card.CardType.TEMPORAL
 		}
 		return cardsToDelete
 	}
@@ -429,7 +434,7 @@ class PanelService {
 	List<Card> saveCards(UpdateCards updateCards) {
 		List<Card> cards = []
 		if (updateCards.newCards) {
-			panelDatabaseClient.createCards(updateCards.newCards)
+			panelDatabaseClient.createCards("", updateCards.newCards.collect { it.properties })
 			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
 			* para poder relacionar los IDS enlazados */
 			relateCards(updateCards.newCards)

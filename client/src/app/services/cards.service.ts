@@ -25,6 +25,7 @@ import {HourQuarters} from "../objects/hour-quarters";
 import {QuartersSaturation} from "../objects/quarters-saturation";
 import {QuarterSaturation} from "../objects/quarter-saturation";
 import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
+import {UnassignedTemporalSection} from "../objects/unassigned-sections/unassigned-temporal-section";
 
 @Injectable({
 	providedIn: 'root'
@@ -37,13 +38,12 @@ export class CardsService {
 
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
 	private _assignedCardsGroups: CardsGroup[];
+	private _unassignedTemporalCardsGroups: CardsGroup[];
 	private _finishedCardsGroups: CardsGroup[];
 	private _unassignedCardsGroups: CardsGroup[];
 	private _unassignedTypesCardsGroups: GroupedTypeCards;
 
 	private _unassignedSections: UnassignedSection[];
-
-	private _quartersSaturation: QuartersSaturation;
 
 	constructor(
 		private appointmentsService: AppointmentsService,
@@ -54,7 +54,8 @@ export class CardsService {
 			new UnassignedTypeSection(this, Constants.CARD_TYPE.TODAY),
 			new UnassignedTypeSection(this, Constants.CARD_TYPE.APPOINTMENT),
 			new UnassignedTypeSection(this, Constants.CARD_TYPE.PENDING),
-			new UnassignedFinishedSection(this, Constants.CARD_STATUS.FINISHED)
+			new UnassignedFinishedSection(this, Constants.CARD_STATUS.FINISHED),
+			new UnassignedTemporalSection(this, Constants.CARD_TYPE.TEMPORAL),
 		];
 	}
 
@@ -66,6 +67,14 @@ export class CardsService {
 
 	set unassignedCardsGroups(value: CardsGroup[]) {
 		this._unassignedCardsGroups = value;
+	}
+
+	get unassignedTemporalCardsGroups(): CardsGroup[] {
+		return this._unassignedTemporalCardsGroups;
+	}
+
+	set unassignedTemporalCardsGroups(value: CardsGroup[]) {
+		this._unassignedTemporalCardsGroups = value;
 	}
 
 	get finishedCardsGroups(): CardsGroup[] {
@@ -108,14 +117,6 @@ export class CardsService {
 		this._unassignedSections = value;
 	}
 
-	get quartersSaturation(): QuartersSaturation {
-		return this._quartersSaturation;
-	}
-
-	set quartersSaturation(value: QuartersSaturation) {
-		this._quartersSaturation = value;
-	}
-
 	// endregion
 
 	// region Init
@@ -123,9 +124,18 @@ export class CardsService {
 	init(cards: Card[], daysMechanics: DaysMechanics) {
 		this.cards = cards;
 
-		const finishedCards = this.cards.filter(card => card.status == Constants.CARD_STATUS.FINISHED);
-		const notFinishedCards = this.cards.filter(card => card.status != Constants.CARD_STATUS.FINISHED);
+		/* Se obtienen las fichas temporales que están sin asignar, que son las fichas base que se mostrarán para crear
+		*  fichas temporales */
+		const unassignedTemporalCards = this.cards.filter((card: Card) =>
+			card.type == Constants.CARD_TYPE.TEMPORAL && !card.day
+		);
+		const finishedCards = this.cards.filter((card: Card) => card.status == Constants.CARD_STATUS.FINISHED);
+		const notFinishedCards = this.cards.filter((card: Card) =>
+			card.status != Constants.CARD_STATUS.FINISHED
+				&& (card.type != Constants.CARD_TYPE.TEMPORAL || card.type == Constants.CARD_TYPE.TEMPORAL && card.day)
+		);
 
+		this.unassignedTemporalCardsGroups = this.initUnassignedCardsGroups(unassignedTemporalCards);
 		this.finishedCardsGroups = this.initAssignedCardsGroups(finishedCards);
 
 		this.unassignedCards = notFinishedCards.filter(card => !card.day);
@@ -139,6 +149,7 @@ export class CardsService {
 		// this.quartersSaturation = this.checkQuarterSaturation(UtilsService.clearTime(new Date()));
 
 		console.log('Cards', this.cards);
+		console.log('Temporal cards groups', this.unassignedTemporalCardsGroups);
 		console.log('Finished cards groups', this.finishedCardsGroups);
 		console.log('Unassigned cards groups', this.unassignedCardsGroups);
 		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
@@ -276,10 +287,17 @@ export class CardsService {
 		});
 
 		if (updateDb) {
-			this.http.put(
-				`${environment.serverUrl}/panel/cards/position`,
-				[].concat(...clonedGroups.map(g => g.cards))
-			).subscribe();
+			this.updateDbCardsPosition(clonedGroups);
+		}
+	}
+
+	updateDbCardsPosition(groups: CardsGroup[]): void {
+		const temporalCard = groups[0].cards[0].type == Constants.CARD_TYPE.TEMPORAL;
+		/* Si la ficha es temporal, se debe crear en base de datos */
+		if (temporalCard) {
+			this.http.post(Url.createCards(), [].concat(...groups.map(g => g.cards))).subscribe();
+		} else {
+			this.http.put(Url.cardsPosition(), [].concat(...groups.map(g => g.cards))).subscribe();
 		}
 	}
 
@@ -325,11 +343,12 @@ export class CardsService {
 		group.status = Constants.CARD_STATUS.DEFAULT;
 		group.line = line;
 
-		group.cards.forEach((card, index) => {
+		group.cards.forEach((card: Card, index: number) => {
 			card.setDay(day);
 			card.setMechanicCode(mechanicCode);
 			card.status = Constants.CARD_STATUS.DEFAULT;
 			card.setLine(line);
+			this.setOrderCode(card);
 
 			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setStart(
@@ -337,8 +356,28 @@ export class CardsService {
 				day
 			));
 		});
+
+		group.id = group.cards[0].panelId;
 		group.start = group.cards[0].start;
 		group.end = group.cards[group.cards.length - 1].end;
+	}
+
+	private setOrderCode(card: Card): void {
+		if (card.type == Constants.CARD_TYPE.TEMPORAL) {
+			if (card.order.code == Constants.TEMPORAL_DEFAULT_ORDER_CODE) {
+				const assignedTemporalGroups = this.assignedCardsGroups.filter((group: CardsGroup) =>
+					group.cards[0].type == Constants.CARD_TYPE.TEMPORAL
+				);
+				const currentIndex = assignedTemporalGroups.length
+					? +assignedTemporalGroups[assignedTemporalGroups.length - 1].cards[0].order.code.substring(1) : 0;
+				card.order.code = `${card.order.code.substring(0, 1)}${currentIndex+1}`;
+				card.panelId = CardsService.buildPanelId(card);
+			}
+		}
+	}
+
+	public static buildPanelId(card: Card): string {
+		return `${card.order.code}-${card.group.code}-${card.divisionIndex}`;
 	}
 
 	handleCardDurationUpdate(card: Card, widthIncrease: number, mechanic: Mechanic): Card[] {

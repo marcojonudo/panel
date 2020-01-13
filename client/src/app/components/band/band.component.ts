@@ -8,8 +8,6 @@ import {UnassignedCardUpdate} from "../../objects/update-cards/unassigned-card-u
 import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../../objects/grouped-type-cards";
 import {UnassignedSection} from "../../objects/unassigned-sections/unassigned-section";
-import {UnassignedTypeSection} from "../../objects/unassigned-sections/unassigned-type-section";
-import {UnassignedFinishedSection} from "../../objects/unassigned-sections/unassigned-finished-section";
 import {NotificationService} from "../../services/notification.service";
 
 @Component({
@@ -42,7 +40,6 @@ export class BandComponent implements OnInit, OnDestroy {
 	private _unassignedCardRelativeTop: number;
 	private _unassignedTypesCardsGroups: GroupedTypeCards;
 
-	private _cardSections: UnassignedSection[];
 	private _section: UnassignedSection;
 
 	private bandSubscription: Subscription;
@@ -53,14 +50,7 @@ export class BandComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
-
-		this.cardSections = [
-			new UnassignedTypeSection(this.cardsService, Constants.CARD_TYPE.TODAY),
-			new UnassignedTypeSection(this.cardsService, Constants.CARD_TYPE.APPOINTMENT),
-			new UnassignedTypeSection(this.cardsService, Constants.CARD_TYPE.PENDING),
-			new UnassignedFinishedSection(this.cardsService, Constants.CARD_STATUS.FINISHED)
-		];
-		this.section = this.cardSections[1];
+		this.section = this.cardsService.unassignedSections[1];
 	}
 
 	ngOnInit(): void {
@@ -94,11 +84,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	get cardSections(): UnassignedSection[] {
-		return this._cardSections;
-	}
-
-	set cardSections(value: UnassignedSection[]) {
-		this._cardSections = value;
+		return this.cardsService.unassignedSections;
 	}
 
 	get section(): UnassignedSection {
@@ -145,11 +131,15 @@ export class BandComponent implements OnInit, OnDestroy {
 		return Constants.CARD_TYPE.PENDING;
 	}
 
-	get finishedStatus(): string {
-		return Constants.CARD_STATUS.FINISHED;
+	get temporalType(): string {
+		return Constants.CARD_TYPE.TEMPORAL;
 	}
 
 	// endregion
+
+	checkTemporalSection(section: UnassignedSection = this.section): boolean {
+		return section.name == Constants.CARD_TYPE.TEMPORAL;
+	}
 
 	checkFinishedSection(section: UnassignedSection = this.section): boolean {
 		return section.name == Constants.CARD_STATUS.FINISHED;
@@ -164,10 +154,6 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.cdRef.detectChanges();
 	}
 
-	getFinishedGroups(): CardsGroup[] {
-		return this.cardsService.finishedCardsGroups;
-	}
-
 	// findUnassignedTypeGroups(type: string = this.type): CardsGroup[] {
 	// 	return this.unassignedTypesCardsGroups[type];
 	// }
@@ -177,8 +163,9 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.cdRef.detectChanges();
 	}
 
-	checkHideGroup(groupId: string): boolean {
-		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
+	checkHideGroup(sectionName: string, groupId: string): boolean {
+		return sectionName != Constants.CARD_TYPE.TEMPORAL
+			&& CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 
 	check() {

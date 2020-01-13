@@ -68,6 +68,7 @@ export class Constants {
 		STEP_45: 45,
 	};
 	public static readonly CARD_TYPE: any = {
+		TEMPORAL: 'TEMPORAL',
 		APPOINTMENT: 'APPOINTMENT',
 		TODAY: 'TODAY',
 		PENDING: 'PENDING'
@@ -80,12 +81,15 @@ export class Constants {
 	public static readonly DROPZONE_TYPE: any = {
 		ASSIGNED: 'ASSIGNED',
 		UNASSIGNED: 'UNASSIGNED',
-		FINISH: 'FINISH'
+		UNASSIGNED_FINISHED: 'UNASSIGNED_FINISHED',
+		FINISH: 'FINISH',
+		TEMPORAL: 'TEMPORAL'
 	};
+	public static readonly TEMPORAL_DEFAULT_ORDER_CODE: string = "Fx";
 	public static readonly APPOINTMENT_COUNTER_TOTAL: string = "total";
 	public static readonly APPOINTMENT_CARD_TYPE_ID: string = "C";
 	public static readonly HOUR_MINUTES: number = 60;
-	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards/", "/mechanic/", "/appointment"];
+	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards", "/mechanic/", "/appointment"];
 	public static readonly MORNING_AFTERNOON_THRESHOLD_MINUTES: number = 900;
 
 }

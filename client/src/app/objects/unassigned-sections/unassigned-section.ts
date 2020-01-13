@@ -4,6 +4,7 @@ export interface UnassignedSection {
 
 	cardsService: CardsService;
 	name: string;
+	dropzoneType: string;
 
 	findGroups();
 

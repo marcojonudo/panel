@@ -75,28 +75,15 @@ export class UnassignedDropzone implements Dropzone {
 			/* Si la ficha no está finalizada, significa que se está asignando por primera vez. En este caso, el día de
 			*  origen es el de la orden, y sólo es necesario actualizar el total (al no estar asignada, sólo contaba
 			*  para el total, no para morngin o afternoon */
-			if (this.subType != Constants.DROPZONE_TYPE.FINISH) {
-				const originDay = group.cards[0].order.day;
-				/* El día de la orden podría haber pasado. De ser así, no se actualiza nada del contador de citas, ya
-				*  directamente no hay panel para días anteriores a hoy */
-				if (originDay.getTime() >= UtilsService.clearTime(new Date()).getTime()) {
-					this.appointmentsService.updateAppointment(
-						originDay,
-						group.cards,
-						false,
-						new UpdateAppointmentDayParams(false, false)
-					)
-				}
-			} else {
-				/* Si la ficha estaba finalizada, se debe actualizar la info del último día en el que estuvo asignada
-				*  (tanto morning o afternoon, como total, ya que en este caso sí se había contado la ficha según el
-				*  tipo de horario */
-				const originDay = group.cards[0].lastDay;
+			const originDay = group.cards[0].order.day;
+			/* El día de la orden podría haber pasado. De ser así, no se actualiza nada del contador de citas, ya
+			*  directamente no hay panel para días anteriores a hoy */
+			if (originDay.getTime() >= UtilsService.clearTime(new Date()).getTime()) {
 				this.appointmentsService.updateAppointment(
 					originDay,
 					group.cards,
 					false,
-					new UpdateAppointmentDayParams(true, true)
+					new UpdateAppointmentDayParams(false, false)
 				)
 			}
 		}

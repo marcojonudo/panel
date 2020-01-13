@@ -1,49 +1,31 @@
-<div *ngIf="!checkFinishedSection()" class="d-flex flex-column h-100">
-	<div class="d-flex h-25 unassigned-orders-buttons-container">
+<div class="d-flex h-25 unassigned-orders-buttons-container">
+	<div *ngIf="!checkFinishedSection()" class="d-flex">
 		<button (click)="setSection(todayType)" class="btn btn-danger align-center padding-0">En curso</button>
 		<button (click)="setSection(appointmentType)" class="btn btn-primary align-center padding-0">Cita previa</button>
 		<button (click)="setSection(pendingType)" class="btn btn-success align-center padding-0">Pendientes</button>
+		<button (click)="setSection(temporalType)" class="btn btn-warning align-center padding-0">Temporales</button>
 	</div>
-	<div
-		*ngFor="let section of cardSections | cardSection: section"
-		appDropzone
-		[type]="unassignedDropzoneType"
-		class="flex-grow-1 unassigned-orders-cards-container not-finished-groups-container"
-		[style.height.px]="unassignedBarHeight">
-		<app-draggable-group
-			*ngFor="let group of section.findGroups(); let i = index"
-			class="unassigned-card"
-			[ngClass]="{'hidden': checkHideGroup(group.id)}"
-			[ngStyle]="{
-				'height.px': lineDefaultHeight,
-				'transform': 'translateX(' + findGroupLeft(group.left, i) + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
-			}"
-			(hiddenCardsGroup)="setHiddenCardsGroup($event)"
-			[cardsGroup]="group">
-		</app-draggable-group>
-	</div>
-</div>
-<div *ngIf="checkFinishedSection()" class="d-flex flex-column h-100">
-	<div class="d-flex h-25 unassigned-orders-buttons-container">
+	<div *ngIf="checkFinishedSection()" class="d-flex">
 		<button class="btn btn-danger align-center padding-0">Finalizadas</button>
 	</div>
-	<div
-		appDropzone
-		[type]="unassignedDropzoneType"
-		[subType]="finishDropzoneType"
-		class="flex-grow-1 unassigned-orders-cards-container finished-groups-container"
-		[style.height.px]="unassignedBarHeight">
-		<app-draggable-group
-			*ngFor="let group of section.findGroups(); let i = index"
-			class="unassigned-card"
-			[ngClass]="{'hidden': checkHideGroup(group.id)}"
-			[ngStyle]="{
-				'height.px': lineDefaultHeight,
-				'transform': 'translateX(' + findGroupLeft(group.left, i) + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
-			}"
-			(hiddenCardsGroup)="setHiddenCardsGroup($event)"
-			[cardsGroup]="group">
-		</app-draggable-group>
-	</div>
+</div>
+<div
+	*ngFor="let section of cardSections | cardSection: section"
+	appDropzone
+	[type]="section.dropzoneType"
+	[subType]="section.name"
+	class="flex-grow-1 unassigned-orders-cards-container not-finished-groups-container"
+	[style.height.px]="unassignedBarHeight">
+	<app-draggable-group
+		*ngFor="let group of section.findGroups(); let i = index"
+		class="unassigned-card"
+		[ngClass]="{'hidden': checkHideGroup(section.name, group.id)}"
+		[ngStyle]="{
+			'height.px': lineDefaultHeight,
+			'transform': 'translateX(' + findGroupLeft(group.left, i) + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
+		}"
+		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
+		[cardsGroup]="group">
+	</app-draggable-group>
 </div>
 <div>{{check()}}</div>
