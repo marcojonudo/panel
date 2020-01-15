@@ -13,6 +13,7 @@ import {UnassignedSection} from "../objects/unassigned-sections/unassigned-secti
 import {DimensionsService} from "./dimensions.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {NotificationService} from "./notification.service";
+import {Mechanic} from "../objects/mechanic";
 
 @Injectable({
 	providedIn: 'root'
@@ -34,6 +35,7 @@ export class CardPositionService {
 	private static _initialScrollTop: number;
 	private static _scrollLeft: number;
 	private static _scrollTop: number;
+	private static _lastScrollTop: number;
 	private static _relativeScrollLeft: number;
 	private static _relativeScrollTop: number;
 
@@ -503,6 +505,21 @@ export class CardPositionService {
 		let cards = [];
 		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
 		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
+	}
+
+	// endregion
+
+	// region Context menu position
+
+	static findCardTop(dayMechanics: Mechanic[], group: CardsGroup): number {
+		let top = Constants.VALUE.TIMELINE_HEIGHT;
+		let index = 0;
+		while (dayMechanics[index].code != group.cards[0].mechanicCode) {
+			top += dayMechanics[index].lines * Constants.VALUE.LINE_HEIGHT_DEFAULT + 14;
+			index++;
+		}
+		top += group.line * Constants.VALUE.LINE_HEIGHT_DEFAULT;
+		return top;
 	}
 
 	// endregion

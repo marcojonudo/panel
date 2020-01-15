@@ -8,6 +8,7 @@ import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
 import {AuxiliaryCardBehaviour} from "../../objects/card-behaviour/auxiliary-card-behaviour";
 import {DefaultCardBehaviour} from "../../objects/card-behaviour/default-card-behaviour";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-draggable-group',
@@ -21,11 +22,13 @@ export class DraggableGroupComponent {
 
 	private readonly CARD_BEHAVIOUR: any;
 
-	constructor() {
+	constructor(private mechanicsService: MechanicsService) {
 		this.hiddenCardsGroup = new EventEmitter();
 		this.CARD_BEHAVIOUR = {
-			'AUXILIARY': (group: CardsGroup) => new AuxiliaryCardBehaviour(group),
-			'DEFAULT': (group: CardsGroup) => new DefaultCardBehaviour(group)
+			'AUXILIARY': (group: CardsGroup) =>
+				new AuxiliaryCardBehaviour(group, this.mechanicsService),
+			'DEFAULT': (group: CardsGroup) =>
+				new DefaultCardBehaviour(group, this.mechanicsService)
 		}
 	}
 

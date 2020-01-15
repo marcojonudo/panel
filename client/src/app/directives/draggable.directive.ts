@@ -13,9 +13,7 @@ import {CardsGroup} from "../objects/cards-group";
 import {CardsService} from "../services/cards.service";
 import {NotificationService} from "../services/notification.service";
 import {Constants} from "../objects/constants";
-import {DayCardDetails} from "../objects/card-details-update/day-card-details";
 import {CardBehaviour} from "../objects/card-behaviour/card-behaviour";
-import {UtilsService} from "../services/utils.service";
 
 @Directive({
 	selector: '[appDraggable]',
@@ -76,9 +74,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 
 	private openContextMenu(event: PointerEvent): void {
 		event.preventDefault();
-		this.cardBehaviour.handleRightClick(new Coordinates(event.clientX, this.cardRect.top));
-		// TODO Quitar context menu al mover ficha
-
+		this.cardBehaviour.handleRightClick(new Coordinates(event.clientX, event.clientY));
 	}
 
 	onPointerDown(event: PointerEvent): void {

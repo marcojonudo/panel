@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {UtilsService} from "../../services/utils.service";
@@ -18,9 +18,9 @@ export class DivisionVerticalIndicatorComponent {
 		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
 	}
 
-	roundToCardInterval(left: number): number {
+	roundToCardInterval(x: number): number {
 		return Constants.VALUE.MECHANIC_INFO_WIDTH +
-			UtilsService.roundFloor(left - Constants.VALUE.MECHANIC_INFO_WIDTH, DimensionsService.intervalWidth);
+			UtilsService.roundFloor(x - Constants.VALUE.MECHANIC_INFO_WIDTH, DimensionsService.intervalWidth);
 	}
 
 }

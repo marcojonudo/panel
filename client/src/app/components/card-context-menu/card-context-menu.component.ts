@@ -21,8 +21,8 @@ export class CardContextMenuComponent {
 		return CardPositionService.absolutePositionToLeft(x) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	findTop(y: number): number {
-		return y + Constants.VALUE.LINE_HEIGHT_DEFAULT/2;
+	findTop(cardTop: number): number {
+		return cardTop + Constants.VALUE.LINE_HEIGHT_DEFAULT / 2;
 	}
 
 }

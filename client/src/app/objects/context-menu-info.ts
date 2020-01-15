@@ -4,11 +4,13 @@ import {Coordinates} from "./coordinates";
 export class ContextMenuInfo {
 
 	group: CardsGroup;
-	coordinates: Coordinates;
+	clickCoordinates: Coordinates;
+	cardTop: number;
 
-	constructor(group: CardsGroup, coordinates: Coordinates) {
+	constructor(group: CardsGroup, coordinates: Coordinates, cardTop: number) {
 		this.group = group;
-		this.coordinates = coordinates;
+		this.clickCoordinates = coordinates;
+		this.cardTop = cardTop;
 	}
 
 }

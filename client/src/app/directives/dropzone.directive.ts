@@ -1,6 +1,4 @@
 import {
-	AfterContentInit,
-	AfterViewInit,
 	ChangeDetectorRef,
 	Directive,
 	ElementRef,
@@ -19,7 +17,6 @@ import {CardsService} from "../services/cards.service";
 import {FinishDropzone} from "../objects/dropzone-type/finish-dropzone";
 import {AppointmentsService} from "../services/appointments.service";
 import {NotificationService} from "../services/notification.service";
-import {UnassignedFinishedSection} from "../objects/unassigned-sections/unassigned-finished-section";
 import {UnassignedFinishedDropzone} from "../objects/dropzone-type/unassigned-finished-dropzone";
 import {AuxiliaryDropzone} from "../objects/dropzone-type/temporal-dropzone";
 
