@@ -13,6 +13,14 @@
 			[dayMechanicSkills]="dayMechanicSkills"
 			[maxScheduleWidth]="maxScheduleWidth">
 		</app-grid>
+		<app-division-vertical-indicator
+			*ngIf="checkShowContextMenu()"
+			[contextMenuInfo]="contextMenuInfo">
+		</app-division-vertical-indicator>
+		<app-card-context-menu
+			*ngIf="checkShowContextMenu()"
+			[contextMenuInfo]="contextMenuInfo"
+		></app-card-context-menu>
 	</div>
 </div>
 <div>{{checkDayPanel()}}</div>

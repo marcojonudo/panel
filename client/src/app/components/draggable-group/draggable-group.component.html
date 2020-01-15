@@ -1,6 +1,7 @@
 <div
 	appDraggable
 	[cardsGroup]="cardsGroup"
+	[cardBehaviour]="findCardBehaviour(cardsGroup)"
 	class="h-100 d-flex draggable"
 	(hiddenCardsGroup)="emitHiddenCardsGroup($event)">
 	<app-card

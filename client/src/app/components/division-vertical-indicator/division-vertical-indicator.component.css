@@ -1,0 +1,5 @@
+.division-vertical-indicator {
+	position: absolute;
+	width: 0;
+	border-left: 1px dashed #dee2e6;
+}

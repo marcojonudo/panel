@@ -129,4 +129,8 @@ export class UtilsService {
 		return Math.floor(n/roundTo) * roundTo;
 	}
 
+	public static roundd(n: number, roundTo: number): number {
+		return Math.round(n/roundTo) * roundTo;
+	}
+
 }

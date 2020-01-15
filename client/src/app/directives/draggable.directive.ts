@@ -14,6 +14,8 @@ import {CardsService} from "../services/cards.service";
 import {NotificationService} from "../services/notification.service";
 import {Constants} from "../objects/constants";
 import {DayCardDetails} from "../objects/card-details-update/day-card-details";
+import {CardBehaviour} from "../objects/card-behaviour/card-behaviour";
+import {UtilsService} from "../services/utils.service";
 
 @Directive({
 	selector: '[appDraggable]',
@@ -24,6 +26,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	private readonly AVOID_DRAG_ID: string = 'link-handler';
 
 	@Input() cardsGroup: CardsGroup;
+	@Input() cardBehaviour: CardBehaviour;
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
 	private cardRect;
@@ -32,11 +35,14 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 	private startEventCoordinates: Coordinates;
 	private position: Coordinates;
 
-	private pointerDownListener;
-	private pointerMoveListener;
-	private pointerUpListener;
+	private pointerDownListener: () => void;
+	private pointerMoveListener: () => void;
+	private pointerUpListener: () => void;
+	private contextMenuListener: () => void;
 
 	private init: boolean;
+
+	private LEFT_CLICK_BUTTON_ID: number = 0;
 
 	constructor(
 		private element: ElementRef,
@@ -57,14 +63,26 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 			Constants.EVENT.POINTER_DOWN,
 			this.onPointerDown.bind(this)
 		);
+		this.contextMenuListener = this.renderer.listen(
+			this.element.nativeElement,
+			Constants.EVENT.CONTEXT_MENU,
+			this.openContextMenu.bind(this)
+		);
 	}
 
 	ngAfterViewChecked(): void {
 		this.cardRect = this.element.nativeElement.getBoundingClientRect();
 	}
 
+	private openContextMenu(event: PointerEvent): void {
+		event.preventDefault();
+		this.cardBehaviour.handleRightClick(new Coordinates(event.clientX, this.cardRect.top));
+		// TODO Quitar context menu al mover ficha
+
+	}
+
 	onPointerDown(event: PointerEvent): void {
-		if (this.dragElement((<HTMLElement> event.target).id)) {
+		if (event.button == this.LEFT_CLICK_BUTTON_ID && this.checkDragElement((<HTMLElement> event.target).id)) {
 			this.init = true;
 			this.pointerMoveListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
@@ -79,7 +97,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		}
 	}
 
-	dragElement(id: string): boolean {
+	private checkDragElement(id: string): boolean {
 		return !id.includes(this.AVOID_DRAG_ID);
 	}
 
@@ -102,9 +120,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.initCoordinates(event);
 
 		/* Se envía el grupo para mostrar el helper en el overlay */
-		CardPositionService.setHelperGroup(
-			this.cardsGroup.cards[0].type == Constants.CARD_TYPE.AUXILIARY ? this.cardsGroup.clone(true) : this.cardsGroup
-		);
+		CardPositionService.setHelperGroup(this.cardBehaviour.findHelperGroup());
 		/* Permite asignar o eliminar la clase que añade una transición al helper, para desplazarse a la posicíon
 		*  final */
 		NotificationService.notifyDragging(true);
@@ -140,9 +156,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 			CardPositionService.hiddenGroup = undefined;
 			CardPositionService.originDropzone = undefined;
 		} else {
-			NotificationService.notifyCardDetails(
-				new DayCardDetails(this.cardsGroup.cards[0].day, this.cardsGroup.cards[0])
-			)
+			this.cardBehaviour.handleLeftClick();
 		}
 
 		this.pointerMoveListener();

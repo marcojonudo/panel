@@ -512,7 +512,7 @@ export class CardPositionService {
 	/* La posición del cursor en pantalla cuenta el eje de las X desde el inicio de la misma. Sin embargo, para hacer
 	 * cálculos relativos al horario, se deben restar los 180px de ancho que tiene la info del
 	 * mecánico */
-	private static absolutePositionToLeft(
+	static absolutePositionToLeft(
 		value: number,
 		initialScrollLeft: number = this.initialScrollLeft,
 		scrollLeft: number = this.scrollLeft,
@@ -537,7 +537,7 @@ export class CardPositionService {
 		return value - (relativeScrollLeft != 0 ? initialScrollLeft + relativeScrollLeft : scrollLeft) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	private static absolutePositionToTop(
+	static absolutePositionToTop(
 		value: number,
 		initialScrollTop: number = this.initialScrollTop,
 		scrollTop: number = this.scrollTop,

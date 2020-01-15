@@ -24,6 +24,9 @@ import {Card} from "../../objects/card";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/days-quarters-saturation";
 import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
+import {DaysContextMenu} from "../../objects/context-menu-update/days-context-menu";
+import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
+import {ContextMenuInfo} from "../../objects/context-menu-info";
 
 @Component({
 	selector: 'app-main',
@@ -46,6 +49,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _daysCardDetails: DaysCardDetails;
 	private _daysQuartersSaturation: DaysQuartersSaturation;
 
+	private _daysContextMenu: DaysContextMenu;
+
 	private _oneDayMode: boolean;
 	private _maxScheduleHours: number[];
 	private _maxScheduleWidth: number;
@@ -64,6 +69,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private skillsSubscription: Subscription;
 	private cardDetailsSubscription: Subscription;
 	private quartersSaturationSubscription: Subscription;
+	private contextMenuSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
@@ -74,7 +80,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	) {
 		this.days = this.mechanicsService.days;
 		this.initDaysUpdateObjects();
-		this.initDaysQuartersSaturation();
 
 		const today = UtilsService.clearTime(new Date()).getTime();
 		this.today = this.days.find(day => day.getTime() == today);
@@ -105,6 +110,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.quartersSaturationSubscription = NotificationService.quartersSaturation$
 				.subscribe((dayQuartersSaturation: DayQuartersSaturation) => {
 			this.daysQuartersSaturation[dayQuartersSaturation.day.getTime()] = dayQuartersSaturation;
+			this.cdRef.detectChanges();
+		});
+
+		this.contextMenuSubscription = NotificationService.contextMenu$
+				.subscribe((dayContextMenu: DayContextMenu) => {
+			this.daysContextMenu[dayContextMenu.day.getTime()] = dayContextMenu.contextMenuInfo;
 			this.cdRef.detectChanges();
 		});
 
@@ -308,24 +319,29 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._daysQuartersSaturation = value;
 	}
 
+	get daysContextMenu(): DaysContextMenu {
+		return this._daysContextMenu;
+	}
+
+	set daysContextMenu(value: DaysContextMenu) {
+		this._daysContextMenu = value;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
 		this.daysMechanicSkills = {};
 		this.daysCardDetails = {};
+		this.daysQuartersSaturation = {};
+		this.daysContextMenu = {};
 		days.forEach((day: Date) => {
 			this.daysMechanicSkills[day.getTime()] = new DayMechanicSkills();
 			this.daysCardDetails[day.getTime()] = new DayCardDetails();
-		});
-	}
-
-	private initDaysQuartersSaturation(days: Date[] = this.days): void {
-		this.daysQuartersSaturation = {};
-		days.forEach((day: Date) => {
 			this.daysQuartersSaturation[day.getTime()] = new DayQuartersSaturation(
 				day,
 				this.cardsService.checkQuarterSaturation(day)
 			);
+			this.daysContextMenu[day.getTime()] = undefined;
 		});
 	}
 
@@ -342,6 +358,10 @@ export class MainComponent implements OnInit, OnDestroy {
 		daysQuartersSaturation: DaysQuartersSaturation = this.daysQuartersSaturation
 	): QuartersSaturation {
 		return daysQuartersSaturation[day.getTime()].quartersSaturation;
+	}
+
+	findContextMenuInfo(day: Date, daysContextMenu: DaysContextMenu = this.daysContextMenu): ContextMenuInfo {
+		return daysContextMenu[day.getTime()];
 	}
 
 	checkTriggerInfoCd(

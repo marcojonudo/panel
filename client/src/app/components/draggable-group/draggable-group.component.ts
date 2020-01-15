@@ -6,6 +6,8 @@ import {
 } from '@angular/core';
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
+import {AuxiliaryCardBehaviour} from "../../objects/card-behaviour/auxiliary-card-behaviour";
+import {DefaultCardBehaviour} from "../../objects/card-behaviour/default-card-behaviour";
 
 @Component({
 	selector: 'app-draggable-group',
@@ -17,8 +19,20 @@ export class DraggableGroupComponent {
 	@Input() cardsGroup: CardsGroup;
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
+	private readonly CARD_BEHAVIOUR: any;
+
 	constructor() {
 		this.hiddenCardsGroup = new EventEmitter();
+		this.CARD_BEHAVIOUR = {
+			'AUXILIARY': (group: CardsGroup) => new AuxiliaryCardBehaviour(group),
+			'DEFAULT': (group: CardsGroup) => new DefaultCardBehaviour(group)
+		}
+	}
+
+	findCardBehaviour(group: CardsGroup): Function {
+		return this.CARD_BEHAVIOUR[group.cards[0].type] ?
+			this.CARD_BEHAVIOUR[group.cards[0].type](group) :
+			this.CARD_BEHAVIOUR[Constants.DEFAULT](group)
 	}
 
 	emitHiddenCardsGroup(cardsGroup: CardsGroup) {

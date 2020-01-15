@@ -49,6 +49,8 @@ import { DraggableScheduleDirective } from './directives/draggable-schedule.dire
 import { AppointmentsPipe } from './pipes/appointments.pipe';
 import { CardSectionPipe } from './pipes/card-section.pipe';
 import { CardDetailsComponent } from './components/card-details/card-details.component';
+import { CardContextMenuComponent } from './components/card-context-menu/card-context-menu.component';
+import { DivisionVerticalIndicatorComponent } from './components/division-vertical-indicator/division-vertical-indicator.component';
 
 @NgModule({
 	declarations: [
@@ -84,7 +86,9 @@ import { CardDetailsComponent } from './components/card-details/card-details.com
 		DraggableScheduleDirective,
 		AppointmentsPipe,
 		CardSectionPipe,
-		CardDetailsComponent
+		CardDetailsComponent,
+		CardContextMenuComponent,
+		DivisionVerticalIndicatorComponent
 	],
 	imports: [
 		BrowserModule,

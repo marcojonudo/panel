@@ -12,6 +12,7 @@ import {CardsGroup} from "../objects/cards-group";
 import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
 import {DayCardDetails} from "../objects/card-details-update/day-card-details";
 import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
+import {DayContextMenu} from "../objects/context-menu-update/day-context-menu";
 
 @Injectable({
 	providedIn: 'root'
@@ -51,6 +52,9 @@ export class NotificationService {
 	private static quartersSaturationSubject: Subject<DayQuartersSaturation>;
 	private static _quartersSaturation$: Observable<DayQuartersSaturation>;
 
+	private static contextMenuSubject: Subject<DayContextMenu>;
+	private static _contextMenu$: Observable<DayContextMenu>;
+
 	// region Init
 
 	static init(): void {
@@ -86,6 +90,9 @@ export class NotificationService {
 
 		this.quartersSaturationSubject = new Subject<DayQuartersSaturation>();
 		this.quartersSaturation$ = this.quartersSaturationSubject.asObservable();
+
+		this.contextMenuSubject = new Subject<DayContextMenu>();
+		this.contextMenu$ = this.contextMenuSubject.asObservable();
 	}
 
 	// endregion
@@ -180,6 +187,14 @@ export class NotificationService {
 		this._quartersSaturation$ = value;
 	}
 
+	static get contextMenu$(): Observable<DayContextMenu> {
+		return this._contextMenu$;
+	}
+
+	static set contextMenu$(value: Observable<DayContextMenu>) {
+		this._contextMenu$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -229,6 +244,10 @@ export class NotificationService {
 
 	static notifyQuartersSaturation(dayQuartersSaturation: DayQuartersSaturation): void {
 		this.quartersSaturationSubject.next(dayQuartersSaturation);
+	}
+
+	static notifyContextMenu(dayContextMenu: DayContextMenu): void {
+		this.contextMenuSubject.next(dayContextMenu);
 	}
 
 }

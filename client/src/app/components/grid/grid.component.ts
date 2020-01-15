@@ -1,10 +1,13 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Mechanic} from "../../objects/mechanic";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Constants} from "../../objects/constants";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
+import {ContextMenuInfo} from "../../objects/context-menu-info";
+import {NotificationService} from "../../services/notification.service";
+import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
 
 @Component({
 	selector: 'app-grid',
@@ -21,12 +24,22 @@ export class GridComponent implements OnInit {
 
 	private _mechanics: Mechanic[];
 
+	private pointerDownListener: () => void;
+
 	constructor(
-		private mechanicsService: MechanicsService
+		private mechanicsService: MechanicsService,
+		private element: ElementRef,
+		private renderer: Renderer2,
 	) {}
 
 	ngOnInit(): void {
 		this.mechanics = this.mechanicsService.findDayMechanics(this.day);
+
+		this.pointerDownListener = this.renderer.listen(
+			this.element.nativeElement,
+			Constants.EVENT.POINTER_DOWN,
+			this.onPointerDown.bind(this)
+		);
 	}
 
 	// region Getters / setters
@@ -45,14 +58,18 @@ export class GridComponent implements OnInit {
 
 	// endregion
 
-	private checkTriggerMechanicLineCd(
+	onPointerDown(): void {
+		NotificationService.notifyContextMenu(new DayContextMenu(this.day, undefined));
+	}
+
+	checkTriggerMechanicLineCd(
 		mechanicCode: string,
 		mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate
 	): MechanicUpdate {
 		return mechanicLineUpdate && mechanicCode == mechanicLineUpdate.mechanicCode ? mechanicLineUpdate : undefined;
 	}
 
-	private checkTriggerMechanicInfoCd(
+	checkTriggerMechanicInfoCd(
 		mechanicCode: string,
 		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
 	): MechanicUpdate {

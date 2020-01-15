@@ -12,7 +12,8 @@ export class Constants {
 		POINTER_DOWN: 'pointerdown',
 		POINTER_MOVE: 'pointermove',
 		POINTER_UP: 'pointerup',
-		POINTER_LEAVE: 'pointerleave'
+		POINTER_LEAVE: 'pointerleave',
+		CONTEXT_MENU: 'contextmenu'
 	};
 	public static VALUE: any = {
 		LINE_HEIGHT_DEFAULT: 40,
@@ -89,6 +90,7 @@ export class Constants {
 		DEFAULT: '#FFFFFF',
 		AUXILIARY: '#FFE4AA'
 	};
+	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly AUXILIARY_DEFAULT_ORDER_CODE: string = "Fx";
 	public static readonly APPOINTMENT_COUNTER_TOTAL: string = "total";
 	public static readonly APPOINTMENT_CARD_TYPE_ID: string = "C";
