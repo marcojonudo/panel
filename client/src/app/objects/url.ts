@@ -18,12 +18,24 @@ export class Url {
 		return `${environment.serverUrl}/panel/appointmentDay/counters`;
 	}
 
-	public static createCards(): string {
+	public static cards(): string {
 		return `${environment.serverUrl}/panel/cards`;
 	}
 
 	public static cardsPosition(): string {
 		return `${environment.serverUrl}/panel/cards/position`;
+	}
+
+	public static cardsDuration(): string {
+		return `${environment.serverUrl}/panel/cards/duration`;
+	}
+
+	public static cardsDivision(): string {
+		return `${environment.serverUrl}/panel/cards/division`;
+	}
+
+	public static cardsLinks(): string {
+		return `${environment.serverUrl}/panel/cards/links`;
 	}
 
 	public static appointmentDayMax(): string {

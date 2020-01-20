@@ -6,9 +6,11 @@ import {
 } from '@angular/core';
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
-import {AuxiliaryCardBehaviour} from "../../objects/card-behaviour/auxiliary-card-behaviour";
-import {DefaultCardBehaviour} from "../../objects/card-behaviour/default-card-behaviour";
+import {AuxiliaryCardBehaviour} from "../../objects/card-type-behaviour/auxiliary-card-behaviour";
+import {DefaultCardBehaviour} from "../../objects/card-type-behaviour/default-card-behaviour";
 import {MechanicsService} from "../../services/mechanics.service";
+import {CardsService} from "../../services/cards.service";
+import {CardTypeBehaviour} from "../../objects/card-type-behaviour/card-type-behaviour";
 
 @Component({
 	selector: 'app-draggable-group',
@@ -20,22 +22,16 @@ export class DraggableGroupComponent {
 	@Input() cardsGroup: CardsGroup;
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
-	private readonly CARD_BEHAVIOUR: any;
-
-	constructor(private mechanicsService: MechanicsService) {
+	constructor(private cardsService: CardsService) {
 		this.hiddenCardsGroup = new EventEmitter();
-		this.CARD_BEHAVIOUR = {
-			'AUXILIARY': (group: CardsGroup) =>
-				new AuxiliaryCardBehaviour(group, this.mechanicsService),
-			'DEFAULT': (group: CardsGroup) =>
-				new DefaultCardBehaviour(group, this.mechanicsService)
-		}
 	}
 
-	findCardBehaviour(group: CardsGroup): Function {
-		return this.CARD_BEHAVIOUR[group.cards[0].type] ?
-			this.CARD_BEHAVIOUR[group.cards[0].type](group) :
-			this.CARD_BEHAVIOUR[Constants.DEFAULT](group)
+	findCardBehaviour(group: CardsGroup): CardTypeBehaviour {
+		return this.cardsService.findCardTypeBehaviour(group.cards[0].type);
+	}
+
+	findCursor(mode: string): string {
+		return Constants.GROUP_MODE_CURSOR[mode];
 	}
 
 	emitHiddenCardsGroup(cardsGroup: CardsGroup) {

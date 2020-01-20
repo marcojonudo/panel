@@ -12,4 +12,13 @@ export class Vehicle {
 		this.color = vehicle.color;
 	}
 
+	clone(): Vehicle {
+		return new Vehicle({
+			brand: this.brand,
+			model: this.model,
+			cylinder: this.cylinder,
+			color: this.color
+		});
+	}
+
 }

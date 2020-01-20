@@ -17,4 +17,14 @@ export class Group {
 		this.appointmentType = group.appointmentType ? new AppointmentType(group.appointmentType) : undefined;
 	}
 
+	clone(): Group {
+		const group = new Group({});
+		group.code = this.code;
+		group.color = this.color;
+		group.name = this.name;
+		group.shortName = this.shortName;
+		group.appointmentType = this.appointmentType;
+		return group;
+	}
+
 }

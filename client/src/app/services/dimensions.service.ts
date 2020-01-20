@@ -12,7 +12,6 @@ import {NotificationService} from "./notification.service";
 export class DimensionsService {
 
 	private static readonly MINUTES_PER_HOUR: number = 60;
-	private static readonly MINUTES_PER_INTERVAL: number = 5;
 	private static readonly FIT_HOURS_IN_SCREEN: number = 4;
 	readonly QUARTERS: string[] = ['00', '15', '30', '45'];
 
@@ -432,7 +431,7 @@ export class DimensionsService {
 	}
 
 	static calcDurationFromWidth(width: number): number {
-		return this.getIntervalsNumberFromWidth(width) * this.MINUTES_PER_INTERVAL;
+		return this.getIntervalsNumberFromWidth(width) * Constants.VALUE.MINUTES_PER_INTERVAL;
 	}
 
 	static calcDurationFromCardsGroup(cardsGroup: CardsGroup): number {
@@ -449,7 +448,7 @@ export class DimensionsService {
 	}
 
 	private static getRelativeMinutesFromIntervals(intervalsNumber: number): number {
-		return this.getStartScheduleMinutes() + this.MINUTES_PER_INTERVAL * intervalsNumber;
+		return this.getStartScheduleMinutes() + Constants.VALUE.MINUTES_PER_INTERVAL * intervalsNumber;
 	}
 
 	private static getStartScheduleMinutes() {
@@ -457,10 +456,10 @@ export class DimensionsService {
 	}
 
 	private static getIntervalsNumberFromDuration(duration: number): number {
-		return duration / this.MINUTES_PER_INTERVAL;
+		return duration / Constants.VALUE.MINUTES_PER_INTERVAL;
 	}
 
-	private static getIntervalsNumberFromWidth(width: number) {
+	static getIntervalsNumberFromWidth(width: number) {
 		return Math.round(width / this.intervalWidth);
 	}
 

@@ -3,6 +3,7 @@
 	[cardsGroup]="cardsGroup"
 	[cardBehaviour]="findCardBehaviour(cardsGroup)"
 	class="h-100 d-flex draggable"
+	[style.cursor]="findCursor(cardsGroup.mode)"
 	(hiddenCardsGroup)="emitHiddenCardsGroup($event)">
 	<app-card
 		*ngFor="let card of cardsGroup.cards"

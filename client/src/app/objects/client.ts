@@ -12,4 +12,13 @@ export class Client {
 		this.phoneNumber = client.phoneNumber;
 	}
 
+	clone(): Client {
+		return new Client({
+			code: this.code,
+			name: this.name,
+			surnames: this.surnames,
+			phoneNumber: this.phoneNumber
+		});
+	}
+
 }

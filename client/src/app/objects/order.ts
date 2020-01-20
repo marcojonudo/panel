@@ -23,4 +23,17 @@ export class Order {
 		this.lines = order.lines ? order.lines.map(line => new OrderLine(line)) : [];
 	}
 
+	clone(): Order {
+		const order = new Order({});
+		order.number = this.number;
+		order.code = this.code;
+		order.state = this.state;
+		order.day = this.day;
+		order.creatorCode = this.creatorCode;
+		order.created = this.created;
+		order.deadline = this.deadline;
+		order.lines = this.lines;
+		return order;
+	}
+
 }

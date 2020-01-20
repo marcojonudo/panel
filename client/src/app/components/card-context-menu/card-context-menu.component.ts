@@ -6,6 +6,7 @@ import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {Coordinates} from "../../objects/coordinates";
 import {CardPositionService} from "../../services/card-position.service";
 import {Constants} from "../../objects/constants";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
 	selector: 'app-card-context-menu',
@@ -17,12 +18,18 @@ export class CardContextMenuComponent {
 
 	@Input() contextMenuInfo: ContextMenuInfo;
 
+	constructor(private cardsService: CardsService) {}
+
 	findLeft(x: number): number {
 		return CardPositionService.absolutePositionToLeft(x) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	findTop(cardTop: number): number {
-		return cardTop + Constants.VALUE.LINE_HEIGHT_DEFAULT / 2;
+	findTop(y: number): number {
+		return CardPositionService.absolutePositionToTop(y)
+	}
+
+	cutCard(): void {
+		this.cardsService.updateCardMode(this.contextMenuInfo.group, Constants.GROUP_MODE.CUT);
 	}
 
 }

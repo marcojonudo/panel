@@ -1,6 +1,7 @@
 import {Card} from "./card";
 import {UtilsService} from "../services/utils.service";
 import {Constants} from "./constants";
+import {DimensionsService} from "../services/dimensions.service";
 
 export class CardsGroup {
 
@@ -20,6 +21,9 @@ export class CardsGroup {
 	private _lastLine: number;
 	private _line: number;
 
+	cut: boolean;
+	mode: string;
+
 	constructor(cards: Card[], left: number = undefined) {
 		this.cards = cards;
 		this.id = this.cards[0].panelId;
@@ -29,6 +33,7 @@ export class CardsGroup {
 		this.end = this.cards[this.cards.length-1].end;
 		this.line = this.cards[0].line;
 		this.left = left;
+		this.mode = Constants.GROUP_MODE.DRAG;
 	}
 
 	// region Getters / setters
@@ -126,6 +131,11 @@ export class CardsGroup {
 
 	// endregion
 
+	setStart(start: Date): void {
+		this.start = start;
+		this.left = DimensionsService.calcLeftFromStart(this.start);
+	}
+
 	addCards(cards: Card[]): void {
 		/* No es necesario ordenar las fichas por start, ya que este método se usa para añadir a un grupo que está a
 		*  la izquerda, fichas de otro que está a la derecha */
@@ -143,8 +153,10 @@ export class CardsGroup {
 	}
 
 	removeCards(fromIndex, toIndex): void {
-		this.cards.splice(fromIndex, toIndex);
+		// TODO Revisar cuando antes se usaba el splice
+		this.cards = this.cards.slice(fromIndex, toIndex);
 		this.id = this.cards[0].panelId;
+		this.setStart(this.cards[0].start);
 		this.end = this.cards[this.cards.length-1].end;
 	}
 

@@ -5,12 +5,10 @@ export class ContextMenuInfo {
 
 	group: CardsGroup;
 	clickCoordinates: Coordinates;
-	cardTop: number;
 
-	constructor(group: CardsGroup, coordinates: Coordinates, cardTop: number) {
+	constructor(group: CardsGroup, coordinates: Coordinates) {
 		this.group = group;
 		this.clickCoordinates = coordinates;
-		this.cardTop = cardTop;
 	}
 
 }

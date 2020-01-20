@@ -4,6 +4,7 @@ import {Group} from "./group";
 import {Client} from "./client";
 import {Vehicle} from "./vehicle";
 import {CardsService} from "../services/cards.service";
+import {DimensionsService} from "../services/dimensions.service";
 
 export class Card {
 
@@ -56,8 +57,8 @@ export class Card {
 		this.duration = card.duration;
 		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : undefined;
 		this.line = card.line;
-		this.group = new Group(card.group);
-		this.order = new Order(card.order);
+		this.group = card.group ? new Group(card.group) : undefined;
+		this.order = card.order ? new Order(card.order) : undefined;
 		this.client = card.client ? new Client(card.client) : undefined;
 		this.vehicle = card.vehicle ? new Vehicle(card.vehicle) : undefined;
 		this.linkedPrevious = card.linkedPrevious ? new Card(card.linkedPrevious) : undefined;
@@ -65,7 +66,7 @@ export class Card {
 		this.dividedPrevious = card.dividedPrevious ? new Card(card.dividedPrevious) : undefined;
 		this.dividedNext = card.dividedNext ? new Card(card.dividedNext) : undefined;
 		this.divisionIndex = card.divisionIndex;
-		this.panelId = CardsService.buildPanelId(this);
+		this.panelId = this.order ? CardsService.buildPanelId(this) : undefined;
 
 		this.lastDay = card.lastDay ? UtilsService.parseDateFromLong(card.lastDay) : initialLoad ? this.day : undefined;
 		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : initialLoad ? this.mechanicCode : undefined;
@@ -82,14 +83,10 @@ export class Card {
 		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : this.start;
 	}
 
-	setWidth(widthIncrease: number, durationIncrease: number) {
-		this.width += widthIncrease;
-		this.setDuration(durationIncrease);
-	}
-
-	setDuration(durationIncrease: number) {
-		this.duration += durationIncrease;
+	setDuration(duration: number, width: number = undefined) {
+		this.duration = duration;
 		this.end = UtilsService.addMinutes(this.start, this.duration);
+		this.width = width ? width : DimensionsService.calcWidthFromDuration(this.duration);
 	}
 
 	setDay(day: Date): void {
@@ -107,17 +104,34 @@ export class Card {
 		this.line = line;
 	}
 
+	setDivisionIndex(divisionIndex: number): void {
+		this.divisionIndex = divisionIndex;
+		this.panelId = CardsService.buildPanelId(this);
+	}
+
 	clone(): Card {
-		const params = {
+		const card = new Card({
 			type: this.type,
 			code: this.code,
+			line: this.line,
+			lastLine: this.lastLine,
 			status: this.status,
+			mechanicCode: this.mechanicCode,
+			lastMechanicCode: this.lastMechanicCode,
 			duration: this.duration,
-			divisionIndex: this.divisionIndex,
-			group: new Group(this.group),
-			order: new Order(this.order)
-		};
-		const card = new Card(params);
+			divisionIndex: this.divisionIndex
+		});
+		card.day = this.day;
+		card.start = this.start;
+		card.end = this.end;
+		card.group = this.group.clone();
+		card.order = this.order.clone();
+		card.client = this.client.clone();
+		card.vehicle = this.vehicle.clone();
+		card.lastDay = this.lastDay;
+		card.lastStart = this.lastStart;
+		card.lastEnd = this.lastEnd;
+		card.panelId = CardsService.buildPanelId(card);
 		card.width = this.width;
 		return card;
 	}

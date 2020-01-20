@@ -41,14 +41,6 @@ export class MechanicLineComponent {
 
 	// region Getters / setters
 
-	get hiddenCardsGroup(): CardsGroup {
-		return this._hiddenCardsGroup;
-	}
-
-	set hiddenCardsGroup(value: CardsGroup) {
-		this._hiddenCardsGroup = value;
-	}
-
 	get quarterWidth(): number {
 		/* El navegador redondea a 2 decimales, por lo que se hace lo mismo para que las distancias sean equivalentes */
 		return +(DimensionsService.intervalWidth * 3).toFixed(2);

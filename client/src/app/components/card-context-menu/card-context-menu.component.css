@@ -2,3 +2,19 @@
 	position: absolute;
 	background-color: #ffffff;
 }
+
+.context-menu-option {
+	margin: 2px 0;
+}
+
+.context-menu-option:first-child {
+	margin-top: 0;
+}
+
+.context-menu-option:last-child {
+	margin-bottom: 0;
+}
+
+.context-menu-icon {
+	width: 20px;
+}

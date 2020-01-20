@@ -88,14 +88,12 @@ export class AppointmentsService {
 
 	init(
 		appointmentTypes: AppointmentType[],
-		appointmentDays: any[],
-		assignedDaysGroups: DaysAssignedGroups,
-		unassignedGroups: CardsGroup[]
+		appointmentDays: any[]
 	): void {
 		this.appointmentTypes = appointmentTypes;
-		this.appointmentDays = appointmentDays.map(appointmentDay => {
+		this.appointmentDays = UtilsService.sort(appointmentDays.map(appointmentDay => {
 			return new AppointmentDay(appointmentDay.appointmentType, appointmentDay.day, appointmentDay)
-		});
+		}), (appointmentDay) => appointmentDay.day);
 
 		console.log('Appointment types', this.appointmentTypes);
 		console.log('Appointment days', this.appointmentDays);
@@ -113,7 +111,7 @@ export class AppointmentsService {
 		for (let i = 0; i < appointmentDays.length; i = i + 4) {
 			daysAppointmentsCounter[appointmentDays[i].day.getTime()] = this.initAppointmentsCounter(
 				appointmentDays.slice(i, i + 4)
-			)
+			);
 		}
 		return daysAppointmentsCounter
 	}

@@ -21,6 +21,7 @@ export class Constants {
 		MECHANIC_INFO_WIDTH: 180,
 		DAY_PANEL_WIDTH: 200,
 		TOOLS_BAR_WIDTH: 30,
+		MINUTES_PER_INTERVAL: 5,
 		CARD_MIN_DURATION: 10,
 		UNASSIGNED_BAR_HEIGHT: 75,
 		UNASSIGNED_MARGIN_BETWEEN_GROUPS: 10,
@@ -89,6 +90,14 @@ export class Constants {
 	public static readonly CARD_TYPE_BACKGROUND: any = {
 		DEFAULT: '#FFFFFF',
 		AUXILIARY: '#FFE4AA'
+	};
+	public static readonly GROUP_MODE: any = {
+		DRAG: 'DRAG',
+		CUT: 'CUT'
+	};
+	public static readonly GROUP_MODE_CURSOR: any = {
+		DRAG: 'move',
+		CUT: 'crosshair'
 	};
 	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly AUXILIARY_DEFAULT_ORDER_CODE: string = "Fx";

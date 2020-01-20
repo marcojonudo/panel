@@ -1,4 +1,4 @@
-export interface CardBehaviour {
+export interface CardTypeBehaviour {
 
 	findHelperGroup: Function;
 	handleLeftClick: Function;

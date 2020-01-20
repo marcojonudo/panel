@@ -13,18 +13,18 @@ import {CardsGroup} from "../objects/cards-group";
 import {CardsService} from "../services/cards.service";
 import {NotificationService} from "../services/notification.service";
 import {Constants} from "../objects/constants";
-import {CardBehaviour} from "../objects/card-behaviour/card-behaviour";
+import {CardTypeBehaviour} from "../objects/card-type-behaviour/card-type-behaviour";
 
 @Directive({
 	selector: '[appDraggable]',
 	exportAs: 'appDraggable'
 })
-export class DraggableDirective implements OnInit, AfterViewChecked {
+export class ClickableCardDirective implements OnInit, AfterViewChecked {
 
 	private readonly AVOID_DRAG_ID: string = 'link-handler';
 
 	@Input() cardsGroup: CardsGroup;
-	@Input() cardBehaviour: CardBehaviour;
+	@Input() cardBehaviour: CardTypeBehaviour;
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
 	private cardRect;
@@ -59,12 +59,12 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.pointerDownListener = this.renderer.listen(
 			this.element.nativeElement,
 			Constants.EVENT.POINTER_DOWN,
-			this.onPointerDown.bind(this)
+			this.handleClick.bind(this)
 		);
 		this.contextMenuListener = this.renderer.listen(
 			this.element.nativeElement,
 			Constants.EVENT.CONTEXT_MENU,
-			this.openContextMenu.bind(this)
+			this.handleRightClick.bind(this)
 		);
 	}
 
@@ -72,13 +72,22 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.cardRect = this.element.nativeElement.getBoundingClientRect();
 	}
 
-	private openContextMenu(event: PointerEvent): void {
+	private handleRightClick(event: PointerEvent): void {
 		event.preventDefault();
-		this.cardBehaviour.handleRightClick(new Coordinates(event.clientX, event.clientY));
+		this.cardBehaviour.handleRightClick(this.cardsGroup, new Coordinates(event.clientX, event.clientY));
 	}
 
-	onPointerDown(event: PointerEvent): void {
-		if (event.button == this.LEFT_CLICK_BUTTON_ID && this.checkDragElement((<HTMLElement> event.target).id)) {
+	handleClick(event: PointerEvent): void {
+		/* Sólo se ejecuta una acción si se hace clic con el botón izquierdo. En caso de ser el derecho, se debe omitir
+		*  para que se ejecute el listener del evento contextmenu */
+		if (this.checkLeftClick(event) && this.checkDragElement((<HTMLElement> event.target).id)) {
+			this.handleLeftClick(event);
+		}
+	}
+
+	private handleLeftClick(event: PointerEvent): void {
+		/* Si el modo es DRAG, se llevan a cabo las acciones necesarias para conseguir el desplazamiento del grupo */
+		if (this.cardsGroup.mode == Constants.GROUP_MODE.DRAG) {
 			this.init = true;
 			this.pointerMoveListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
@@ -90,7 +99,13 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 				Constants.EVENT.POINTER_UP,
 				this.onPointerUp.bind(this)
 			);
+		} else {
+			this.cardBehaviour.handleLeftClick(this.cardsGroup, event.clientX);
 		}
+	}
+
+	private checkLeftClick(event: PointerEvent): boolean {
+		return event.button == this.LEFT_CLICK_BUTTON_ID;
 	}
 
 	private checkDragElement(id: string): boolean {
@@ -108,7 +123,7 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		NotificationService.notifyCoordinates(this.position);
 	}
 
-	initDragging(event: PointerEvent): void {
+	private initDragging(event: PointerEvent): void {
 		/* Se emite el grupo arrastrado, para poder asignarle la clase hidden, que lo ubica detrás de las líneas
 		*  mientras se mueve el auxiliar. Debe hacerse desde mechanic-line.component, por eso se use le emitter */
 		this.hiddenCardsGroup.emit(this.cardsGroup);
@@ -116,13 +131,13 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 		this.initCoordinates(event);
 
 		/* Se envía el grupo para mostrar el helper en el overlay */
-		CardPositionService.setHelperGroup(this.cardBehaviour.findHelperGroup());
+		CardPositionService.setHelperGroup(this.cardBehaviour.findHelperGroup(this.cardsGroup));
 		/* Permite asignar o eliminar la clase que añade una transición al helper, para desplazarse a la posicíon
 		*  final */
 		NotificationService.notifyDragging(true);
 	}
 
-	initCoordinates(event: PointerEvent, cardRect: any = this.cardRect): void {
+	private initCoordinates(event: PointerEvent, cardRect: any = this.cardRect): void {
 		this.startPosition = new Coordinates(cardRect.left, cardRect.top);
 		this.position = new Coordinates(cardRect.left, cardRect.top);
 		this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
@@ -151,9 +166,10 @@ export class DraggableDirective implements OnInit, AfterViewChecked {
 			// TODO Revisar hiddenGroup y comprobar si hace falta emitter
 			CardPositionService.hiddenGroup = undefined;
 			CardPositionService.originDropzone = undefined;
-		} else {
-			this.cardBehaviour.handleLeftClick();
 		}
+		// else {
+		// 	this.cardBehaviour.handleLeftClick();
+		// }
 
 		this.pointerMoveListener();
 		this.pointerUpListener();

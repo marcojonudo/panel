@@ -24,7 +24,7 @@ import {ScrollingModule} from "@angular/cdk/scrolling";
 import {CardComponent} from './components/card/card.component';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AngularDraggableModule} from "angular2-draggable";
-import {DraggableDirective} from './directives/draggable.directive'
+import {ClickableCardDirective} from './directives/clickable-card.directive'
 import {OverlayModule} from "@angular/cdk/overlay";
 import {MovableDirective} from './directives/movable.directive';
 import {ScrollableDirective} from './directives/scrollable.directive';
@@ -50,7 +50,6 @@ import { AppointmentsPipe } from './pipes/appointments.pipe';
 import { CardSectionPipe } from './pipes/card-section.pipe';
 import { CardDetailsComponent } from './components/card-details/card-details.component';
 import { CardContextMenuComponent } from './components/card-context-menu/card-context-menu.component';
-import { DivisionVerticalIndicatorComponent } from './components/division-vertical-indicator/division-vertical-indicator.component';
 
 @NgModule({
 	declarations: [
@@ -68,7 +67,7 @@ import { DivisionVerticalIndicatorComponent } from './components/division-vertic
 		DimensionSlidersComponent,
 		DaysPipe,
 		CardComponent,
-		DraggableDirective,
+		ClickableCardDirective,
 		MovableDirective,
 		ScrollableDirective,
 		DropzoneDirective,
@@ -87,8 +86,7 @@ import { DivisionVerticalIndicatorComponent } from './components/division-vertic
 		AppointmentsPipe,
 		CardSectionPipe,
 		CardDetailsComponent,
-		CardContextMenuComponent,
-		DivisionVerticalIndicatorComponent
+		CardContextMenuComponent
 	],
 	imports: [
 		BrowserModule,

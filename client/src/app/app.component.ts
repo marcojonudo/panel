@@ -60,9 +60,7 @@ export class AppComponent implements AfterViewInit {
 
 				this.appointmentsService.init(
 					data.appointmentTypes,
-					data.appointmentDays,
-					this.cardsService.assignedDaysCardsGroups,
-					this.cardsService.unassignedCardsGroups
+					data.appointmentDays
 				);
 
 				this.loading = false;
