@@ -36,13 +36,6 @@ import {CardModeAction} from "../objects/card-mode-action/card-mode-action";
 	providedIn: 'root'
 })
 export class CardsService {
-	get cardModeAction(): { [p: string]: any } {
-		return this._cardModeAction;
-	}
-
-	set cardModeAction(value: { [p: string]: any }) {
-		this._cardModeAction = value;
-	}
 
 	private cards: Card[];
 	private unassignedCards: Card[];
@@ -143,6 +136,14 @@ export class CardsService {
 
 	set cardTypeBehaviour(value: {[key: string]: CardTypeBehaviour}) {
 		this._cardTypeBehaviour = value;
+	}
+
+	get cardModeAction(): { [p: string]: any } {
+		return this._cardModeAction;
+	}
+
+	set cardModeAction(value: { [p: string]: any }) {
+		this._cardModeAction = value;
 	}
 
 	// endregion
@@ -979,6 +980,20 @@ export class CardsService {
 		];
 		if (leftCardDuration >= Constants.VALUE.CARD_MIN_DURATION
 				&& rightCardDuration >= Constants.VALUE.CARD_MIN_DURATION) {
+			this.divideCard(clickedCard, group, leftCardDuration, rightCardDuration);
+		}
+	}
+
+	cutCardByHalf(group: CardsGroup, x: number): void {
+		const xLeft = x - Constants.VALUE.MECHANIC_INFO_WIDTH;
+		const clickedCard = group.cards.find((card: Card) =>
+			DimensionsService.calcLeftFromStart(card.end) > xLeft
+		);
+		if (clickedCard.duration >= Constants.VALUE.CARD_MIN_DURATION * 2) {
+			const [leftCardDuration, rightCardDuration] = [
+				UtilsService.roundCeil(clickedCard.duration / 2, 5),
+				UtilsService.roundFloor(clickedCard.duration / 2, 5)
+			];
 			this.divideCard(clickedCard, group, leftCardDuration, rightCardDuration);
 		}
 	}

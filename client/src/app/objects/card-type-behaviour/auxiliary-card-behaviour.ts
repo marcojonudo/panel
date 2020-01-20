@@ -14,7 +14,8 @@ export class AuxiliaryCardBehaviour implements CardTypeBehaviour {
 
 	constructor(cardsService: CardsService) {
 		this.findHelperGroup = (group) => group.clone(true);
-		this.handleLeftClick = () => {};
+		this.handleLeftClick = (group: CardsGroup, x: number) =>
+			cardsService.findCardModeAction(group.mode).execute(group, x);
 		this.handleRightClick = (group: CardsGroup, coordinates: Coordinates) =>{
 			NotificationService.notifyContextMenu(
 				new DayContextMenu(group.cards[0].day, new ContextMenuInfo(group, coordinates))

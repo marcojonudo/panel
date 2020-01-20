@@ -7,6 +7,10 @@ import {Coordinates} from "../../objects/coordinates";
 import {CardPositionService} from "../../services/card-position.service";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
+import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
+import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
+import {Card} from "../../objects/card";
+import {DimensionsService} from "../../services/dimensions.service";
 
 @Component({
 	selector: 'app-card-context-menu',
@@ -30,6 +34,24 @@ export class CardContextMenuComponent {
 
 	cutCard(): void {
 		this.cardsService.updateCardMode(this.contextMenuInfo.group, Constants.GROUP_MODE.CUT);
+	}
+
+	cutCardByHalf(): void {
+		this.cardsService.cutCardByHalf(this.contextMenuInfo.group, this.contextMenuInfo.clickCoordinates.x);
+		NotificationService.notifyContextMenu(
+			new DayContextMenu(this.contextMenuInfo.group.cards[0].day, undefined)
+		);
+	}
+
+	showCardDetails(): void {
+		const xLeft = this.contextMenuInfo.clickCoordinates.x - Constants.VALUE.MECHANIC_INFO_WIDTH;
+		const clickedCard = this.contextMenuInfo.group.cards.find((card: Card) =>
+			DimensionsService.calcLeftFromStart(card.end) > xLeft
+		);
+		NotificationService.notifyCardDetails(new DayCardDetails(clickedCard.day, clickedCard));
+		NotificationService.notifyContextMenu(
+			new DayContextMenu(clickedCard.day, undefined)
+		);
 	}
 
 }

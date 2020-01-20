@@ -167,9 +167,6 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 			CardPositionService.hiddenGroup = undefined;
 			CardPositionService.originDropzone = undefined;
 		}
-		// else {
-		// 	this.cardBehaviour.handleLeftClick();
-		// }
 
 		this.pointerMoveListener();
 		this.pointerUpListener();

@@ -8,6 +8,7 @@ import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills
 import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {NotificationService} from "../../services/notification.service";
 import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
+import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
 
 @Component({
 	selector: 'app-grid',
@@ -60,6 +61,7 @@ export class GridComponent implements OnInit {
 
 	onPointerDown(): void {
 		NotificationService.notifyContextMenu(new DayContextMenu(this.day, undefined));
+		NotificationService.notifyCardDetails(new DayCardDetails(this.day, undefined));
 	}
 
 	checkTriggerMechanicLineCd(
