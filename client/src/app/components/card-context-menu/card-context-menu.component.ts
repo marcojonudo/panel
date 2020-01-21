@@ -18,29 +18,59 @@ import {DimensionsService} from "../../services/dimensions.service";
 	styleUrls: ['./card-context-menu.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CardContextMenuComponent {
+export class CardContextMenuComponent implements OnInit {
 
 	@Input() contextMenuInfo: ContextMenuInfo;
 
+	private leftOffset: number;
+
 	constructor(private cardsService: CardsService) {}
 
-	findLeft(x: number): number {
-		return CardPositionService.absolutePositionToLeft(x) + Constants.VALUE.MECHANIC_INFO_WIDTH;
+	ngOnInit(): void {
+		this.leftOffset = this.contextMenuInfo && this.contextMenuInfo.group.start
+			? Constants.VALUE.MECHANIC_INFO_WIDTH : 0;
 	}
 
-	findTop(y: number): number {
-		return CardPositionService.absolutePositionToTop(y)
+	findLeft(
+		x: number,
+		contextMenuInfo: ContextMenuInfo = this.contextMenuInfo
+	): number {
+		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedLeft(x) : this.findUnassignedLeft(x);
+	}
+
+	findAssignedLeft(x: number, leftOffset: number = this.leftOffset): number {
+		return CardPositionService.absolutePositionToLeft(x) + leftOffset;
+	}
+
+	findUnassignedLeft(x: number): number {
+		return x;
+	}
+
+	findTop(y: number, contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): number {
+		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedTop(y) : this.findUnassignedTop();
+	}
+
+	findAssignedTop(y: number): number {
+		return CardPositionService.absolutePositionToTop(y);
+	}
+
+	findUnassignedTop(): number {
+		return -((Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2 + Constants.VALUE.LINE_HEIGHT_DEFAULT / 2)
 	}
 
 	cutCard(): void {
 		this.cardsService.updateCardMode(this.contextMenuInfo.group, Constants.GROUP_MODE.CUT);
 	}
 
-	cutCardByHalf(): void {
-		this.cardsService.cutCardByHalf(this.contextMenuInfo.group, this.contextMenuInfo.clickCoordinates.x);
-		NotificationService.notifyContextMenu(
-			new DayContextMenu(this.contextMenuInfo.group.cards[0].day, undefined)
+	cutCardByHalf(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset): void {
+		const groupX = contextMenuInfo.group.start
+			? contextMenuInfo.group.left : CardPositionService.barLeftToAbsolutePosition(contextMenuInfo.group.left);
+		this.cardsService.cutCardByHalf(
+			contextMenuInfo.group,
+			groupX,
+			contextMenuInfo.clickCoordinates.x - leftOffset
 		);
+		NotificationService.notifyContextMenu(undefined);
 	}
 
 	showCardDetails(): void {
@@ -49,9 +79,7 @@ export class CardContextMenuComponent {
 			DimensionsService.calcLeftFromStart(card.end) > xLeft
 		);
 		NotificationService.notifyCardDetails(new DayCardDetails(clickedCard.day, clickedCard));
-		NotificationService.notifyContextMenu(
-			new DayContextMenu(clickedCard.day, undefined)
-		);
+		NotificationService.notifyContextMenu(undefined);
 	}
 
 }

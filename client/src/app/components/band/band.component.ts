@@ -9,6 +9,7 @@ import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../../objects/grouped-type-cards";
 import {UnassignedSection} from "../../objects/unassigned-sections/unassigned-section";
 import {NotificationService} from "../../services/notification.service";
+import {ContextMenuInfo} from "../../objects/context-menu-info";
 
 @Component({
 	selector: 'app-band',
@@ -36,6 +37,8 @@ import {NotificationService} from "../../services/notification.service";
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BandComponent implements OnInit, OnDestroy {
+
+	@Input() contextMenuInfo: ContextMenuInfo;
 
 	private _unassignedCardRelativeTop: number;
 	private _unassignedTypesCardsGroups: GroupedTypeCards;
@@ -95,14 +98,6 @@ export class BandComponent implements OnInit, OnDestroy {
 		this._section = value;
 	}
 
-	get unassignedDropzoneType(): string {
-		return Constants.DROPZONE_TYPE.UNASSIGNED;
-	}
-
-	get finishDropzoneType(): string {
-		return Constants.DROPZONE_TYPE.FINISH;
-	}
-
 	get unassignedBarHeight(): number {
 		return Constants.VALUE.UNASSIGNED_BAR_HEIGHT;
 	}
@@ -137,16 +132,8 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	// endregion
 
-	checkAuxiliarySection(section: UnassignedSection = this.section): boolean {
-		return section.name == Constants.CARD_TYPE.AUXILIARY;
-	}
-
 	checkFinishedSection(section: UnassignedSection = this.section): boolean {
 		return section.name == Constants.CARD_STATUS.FINISHED;
-	}
-
-	findGroupLeft(left: number, index: number): number {
-		return left + (index + 1) * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS;
 	}
 
 	setSection(type: string): void {
@@ -154,9 +141,9 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.cdRef.detectChanges();
 	}
 
-	// findUnassignedTypeGroups(type: string = this.type): CardsGroup[] {
-	// 	return this.unassignedTypesCardsGroups[type];
-	// }
+	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
+		return contextMenuInfo != undefined;
+	}
 
 	setHiddenCardsGroup(group: CardsGroup): void {
 		CardPositionService.hiddenGroup = group;

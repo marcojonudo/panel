@@ -13,6 +13,7 @@ import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
 import {DayCardDetails} from "../objects/card-details-update/day-card-details";
 import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
 import {DayContextMenu} from "../objects/context-menu-update/day-context-menu";
+import {ContextMenuInfo} from "../objects/context-menu-info";
 
 @Injectable({
 	providedIn: 'root'
@@ -52,8 +53,8 @@ export class NotificationService {
 	private static quartersSaturationSubject: Subject<DayQuartersSaturation>;
 	private static _quartersSaturation$: Observable<DayQuartersSaturation>;
 
-	private static contextMenuSubject: Subject<DayContextMenu>;
-	private static _contextMenu$: Observable<DayContextMenu>;
+	private static contextMenuSubject: Subject<ContextMenuInfo>;
+	private static _contextMenu$: Observable<ContextMenuInfo>;
 
 	// region Init
 
@@ -91,7 +92,7 @@ export class NotificationService {
 		this.quartersSaturationSubject = new Subject<DayQuartersSaturation>();
 		this.quartersSaturation$ = this.quartersSaturationSubject.asObservable();
 
-		this.contextMenuSubject = new Subject<DayContextMenu>();
+		this.contextMenuSubject = new Subject<ContextMenuInfo>();
 		this.contextMenu$ = this.contextMenuSubject.asObservable();
 	}
 
@@ -187,11 +188,11 @@ export class NotificationService {
 		this._quartersSaturation$ = value;
 	}
 
-	static get contextMenu$(): Observable<DayContextMenu> {
+	static get contextMenu$(): Observable<ContextMenuInfo> {
 		return this._contextMenu$;
 	}
 
-	static set contextMenu$(value: Observable<DayContextMenu>) {
+	static set contextMenu$(value: Observable<ContextMenuInfo>) {
 		this._contextMenu$ = value;
 	}
 
@@ -246,8 +247,8 @@ export class NotificationService {
 		this.quartersSaturationSubject.next(dayQuartersSaturation);
 	}
 
-	static notifyContextMenu(dayContextMenu: DayContextMenu): void {
-		this.contextMenuSubject.next(dayContextMenu);
+	static notifyContextMenu(contextMenuInfo: ContextMenuInfo): void {
+		this.contextMenuSubject.next(contextMenuInfo);
 	}
 
 }

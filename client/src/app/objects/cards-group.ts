@@ -133,7 +133,7 @@ export class CardsGroup {
 
 	setStart(start: Date): void {
 		this.start = start;
-		this.left = DimensionsService.calcLeftFromStart(this.start);
+		this.left = this.start ? DimensionsService.calcLeftFromStart(this.start) : undefined;
 	}
 
 	addCards(cards: Card[]): void {

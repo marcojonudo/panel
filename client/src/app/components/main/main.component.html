@@ -19,7 +19,7 @@
 						[quartersSaturation]="findQuartersSaturation(today)"
 						[mechanicLineUpdate]="checkTriggerLineCd(today)"
 						[dayMechanicSkills]="checkTriggerInfoCd(today)"
-						[contextMenuInfo]="findContextMenuInfo(today)"
+						[contextMenuInfo]="findAssignedContextMenuInfo()"
 						[maxScheduleHours]="maxScheduleHours"
 						[maxScheduleWidth]="maxScheduleWidth">
 					</app-day-panel>
@@ -79,7 +79,7 @@
 								[quartersSaturation]="findQuartersSaturation(day)"
 								[mechanicLineUpdate]="checkTriggerLineCd(day)"
 								[dayMechanicSkills]="checkTriggerInfoCd(day)"
-								[contextMenuInfo]="findContextMenuInfo(day)"
+								[contextMenuInfo]="findAssignedContextMenuInfo()"
 								[maxScheduleHours]="maxScheduleHours"
 								[maxScheduleWidth]="maxScheduleWidth">
 							</app-day-panel>
@@ -113,7 +113,10 @@
 	</div>
 	<div class="row unassigned-orders-container">
 		<div class="col padding-0">
-			<app-band class="w-100"></app-band>
+			<app-band
+				class="w-100"
+				[contextMenuInfo]="findUnassignedContextMenuInfo()">
+			</app-band>
 		</div>
 	</div>
 </div>

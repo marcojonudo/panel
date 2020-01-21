@@ -17,9 +17,7 @@ export class DefaultCardBehaviour implements CardTypeBehaviour{
 		this.handleLeftClick = (group: CardsGroup, x: number) =>
 			cardsService.findCardModeAction(group.mode).execute(group, x);
 		this.handleRightClick = (group: CardsGroup, coordinates: Coordinates) => {
-			NotificationService.notifyContextMenu(
-				new DayContextMenu(group.cards[0].day, new ContextMenuInfo(group, coordinates))
-			);
+			NotificationService.notifyContextMenu(new ContextMenuInfo(group, coordinates));
 		}
 	}
 

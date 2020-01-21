@@ -187,7 +187,6 @@ export class CardsService {
 	}
 
 	private initUnassignedCardsGroups(unassignedCards: Card[]): CardsGroup[] {
-		UtilsService.sort(unassignedCards, (c) => c.order.code);
 		let groups = [];
 		let processedCards = [];
 		for (let card of unassignedCards) {
@@ -198,6 +197,8 @@ export class CardsService {
 				processedCards = processedCards.concat(linkedCards);
 			}
 		}
+		/* Se ordenan los grupos en función del código de orden y del divisionIndex */
+		this.sortUnassignedGroups(groups);
 		return groups;
 	}
 
@@ -794,7 +795,21 @@ export class CardsService {
 	private addUnassignedCardsGroup(group: CardsGroup): void {
 		const groups = this.findUnassignedGroups(group.type, group.status);
 		groups.push(group);
-		UtilsService.sort(groups, (g) => g.cards[0].order.code);
+		this.sortUnassignedGroups(groups);
+	}
+
+	private sortUnassignedGroups(groups: CardsGroup[]): void {
+		/* Los grupos sin asignar se orden en función del orderCode, y dentro de una misma orden, del
+		*  divisionIndex */
+		groups.sort((a: CardsGroup, b: CardsGroup) => {
+			if (a.cards[0].order.code < b.cards[0].order.code) {
+				return -1;
+			} else if (a.cards[0].order.code > b.cards[0].order.code) {
+				return 1;
+			} else {
+				return a.cards[0].divisionIndex < b.cards[0].divisionIndex ? -1 : 0
+			}
+		});
 	}
 
 	private removeUnassignedCardsGroup(group: CardsGroup): void {
@@ -892,8 +907,7 @@ export class CardsService {
 		cards.sort((a, b) => {
 			if (!a.linkedPrevious || !b.linkedNext) {
 				return -1
-			}
-			else if (!a.linkedNext || !b.linkedPrevious) {
+			} else if (!a.linkedNext || !b.linkedPrevious) {
 				return 1
 			}
 			return 0;
@@ -964,16 +978,14 @@ export class CardsService {
 
 	// region Division
 
-	cutCard(group: CardsGroup, x: number): void {
-		const xLeft = x - Constants.VALUE.MECHANIC_INFO_WIDTH;
-		const clickedCard = group.cards.find((card: Card) =>
-			DimensionsService.calcLeftFromStart(card.end) > xLeft
+	cutCard(group: CardsGroup, groupX: number, x: number): void {
+		const clickedCard = this.findClickedCard(group.cards, groupX, x);
+		const clickedCardIndex = group.cards.findIndex((card: Card) => card.panelId == clickedCard.panelId);
+		const cardLeft = groupX + DimensionsService.calcWidthFromDuration(
+			this.findCardsDuration(group.cards.slice(0, clickedCardIndex))
 		);
-		const [cardLeft, cardRight] = [
-			DimensionsService.calcLeftFromStart(clickedCard.start),
-			DimensionsService.calcLeftFromStart(clickedCard.end)
-		];
-		const [leftCardWidth, rightCardWidth] = [xLeft - cardLeft, cardRight - xLeft];
+		const cardRight = cardLeft + DimensionsService.calcWidthFromDuration(clickedCard.duration);
+		const [leftCardWidth, rightCardWidth] = [x - cardLeft, cardRight - x];
 		const [leftCardDuration, rightCardDuration] = [
 			DimensionsService.calcDurationFromWidth(leftCardWidth),
 			DimensionsService.calcDurationFromWidth(rightCardWidth)
@@ -984,11 +996,8 @@ export class CardsService {
 		}
 	}
 
-	cutCardByHalf(group: CardsGroup, x: number): void {
-		const xLeft = x - Constants.VALUE.MECHANIC_INFO_WIDTH;
-		const clickedCard = group.cards.find((card: Card) =>
-			DimensionsService.calcLeftFromStart(card.end) > xLeft
-		);
+	cutCardByHalf(group: CardsGroup, groupX: number, x: number): void {
+		const clickedCard = this.findClickedCard(group.cards, groupX, x);
 		if (clickedCard.duration >= Constants.VALUE.CARD_MIN_DURATION * 2) {
 			const [leftCardDuration, rightCardDuration] = [
 				UtilsService.roundCeil(clickedCard.duration / 2, 5),
@@ -996,6 +1005,18 @@ export class CardsService {
 			];
 			this.divideCard(clickedCard, group, leftCardDuration, rightCardDuration);
 		}
+	}
+
+	private findClickedCard(cards: Card[], groupX: number, x: number): Card {
+		return cards.find((card: Card, index: number) => {
+			const leftCardsDuration = this.findCardsDuration(cards.slice(0, index+1));
+			const leftCardsWidth = DimensionsService.calcWidthFromDuration(leftCardsDuration);
+			return groupX + leftCardsWidth > x
+		});
+	}
+
+	private findCardsDuration(cards: Card[]): number {
+		return UtilsService.sum(cards, Constants.PROPERTY.DURATION);
 	}
 
 	divideCard(card: Card, group: CardsGroup, leftCardDuration: number, rightCardDuration: number): void {
@@ -1036,7 +1057,6 @@ export class CardsService {
 		this.http.post(Url.cards(), [newCard]).subscribe(() => {
 			/* Si la ficha dividida no era la primera del grupo, es necesario actualizar el linkedNext de la anterior */
 			if (cardGroupIndex > 0) {
-				console.log(3, newGroup.cards.slice(newGroup.cards.length-2, newGroup.cards.length-1));
 				this.http.put(
 					Url.cardsLinks(),
 					newGroup.cards.slice(newGroup.cards.length-2, newGroup.cards.length-1)
@@ -1049,7 +1069,11 @@ export class CardsService {
 			{params: {oldDivisionIndexes: oldDivisionIndexes.map((i: number) => i.toString())}}
 		).subscribe();
 
-		this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup);
+		if (card.day) {
+			this.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup);
+		} else {
+			this.handleAddUnassignedCardsGroup(newGroup);
+		}
 	}
 
 	private updateCardsDivisionIndexes(dividedCardsToUpdate: Card[], card: Card): number[] {

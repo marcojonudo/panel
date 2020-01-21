@@ -409,6 +409,13 @@ export class DimensionsService {
 		return relativeIntervals * this.intervalWidth;
 	}
 
+	static calcUnassignedGroupLeft(groups: CardsGroup[], groupIndex: number): number {
+		const marginBetweenGroups = groupIndex < 2
+			? Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS
+			: groupIndex * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS;
+		return this.calcLeftFromCardsGroups(groupIndex, groups) + marginBetweenGroups;
+	}
+
 	static calcLeftFromCardsGroups(groupIndex: number, groups: CardsGroup[]) {
 		const previousWidth = this.findCardsGroupsWidth(groups.slice(0, groupIndex));
 		return (groups[0].left ? groups[0].left : 0) + previousWidth;

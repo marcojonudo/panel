@@ -38,6 +38,7 @@ export class CardPositionService {
 	private static _lastScrollTop: number;
 	private static _relativeScrollLeft: number;
 	private static _relativeScrollTop: number;
+	private static _barScrollLeft: number;
 
 	private static _position: Coordinates;
 	private static _helperGroup: CardsGroup;
@@ -148,6 +149,14 @@ export class CardPositionService {
 		this._unassignedCardTop = value;
 	}
 
+	static get barScrollLeft(): number {
+		return this._barScrollLeft;
+	}
+
+	static set barScrollLeft(value: number) {
+		this._barScrollLeft = value;
+	}
+
 	// endregion
 
 	// region Init
@@ -165,6 +174,7 @@ export class CardPositionService {
 		this.scrollTop = 0;
 		this.relativeScrollLeft = 0;
 		this.relativeScrollTop = 0;
+		this.barScrollLeft = 0;
 	}
 
 	// endregion
@@ -188,11 +198,11 @@ export class CardPositionService {
 	private static updateUnassignedDimensions(unassignedSections: UnassignedSection[]): void {
 		for (const section of unassignedSections) {
 			const groups = section.findGroups();
-			groups.forEach((cardsGroup: CardsGroup, i: number) => {
-				cardsGroup.cards.forEach((card) => {
+			groups.forEach((group: CardsGroup, i: number) => {
+				group.cards.forEach((card) => {
 					card.width = DimensionsService.calcWidthFromDuration(card.duration);
 				});
-				cardsGroup.left = DimensionsService.calcLeftFromCardsGroups(i, groups);
+				group.left = DimensionsService.calcUnassignedGroupLeft(groups, i);
 			});
 		}
 	}
@@ -202,14 +212,14 @@ export class CardPositionService {
 	): void {
 		for (const groups of Object.values(unassignedTypesCardsGroups)) {
 			groups.forEach((cardsGroup: CardsGroup, i: number) => {
-				cardsGroup.left = DimensionsService.calcLeftFromCardsGroups(i, groups);
+				cardsGroup.left = DimensionsService.calcUnassignedGroupLeft(groups, i);
 			});
 		}
 	}
 
 	static updateUnassignedGroupsLeft(groups: CardsGroup[]): void {
 		groups.forEach((group: CardsGroup, i: number) => {
-			group.left = i == 0 ? 0 : DimensionsService.calcLeftFromCardsGroups(i, groups);
+			group.left = i == 0 ? 0 : DimensionsService.calcUnassignedGroupLeft(groups, i);
 		});
 	}
 
@@ -575,6 +585,10 @@ export class CardPositionService {
 		relativeScrollTop: number = this.relativeScrollTop
 	) {
 		return top - relativeScrollTop;
+	}
+
+	static barLeftToAbsolutePosition(left: number, barScrollLeft: number = this.barScrollLeft): number {
+		return left - barScrollLeft;
 	}
 
 	// endregion

@@ -59,6 +59,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _mechanicLineUpdate: MechanicUpdate;
 	private _mechanicInfoUpdate: MechanicUpdate;
 
+	private _contextMenuInfo: ContextMenuInfo;
+
 	private relativeContainer: boolean;
 	private scrollLeft: number;
 	private scrollTop: number;
@@ -114,8 +116,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		});
 
 		this.contextMenuSubscription = NotificationService.contextMenu$
-				.subscribe((dayContextMenu: DayContextMenu) => {
-			this.daysContextMenu[dayContextMenu.day.getTime()] = dayContextMenu.contextMenuInfo;
+				.subscribe((contextMenuInfo: ContextMenuInfo) => {
+			this.contextMenuInfo = contextMenuInfo;
 			this.cdRef.detectChanges();
 		});
 
@@ -327,6 +329,14 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._daysContextMenu = value;
 	}
 
+	get contextMenuInfo(): ContextMenuInfo {
+		return this._contextMenuInfo;
+	}
+
+	set contextMenuInfo(value: ContextMenuInfo) {
+		this._contextMenuInfo = value;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
@@ -360,8 +370,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		return daysQuartersSaturation[day.getTime()].quartersSaturation;
 	}
 
-	findContextMenuInfo(day: Date, daysContextMenu: DaysContextMenu = this.daysContextMenu): ContextMenuInfo {
-		return daysContextMenu[day.getTime()];
+	findAssignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
+		return contextMenuInfo && contextMenuInfo.group.start ? contextMenuInfo : undefined;
+	}
+
+	findUnassignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
+		return contextMenuInfo && !contextMenuInfo.group.start ? contextMenuInfo : undefined;
 	}
 
 	checkTriggerInfoCd(

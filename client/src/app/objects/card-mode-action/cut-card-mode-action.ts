@@ -2,6 +2,7 @@ import {CardModeAction} from "./card-mode-action";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../cards-group";
 import {Constants} from "../constants";
+import {CardPositionService} from "../../services/card-position.service";
 
 export class CutCardModeAction implements CardModeAction {
 
@@ -9,7 +10,14 @@ export class CutCardModeAction implements CardModeAction {
 
 	constructor(cardsService: CardsService) {
 		this.execute = (group: CardsGroup, x: number) => {
-			cardsService.cutCard(group, x);
+			let [leftOffset, groupX] = [0, 0];
+			if (group.start) {
+				leftOffset = Constants.VALUE.MECHANIC_INFO_WIDTH;
+				groupX = group.left;
+			} else {
+				groupX = CardPositionService.barLeftToAbsolutePosition(group.left);
+			}
+			cardsService.cutCard(group, groupX, x - leftOffset);
 			cardsService.updateCardMode(group, Constants.GROUP_MODE.DRAG);
 		}
 	}

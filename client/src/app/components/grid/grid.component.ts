@@ -60,7 +60,7 @@ export class GridComponent implements OnInit {
 	// endregion
 
 	onPointerDown(): void {
-		NotificationService.notifyContextMenu(new DayContextMenu(this.day, undefined));
+		NotificationService.notifyContextMenu(undefined);
 		NotificationService.notifyCardDetails(new DayCardDetails(this.day, undefined));
 	}
 

@@ -12,20 +12,25 @@
 <div
 	*ngFor="let section of cardSections | cardSection: section"
 	appDropzone
+	appHorizontalScrollable
 	[type]="section.dropzoneType"
 	[subType]="section.name"
 	class="flex-grow-1 unassigned-orders-cards-container not-finished-groups-container"
 	[style.height.px]="unassignedBarHeight">
 	<app-draggable-group
-		*ngFor="let group of section.findGroups(); let i = index"
+		*ngFor="let group of section.findGroups()"
 		class="unassigned-card"
 		[ngClass]="{'hidden': checkHideGroup(section.name, group.id)}"
 		[ngStyle]="{
 			'height.px': lineDefaultHeight,
-			'transform': 'translateX(' + findGroupLeft(group.left, i) + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
+			'transform': 'translateX(' + group.left + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
 		}"
 		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
 		[cardsGroup]="group">
 	</app-draggable-group>
 </div>
+<app-card-context-menu
+	*ngIf="checkShowContextMenu()"
+	[contextMenuInfo]="contextMenuInfo">
+</app-card-context-menu>
 <div>{{check()}}</div>

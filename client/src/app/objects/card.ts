@@ -85,7 +85,7 @@ export class Card {
 
 	setDuration(duration: number, width: number = undefined) {
 		this.duration = duration;
-		this.end = UtilsService.addMinutes(this.start, this.duration);
+		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : undefined;
 		this.width = width ? width : DimensionsService.calcWidthFromDuration(this.duration);
 	}
 
