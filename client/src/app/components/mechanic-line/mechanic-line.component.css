@@ -29,3 +29,19 @@
 .hidden {
 	z-index: -1;
 }
+
+.schedule-border {
+	height: 100%;
+	width: 11px;
+	position: absolute;
+}
+
+.schedule-left-border {
+	left: 0;
+	background: linear-gradient(red 5px, transparent 5px, transparent, transparent calc(100% - 5px), red calc(100% - 5px)) center/100% auto no-repeat, linear-gradient(90deg, red, red 5px, transparent 5px, transparent) center/100% auto no-repeat;
+}
+
+.schedule-right-border {
+	right: 0;
+	background: linear-gradient(red 5px, transparent 5px, transparent, transparent calc(100% - 5px), red calc(100% - 5px)) center/100% auto no-repeat, linear-gradient(90deg, transparent, transparent 5px, red 5px, red) center/100% auto no-repeat;
+}

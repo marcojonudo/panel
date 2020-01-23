@@ -20,6 +20,8 @@
 		 	'left.px': calcScheduleLeft(interval.start),
 		 	'background': calcScheduleLineBackground(interval.quarters)
 		}">
+		<div class="schedule-border schedule-left-border"></div>
+		<div class="schedule-border schedule-right-border"></div>
 	</div>
 	<app-draggable-group
 		*ngFor="let group of findGroups(day, mechanic.code)"
