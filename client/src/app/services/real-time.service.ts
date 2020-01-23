@@ -19,6 +19,8 @@ import {NotificationService} from "./notification.service";
 import {CardsGroup} from "../objects/cards-group";
 import {DimensionsService} from "./dimensions.service";
 import {MechanicsService} from "./mechanics.service";
+import {UnassignedCardLinkHandler} from "../objects/card-links/unassigned-card-link-handler";
+import {AssignedCardLinkHandler} from "../objects/card-links/assigned-card-link-handler";
 
 @Injectable({
 	providedIn: 'root'
@@ -170,12 +172,16 @@ export class RealTimeService {
 			const card = this.cardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
 				return c.panelId == cards[0].panelId
 			});
-			this.cardsService.linkNext(card, false);
+			const linkHandler = card.day
+				? new AssignedCardLinkHandler(this.cardsService) : new UnassignedCardLinkHandler(this.cardsService);
+			this.cardsService.linkNext(card, linkHandler, false);
 		} else {
 			const card = this.cardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
 				return c.panelId == cards[0].panelId
 			});
-			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, false);
+			const linkHandler = card.day
+				? new AssignedCardLinkHandler(this.cardsService) : new UnassignedCardLinkHandler(this.cardsService);
+			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, linkHandler,false);
 		}
 	}
 

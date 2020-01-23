@@ -105,7 +105,7 @@ export class MechanicLineComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line');
+			console.log('checking mechanic line', this.mechanicLineUpdate);
 		}
 	}
 

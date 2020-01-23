@@ -6,9 +6,6 @@ import {
 } from '@angular/core';
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
-import {AuxiliaryCardBehaviour} from "../../objects/card-type-behaviour/auxiliary-card-behaviour";
-import {DefaultCardBehaviour} from "../../objects/card-type-behaviour/default-card-behaviour";
-import {MechanicsService} from "../../services/mechanics.service";
 import {CardsService} from "../../services/cards.service";
 import {CardTypeBehaviour} from "../../objects/card-type-behaviour/card-type-behaviour";
 
@@ -20,6 +17,7 @@ import {CardTypeBehaviour} from "../../objects/card-type-behaviour/card-type-beh
 export class DraggableGroupComponent {
 
 	@Input() cardsGroup: CardsGroup;
+
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
 	constructor(private cardsService: CardsService) {
@@ -43,7 +41,7 @@ export class DraggableGroupComponent {
 
 	check(): void {
 		if (Constants.CHECK) {
-			console.log('checking draggable group', this.cardsGroup.cards[0].order.code);
+			console.log('checking draggable group', this.cardsGroup, this.mechanicLineUpdate);
 		}
 	}
 

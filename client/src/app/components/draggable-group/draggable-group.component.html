@@ -8,8 +8,7 @@
 	<app-card
 		*ngFor="let card of cardsGroup.cards"
 		[card]="card"
-		[width]="card.width"
-		[possibleLinkedNext]="card.possibleLinkedNext"
-		[possibleLinkedPrevious]="card.possibleLinkedPrevious"></app-card>
+		[width]="card.width">
+	</app-card>
 </div>
 <div>{{check()}}</div>

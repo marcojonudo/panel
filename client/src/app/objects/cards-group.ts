@@ -153,7 +153,6 @@ export class CardsGroup {
 	}
 
 	removeCards(fromIndex, toIndex): void {
-		// TODO Revisar cuando antes se usaba el splice
 		this.cards = this.cards.slice(fromIndex, toIndex);
 		this.id = this.cards[0].panelId;
 		this.setStart(this.cards[0].start);
