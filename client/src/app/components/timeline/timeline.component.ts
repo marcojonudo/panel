@@ -17,7 +17,7 @@ export class TimelineComponent {
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
-	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 2500;
+	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 3000;
 	private readonly QUARTERS: string[] = ['00', '15', '30', '45'];
 
 	// region Getters / setters
@@ -31,28 +31,6 @@ export class TimelineComponent {
 	}
 
 	// endregion
-
-	calcTimelineBackground(): string {
-		return `repeating-linear-gradient(
-			to right,
-			#ffffff,
-			#ffffff ${this.quarterWidth - 1}px,
-			#a2a2a2 ${this.quarterWidth - 1}px,
-			#a2a2a2 ${this.quarterWidth}px,
-			#ffffff ${this.quarterWidth}px,
-			#ffffff ${this.quarterWidth*2 - 1}px,
-			#a2a2a2 ${this.quarterWidth*2 - 1}px,
-			#a2a2a2 ${this.quarterWidth*2}px,
-			#ffffff ${this.quarterWidth*2}px,
-			#ffffff ${this.quarterWidth*3 - 1}px,
-			#a2a2a2 ${this.quarterWidth*3 - 1}px,
-			#a2a2a2 ${this.quarterWidth*3}px,
-			#ffffff ${this.quarterWidth*3}px,
-			#ffffff ${this.quarterWidth*4 - 2}px,
-			#a2a2a2 ${this.quarterWidth*4 - 2}px,
-			#a2a2a2 ${this.quarterWidth*4}px
-		)`;
-	}
 
 	findQuarterBackground(
 		hour: number,

@@ -22,22 +22,11 @@ export class MechanicLineComponent {
 	@Input() maxScheduleWidth: number;
 	@Input() appointments: AppointmentSchedule[];
 
-	private _hiddenCardsGroup: CardsGroup;
-
-	private quarterBackground: any;
-
 	constructor(
 		private cardsService: CardsService,
 		private cardPositionService: CardPositionService,
 		private cdRef: ChangeDetectorRef
-	) {
-		this.quarterBackground = {
-			0: 1,
-			15: 1,
-			30: 1,
-			45: 2
-		}
-	}
+	) {}
 
 	// region Getters / setters
 
@@ -68,26 +57,8 @@ export class MechanicLineComponent {
 		return start ? DimensionsService.calcLeftFromStart(start) : 0;
 	}
 
-	calcScheduleLineBackground(quarters: number[]): any {
-		return `repeating-linear-gradient(
-			to right,
-			rgb(225, 225, 225, .5),
-			rgb(225, 225, 225, .5) ${this.quarterWidth-this.quarterBackground[quarters[0]]}px,
-			#a2a2a2 ${this.quarterWidth-this.quarterBackground[quarters[0]]}px,
-			#a2a2a2 ${this.quarterWidth}px,
-			rgb(225, 225, 225, .5) ${this.quarterWidth}px,
-			rgb(225, 225, 225, .5) ${this.quarterWidth*2-this.quarterBackground[quarters.length > 1 ? quarters[1] : (quarters[0] + 15)%60]}px,
-			#a2a2a2 ${this.quarterWidth*2-this.quarterBackground[quarters.length > 1 ? quarters[1] : (quarters[0] + 15)%60]}px,
-			#a2a2a2 ${this.quarterWidth*2}px,
-			rgb(225, 225, 225, .5) ${this.quarterWidth*2}px,
-			rgb(225, 225, 225, .5) ${this.quarterWidth*3-this.quarterBackground[quarters.length > 2 ? quarters[2] : (quarters[0] + 15*2)%60]}px,
-			#a2a2a2 ${this.quarterWidth*3-this.quarterBackground[quarters.length > 2 ? quarters[2] : (quarters[0] + 15*2)%60]}px,
-			#a2a2a2 ${this.quarterWidth*3}px,
-			rgb(225, 225, 225, .5) ${this.quarterWidth*3}px,
-			rgb(225, 225, 225, .5) ${this.quarterWidth*4-this.quarterBackground[quarters.length > 3 ? quarters[3] : (quarters[0] + 15*3)%60]}px,
-			#a2a2a2 ${this.quarterWidth*4-this.quarterBackground[quarters.length > 3 ? quarters[3] : (quarters[0] + 15*3)%60]}px,
-			#a2a2a2 ${this.quarterWidth*4}px
-		)`;
+	checkStartHourQuarter(quarter: number): number {
+		return quarter == 0;
 	}
 
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {

@@ -156,9 +156,9 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	check() {
-		// if (Constants.CHECK) {
+		if (Constants.CHECK) {
 			console.log('checking band', this.unassignedTypesCardsGroups)
-		// }
+		}
 	}
 
 	trackById(index, item) {

@@ -5,6 +5,7 @@
 
 .schedule-line {
 	position: absolute;
+	background-color: #e0e0e0;
 }
 
 .quarter {
@@ -14,7 +15,7 @@
 }
 
 .appointment-schedule {
-	opacity: .2;
+	opacity: .3;
 }
 
 .dropzone-dragging {
@@ -44,4 +45,12 @@
 .schedule-right-border {
 	right: 0;
 	background: linear-gradient(red 5px, transparent 5px, transparent, transparent calc(100% - 5px), red calc(100% - 5px)) center/100% auto no-repeat, linear-gradient(90deg, transparent, transparent 5px, red 5px, red) center/100% auto no-repeat;
+}
+
+.quarter-border {
+	border-left: 1px dotted #a0a0a0;
+}
+
+.hour-border {
+	border-left: 1px solid #a0a0a0;
 }

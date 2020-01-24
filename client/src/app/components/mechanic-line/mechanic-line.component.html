@@ -1,15 +1,6 @@
 <div
 	class="h-100 mechanic-line">
 	<div
-		*ngFor="let appointment of mechanic.appointments | appointments"
-		class="h-100 d-flex schedule-line appointment-schedule"
-		[ngStyle]="{
-			'width.px': calcScheduleWidth(appointment.schedule.intervals[0].duration),
-			'left.px': calcScheduleLeft(appointment.schedule.intervals[0].start),
-			'background-color': appointment.appointmentType.color
-		}">
-	</div>
-	<div
 		class="h-100 d-flex schedule-line"
 		appDropzone
 		[type]="assignedDropzoneType"
@@ -17,11 +8,26 @@
 		*ngFor="let interval of mechanic.schedule.intervals"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(interval.duration),
-		 	'left.px': calcScheduleLeft(interval.start),
-		 	'background': calcScheduleLineBackground(interval.quarters)
+		 	'left.px': calcScheduleLeft(interval.start)
 		}">
 		<div class="schedule-border schedule-left-border"></div>
 		<div class="schedule-border schedule-right-border"></div>
+		<div class="w-100 h-100 position-relative d-flex">
+			<div
+				*ngFor="let quarter of interval.quarters"
+				class="flex-grow-1"
+				[ngClass]="checkStartHourQuarter(quarter) ? 'hour-border' : 'quarter-border'">
+			</div>
+		</div>
+	</div>
+	<div
+		*ngFor="let appointment of mechanic.appointments | appointments"
+		class="h-100 d-flex schedule-line appointment-schedule"
+		[ngStyle]="{
+			'width.px': calcScheduleWidth(appointment.schedule.intervals[0].duration),
+			'left.px': calcScheduleLeft(appointment.schedule.intervals[0].start),
+			'background-color': appointment.appointmentType.color
+		}">
 	</div>
 	<app-draggable-group
 		*ngFor="let group of findGroups(day, mechanic.code)"
