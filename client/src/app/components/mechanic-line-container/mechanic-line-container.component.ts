@@ -2,7 +2,6 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
-import {CardsGroup} from "../../objects/cards-group";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 
@@ -30,6 +29,10 @@ export class MechanicLineContainerComponent {
 	}
 
 	// endregion
+
+	calcScheduleHeight(): number {
+		return this.mechanic.height + Constants.VALUE.JOB_LINE_TYPE_HEIGHT;
+	}
 
 	check() {
 		if (Constants.CHECK) {

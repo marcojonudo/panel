@@ -1,12 +1,9 @@
 import {Injectable} from '@angular/core';
 import {AppointmentSchedule} from "../objects/appointment-schedule";
-import {CommonService} from "./common.service";
 import {Schedule} from "../objects/schedule";
 import {Constants} from "../objects/constants";
-import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
-import {CardsGroup} from "../objects/cards-group";
 import {AppointmentType} from "../objects/appointment-type";
 import {Card} from "../objects/card";
 import {AppointmentDay} from "../objects/appointment-day";
@@ -15,7 +12,6 @@ import {UtilsService} from "./utils.service";
 import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
 import {Url} from "../objects/url";
 import {AppointmentsCounterUpdateTrigger} from "../objects/update-appointments-counter/appointments-counter-update-trigger";
-import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {UpdateAppointmentDayParams} from "../objects/update-appointment-day-params";
 
 @Injectable({

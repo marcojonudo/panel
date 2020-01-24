@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory
 import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
-import panel.clients.schedules.SchedulesDatabaseClient
 import panel.clients.skills.SkillsDatabaseClient
 import panel.pogos.CompleteInfo
 import panel.pogos.UpdateAppointmentDays
@@ -30,20 +29,17 @@ class PanelService {
 
 	PanelDatabaseClient panelDatabaseClient
 	FviberiDatabaseClient fviberiDatabaseClient
-	SchedulesDatabaseClient schedulesDatabaseClient
 	SkillsDatabaseClient skillsDatabaseClient
 	CuboDatabaseClient cuboDatabaseClient
 
 	PanelService(
 			PanelDatabaseClient panelDatabaseClient,
 			FviberiDatabaseClient fviberiDatabaseClient,
-	        SchedulesDatabaseClient schedulesDatabaseClient,
 	        SkillsDatabaseClient skillsDatabaseClient,
 			CuboDatabaseClient cuboDatabaseClient
 	) {
 		this.panelDatabaseClient = panelDatabaseClient
 		this.fviberiDatabaseClient = fviberiDatabaseClient
-		this.schedulesDatabaseClient = schedulesDatabaseClient
 		this.skillsDatabaseClient = skillsDatabaseClient
 		this.cuboDatabaseClient = cuboDatabaseClient
 	}
@@ -96,7 +92,7 @@ class PanelService {
 	 * @return List of mechanic employees
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(Date date) {
-		List<EmployeeSchedule> mechanics = schedulesDatabaseClient.getMechanics(date, true)
+		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(date, true)
 		Map<String, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day?.toString() }
 		return daysMechanics
 	}

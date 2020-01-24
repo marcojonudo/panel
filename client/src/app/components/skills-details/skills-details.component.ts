@@ -1,15 +1,9 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	EventEmitter, Input,
-	OnDestroy,
-	OnInit,
-	Output
+	Input,
 } from '@angular/core';
-import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
-import {Subscription} from "rxjs/internal/Subscription";
 import {Constants} from "../../objects/constants";
 
 @Component({

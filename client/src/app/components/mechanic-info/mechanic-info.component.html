@@ -3,35 +3,45 @@
 	[ngClass]="{'mechanic-info-highlight': checkHighlightMechanic()}">
 	<div
 		*ngIf="oneDayMode; else minLayout"
-		class="d-flex flex-wrap"
+		class="d-flex"
 		[style.height.px]="defaultHeight">
-		<div
-			class="w-75 h-25 d-flex align-items-center mechanic-name pl-1"
-			(click)="toggleAppointmentSchedulesDialog()">{{mechanic.personalData.completeName}}</div>
-		<div class="w-25 h-25">
-			<select class="w-100 h-100 align-center job-line-type-select">
-				<option></option>
-				<option *ngFor="let jobLineType of jobLineTypes" value="{{jobLineType.code}}">
-					{{jobLineType.code}}
-				</option>
-			</select>
-		</div>
-		<div
-			class="w-75 h-75 d-flex flex-wrap align-items-center justify-content-between"
-			(click)="showSkills(mechanic.skills, mechanic.day, mechanic.code)">
+		<div class="w-70 d-flex flex-column">
 			<div
-				*ngFor="let skill of mechanic.highlightedSkills"
-				class="rounded-circle skill align-center"
-				[ngStyle]="getSkillColorObject(skill)">{{skill.code}}</div>
-		</div>
-		<div class="w-25 h-75 d-flex flex-wrap">
-			<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
-			<div
-				class="w-50 h-35 align-center"
-				(click)="checkRemoveMechanic(deleteScheduleModal)">
-				<i class="far fa-trash-alt"></i>
+				class="w-100 h-25 d-flex align-items-center mechanic-name pl-1"
+				(click)="toggleAppointmentSchedulesDialog()">
+				{{mechanic.personalData.completeName}}
 			</div>
-			<div class="w-50 h-35 align-center ml-auto"><i class="fas fa-arrows-alt-v"></i></div>
+			<div
+				class="w-100 h-75 d-flex flex-wrap align-items-center justify-content-between"
+				(click)="showSkills(mechanic.skills, mechanic.day, mechanic.code)">
+				<div
+					*ngFor="let skill of mechanic.highlightedSkills"
+					class="rounded-circle skill align-center"
+					[ngStyle]="getSkillColorObject(skill)">{{skill.code}}</div>
+			</div>
+		</div>
+		<div class="w-30 d-flex flex-column">
+			<div class="w-100 h-75 d-flex flex-wrap">
+				<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
+				<div
+					class="w-50 h-35 align-center"
+					(click)="checkRemoveMechanic(deleteScheduleModal)">
+					<i class="far fa-trash-alt"></i>
+				</div>
+				<div class="w-50 h-35 align-center ml-auto"><i class="fas fa-arrows-alt-v"></i></div>
+			</div>
+			<div class="w-100 h-25">
+				<select
+					class="w-100 h-100 align-center job-line-type-select"
+					[style.background-color]="findJobLineTypeColor(mechanic.jobLineType)"
+					[(ngModel)]="mechanic.jobLineType"
+					(change)="updateJobLineType()">
+					<option></option>
+					<option *ngFor="let jobLineType of jobLineTypes" value="{{jobLineType.code}}">
+						{{jobLineType.code}}
+					</option>
+				</select>
+			</div>
 		</div>
 	</div>
 	<ng-template #minLayout>

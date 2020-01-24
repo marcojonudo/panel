@@ -6,7 +6,6 @@ import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
 import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
-import panel.clients.schedules.SchedulesDatabaseClient
 import panel.pogos.CompleteInfo
 import panel.pogos.PublisherInfo
 import panel.publisher.PanelPublisher
@@ -19,18 +18,15 @@ class PanelController {
 
 	private final PanelService panelService
 	private final PanelDatabaseClient panelDatabaseClient
-	private final SchedulesDatabaseClient schedulesDatabaseClient
 	private final CuboDatabaseClient cuboDatabaseClient
 
 	PanelController(
 			PanelService panelService,
 			PanelDatabaseClient panelDatabaseClient,
-			SchedulesDatabaseClient schedulesDatabaseClient,
 			CuboDatabaseClient cuboDatabaseClient
 	) {
 		this.panelService = panelService
 		this.panelDatabaseClient = panelDatabaseClient
-		this.schedulesDatabaseClient = schedulesDatabaseClient
 		this.cuboDatabaseClient = cuboDatabaseClient
 	}
 
@@ -75,12 +71,17 @@ class PanelController {
 
 	@Put("/mechanic/position")
 	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
-		schedulesDatabaseClient.updateMechanicsPosition(sessionId, mechanics)
+		cuboDatabaseClient.updateMechanicsPosition(sessionId, mechanics)
 	}
 
 	@Put("/mechanic/lines")
 	void updateMechanicLines(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
-		schedulesDatabaseClient.updateMechanicLines(sessionId, mechanics)
+		cuboDatabaseClient.updateMechanicLines(sessionId, mechanics)
+	}
+
+	@Put("/mechanic/jobLineType")
+	void updateMechanicJobLineType(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
+		cuboDatabaseClient.updateMechanicJobLineType(sessionId, mechanics)
 	}
 
 	@Put("/appointment/type")

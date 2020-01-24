@@ -7,6 +7,7 @@ import {Constants} from "../../objects/constants";
 import {CardPositionService} from "../../services/card-position.service";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DimensionsService} from "../../services/dimensions.service";
+import {JobLineTypeService} from "../../services/job-line-type.service";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -25,22 +26,22 @@ export class MechanicLineComponent {
 	constructor(
 		private cardsService: CardsService,
 		private cardPositionService: CardPositionService,
+		private jobLineTypeService: JobLineTypeService,
 		private cdRef: ChangeDetectorRef
 	) {}
 
 	// region Getters / setters
 
-	get quarterWidth(): number {
-		/* El navegador redondea a 2 decimales, por lo que se hace lo mismo para que las distancias sean equivalentes */
-		return +(DimensionsService.intervalWidth * 3).toFixed(2);
-	}
-
 	get assignedDropzoneType(): string {
 		return Constants.DROPZONE_TYPE.ASSIGNED;
 	}
 
-	get lineDefaultHeight() {
+	get lineDefaultHeight(): number {
 		return Constants.VALUE.LINE_HEIGHT_DEFAULT;
+	}
+
+	get jobLineTypeHeight(): number {
+		return Constants.VALUE.JOB_LINE_TYPE_HEIGHT;
 	}
 
 	// endregion
@@ -53,12 +54,20 @@ export class MechanicLineComponent {
 		return DimensionsService.calcWidthFromDuration(duration);
 	}
 
+	calcScheduleHeight(lines: number): number {
+		return lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
+	}
+
 	calcScheduleLeft(start: Date): number {
 		return start ? DimensionsService.calcLeftFromStart(start) : 0;
 	}
 
-	checkStartHourQuarter(quarter: number): number {
+	checkStartHourQuarter(quarter: number): boolean {
 		return quarter == 0;
+	}
+
+	findJobLineTypeColor(code: string): string {
+		return this.jobLineTypeService.findJobLineTypeColor(code);
 	}
 
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {

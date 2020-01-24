@@ -8,7 +8,6 @@ import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Skill} from "../../objects/skill";
-import {CommonService} from "../../services/common.service";
 import {NotificationService} from "../../services/notification.service";
 import {UtilsService} from "../../services/utils.service";
 import {DimensionsService} from "../../services/dimensions.service";
@@ -25,7 +24,6 @@ import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/days-quarters-saturation";
 import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
 import {DaysContextMenu} from "../../objects/context-menu-update/days-context-menu";
-import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
 import {ContextMenuInfo} from "../../objects/context-menu-info";
 
 @Component({
@@ -76,7 +74,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	constructor(
 		private cardsService: CardsService,
 		private mechanicsService: MechanicsService,
-		private commonService: CommonService,
 		private cardPositionService: CardPositionService,
 		private cdRef: ChangeDetectorRef
 	) {

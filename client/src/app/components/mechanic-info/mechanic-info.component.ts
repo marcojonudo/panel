@@ -1,16 +1,14 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
 import {JobLineType} from "../../objects/job-line-type";
-import {CommonService} from "../../services/common.service";
 import {Skill} from "../../objects/skill";
 import {CardsService} from "../../services/cards.service";
-import {NgbModal, NgbModalConfig} from "@ng-bootstrap/ng-bootstrap";
-import {Subscription} from "rxjs/internal/Subscription";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {MechanicsService} from "../../services/mechanics.service";
 import {NotificationService} from "../../services/notification.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
+import {JobLineTypeService} from "../../services/job-line-type.service";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -32,7 +30,7 @@ export class MechanicInfoComponent {
 	constructor(
 		private mechanicsService: MechanicsService,
 		private cardsService: CardsService,
-		private commonService: CommonService,
+		private jobLineTypeService: JobLineTypeService,
 		private modalService: NgbModal,
 		private cdRef: ChangeDetectorRef
 	) {
@@ -73,7 +71,7 @@ export class MechanicInfoComponent {
 	}
 
 	get jobLineTypes(): JobLineType[] {
-		return this.commonService.jobLineTypes;
+		return this.jobLineTypeService.jobLineTypes;
 	}
 
 	get defaultHeight() {
@@ -137,6 +135,16 @@ export class MechanicInfoComponent {
 		NotificationService.notifySkills(
 			new DayMechanicSkills(day, mechanicCode, dayMechanicSkills && dayMechanicSkills.skills.length ? [] : skills)
 		);
+	}
+
+	findJobLineTypeColor(code: string): string {
+		return this.jobLineTypeService.findJobLineTypeColor(code);
+	}
+
+	updateJobLineType(mechanic: Mechanic = this.mechanic): void {
+		this.jobLineTypeService.updateJobLineType(mechanic);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		this.cdRef.detectChanges();
 	}
 
 	check() {

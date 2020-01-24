@@ -4,7 +4,6 @@ import {Card} from "./objects/card";
 import {HttpClient} from "@angular/common/http";
 import {CardsService} from "./services/cards.service";
 import {Constants} from "./objects/constants";
-import {CommonService} from "./services/common.service";
 import {RealTimeService} from "./services/real-time.service";
 import {AppointmentsService} from "./services/appointments.service";
 import {CardPositionService} from "./services/card-position.service";
@@ -13,6 +12,7 @@ import {MechanicsService} from "./services/mechanics.service";
 import {SkillsService} from "./services/skills.service";
 import {DimensionsService} from "./services/dimensions.service";
 import {Url} from "./objects/url";
+import {JobLineTypeService} from "./services/job-line-type.service";
 
 @Component({
 	selector: 'app-root',
@@ -30,7 +30,7 @@ export class AppComponent implements AfterViewInit {
 		private cardsService: CardsService,
 		private appointmentsService: AppointmentsService,
 		private realTimeService: RealTimeService,
-		private commonService: CommonService,
+		private jobLineTypeService: JobLineTypeService,
 		private mechanicsService: MechanicsService,
 		private http: HttpClient
 	) {
@@ -56,7 +56,7 @@ export class AppComponent implements AfterViewInit {
 					this.cardsService.assignedDaysCardsGroups
 				);
 
-				this.commonService.init(data.jobLineTypes, data.appointmentTypes);
+				this.jobLineTypeService.init(data.jobLineTypes);
 
 				this.appointmentsService.init(
 					data.appointmentTypes,

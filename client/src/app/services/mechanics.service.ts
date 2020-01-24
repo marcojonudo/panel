@@ -56,7 +56,11 @@ export class MechanicsService {
 
 	// region Init
 
-	init(daysMechanics: { [key: string]: any[] }, skills: any[], highlightedSkills: Skill[]) {
+	init(
+		daysMechanics: { [key: string]: any[] },
+		skills: any[],
+		highlightedSkills: Skill[]
+	) {
 		this.days = this.initDays(daysMechanics);
 		this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
 

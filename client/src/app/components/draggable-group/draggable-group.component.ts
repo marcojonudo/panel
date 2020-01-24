@@ -41,7 +41,7 @@ export class DraggableGroupComponent {
 
 	check(): void {
 		if (Constants.CHECK) {
-			console.log('checking draggable group', this.cardsGroup, this.mechanicLineUpdate);
+			console.log('checking draggable group', this.cardsGroup);
 		}
 	}
 

@@ -35,6 +35,7 @@ export class Constants {
 		SKILLS_PANEL_WIDTH: 250,
 		CARD_DETAILS_PANEL_WIDTH: 350,
 		MECHANICS_SATURATION_PERCENTAGE: 60,
+		JOB_LINE_TYPE_HEIGHT: 5
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
@@ -100,9 +101,9 @@ export class Constants {
 		CUT: 'crosshair'
 	};
 	public static readonly DEFAULT: string = "DEFAULT";
+	public static readonly DEFAULT_JOB_LINE_TYPE_COLOR: string = "#ffffff";
 	public static readonly AUXILIARY_DEFAULT_ORDER_CODE: string = "Fx";
 	public static readonly APPOINTMENT_COUNTER_TOTAL: string = "total";
-	public static readonly APPOINTMENT_CARD_TYPE_ID: string = "C";
 	public static readonly HOUR_MINUTES: number = 60;
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards", "/mechanic/", "/appointment"];
 	public static readonly MORNING_AFTERNOON_THRESHOLD_MINUTES: number = 900;

@@ -3,7 +3,6 @@ import {PersonalData} from "./personal-data";
 import {Schedule} from "./schedule";
 import {Skill} from "./skill";
 import {AppointmentSchedule} from "./appointment-schedule";
-import {UtilsService} from "../services/utils.service";
 import {ScheduleInterval} from "./schedule-interval";
 import {DimensionsService} from "../services/dimensions.service";
 
@@ -21,12 +20,13 @@ export class Mechanic {
 	showInPanel: boolean;
 	height: number;
 	appointments: AppointmentSchedule[];
+	jobLineType: string;
 
 	constructor(
 		day: Date,
 		mechanic: any,
 		skills: any[],
-		highlightedSkills: Skill[],
+		highlightedSkills: Skill[]
 	) {
 		this.id = mechanic.id;
 		this.day = day;
@@ -66,6 +66,7 @@ export class Mechanic {
 			}
 			return new AppointmentSchedule(this.id, i);
 		});
+		this.jobLineType = mechanic.jobLineType;
 	}
 
 	setLines(lines: number): void {

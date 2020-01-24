@@ -30,11 +30,16 @@
 
 .mechanic-position {
 	font-size: 2.5em;
+	font-weight: bold;
 }
 
 .job-line-type-select {
 	font-size: .8em;
 	border: 1px solid #dee2e6 !important;
+}
+
+.job-line-type-select > option {
+	background-color: #ffffff;
 }
 
 .appointment-schedule-panel-container {

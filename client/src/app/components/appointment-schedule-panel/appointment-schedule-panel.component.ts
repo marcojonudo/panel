@@ -1,7 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
-import {CommonService} from "../../services/common.service";
 import {AppointmentType} from "../../objects/appointment-type";
 import {UtilsService} from "../../services/utils.service";
 import {Observable} from "rxjs/internal/Observable";

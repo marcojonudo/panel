@@ -14,6 +14,10 @@ export class Url {
 		return `${environment.serverUrl}/panel/mechanic/lines`;
 	}
 
+	public static mechanicJobLineType(): string {
+		return `${environment.serverUrl}/panel/mechanic/jobLineType`;
+	}
+
 	public static appointmentsDaysCounters(): string {
 		return `${environment.serverUrl}/panel/appointmentDay/counters`;
 	}
