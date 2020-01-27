@@ -21,6 +21,7 @@ export class Mechanic {
 	height: number;
 	appointments: AppointmentSchedule[];
 	jobLineType: string;
+	fixed: boolean;
 
 	constructor(
 		day: Date,
@@ -33,19 +34,22 @@ export class Mechanic {
 		this.code = mechanic.employee.code;
 		this.panelPosition = mechanic.panelPosition;
 		this.personalData = new PersonalData(mechanic.employee);
-		this.skills = skills.map(skill => {
-			const children = skill.children.map(child => {
-				const employeeSkill = mechanic.employee.employeeSkills.find(s => s.skill.name == child.name);
-				return new Skill(child, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
+		/* Las líneas de taller y tienda no tienen habilidades */
+		if (mechanic.employee.employeeSkills) {
+			this.skills = skills.map(skill => {
+				const children = skill.children.map(child => {
+					const employeeSkill = mechanic.employee.employeeSkills.find(s => s.skill.name == child.name);
+					return new Skill(child, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
+				});
+				/* La experiencia es siempre undefined, ya que las categorías padre no tienen especialización por parte de
+				*  los empleados. Sólo sirven para estructurar las habilidades */
+				return new Skill(skill, undefined, children);
 			});
-			/* La experiencia es siempre undefined, ya que las categorías padre no tienen especialización por parte de
-			*  los empleados. Sólo sirven para estructurar las habilidades */
-			return new Skill(skill, undefined, children);
-		});
-		this.highlightedSkills = highlightedSkills.map(skill => {
-			const employeeSkill = mechanic.employee.employeeSkills.find(s => s.skill.name == skill.name);
-			return new Skill(skill, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
-		});
+			this.highlightedSkills = highlightedSkills.map(skill => {
+				const employeeSkill = mechanic.employee.employeeSkills.find(s => s.skill.name == skill.name);
+				return new Skill(skill, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
+			});
+		}
 		this.schedule = new Schedule(
 			mechanic.schedule.morningStart,
 			mechanic.schedule.morningEnd,
@@ -67,6 +71,7 @@ export class Mechanic {
 			return new AppointmentSchedule(this.id, i);
 		});
 		this.jobLineType = mechanic.jobLineType;
+		this.fixed = Constants.FIXED_MECHANIC_CODES.indexOf(this.code) > -1;
 	}
 
 	setLines(lines: number): void {

@@ -100,6 +100,7 @@ export class Constants {
 		DRAG: 'move',
 		CUT: 'crosshair'
 	};
+	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly DEFAULT_JOB_LINE_TYPE_COLOR: string = "#ffffff";
 	public static readonly AUXILIARY_DEFAULT_ORDER_CODE: string = "Fx";

@@ -8,7 +8,7 @@ export class PersonalData {
 	constructor(personalData: any) {
 		this.name = personalData.name;
 		this.surnames = personalData.surnames;
-		this.completeName = `${this.name} ${this.surnames.map(s => `${s.charAt(0)}.`).join(" ")}`;
+		this.completeName = `${this.name} ${this.surnames ? this.surnames.map(s => `${s.charAt(0)}.`).join(" ") : ''}`;
 	}
 
 }

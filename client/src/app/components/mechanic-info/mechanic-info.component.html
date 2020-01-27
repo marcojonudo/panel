@@ -1,9 +1,9 @@
 <div
-	class="h-100 d-flex align-items-center mechanic-info border-right-2 border-semi-dark"
+	class="w-100 h-100 d-flex align-items-center mechanic-info border-right-2 border-semi-dark"
 	[ngClass]="{'mechanic-info-highlight': checkHighlightMechanic()}">
 	<div
 		*ngIf="oneDayMode; else minLayout"
-		class="d-flex border-top border-bottom border-semi-dark"
+		class="w-100 d-flex border-top border-bottom border-semi-dark"
 		[style.height.px]="defaultHeight">
 		<div class="w-70 d-flex flex-column">
 			<div
@@ -24,13 +24,18 @@
 			<div class="w-100 h-75 d-flex flex-wrap border-bottom border-semi-dark">
 				<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
 				<div
+					*ngIf="!mechanic.fixed"
 					class="w-50 h-35 align-center"
 					(click)="checkRemoveMechanic(deleteScheduleModal)">
 					<i class="far fa-trash-alt"></i>
 				</div>
-				<div class="w-50 h-35 align-center ml-auto"><i class="fas fa-arrows-alt-v"></i></div>
+				<div
+					*ngIf="!mechanic.fixed"
+					class="w-50 h-35 align-center ml-auto">
+					<i class="fas fa-arrows-alt-v"></i>
+				</div>
 			</div>
-			<div class="w-100 h-25">
+			<div *ngIf="!mechanic.fixed" class="w-100 h-25">
 				<select
 					class="w-100 h-100 align-center job-line-type-select"
 					[style.background-color]="findJobLineTypeColor(mechanic.jobLineType)"

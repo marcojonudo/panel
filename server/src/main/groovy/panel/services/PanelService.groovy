@@ -13,6 +13,7 @@ import panel.pogos.UpdateCards
 import panel.utils.Constants
 import utils.DateFormat
 import utils.Utils
+import utils.pogos.Schedule
 import utils.pogos.fviberi.Article
 import utils.pogos.fviberi.Order
 import utils.pogos.panel.*
@@ -20,6 +21,7 @@ import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.skills.Skill
 
 import javax.inject.Singleton
+import java.sql.Time
 
 @Singleton
 @CompileStatic
@@ -93,8 +95,35 @@ class PanelService {
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(Date date) {
 		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(date, true)
-		Map<String, List<EmployeeSchedule>> daysMechanics = mechanics.groupBy { it.day?.toString() }
+		return integrateFixedMechanics(mechanics)
+	}
+
+	static Map<String, List<EmployeeSchedule>> integrateFixedMechanics(List<EmployeeSchedule> mechanics) {
+		Map<String, List<EmployeeSchedule>> daysMechanics = [:]
+		java.sql.Date today = Utils.newDate(new Date())
+		mechanics.each {
+			if (!it.day) {
+				it.schedule = findThresholdSchedule(mechanics)
+				it.day = today
+			}
+			if (!daysMechanics[it.day.toString()]) {
+				daysMechanics[it.day.toString()] = []
+			}
+			daysMechanics[it.day.toString()] << it
+		}
 		return daysMechanics
+	}
+
+	static Schedule findThresholdSchedule(List<EmployeeSchedule> mechanics) {
+		Time minMorningStart = mechanics.schedule.morningStart.min()
+		Time minAfternoonStart = mechanics.schedule.afternoonStart.min()
+		Time maxMorningEnd = mechanics.schedule.morningEnd.max()
+		Time maxAfternoonEnd = mechanics.schedule.afternoonEnd.max()
+
+		return new Schedule(
+				morningStart: minMorningStart < minAfternoonStart ? minMorningStart : minAfternoonStart,
+				morningEnd: maxAfternoonEnd > maxMorningEnd ? maxAfternoonEnd : maxMorningEnd
+		)
 	}
 
 	// endregion
@@ -511,7 +540,9 @@ class PanelService {
 			List<Card> createdCards
 	) {
 		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
-		daysMechanics.each {
+		/* Sólo se tienen en cuenta aquellos horarios con día (los horarios fijos de taller y tienda, cuyo day es null,
+		*  se omiten) */
+		daysMechanics.findAll { it.key }.each {
 			java.sql.Date day = Utils.newDate(Utils.parse(it.key, DateFormat.MYSQL))
 			/* Se obtienen los appointmentDay para cada tipo de cita para el día en concreto */
 			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == day }
