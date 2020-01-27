@@ -10,14 +10,20 @@
 			'width.px': calcScheduleWidth(interval.duration),
 		 	'left.px': calcScheduleLeft(interval.start)
 		}">
-		<div class="schedule-border schedule-left-border"></div>
-		<div class="schedule-border schedule-right-border"></div>
+		<div
+			class="schedule-border schedule-left-border"
+			[ngStyle]="{background: findScheduleLeftBorderBackground('red')}">
+		</div>
+		<div
+			class="schedule-border schedule-right-border"
+			[ngStyle]="{background: findScheduleRightBorderBackground('red')}">
+		</div>
 		<div
 			class="w-100 h-100 position-relative d-flex"
 			[style.height.px]="calcScheduleHeight(mechanic.lines)">
 			<div
 				*ngFor="let quarter of interval.quarters"
-				class="flex-grow-1"
+				class="flex-grow-1 border-semi-dark"
 				[ngClass]="checkStartHourQuarter(quarter) ? 'hour-border' : 'quarter-border'">
 			</div>
 		</div>
@@ -31,13 +37,28 @@
 	</div>
 	<div
 		*ngFor="let appointment of mechanic.appointments | appointments"
-		class="d-flex appointment-schedule"
+		class="d-flex appointment-schedule-container"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(appointment.schedule.intervals[0].duration),
 			'height.px': calcScheduleHeight(mechanic.lines),
-			'left.px': calcScheduleLeft(appointment.schedule.intervals[0].start),
-			'background-color': appointment.appointmentType.color
+			'left.px': calcScheduleLeft(appointment.schedule.intervals[0].start)
 		}">
+		<div
+			class="w-100 appointment-schedule d-flex">
+			<div
+				class="w-100 align-center appointment-schedule-text"
+				[style.background-color]="appointment.appointmentType.color">
+				{{appointment.appointmentType.name}}
+			</div>
+			<div
+				class="schedule-border schedule-left-border"
+				[ngStyle]="{background: findScheduleLeftBorderBackground(appointment.appointmentType.color)}">
+			</div>
+			<div
+				class="schedule-border schedule-right-border"
+				[ngStyle]="{background: findScheduleRightBorderBackground(appointment.appointmentType.color)}">
+			</div>
+		</div>
 	</div>
 	<app-draggable-group
 		*ngFor="let group of findGroups(day, mechanic.code)"

@@ -70,6 +70,14 @@ export class MechanicLineComponent {
 		return this.jobLineTypeService.findJobLineTypeColor(code);
 	}
 
+	findScheduleLeftBorderBackground(color: string): string {
+		return `linear-gradient(${color} 5px, transparent 5px, transparent, transparent calc(100% - 5px), ${color} calc(100% - 5px)) center/100% auto no-repeat, linear-gradient(90deg, ${color}, ${color} 5px, transparent 5px, transparent) center/100% auto no-repeat`;
+	}
+
+	findScheduleRightBorderBackground(color: string): string {
+		return `linear-gradient(${color} 5px, transparent 5px, transparent, transparent calc(100% - 5px), ${color} calc(100% - 5px)) center/100% auto no-repeat, linear-gradient(90deg, transparent, transparent 5px, ${color} 5px, ${color}) center/100% auto no-repeat`;
+	}
+
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {
 		CardPositionService.hiddenGroup = cardsGroup;
 		this.cdRef.detectChanges();
