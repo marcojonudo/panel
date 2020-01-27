@@ -8,6 +8,7 @@ import {CardPositionService} from "../../services/card-position.service";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DimensionsService} from "../../services/dimensions.service";
 import {JobLineTypeService} from "../../services/job-line-type.service";
+import {ScheduleInterval} from "../../objects/schedule-interval";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -76,6 +77,18 @@ export class MechanicLineComponent {
 
 	findScheduleRightBorderBackground(color: string): string {
 		return `linear-gradient(${color} 5px, transparent 5px, transparent, transparent calc(100% - 5px), ${color} calc(100% - 5px)) center/100% auto no-repeat, linear-gradient(90deg, transparent, transparent 5px, ${color} 5px, ${color}) center/100% auto no-repeat`;
+	}
+
+	checkShowAppointmentStartSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentStart: Date): boolean {
+		return scheduleIntervals.find((interval: ScheduleInterval) =>
+			interval.start.getTime() == appointmentStart.getTime()
+		) == undefined;
+	}
+
+	checkShowAppointmentEndSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentEnd: Date): boolean {
+		return scheduleIntervals.find((interval: ScheduleInterval) =>
+			interval.end.getTime() == appointmentEnd.getTime()
+		) == undefined;
 	}
 
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {

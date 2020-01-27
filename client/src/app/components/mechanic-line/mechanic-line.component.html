@@ -51,10 +51,12 @@
 				{{appointment.appointmentType.name}}
 			</div>
 			<div
+				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].start)"
 				class="schedule-border schedule-left-border"
 				[ngStyle]="{background: findScheduleLeftBorderBackground(appointment.appointmentType.color)}">
 			</div>
 			<div
+				*ngIf="checkShowAppointmentEndSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].end)"
 				class="schedule-border schedule-right-border"
 				[ngStyle]="{background: findScheduleRightBorderBackground(appointment.appointmentType.color)}">
 			</div>
