@@ -4,6 +4,7 @@ import {CardsService} from "../../services/cards.service";
 import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
 import {NotificationService} from "../../services/notification.service";
 import {DimensionsService} from "../../services/dimensions.service";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -19,7 +20,8 @@ export class ToolsBarComponent {
 	private _showingFinished: boolean;
 
 	constructor(
-		private cardsService: CardsService
+		private cardsService: CardsService,
+		private mechanicsService: MechanicsService
 	) {
 		this.showingFinished = false;
 	}
@@ -46,6 +48,10 @@ export class ToolsBarComponent {
 
 	toggleDayMode(): void {
 		DimensionsService.toggleDayMode();
+	}
+
+	toggleShowMechanicsWithoutAppointments(): void {
+		this.mechanicsService.toggleOnlyAppointmentsMode();
 	}
 
 	showFinishedCardsBar(): void {

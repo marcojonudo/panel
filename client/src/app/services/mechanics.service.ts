@@ -15,8 +15,11 @@ export class MechanicsService {
 
 	private _days: Date[];
 	private _daysMechanics: DaysMechanics;
+	private _onlyAppointmentsMode: boolean;
 
-	constructor(private http: HttpClient) {}
+	constructor(private http: HttpClient) {
+		this.onlyAppointmentsMode = false;
+	}
 
 	// region Getters / setters
 
@@ -34,6 +37,14 @@ export class MechanicsService {
 
 	set daysMechanics(value: DaysMechanics) {
 		this._daysMechanics = value;
+	}
+
+	get onlyAppointmentsMode(): boolean {
+		return this._onlyAppointmentsMode;
+	}
+
+	set onlyAppointmentsMode(value: boolean) {
+		this._onlyAppointmentsMode = value;
 	}
 
 	// endregion
@@ -130,6 +141,11 @@ export class MechanicsService {
 			mechanics[i].panelPosition = prevPosition;
 			prevPosition = newPosition;
 		}
+	}
+
+	toggleOnlyAppointmentsMode(): void {
+		this.onlyAppointmentsMode = !this.onlyAppointmentsMode;
+		NotificationService.notifyOnlyAppointmentsMode(this.onlyAppointmentsMode);
 	}
 
 }

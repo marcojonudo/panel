@@ -5,9 +5,7 @@ import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Constants} from "../../objects/constants";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
-import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {NotificationService} from "../../services/notification.service";
-import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
 import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
 
 @Component({
@@ -19,11 +17,10 @@ import {DayCardDetails} from "../../objects/card-details-update/day-card-details
 export class GridComponent implements OnInit {
 
 	@Input() day: Date;
+	@Input() mechanics: Mechanic[];
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;
 	@Input() maxScheduleWidth: number;
-
-	private _mechanics: Mechanic[];
 
 	private pointerDownListener: () => void;
 
@@ -34,8 +31,6 @@ export class GridComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		this.mechanics = this.mechanicsService.findDayMechanics(this.day);
-
 		this.pointerDownListener = this.renderer.listen(
 			this.element.nativeElement,
 			Constants.EVENT.POINTER_DOWN,
@@ -44,14 +39,6 @@ export class GridComponent implements OnInit {
 	}
 
 	// region Getters / setters
-
-	get mechanics(): Mechanic[] {
-		return this._mechanics;
-	}
-
-	set mechanics(value: Mechanic[]) {
-		this._mechanics = value;
-	}
 
 	get mechanicBottomMargin(): number {
 		return Constants.VALUE.MECHANIC_BOTTOM_MARGIN;

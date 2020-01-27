@@ -4,6 +4,7 @@ import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {ContextMenuInfo} from "../../objects/context-menu-info";
+import {Mechanic} from "../../objects/mechanic";
 
 @Component({
 	selector: 'app-day-panel',
@@ -14,6 +15,7 @@ import {ContextMenuInfo} from "../../objects/context-menu-info";
 export class DayPanelComponent {
 
 	@Input() day: Date;
+	@Input() mechanics: Mechanic[];
 	@Input() quartersSaturation: QuartersSaturation;
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;

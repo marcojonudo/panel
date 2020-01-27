@@ -25,6 +25,7 @@ import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/d
 import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
 import {DaysContextMenu} from "../../objects/context-menu-update/days-context-menu";
 import {ContextMenuInfo} from "../../objects/context-menu-info";
+import {Mechanic} from "../../objects/mechanic";
 
 @Component({
 	selector: 'app-main',
@@ -70,6 +71,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private cardDetailsSubscription: Subscription;
 	private quartersSaturationSubscription: Subscription;
 	private contextMenuSubscription: Subscription;
+	private onlyAppointmentsModeSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
@@ -164,6 +166,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.cardDetailsSubscription = NotificationService.cardDetails$.subscribe((dayCardDetails: DayCardDetails) => {
 			dayCardDetails.card = this.daysCardDetails[dayCardDetails.day.getTime()].card ? undefined : dayCardDetails.card;
 			this.daysCardDetails[dayCardDetails.day.getTime()] = dayCardDetails;
+			this.cdRef.detectChanges();
+		});
+
+		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$
+				.subscribe((onlyAppointmentsMode: boolean) => {
+			this.mechanicsService.onlyAppointmentsMode = onlyAppointmentsMode;
 			this.cdRef.detectChanges();
 		});
 	}
@@ -334,6 +342,10 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._contextMenuInfo = value;
 	}
 
+	get onlyAppointmentsMode(): boolean {
+		return this.mechanicsService.onlyAppointmentsMode;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
@@ -350,6 +362,10 @@ export class MainComponent implements OnInit, OnDestroy {
 			);
 			this.daysContextMenu[day.getTime()] = undefined;
 		});
+	}
+
+	findDayMechanics(day: Date): Mechanic[] {
+		return this.mechanicsService.findDayMechanics(day);
 	}
 
 	checkTriggerLineCd(day: Date, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {

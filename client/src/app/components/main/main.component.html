@@ -16,6 +16,7 @@
 					<app-day-panel
 						class="animated slideInRight"
 						[day]="today"
+						[mechanics]="findDayMechanics(today) | mechanics: onlyAppointmentsMode"
 						[quartersSaturation]="findQuartersSaturation(today)"
 						[mechanicLineUpdate]="checkTriggerLineCd(today)"
 						[dayMechanicSkills]="checkTriggerInfoCd(today)"
@@ -76,6 +77,7 @@
 							<app-day-panel
 								class="animated slideInRight"
 								[day]="day"
+								[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
 								[quartersSaturation]="findQuartersSaturation(day)"
 								[mechanicLineUpdate]="checkTriggerLineCd(day)"
 								[dayMechanicSkills]="checkTriggerInfoCd(day)"
