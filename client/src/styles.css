@@ -55,7 +55,11 @@ html, body {
 }
 
 .border-semi-dark {
-	border-color: #a2a2a2 !important;
+	border-color: #a0a0a0 !important;
+}
+
+.border-dotted {
+	border-style: dotted;
 }
 
 ::-webkit-scrollbar {

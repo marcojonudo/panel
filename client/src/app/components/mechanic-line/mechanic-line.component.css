@@ -55,9 +55,9 @@
 }
 
 .quarter-border {
-	border-left: 1px dotted #a0a0a0;
+	border-left: 1px dotted;
 }
 
 .hour-border {
-	border-left: 1px solid #a0a0a0;
+	border-left: 1px solid;
 }

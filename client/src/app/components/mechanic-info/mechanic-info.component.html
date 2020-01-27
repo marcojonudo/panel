@@ -3,7 +3,7 @@
 	[ngClass]="{'mechanic-info-highlight': checkHighlightMechanic()}">
 	<div
 		*ngIf="oneDayMode; else minLayout"
-		class="d-flex"
+		class="d-flex border-top border-bottom border-semi-dark"
 		[style.height.px]="defaultHeight">
 		<div class="w-70 d-flex flex-column">
 			<div
@@ -12,7 +12,7 @@
 				{{mechanic.personalData.completeName}}
 			</div>
 			<div
-				class="w-100 h-75 d-flex flex-wrap align-items-center justify-content-between"
+				class="w-100 h-75 d-flex flex-wrap align-items-center justify-content-between mechanic-skills-container border-top border-semi-dark"
 				(click)="showSkills(mechanic.skills, mechanic.day, mechanic.code)">
 				<div
 					*ngFor="let skill of mechanic.highlightedSkills"
@@ -20,8 +20,8 @@
 					[ngStyle]="getSkillColorObject(skill)">{{skill.code}}</div>
 			</div>
 		</div>
-		<div class="w-30 d-flex flex-column">
-			<div class="w-100 h-75 d-flex flex-wrap">
+		<div class="w-30 d-flex flex-column border-left border-semi-dark">
+			<div class="w-100 h-75 d-flex flex-wrap border-bottom border-semi-dark">
 				<div class="w-100 h-65 align-center mechanic-position">{{position}}</div>
 				<div
 					class="w-50 h-35 align-center"

@@ -20,6 +20,10 @@
 	overflow: hidden;
 }
 
+.mechanic-skills-container {
+	background-color: #c2c2c2;
+}
+
 .skill {
 	width: 27px;
 	height: 27px;

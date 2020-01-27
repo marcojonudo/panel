@@ -75,7 +75,7 @@ export class MechanicInfoComponent {
 	}
 
 	get defaultHeight() {
-		return Constants.VALUE.LINE_HEIGHT_DEFAULT * 2;
+		return Constants.VALUE.LINE_HEIGHT_DEFAULT * 2 + Constants.VALUE.JOB_LINE_TYPE_HEIGHT;
 	}
 
 	get mechanicInfoWidth() {
