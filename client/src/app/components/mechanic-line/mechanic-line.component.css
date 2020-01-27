@@ -31,6 +31,8 @@
 
 .appointment-schedule-text {
 	opacity: .3;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .dropzone-dragging {
