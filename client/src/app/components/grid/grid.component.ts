@@ -20,6 +20,7 @@ export class GridComponent implements OnInit {
 	@Input() mechanics: Mechanic[];
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;
+	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleWidth: number;
 
 	private pointerDownListener: () => void;

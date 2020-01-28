@@ -54,6 +54,10 @@ export class ToolsBarComponent {
 		this.mechanicsService.toggleOnlyAppointmentsMode();
 	}
 
+	toggleShowAppointmentsName(): void {
+		this.mechanicsService.toggleShowAppointmentsName();
+	}
+
 	showFinishedCardsBar(): void {
 		const unassignedCardUpdate = new UnassignedCardUpdateTrigger(
 			undefined,

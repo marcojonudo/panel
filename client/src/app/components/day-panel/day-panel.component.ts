@@ -20,6 +20,7 @@ export class DayPanelComponent {
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;
 	@Input() contextMenuInfo: ContextMenuInfo;
+	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 

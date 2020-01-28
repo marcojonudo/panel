@@ -56,8 +56,8 @@ export class NotificationService {
 	private static contextMenuSubject: Subject<ContextMenuInfo>;
 	private static _contextMenu$: Observable<ContextMenuInfo>;
 
-	private static onlyAppointmentsModeSubject: Subject<boolean>;
-	private static _onlyAppointmentsMode$: Observable<boolean>;
+	private static onlyAppointmentsModeSubject: Subject<void>;
+	private static _onlyAppointmentsMode$: Observable<void>;
 
 	// region Init
 
@@ -98,7 +98,7 @@ export class NotificationService {
 		this.contextMenuSubject = new Subject<ContextMenuInfo>();
 		this.contextMenu$ = this.contextMenuSubject.asObservable();
 
-		this.onlyAppointmentsModeSubject = new Subject<boolean>();
+		this.onlyAppointmentsModeSubject = new Subject<void>();
 		this.onlyAppointmentsMode$ = this.onlyAppointmentsModeSubject.asObservable();
 	}
 
@@ -202,11 +202,11 @@ export class NotificationService {
 		this._contextMenu$ = value;
 	}
 
-	static get onlyAppointmentsMode$(): Observable<boolean> {
+	static get onlyAppointmentsMode$(): Observable<void> {
 		return this._onlyAppointmentsMode$;
 	}
 
-	static set onlyAppointmentsMode$(value: Observable<boolean>) {
+	static set onlyAppointmentsMode$(value: Observable<void>) {
 		this._onlyAppointmentsMode$ = value;
 	}
 
@@ -265,8 +265,8 @@ export class NotificationService {
 		this.contextMenuSubject.next(contextMenuInfo);
 	}
 
-	static notifyOnlyAppointmentsMode(onlyAppointmentsMode: boolean): void {
-		this.onlyAppointmentsModeSubject.next(onlyAppointmentsMode);
+	static notifyOnlyAppointmentsMode(): void {
+		this.onlyAppointmentsModeSubject.next();
 	}
 
 }

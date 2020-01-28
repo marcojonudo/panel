@@ -19,7 +19,7 @@
 			[ngStyle]="{background: findScheduleRightBorderBackground('red')}">
 		</div>
 		<div
-			class="w-100 h-100 position-relative d-flex"
+			class="w-100 position-relative d-flex"
 			[style.height.px]="calcScheduleHeight(mechanic.lines)">
 			<div
 				*ngFor="let quarter of interval.quarters"
@@ -48,7 +48,7 @@
 			<div
 				class="w-100 align-center appointment-schedule-text"
 				[style.background-color]="appointment.appointmentType.color">
-				{{appointment.appointmentType.name}}
+				<span *ngIf="showAppointmentsName">{{appointment.appointmentType.name}}</span>
 			</div>
 			<div
 				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].start)"

@@ -9,6 +9,7 @@ import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DimensionsService} from "../../services/dimensions.service";
 import {JobLineTypeService} from "../../services/job-line-type.service";
 import {ScheduleInterval} from "../../objects/schedule-interval";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -23,9 +24,11 @@ export class MechanicLineComponent {
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() appointments: AppointmentSchedule[];
+	@Input() showAppointmentsName: boolean;
 
 	constructor(
 		private cardsService: CardsService,
+		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,
 		private jobLineTypeService: JobLineTypeService,
 		private cdRef: ChangeDetectorRef

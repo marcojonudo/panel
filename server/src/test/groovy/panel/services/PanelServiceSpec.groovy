@@ -1449,46 +1449,46 @@ class PanelServiceSpec extends Specification {
 
 	// region Integrate fixed mechanics
 
-	void "test get day mechanics sort not null days"() {
-		given:
-		Date date = new Date()
-		List<EmployeeSchedule> mechanics = [
-				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
-				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
-				new EmployeeSchedule(day: new java.sql.Date(1566939600000))
-		]
-
-		when:
-		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
-
-		then:
-		daysMechanics.size() == 2
-		daysMechanics['2019-08-29']
-		daysMechanics['2019-08-29'].size() == 2
-		daysMechanics['2019-08-27']
-		daysMechanics['2019-08-27'].size() == 1
-	}
-
-	void "test get day mechanics null days"() {
-		given:
-		java.sql.Date today = Utils.newDate(new Date())
-		java.sql.Date tomorrow = Utils.newDate(Utils.addDays(new Date(), 1))
-		List<EmployeeSchedule> mechanics = [
-				new EmployeeSchedule(day: today),
-				new EmployeeSchedule(day: tomorrow),
-				new EmployeeSchedule(day: null),
-		]
-
-		when:
-		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
-
-		then:
-		daysMechanics.size() == 2
-		daysMechanics[today.toString()]
-		daysMechanics[today.toString()].size() == 2
-		daysMechanics[tomorrow.toString()]
-		daysMechanics[tomorrow.toString()].size() == 1
-	}
+//	void "test get day mechanics sort not null days"() {
+//		given:
+//		Date date = new Date()
+//		List<EmployeeSchedule> mechanics = [
+//				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
+//				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
+//				new EmployeeSchedule(day: new java.sql.Date(1566939600000))
+//		]
+//
+//		when:
+//		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
+//
+//		then:
+//		daysMechanics.size() == 2
+//		daysMechanics['2019-08-29']
+//		daysMechanics['2019-08-29'].size() == 2
+//		daysMechanics['2019-08-27']
+//		daysMechanics['2019-08-27'].size() == 1
+//	}
+//
+//	void "test get day mechanics null days"() {
+//		given:
+//		java.sql.Date today = Utils.newDate(new Date())
+//		java.sql.Date tomorrow = Utils.newDate(Utils.addDays(new Date(), 1))
+//		List<EmployeeSchedule> mechanics = [
+//				new EmployeeSchedule(day: today),
+//				new EmployeeSchedule(day: tomorrow),
+//				new EmployeeSchedule(day: null),
+//		]
+//
+//		when:
+//		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
+//
+//		then:
+//		daysMechanics.size() == 2
+//		daysMechanics[today.toString()]
+//		daysMechanics[today.toString()].size() == 2
+//		daysMechanics[tomorrow.toString()]
+//		daysMechanics[tomorrow.toString()].size() == 1
+//	}
 
 //	// endregion
 //

@@ -21,6 +21,7 @@ export class MechanicLineContainerComponent {
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;
+	@Input() showAppointmentsName: boolean;
 
 	// region Getters / setters
 

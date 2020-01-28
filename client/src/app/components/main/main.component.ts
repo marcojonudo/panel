@@ -169,9 +169,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$
-				.subscribe((onlyAppointmentsMode: boolean) => {
-			this.mechanicsService.onlyAppointmentsMode = onlyAppointmentsMode;
+		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$.subscribe(() => {
 			this.cdRef.detectChanges();
 		});
 	}
@@ -194,6 +192,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.skillsSubscription.unsubscribe();
 		this.cardDetailsSubscription.unsubscribe();
 		this.quartersSaturationSubscription.unsubscribe();
+		this.onlyAppointmentsModeSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -343,7 +342,11 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	get onlyAppointmentsMode(): boolean {
-		return this.mechanicsService.onlyAppointmentsMode;
+		return MechanicsService.onlyAppointmentsMode;
+	}
+
+	get showAppointmentsName(): boolean {
+		return MechanicsService.showAppointmentsName;
 	}
 
 	// endregion
@@ -391,7 +394,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		return contextMenuInfo && !contextMenuInfo.group.start ? contextMenuInfo : undefined;
 	}
 
-	checkTriggerInfoCd(
+	findDayMechanicSkills(
 		day: Date,
 		daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills
 	): DayMechanicSkills {

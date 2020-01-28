@@ -19,8 +19,9 @@
 						[mechanics]="findDayMechanics(today) | mechanics: onlyAppointmentsMode"
 						[quartersSaturation]="findQuartersSaturation(today)"
 						[mechanicLineUpdate]="checkTriggerLineCd(today)"
-						[dayMechanicSkills]="checkTriggerInfoCd(today)"
+						[dayMechanicSkills]="findDayMechanicSkills(today)"
 						[contextMenuInfo]="findAssignedContextMenuInfo()"
+						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHours]="maxScheduleHours"
 						[maxScheduleWidth]="maxScheduleWidth">
 					</app-day-panel>
@@ -80,8 +81,9 @@
 								[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
 								[quartersSaturation]="findQuartersSaturation(day)"
 								[mechanicLineUpdate]="checkTriggerLineCd(day)"
-								[dayMechanicSkills]="checkTriggerInfoCd(day)"
+								[dayMechanicSkills]="findDayMechanicSkills(day)"
 								[contextMenuInfo]="findAssignedContextMenuInfo()"
+								[showAppointmentsName]="showAppointmentsName"
 								[maxScheduleHours]="maxScheduleHours"
 								[maxScheduleWidth]="maxScheduleWidth">
 							</app-day-panel>

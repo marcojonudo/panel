@@ -15,11 +15,10 @@ export class MechanicsService {
 
 	private _days: Date[];
 	private _daysMechanics: DaysMechanics;
-	private _onlyAppointmentsMode: boolean;
+	private static _onlyAppointmentsMode: boolean;
+	private static _showAppointmentsName: boolean = true;
 
-	constructor(private http: HttpClient) {
-		this.onlyAppointmentsMode = false;
-	}
+	constructor(private http: HttpClient) {}
 
 	// region Getters / setters
 
@@ -39,12 +38,20 @@ export class MechanicsService {
 		this._daysMechanics = value;
 	}
 
-	get onlyAppointmentsMode(): boolean {
+	static get onlyAppointmentsMode(): boolean {
 		return this._onlyAppointmentsMode;
 	}
 
-	set onlyAppointmentsMode(value: boolean) {
+	static set onlyAppointmentsMode(value: boolean) {
 		this._onlyAppointmentsMode = value;
+	}
+
+	static get showAppointmentsName(): boolean {
+		return this._showAppointmentsName;
+	}
+
+	static set showAppointmentsName(value: boolean) {
+		this._showAppointmentsName = value;
 	}
 
 	// endregion
@@ -144,8 +151,15 @@ export class MechanicsService {
 	}
 
 	toggleOnlyAppointmentsMode(): void {
-		this.onlyAppointmentsMode = !this.onlyAppointmentsMode;
-		NotificationService.notifyOnlyAppointmentsMode(this.onlyAppointmentsMode);
+		MechanicsService.onlyAppointmentsMode = !MechanicsService.onlyAppointmentsMode;
+		NotificationService.notifyOnlyAppointmentsMode();
+	}
+
+	toggleShowAppointmentsName(): void {
+		MechanicsService.showAppointmentsName = !MechanicsService.showAppointmentsName;
+		/* Se notifica el Observer de onlyAppointmentsMode ya que una vez actualizada la variable (en este caso,
+		*  showAppointmentsMode), sólo interesa lanzar el CD */
+		NotificationService.notifyOnlyAppointmentsMode();
 	}
 
 }
