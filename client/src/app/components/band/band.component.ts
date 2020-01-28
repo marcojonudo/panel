@@ -141,6 +141,10 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.cdRef.detectChanges();
 	}
 
+	checkSelectedSection(type: string, selectedSection: UnassignedSection = this.section): boolean {
+		return selectedSection.name == type;
+	}
+
 	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
 		return contextMenuInfo != undefined;
 	}

@@ -1,12 +1,34 @@
 <div class="d-flex h-25 unassigned-orders-buttons-container">
-	<div *ngIf="!checkFinishedSection()" class="d-flex">
-		<button (click)="setSection(todayType)" class="btn btn-danger align-center padding-0">En curso</button>
-		<button (click)="setSection(appointmentType)" class="btn btn-primary align-center padding-0">Cita previa</button>
-		<button (click)="setSection(pendingType)" class="btn btn-success align-center padding-0">Pendientes</button>
-		<button (click)="setSection(temporalType)" class="btn btn-warning align-center padding-0">Auxiliares</button>
+	<div *ngIf="!checkFinishedSection()" class="d-flex align-items-end">
+		<button
+			class="btn align-center padding-0 border-right-0 border-bottom-0"
+			[ngClass]="checkSelectedSection(todayType) ? 'h-100 btn-danger' : 'h-75 btn-outline-danger not-selected-button'"
+			(click)="setSection(todayType)">
+			En curso
+		</button>
+		<button
+			class="btn align-center padding-0 border-right-0 border-bottom-0 border-left-0"
+			[ngClass]="checkSelectedSection(appointmentType) ? 'h-100 btn-primary' : 'h-75 btn-outline-primary not-selected-button'"
+			(click)="setSection(appointmentType)">
+			Cita previa
+		</button>
+		<button
+			class="btn align-center padding-0 border-right-0 border-bottom-0 border-left-0"
+			[ngClass]="checkSelectedSection(pendingType) ? 'h-100 btn-success' : 'h-75 btn-outline-success not-selected-button'"
+			(click)="setSection(pendingType)">
+			Pendientes
+		</button>
+		<button
+			class="btn align-center padding-0 border-bottom-0 border-left-0"
+			[ngClass]="checkSelectedSection(temporalType) ? 'h-100 btn-warning' : 'h-75 btn-outline-warning not-selected-button'"
+			(click)="setSection(temporalType)">
+			Auxiliares
+		</button>
 	</div>
 	<div *ngIf="checkFinishedSection()" class="d-flex">
-		<button class="btn btn-danger align-center padding-0">Finalizadas</button>
+		<button class="btn btn-danger align-center padding-0">
+			Finalizadas
+		</button>
 	</div>
 </div>
 <div
