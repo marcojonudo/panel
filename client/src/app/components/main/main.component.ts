@@ -26,6 +26,7 @@ import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/da
 import {DaysContextMenu} from "../../objects/context-menu-update/days-context-menu";
 import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
+import {interval} from "rxjs/internal/observable/interval";
 
 @Component({
 	selector: 'app-main',
@@ -59,6 +60,9 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _mechanicInfoUpdate: MechanicUpdate;
 
 	private _contextMenuInfo: ContextMenuInfo;
+
+	private _timeIndicatorLeft: number;
+	private _initialScrollLeft: number;
 
 	private relativeContainer: boolean;
 	private scrollLeft: number;
@@ -97,6 +101,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.showNonexistentScheduleMessage = !this.checkTodayScheduleExists();
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
+
+		this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
 	}
 
 	ngOnInit(): void {
@@ -172,6 +178,13 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$.subscribe(() => {
 			this.cdRef.detectChanges();
 		});
+
+		interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
+			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+			this.cdRef.detectChanges();
+		});
+
+		this.initialScrollLeft = this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2;
 	}
 
 	private buildAllSkillsArray(parentSkills: Skill[]): Skill[] {
@@ -349,6 +362,22 @@ export class MainComponent implements OnInit, OnDestroy {
 		return MechanicsService.showAppointmentsName;
 	}
 
+	get timeIndicatorLeft(): number {
+		return this._timeIndicatorLeft;
+	}
+
+	set timeIndicatorLeft(value: number) {
+		this._timeIndicatorLeft = value;
+	}
+
+	get initialScrollLeft(): number {
+		return this._initialScrollLeft;
+	}
+
+	set initialScrollLeft(value: number) {
+		this._initialScrollLeft = value;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
@@ -419,6 +448,18 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	findSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): Skill[] {
 		return daysMechanicSkills[day.getTime()].skills;
+	}
+
+	calcTimeIndicatorLeft(time: Date = new Date()): number {
+		return DimensionsService.calcLeftFromStart(time) + Constants.VALUE.MECHANIC_INFO_WIDTH;
+	}
+
+	calcTimeIndicatorHeight(): number {
+		let height = 0;
+		for (const mechanics of Object.values(this.mechanicsService.daysMechanics)) {
+			height += DimensionsService.calcGridCompleteHeight(mechanics);
+		}
+		return height;
 	}
 
 	trackByDay(index, item) {

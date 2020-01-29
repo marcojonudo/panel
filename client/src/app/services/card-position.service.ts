@@ -519,21 +519,6 @@ export class CardPositionService {
 
 	// endregion
 
-	// region Context menu position
-
-	static findCardTop(dayMechanics: Mechanic[], group: CardsGroup): number {
-		let top = Constants.VALUE.TIMELINE_HEIGHT;
-		let index = 0;
-		while (dayMechanics[index].code != group.cards[0].mechanicCode) {
-			top += dayMechanics[index].lines * Constants.VALUE.LINE_HEIGHT_DEFAULT + 14;
-			index++;
-		}
-		top += group.line * Constants.VALUE.LINE_HEIGHT_DEFAULT;
-		return top;
-	}
-
-	// endregion
-
 	// region Absolute / relative positions
 
 	/* La posición del cursor en pantalla cuenta el eje de las X desde el inicio de la misma. Sin embargo, para hacer

@@ -41,6 +41,7 @@
 
 .assigned-card {
 	position: absolute;
+	z-index: 1;
 	/*transition: transform 0.95s ease-in-out;*/
 }
 

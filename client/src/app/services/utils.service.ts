@@ -97,6 +97,10 @@ export class UtilsService {
 		return array.map(card => card[property]).reduce((a, b) => a + b, 0);
 	}
 
+	public static sumValues(array: any[]): number {
+		return array.reduce((a, b) => a + b, 0);
+	}
+
 	public static filter(array: any[], property: any, value: any) {
 		return array.filter(item => property(item) == value);
 	}

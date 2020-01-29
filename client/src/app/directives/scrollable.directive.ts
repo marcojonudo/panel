@@ -1,4 +1,4 @@
-import {Directive, ElementRef, HostListener, OnInit, Renderer2} from '@angular/core';
+import {AfterViewInit, Directive, ElementRef, HostListener, Input, OnInit, Renderer2} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {CardPositionService} from "../services/card-position.service";
 import {NotificationService} from "../services/notification.service";
@@ -6,7 +6,9 @@ import {NotificationService} from "../services/notification.service";
 @Directive({
 	selector: '[appScrollable]'
 })
-export class ScrollableDirective implements OnInit {
+export class ScrollableDirective implements OnInit, AfterViewInit {
+
+	@Input() initialScrollLeft: number;
 
 	private readonly scrollZoneSize: number;
 	private readonly step: number;
@@ -70,6 +72,10 @@ export class ScrollableDirective implements OnInit {
 		});
 	}
 
+	ngAfterViewInit(): void {
+		this.setScrollLeft(this.initialScrollLeft);
+	}
+
 	setPositionValues(rect: any): void {
 		this.left = rect.left + this.scrollZoneSize;
 		this.right = rect.right - this.scrollZoneSize;
@@ -92,6 +98,7 @@ export class ScrollableDirective implements OnInit {
 	}
 
 	setScrollLeft(scrollLeft: number) {
+		console.log(1, scrollLeft);
 		this.updateScrollLeft = true;
 		this.renderer.setProperty(
 			this.element.nativeElement,
@@ -127,6 +134,7 @@ export class ScrollableDirective implements OnInit {
 	}
 
 	setPositionScrollLeft(scrollLeft: number, setRelative: boolean) {
+		console.log(1, scrollLeft);
 		this.scrollLeft = scrollLeft;
 		CardPositionService.scrollLeft = this.scrollLeft;
 		if (setRelative) {

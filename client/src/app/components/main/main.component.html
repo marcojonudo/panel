@@ -4,6 +4,7 @@
 		<div *ngIf="oneDayMode" class="col h-100 padding-0 d-flex">
 			<div
 				appScrollable
+				[initialScrollLeft]="initialScrollLeft"
 				class="flex-grow-1 h-100 panel-container padding-0"
 				[ngClass]="{
 					'width-0-scrollbar': !displayScrollbar,
@@ -23,7 +24,8 @@
 						[contextMenuInfo]="findAssignedContextMenuInfo()"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHours]="maxScheduleHours"
-						[maxScheduleWidth]="maxScheduleWidth">
+						[maxScheduleWidth]="maxScheduleWidth"
+						[timeIndicatorLeft]="timeIndicatorLeft">
 					</app-day-panel>
 				</div>
 				<div

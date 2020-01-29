@@ -52,6 +52,7 @@ import {CardDetailsComponent} from './components/card-details/card-details.compo
 import {CardContextMenuComponent} from './components/card-context-menu/card-context-menu.component';
 import {HorizontalScrollableDirective} from './directives/horizontal-scrollable.directive';
 import {MechanicsPipe} from './pipes/mechanics.pipe';
+import { TimeIndicatorComponent } from './components/time-indicator/time-indicator.component';
 
 @NgModule({
 	declarations: [
@@ -90,7 +91,8 @@ import {MechanicsPipe} from './pipes/mechanics.pipe';
 		CardDetailsComponent,
 		CardContextMenuComponent,
 		HorizontalScrollableDirective,
-		MechanicsPipe
+		MechanicsPipe,
+		TimeIndicatorComponent
 	],
 	imports: [
 		BrowserModule,

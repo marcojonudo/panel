@@ -6,7 +6,12 @@
 			[quartersSaturation]="quartersSaturation"
 			[maxScheduleHours]="maxScheduleHours"
 			[maxScheduleWidth]="maxScheduleWidth"
-			class="timeline-container-wrapper"></app-timeline-container>
+			class="timeline-container-wrapper">
+		</app-timeline-container>
+		<app-time-indicator
+			[left]="timeIndicatorLeft"
+			[height]="timeIndicatorHeight">
+		</app-time-indicator>
 		<app-grid
 			[day]="day"
 			[mechanics]="mechanics"
@@ -17,8 +22,8 @@
 		</app-grid>
 		<app-card-context-menu
 			*ngIf="checkShowContextMenu()"
-			[contextMenuInfo]="contextMenuInfo"
-		></app-card-context-menu>
+			[contextMenuInfo]="contextMenuInfo">
+		</app-card-context-menu>
 	</div>
 </div>
 <div>{{checkDayPanel()}}</div>

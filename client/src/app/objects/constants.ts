@@ -35,7 +35,8 @@ export class Constants {
 		SKILLS_PANEL_WIDTH: 250,
 		CARD_DETAILS_PANEL_WIDTH: 350,
 		MECHANICS_SATURATION_PERCENTAGE: 60,
-		JOB_LINE_TYPE_HEIGHT: 5
+		JOB_LINE_TYPE_HEIGHT: 5,
+		TIME_INDICATOR_INTERVAL: 60000,
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {

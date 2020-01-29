@@ -31,8 +31,7 @@ export class DimensionsService {
 	private static _lineHeight: number;
 	private static _oneDayMode: boolean;
 
-	constructor() {
-	}
+	constructor() {}
 
 	// region Getters / setters
 
@@ -270,6 +269,16 @@ export class DimensionsService {
 		return window.innerWidth - rightPanelWidth - toolsBarWidth - (scrollbar ? scrollbarSize : 0);
 	}
 
+	static calcGridCompleteHeight(dayMechanics: Mechanic[]): number {
+		return UtilsService.sumValues(
+			dayMechanics.map((mechanic: Mechanic) => this.calcMechanicLineCompleteHeight(mechanic.lines))
+		);
+	}
+
+	private static calcMechanicLineCompleteHeight(lines: number): number {
+		return lines * Constants.VALUE.LINE_HEIGHT_DEFAULT + Constants.VALUE.JOB_LINE_TYPE_HEIGHT + Constants.VALUE.MECHANIC_BOTTOM_MARGIN + 4;
+	}
+
 	// endregion
 
 	// region Hour widths
@@ -439,10 +448,6 @@ export class DimensionsService {
 
 	static calcDurationFromWidth(width: number): number {
 		return this.getIntervalsNumberFromWidth(width) * Constants.VALUE.MINUTES_PER_INTERVAL;
-	}
-
-	static calcDurationFromCardsGroup(cardsGroup: CardsGroup): number {
-		return UtilsService.sum(cardsGroup.cards, 'duration');
 	}
 
 	// endregion
