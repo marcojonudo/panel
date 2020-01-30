@@ -98,7 +98,6 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	}
 
 	setScrollLeft(scrollLeft: number) {
-		console.log(1, scrollLeft);
 		this.updateScrollLeft = true;
 		this.renderer.setProperty(
 			this.element.nativeElement,
@@ -134,7 +133,6 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	}
 
 	setPositionScrollLeft(scrollLeft: number, setRelative: boolean) {
-		console.log(1, scrollLeft);
 		this.scrollLeft = scrollLeft;
 		CardPositionService.scrollLeft = this.scrollLeft;
 		if (setRelative) {

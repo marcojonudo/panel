@@ -1,6 +1,7 @@
 .context-menu-container {
 	position: absolute;
 	background-color: #ffffff;
+	z-index: 1;
 }
 
 .context-menu-option {
