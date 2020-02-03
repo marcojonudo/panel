@@ -62,11 +62,6 @@ export class BandComponent implements OnInit, OnDestroy {
 			.subscribe((cardUpdate: UnassignedCardUpdate) => {
 				if (cardUpdate.type) {
 					this.section = this.cardsService.unassignedSections.find(section => section.name == cardUpdate.type);
-					CardPositionService.updateUnassignedGroupsLeft(
-						this.cardsService.findUnassignedGroups(cardUpdate.type, cardUpdate.type)
-					);
-				} else {
-					CardPositionService.updateUnassignedLeft(this.cardsService.unassignedTypesCardsGroups);
 				}
 				this.cdRef.detectChanges();
 			});

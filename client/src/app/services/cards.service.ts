@@ -34,6 +34,7 @@ import {CardModeAction} from "../objects/card-mode-action/card-mode-action";
 import {AssignedCardLinkHandler} from "../objects/card-links/assigned-card-link-handler";
 import {UnassignedCardLinkHandler} from "../objects/card-links/unassigned-card-link-handler";
 import {CardLinkHandler} from "../objects/card-links/card-link-handler";
+import {CardPositionService} from "./card-position.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -201,7 +202,7 @@ export class CardsService {
 			}
 		}
 		/* Se ordenan los grupos en función del código de orden y del divisionIndex */
-		this.sortUnassignedGroups(groups);
+		CardPositionService.sortUnassignedGroups(groups);
 		return groups;
 	}
 
@@ -509,7 +510,7 @@ export class CardsService {
 
 	handleAddFinishedCardsGroup(group: CardsGroup): void {
 		this.addFinishedCardsGroup(group);
-		NotificationService.notifyBand();
+		// NotificationService.notifyBand();
 	}
 
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
@@ -524,7 +525,7 @@ export class CardsService {
 
 	handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined): void {
 		this.addUnassignedCardsGroup(group, index);
-		NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
+		// NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
 	}
 
 	handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {
@@ -756,7 +757,8 @@ export class CardsService {
 
 	private addFinishedCardsGroup(group: CardsGroup): void {
 		this.finishedCardsGroups.push(group);
-		UtilsService.sort(this.finishedCardsGroups, (g) => g.cards[0].order.code);
+		CardPositionService.sortUnassignedGroups(this.finishedCardsGroups);
+		CardPositionService.updateUnassignedGroupsLeft(this.finishedCardsGroups);
 	}
 
 	private removeFinishedCardsGroup(group: CardsGroup): void {
@@ -788,34 +790,9 @@ export class CardsService {
 			groups.splice(index, 0, group);
 		} else {
 			groups.push(group);
-			this.sortUnassignedGroups(groups);
+			CardPositionService.sortUnassignedGroups(groups);
 		}
-	}
-
-	private sortUnassignedGroups(groups: CardsGroup[]): void {
-		/* Los grupos sin asignar se orden en función del orderCode, y dentro de una misma orden, del
-		*  divisionIndex */
-		groups.sort((a: CardsGroup, b: CardsGroup) => {
-			if (a.cards[0].order.code < b.cards[0].order.code) {
-				return -1;
-			} else if (a.cards[0].order.code > b.cards[0].order.code) {
-				return 1;
-			} else {
-				if (a.cards[0].group.color.order < b.cards[0].group.color.order) {
-					return -1;
-				} else if (a.cards[0].group.color.order > b.cards[0].group.color.order) {
-					return 1;
-				} else {
-					if (a.cards[0].divisionIndex < b.cards[0].divisionIndex) {
-						return -1;
-					} else if (a.cards[0].divisionIndex > b.cards[0].divisionIndex) {
-						return 1;
-					} else {
-						return 0;
-					}
-				}
-			}
-		});
+		CardPositionService.updateUnassignedGroupsLeft(groups);
 	}
 
 	private removeUnassignedCardsGroup(group: CardsGroup): void {
@@ -823,6 +800,9 @@ export class CardsService {
 		const index = groups.findIndex(g => g.id == group.id);
 		groups.splice(index, 1);
 		this.unassignedCardsGroups = this.unassignedCardsGroups.filter((g: CardsGroup) => g.id != group.id);
+
+		/* Además de actualizar los elementos de los grupos, se actualiza su posición */
+		CardPositionService.updateUnassignedGroupsLeft(groups);
 	}
 
 	// region Finders

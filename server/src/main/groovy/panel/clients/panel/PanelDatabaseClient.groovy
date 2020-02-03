@@ -55,7 +55,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	HttpResponse<Void> updateCardsPosition(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
 	@Put("/cards/duration")
-	List<Map> updateCardsDuration(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	void updateCardsDuration(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
 	@Put("/cards/division")
 	List<Map> updateCardsDivision(

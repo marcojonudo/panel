@@ -37,7 +37,7 @@ interface PanelDatabaseApi {
 
 	HttpResponse<Void> updateCardsPosition(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
-	List<Map> updateCardsDuration(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	void updateCardsDuration(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
 	List<Map> updateCardsDivision(
 			@Header String sessionId,

@@ -211,15 +211,17 @@ export class CardPositionService {
 		unassignedTypesCardsGroups: GroupedTypeCards
 	): void {
 		for (const groups of Object.values(unassignedTypesCardsGroups)) {
-			groups.forEach((cardsGroup: CardsGroup, i: number) => {
-				cardsGroup.left = DimensionsService.calcUnassignedGroupLeft(groups, i);
+			groups.forEach((group: CardsGroup, i: number) => {
+				group.left = DimensionsService.calcUnassignedGroupLeft(groups, i);
 			});
 		}
 	}
 
 	static updateUnassignedGroupsLeft(groups: CardsGroup[]): void {
 		groups.forEach((group: CardsGroup, i: number) => {
-			group.left = i == 0 ? 0 : DimensionsService.calcUnassignedGroupLeft(groups, i);
+			group.left = i == 0
+				? Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS
+				: DimensionsService.calcUnassignedGroupLeft(groups, i);
 		});
 	}
 
@@ -269,14 +271,39 @@ export class CardPositionService {
 
 	static handleUnassignedPosition(
 		group: CardsGroup,
-		typeGroups: GroupedTypeCards
+		groups: CardsGroup[]
 	): Coordinates {
-		this.updateUnassignedGroupsLeft(typeGroups[group.type]);
-		const groupIndex = typeGroups[group.cards[0].type].indexOf(group);
-		return new Coordinates(
-			group.left + (groupIndex + 1) * Constants.VALUE.UNASSIGNED_MARGIN_BETWEEN_GROUPS,
-			this.unassignedCardTop
-		);
+		const allGroups = CardPositionService.sortUnassignedGroups(groups.concat(group));
+		this.updateUnassignedGroupsLeft(allGroups);
+		const groupIndex = allGroups.indexOf(group);
+		return new Coordinates(group.left, this.unassignedCardTop);
+	}
+
+	static sortUnassignedGroups(groups: CardsGroup[]): CardsGroup[] {
+		/* Los grupos sin asignar se orden en función del orderCode, y dentro de una misma orden, del
+		*  divisionIndex */
+		groups.sort((a: CardsGroup, b: CardsGroup) => {
+			if (a.cards[0].order.code < b.cards[0].order.code) {
+				return -1;
+			} else if (a.cards[0].order.code > b.cards[0].order.code) {
+				return 1;
+			} else {
+				if (a.cards[0].group.color.order < b.cards[0].group.color.order) {
+					return -1;
+				} else if (a.cards[0].group.color.order > b.cards[0].group.color.order) {
+					return 1;
+				} else {
+					if (a.cards[0].divisionIndex < b.cards[0].divisionIndex) {
+						return -1;
+					} else if (a.cards[0].divisionIndex > b.cards[0].divisionIndex) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}
+		});
+		return groups;
 	}
 
 	static validateAssignedPosition(

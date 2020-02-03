@@ -35,7 +35,7 @@
 			*ngFor="let line of card.order.lines"
 			class="pl-1 d-flex flex-column">
 			<div class="d-flex pb-1">
-				<div class="w-75 border-right">{{line.description}}</div>
+				<div class="w-75 border-right">{{line.article.name}}</div>
 				<div class="w-25 align-center">{{line.units}}</div>
 			</div>
 		</div>

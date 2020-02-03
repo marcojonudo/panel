@@ -1,10 +1,10 @@
 export class OrderLine {
 
-	description: string;
+	article: {[key: string]: string};
 	units: number;
 
 	constructor(orderLine: { [key: string]: any }) {
-		this.description = orderLine.article.name;
+		this.article = {name: orderLine.article.name};
 		this.units = orderLine.units;
 	}
 

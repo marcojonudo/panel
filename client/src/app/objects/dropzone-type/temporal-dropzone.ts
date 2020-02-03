@@ -38,8 +38,9 @@ export class AuxiliaryDropzone implements Dropzone {
 
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {}
 
-	findLastPosition(groups: CardsGroup[], group): Coordinates {
-		return CardPositionService.handleUnassignedPosition(group, this.cardsService.unassignedTypesCardsGroups);
+	findLastPosition(groups: CardsGroup[], group: CardsGroup): Coordinates {
+		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, group.status);
+		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
 	}
 
 	addGroup(

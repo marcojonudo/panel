@@ -33,9 +33,10 @@ export class FinishDropzone implements Dropzone {
 
 	removeGroup(group: CardsGroup, validated: boolean): void {}
 
-	findLastPosition(): Coordinates {
+	findLastPosition(groups: CardsGroup[], group: CardsGroup): Coordinates {
 		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */
-		return undefined;
+		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, Constants.CARD_STATUS.FINISHED);
+		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
 	}
 
 	addGroup(
@@ -46,8 +47,10 @@ export class FinishDropzone implements Dropzone {
 		this.cardsService.updateFinishedGroup(group);
 		this.updateAppointmentsCounterAdd(group, originDropzone);
 		this.cardsService.addToFinished(group);
-		CardPositionService.updateUnassignedGroupsLeft(this.cardsService.finishedCardsGroups);
-		NotificationService.notifyBand();
+		setTimeout(
+			() => NotificationService.notifyBand(),
+			Constants.VALUE.CARD_MOVEMENT_DURATION
+		);
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {

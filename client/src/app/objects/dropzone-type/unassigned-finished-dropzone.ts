@@ -43,7 +43,8 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	}
 
 	findLastPosition(groups: CardsGroup[], group): Coordinates {
-		return CardPositionService.handleUnassignedPosition(group, this.cardsService.unassignedTypesCardsGroups);
+		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, group.status);
+		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
 	}
 
 	addGroup(
