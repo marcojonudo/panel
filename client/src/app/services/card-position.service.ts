@@ -275,7 +275,6 @@ export class CardPositionService {
 	): Coordinates {
 		const allGroups = CardPositionService.sortUnassignedGroups(groups.concat(group));
 		this.updateUnassignedGroupsLeft(allGroups);
-		const groupIndex = allGroups.indexOf(group);
 		return new Coordinates(group.left, this.unassignedCardTop);
 	}
 

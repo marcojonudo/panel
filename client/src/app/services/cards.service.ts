@@ -525,7 +525,7 @@ export class CardsService {
 
 	handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined): void {
 		this.addUnassignedCardsGroup(group, index);
-		// NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
+		NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
 	}
 
 	handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {

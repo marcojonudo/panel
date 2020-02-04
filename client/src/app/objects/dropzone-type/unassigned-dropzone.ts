@@ -39,8 +39,10 @@ export class UnassignedDropzone implements Dropzone {
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
 		/* Si el movimiento se ha validado, es necesario ejectuar el CD para que se actualice la posición de los grupos
 		*  no asignados. En caso contrario no, ya que la el grupo retornará a su posición original */
-		this.updateAppointmentsCounterSubtract(group, destinyDropzone);
 		this.cardsService.removeFromUnassigned(group, validated);
+		if (validated) {
+			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
+		}
 	}
 
 	findLastPosition(groups: CardsGroup[], group: CardsGroup): Coordinates {
