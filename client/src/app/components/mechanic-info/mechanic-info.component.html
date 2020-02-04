@@ -1,9 +1,9 @@
 <div
-	class="w-100 h-100 d-flex align-items-center mechanic-info border-right-2 border-semi-dark"
+	class="w-100 h-100 d-flex align-items-center blank-background border-right border-semi-dark"
 	[ngClass]="{'mechanic-info-highlight': checkHighlightMechanic()}">
 	<div
 		*ngIf="oneDayMode; else minLayout"
-		class="w-100 d-flex border-top border-bottom border-semi-dark"
+		class="w-100 d-flex mechanic-info border-top border-bottom border-semi-dark"
 		[style.height.px]="defaultHeight">
 		<div class="w-70 d-flex flex-column">
 			<div
