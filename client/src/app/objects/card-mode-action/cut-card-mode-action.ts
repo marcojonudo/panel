@@ -10,14 +10,14 @@ export class CutCardModeAction implements CardModeAction {
 
 	constructor(cardsService: CardsService) {
 		this.execute = (group: CardsGroup, x: number) => {
-			let [leftOffset, groupX] = [0, 0];
+			let groupX = undefined;
 			if (group.start) {
-				leftOffset = Constants.VALUE.MECHANIC_INFO_WIDTH;
+				x = CardPositionService.absolutePositionToLeft(x);
 				groupX = group.left;
 			} else {
 				groupX = CardPositionService.barLeftToAbsolutePosition(group.left);
 			}
-			cardsService.cutCard(group, groupX, x - leftOffset);
+			cardsService.cutCard(group, groupX, x);
 			cardsService.updateCardMode(group, Constants.GROUP_MODE.DRAG);
 		}
 	}
