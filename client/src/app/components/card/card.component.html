@@ -31,20 +31,18 @@
 			</div>
 		</div>
 	</div>
-	<div class="w-100 h-100 d-flex justify-content-between align-items-center link-cards-container">
-		<div (click)="handlePreviousLink(card)">
-			<i
-				id="left-link-handler"
-				class="fas fa-magnet"
-				*ngIf="checkShowLeftLinkHandler(card)"
-				[ngClass]="card.linkedPrevious ? 'fa-rotate-270' : 'fa-rotate-90'"></i>
+	<div class="w-100 h-100 d-flex align-items-center link-cards-container">
+		<div
+			*ngIf="checkShowLeftLinkHandler(card)"
+			class="link-handler"
+			[style.background-image]="'url(\'../../../assets/img/' + findLinkImage(card.linkedPrevious) + '\')'"
+			(click)="handlePreviousLink(card)">
 		</div>
-		<div (click)="handleNextLink(card)">
-			<i
-				id="right-link-handler"
-				class="fas fa-magnet"
-				*ngIf="checkShowRightLinkHandler(card)"
-				[ngClass]="card.linkedNext ? 'fa-rotate-90' : 'fa-rotate-270'"></i>
+		<div
+			*ngIf="checkShowRightLinkHandler(card)"
+			class="link-handler fa-rotate-180 ml-auto"
+			[style.background-image]="'url(\'../../../assets/img/' + findLinkImage(card.linkedNext) + '\')'"
+			(click)="handleNextLink(card)">
 		</div>
 	</div>
 	<div appResizableCard [card]="card" class="h-100 resizable-card-handler cursor-resize ml-auto"></div>

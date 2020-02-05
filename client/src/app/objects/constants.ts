@@ -26,7 +26,7 @@ export class Constants {
 		UNASSIGNED_BAR_HEIGHT: 75,
 		UNASSIGNED_MARGIN_BETWEEN_GROUPS: 10,
 		CARD_MOVEMENT_DURATION: 200,
-		MECHANIC_BOTTOM_MARGIN: 10,
+		MECHANIC_BOTTOM_MARGIN: 5,
 		TIMELINE_HEIGHT: 30,
 		SCROLLBAR_SIZE: 11,
 		UNASSIGNED_BAND_CONTAINER_HEIGHT: 100,
@@ -100,6 +100,10 @@ export class Constants {
 	public static readonly GROUP_MODE_CURSOR: any = {
 		DRAG: 'move',
 		CUT: 'crosshair'
+	};
+	public static readonly LINK_HANDLER_IMAGE: any = {
+		JOINED: 'link_handler_joined.svg',
+		SPLITTED: 'link_handler_splitted.svg'
 	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";

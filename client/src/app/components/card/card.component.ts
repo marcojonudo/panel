@@ -49,6 +49,10 @@ export class CardComponent {
 		return this.cardsService.findRightNextCard(card) != undefined;
 	}
 
+	findLinkImage(linkedCard: Card): string {
+		return linkedCard ? Constants.LINK_HANDLER_IMAGE.JOINED : Constants.LINK_HANDLER_IMAGE.SPLITTED;
+	}
+
 	handlePreviousLink(card: Card): void {
 		const linkHandler = card.day
 			? new AssignedCardLinkHandler(this.cardsService) : new UnassignedCardLinkHandler(this.cardsService);
