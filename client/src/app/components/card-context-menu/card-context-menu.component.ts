@@ -1,13 +1,9 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {NotificationService} from "../../services/notification.service";
-import {Subscription} from "rxjs/internal/Subscription";
-import {CardsGroup} from "../../objects/cards-group";
 import {ContextMenuInfo} from "../../objects/context-menu-info";
-import {Coordinates} from "../../objects/coordinates";
 import {CardPositionService} from "../../services/card-position.service";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
-import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
 import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
 import {Card} from "../../objects/card";
 import {DimensionsService} from "../../services/dimensions.service";
@@ -56,6 +52,10 @@ export class CardContextMenuComponent implements OnInit {
 
 	findUnassignedTop(): number {
 		return -((Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2 + Constants.VALUE.LINE_HEIGHT_DEFAULT / 2)
+	}
+
+	checkCutCardSelected(): boolean {
+		return this.contextMenuInfo.group.mode == Constants.GROUP_MODE.CUT;
 	}
 
 	cutCard(): void {

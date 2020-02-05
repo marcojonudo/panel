@@ -18,4 +18,11 @@
 
 .context-menu-icon {
 	width: 20px;
+	text-align: center;
+}
+
+.selected-option {
+	background-color: #595959;
+	color: white;
+	font-weight: bold;
 }

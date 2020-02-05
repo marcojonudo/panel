@@ -6,6 +6,7 @@
 	}">
 	<div
 		class="d-flex align-center justify-content-start context-menu-option"
+		[ngClass]="{'rounded selected-option': checkCutCardSelected()}"
 		(click)="cutCard()">
 		<i class="fas fa-cut context-menu-icon"></i>
 		<span>Cortar</span>
