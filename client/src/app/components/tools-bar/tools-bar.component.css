@@ -1,6 +1,5 @@
 .tools-bar-container {
-	position: relative;
-	right: 0;
+	overflow: scroll;
 }
 
 .tools-bar-hook {
@@ -20,4 +19,18 @@
 .buttons-slider-container {
 	position: relative;
 	z-index: -1;
+}
+
+.appointments-summary-container {
+	cursor: pointer;
+	font-size: .8em;
+}
+
+.appointments-summary-title {
+	background-color: #595959;
+	color: #ffffff;
+}
+
+.appointment-summary-item {
+	height: 60px;
 }

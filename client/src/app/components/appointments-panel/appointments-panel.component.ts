@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {AppointmentsService} from "../../services/appointments.service";
 import {Subscription} from "rxjs/internal/Subscription";
 import {Constants} from "../../objects/constants";
@@ -12,7 +12,7 @@ import {NotificationService} from "../../services/notification.service";
 	styleUrls: ['./appointments-panel.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppointmentsPanelComponent implements OnInit {
+export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
 
@@ -30,9 +30,13 @@ export class AppointmentsPanelComponent implements OnInit {
 
 	ngOnInit() {
 		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
-		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(update => {
+		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(() => {
 			this.cdRef.detectChanges();
 		});
+	}
+
+	ngOnDestroy() {
+		this.appointmentsCounterSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -68,7 +72,7 @@ export class AppointmentsPanelComponent implements OnInit {
 	}
 
 	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
-		return appointments > Math.round(max * appointmentSaturation);
+		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);
 	}
 
 	addMax(appointmentDay: AppointmentDay): void {

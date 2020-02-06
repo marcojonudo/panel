@@ -1,10 +1,12 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
 import {NotificationService} from "../../services/notification.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
+import {AppointmentsService} from "../../services/appointments.service";
+import {Subscription} from "rxjs/internal/Subscription";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -12,18 +14,31 @@ import {MechanicsService} from "../../services/mechanics.service";
 	styleUrls: ['./tools-bar.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToolsBarComponent {
+export class ToolsBarComponent implements OnInit {
 
+	@Input() day: Date;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
+
+	private appointmentsCounterSubscription: Subscription;
+	private _daysAppointmentsCounter: any;
 	private _showingFinished: boolean;
 
 	constructor(
 		private cardsService: CardsService,
-		private mechanicsService: MechanicsService
+		private mechanicsService: MechanicsService,
+		private appointmentsService: AppointmentsService,
+		private cdRef: ChangeDetectorRef
 	) {
 		this.showingFinished = false;
+	}
+
+	ngOnInit() {
+		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
+		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(() => {
+			this.cdRef.detectChanges();
+		});
 	}
 
 	// region Getters / setters
@@ -44,7 +59,37 @@ export class ToolsBarComponent {
 		this._showingFinished = value;
 	}
 
+	get daysAppointmentsCounter(): any {
+		return this._daysAppointmentsCounter;
+	}
+
+	set daysAppointmentsCounter(value: any) {
+		this._daysAppointmentsCounter = value;
+	}
+
+	get morningAppointmentSaturation(): number {
+		return Constants.APPOINTMENT_SATURATION.MORNING;
+	}
+
+	get afternoonAppointmentSaturation(): number {
+		return Constants.APPOINTMENT_SATURATION.AFTERNOON;
+	}
+
 	// endregion
+
+	findDayAppointmentsCounter(day: Date = this.day): any {
+		return this.daysAppointmentsCounter[day.getTime()];
+	}
+
+	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
+		return this.appointmentsService.findSaturationPercentage(appointments, max, appointmentSaturation);
+	}
+
+	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
+		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);
+	}
+
+	// region Button actions
 
 	toggleDayMode(): void {
 		DimensionsService.toggleDayMode();
@@ -66,5 +111,7 @@ export class ToolsBarComponent {
 		NotificationService.notifyBand(unassignedCardUpdate);
 		this.showingFinished = !this.showingFinished;
 	}
+
+	// endregion
 
 }

@@ -122,6 +122,18 @@ export class AppointmentsService {
 
 	// endregion
 
+	// region Saturation
+
+	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
+		return appointments > Math.round(max * appointmentSaturation);
+	}
+
+	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
+		return appointments && max ? Math.round((appointments / (max * appointmentSaturation)) * 100) : 0;
+	}
+
+	// endregion
+
 	// region Update appointment day
 
 	updateAppointment(
