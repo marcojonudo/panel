@@ -39,6 +39,10 @@ export class HelperCardComponent {
 		return this.cardsService.findRightNextCard(card) != undefined;
 	}
 
+	findLinkImage(linkedCard: Card): string {
+		return linkedCard ? Constants.LINK_HANDLER_IMAGE.JOINED : Constants.LINK_HANDLER_IMAGE.SPLITTED;
+	}
+
 	check(): void {
 		if (Constants.CHECK) {
 			console.log('checking helper card', this.card);

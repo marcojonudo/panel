@@ -28,3 +28,10 @@
 	left: 0;
 	overflow: hidden;
 }
+
+.link-handler {
+	width: 10px;
+	height: 10px;
+	background-size: 10px 10px;
+	cursor: pointer;
+}
