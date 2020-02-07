@@ -120,10 +120,13 @@ class PanelService {
 		Time maxMorningEnd = mechanics.schedule.morningEnd.max()
 		Time maxAfternoonEnd = mechanics.schedule.afternoonEnd.max()
 
-		return new Schedule(
-				morningStart: minMorningStart < minAfternoonStart ? minMorningStart : minAfternoonStart,
-				morningEnd: maxAfternoonEnd > maxMorningEnd ? maxAfternoonEnd : maxMorningEnd
-		)
+		if (!minMorningStart) {
+			return new Schedule(morningStart: minAfternoonStart, morningEnd: maxAfternoonEnd)
+		} else if (!minAfternoonStart) {
+			return new Schedule(morningStart: minMorningStart, morningEnd: maxMorningEnd)
+		} else {
+			return new Schedule(morningStart: minMorningStart, morningEnd: maxAfternoonEnd)
+		}
 	}
 
 	// endregion
