@@ -7,7 +7,7 @@
 				[initialScrollLeft]="initialScrollLeft"
 				class="flex-grow-1 h-100 panel-container padding-0"
 				[ngClass]="{
-					'width-0-scrollbar': !displayScrollbar,
+					'width-0-scrollbar': !displayVerticalScrollbar,
 					'overflow-scroll': !showNonexistentScheduleMessage,
 					'overflow-hidden': showNonexistentScheduleMessage
 				}">
@@ -70,7 +70,7 @@
 					<div
 						class="h-100 panel-container padding-0"
 						[ngClass]="{
-							'width-0-scrollbar': !oneDayMode || !displayScrollbar,
+							'width-0-scrollbar': !oneDayMode || !displayVerticalScrollbar,
 							'overflow-scroll': !showNonexistentScheduleMessage,
 							'overflow-hidden': showNonexistentScheduleMessage
 						}">

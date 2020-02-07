@@ -39,7 +39,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _days: Date[];
 	private _today: Date;
 	private itemSize: number;
-	private _displayScrollbar: boolean;
 	private _showNonexistentScheduleMessage: boolean;
 	private _dayContainerWidth: number;
 
@@ -148,15 +147,16 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.cardsService.unassignedSections,
 				this.cardsService.assignedDaysCardsGroups
 			);
+			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
 			NotificationService.notifyAll();
 			this.cdRef.detectChanges();
 		});
 
 		// /* Observer utilizado para determinar si es necesario mostrar o no la scrollbar */
 		// this.daysService.lineHeight$.subscribe((lineHeight: number) => {
-		// 	this.displayScrollbar = this.daysService.checkDisplayScrollbar(
+		// 	this.displayVerticalScrollbar = this.daysService.checkDisplayScrollbar(
 		// 		//TODO Modificar comparación de maxScheduleWidth
-		// 		this.timeService.gridHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
+		// 		this.timeService.gridContainerHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
 		// 		this.timeService.today,
 		// 		lineHeight
 		// 	);
@@ -234,12 +234,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._assignedDaysCardsGroups = value;
 	}
 
-	get displayScrollbar(): boolean {
-		return this._displayScrollbar;
-	}
-
-	set displayScrollbar(value: boolean) {
-		this._displayScrollbar = value;
+	get displayVerticalScrollbar(): boolean {
+		return DimensionsService.displayVerticalScrollbar;
 	}
 
 	get showNonexistentScheduleMessage(): boolean {
@@ -452,14 +448,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	calcTimeIndicatorLeft(time: Date = new Date()): number {
 		return DimensionsService.calcLeftFromStart(time) + Constants.VALUE.MECHANIC_INFO_WIDTH;
-	}
-
-	calcTimeIndicatorHeight(): number {
-		let height = 0;
-		for (const mechanics of Object.values(this.mechanicsService.daysMechanics)) {
-			height += DimensionsService.calcGridCompleteHeight(mechanics);
-		}
-		return height;
 	}
 
 	trackByDay(index, item) {

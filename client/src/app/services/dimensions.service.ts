@@ -13,16 +13,14 @@ export class DimensionsService {
 
 	private static readonly MINUTES_PER_HOUR: number = 60;
 	private static readonly FIT_HOURS_IN_SCREEN: number = 4;
-	readonly QUARTERS: string[] = ['00', '15', '30', '45'];
-
-	private static _today: Date;
 
 	private static _maxTodayScheduleHours: number[];
 	private static _maxDaysSchedulesHours: number[];
 	private static _maxScheduleHours: number[];
 
 	private static _gridWidth: number;
-	private static _gridHeight: number;
+	private static _gridContainerHeight: number;
+	private static _displayVerticalScrollbar: boolean;
 	private static _hourWidth: number;
 	private static _defaultHourWidth: number;
 	private static _maxScheduleWidth: number;
@@ -31,17 +29,7 @@ export class DimensionsService {
 	private static _lineHeight: number;
 	private static _oneDayMode: boolean;
 
-	constructor() {}
-
 	// region Getters / setters
-
-	static get today(): Date {
-		return this._today;
-	}
-
-	static set today(value: Date) {
-		this._today = value;
-	}
 
 	static get gridWidth(): number {
 		return this._gridWidth;
@@ -51,12 +39,12 @@ export class DimensionsService {
 		this._gridWidth = value;
 	}
 
-	static get gridHeight(): number {
-		return this._gridHeight;
+	static get gridContainerHeight(): number {
+		return this._gridContainerHeight;
 	}
 
-	static set gridHeight(value: number) {
-		this._gridHeight = value;
+	static set gridContainerHeight(value: number) {
+		this._gridContainerHeight = value;
 	}
 
 	static get maxTodayScheduleHours(): number[] {
@@ -91,14 +79,6 @@ export class DimensionsService {
 		this._maxScheduleWidth = value;
 	}
 
-	// static get maxScheduleWidth$(): Observable<number> {
-	// 	return this._maxScheduleWidth$;
-	// }
-	//
-	// static set maxScheduleWidth$(value: Observable<number>) {
-	// 	this._maxScheduleWidth$ = value;
-	// }
-
 	static get hourWidth(): number {
 		return this._hourWidth;
 	}
@@ -114,14 +94,6 @@ export class DimensionsService {
 	static set intervalWidth(value: number) {
 		this._intervalWidth = value;
 	}
-
-	// static get maxScheduleMaxWidth$(): Observable<number> {
-	// 	return this._maxScheduleMaxWidth$;
-	// }
-	//
-	// static set maxScheduleMaxWidth$(value: Observable<number>) {
-	// 	this._maxScheduleMaxWidth$ = value;
-	// }
 
 	static get maxScheduleMaxWidth(): number {
 		return this._maxScheduleMaxWidth;
@@ -155,6 +127,14 @@ export class DimensionsService {
 		this._oneDayMode = value;
 	}
 
+	static get displayVerticalScrollbar(): boolean {
+		return this._displayVerticalScrollbar;
+	}
+
+	static set displayVerticalScrollbar(value: boolean) {
+		this._displayVerticalScrollbar = value;
+	}
+
 	// endregion
 
 	// region Init
@@ -166,9 +146,9 @@ export class DimensionsService {
 
 		// TODO Estudiar si quitarlo, al usar otra barra en caso de varios días
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
-		this.gridHeight = this.calcGridHeight();
-		const displayScrollbar = this.checkDisplayScrollbar(
-			this.gridHeight, today, daysMechanics, Constants.VALUE.LINE_HEIGHT_DEFAULT
+		this.gridContainerHeight = this.calcGridHeight();
+		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
+			daysMechanics, today, this.gridContainerHeight
 		);
 		this.gridWidth = this.calcGridWidth(displayScrollbar);
 
@@ -184,12 +164,9 @@ export class DimensionsService {
 	}
 
 	private static checkDisplayScrollbar(
-		gridHeight: number,
-		today: Date,
 		daysMechanics: DaysMechanics,
-		lineHeight: number,
-		mechanicBottomMargin: number = Constants.VALUE.MECHANIC_BOTTOM_MARGIN,
-		timelineHeight: number = Constants.VALUE.TIMELINE_HEIGHT
+		today: Date,
+		gridContainerHeight: number
 	): boolean {
 		/* Si no hay mecánicos, se muestra el mensaje correspondiente, por lo que la barra no se necesita */
 		if (!Object.keys(daysMechanics).length) {
@@ -197,12 +174,8 @@ export class DimensionsService {
 		}
 		const mechanics = daysMechanics[today.getTime()];
 		if (mechanics.length) {
-			const mechanicsHeight =
-				UtilsService.sum(mechanics, 'lines') * lineHeight +
-				mechanics.length * (mechanicBottomMargin + 4) +
-				timelineHeight
-			;
-			return gridHeight < mechanicsHeight;
+			const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
+			return gridContainerHeight < mechanicsHeight;
 		}
 		return false;
 	}
@@ -254,19 +227,19 @@ export class DimensionsService {
 
 	private static calcGridHeight(
 		scrollbar: boolean = true,
+		timelineHeight: number = Constants.VALUE.TIMELINE_HEIGHT,
 		unassignedBandContainerHeight: number = Constants.VALUE.UNASSIGNED_BAND_CONTAINER_HEIGHT,
 		scrollbarSize: number = Constants.VALUE.SCROLLBAR_SIZE
 	): number {
-		return window.innerHeight - unassignedBandContainerHeight - (scrollbar ? scrollbarSize : 0);
+		return window.innerHeight - timelineHeight - unassignedBandContainerHeight - (scrollbar ? scrollbarSize : 0);
 	}
 
 	private static calcGridWidth(
 		scrollbar: boolean,
-		rightPanelWidth: number = Constants.VALUE.DAY_PANEL_WIDTH,
 		toolsBarWidth: number = Constants.VALUE.TOOLS_BAR_WIDTH,
 		scrollbarSize: number = Constants.VALUE.SCROLLBAR_SIZE
 	): number {
-		return window.innerWidth - rightPanelWidth - toolsBarWidth - (scrollbar ? scrollbarSize : 0);
+		return window.innerWidth - toolsBarWidth - (scrollbar ? scrollbarSize : 0);
 	}
 
 	static calcGridCompleteHeight(dayMechanics: Mechanic[]): number {
@@ -276,7 +249,8 @@ export class DimensionsService {
 	}
 
 	private static calcMechanicLineCompleteHeight(lines: number): number {
-		return lines * Constants.VALUE.LINE_HEIGHT_DEFAULT + Constants.VALUE.JOB_LINE_TYPE_HEIGHT + Constants.VALUE.MECHANIC_BOTTOM_MARGIN + 4;
+		return (lines * Constants.VALUE.LINE_HEIGHT_DEFAULT) + Constants.VALUE.JOB_LINE_TYPE_HEIGHT
+				+ Constants.VALUE.MECHANIC_BOTTOM_MARGIN + Constants.VALUE.MECHANIC_BORDER * 2;
 	}
 
 	// endregion
@@ -369,8 +343,6 @@ export class DimensionsService {
 		*  ancho del grid, ya que al activar la vista de varios días, automáticamente se ajusta a la pantalla */
 		this.maxScheduleWidth = oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth;
 		this.calcWidthValuesFromMaxScheduleWidth(this.maxScheduleWidth);
-		// this.maxScheduleMaxWidthSubject.next(this.maxScheduleMaxWidth);
-		// return this.maxScheduleHours;
 	}
 
 	/**
