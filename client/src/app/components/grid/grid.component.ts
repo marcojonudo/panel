@@ -6,7 +6,7 @@ import {Constants} from "../../objects/constants";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {NotificationService} from "../../services/notification.service";
-import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
+import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 
 @Component({
 	selector: 'app-grid',
@@ -47,9 +47,13 @@ export class GridComponent implements OnInit {
 
 	// endregion
 
-	onPointerDown(): void {
-		NotificationService.notifyContextMenu(undefined);
-		NotificationService.notifyCardDetails(new DayCardDetails(this.day, undefined));
+	onPointerDown(event: PointerEvent): void {
+		if ((<HTMLElement> event.target).id == Constants.ID.MECHANIC_LINE) {
+			NotificationService.notifyContextMenu(undefined);
+			NotificationService.notifyLateralInfo(
+				new DayLateralPanelInfo(this.day, undefined)
+			);
+		}
 	}
 
 	checkTriggerMechanicLineCd(

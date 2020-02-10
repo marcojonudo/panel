@@ -34,25 +34,13 @@
 					No hay horarios definidos para hoy. ¡Puedes tomarte el día libre!
 				</div>
 			</div>
-			<app-card-details
-				*ngIf="checkShowCardDetails(today)"
-				[card]="findCard(today)"
-				class="h-100"
-				[style.right.px]="skillsDetailsRight">
-			</app-card-details>
-			<app-skills-details
-				*ngIf="checkShowSkills(today)"
-				[skills]="findSkills(today)"
-				class="h-100"
-				[style.right.px]="skillsDetailsRight">
-			</app-skills-details>
-			<app-day-info-panel
-				class="h-100"
-				[style.min-width.px]="dayPanelWidth"
-				[day]="today">
-			</app-day-info-panel>
+			<app-lateral-panel
+				[info]="findLateralInfo(today)"
+				[style.right.px]="lateralPanelRight">
+			</app-lateral-panel>
 			<app-tools-bar
 				[day]="today"
+				[dayAppointmentsCounter]="findDayAppointmentsCounter(today)"
 				[maxScheduleWidth]="maxScheduleWidth"
 				[maxScheduleMaxWidth]="maxScheduleMaxWidth"
 				class="h-100">
@@ -92,23 +80,23 @@
 							</app-day-panel>
 						</div>
 					</div>
-					<app-card-details
-						*ngIf="checkShowCardDetails(day)"
-						[card]="findCard(day)"
-						class="h-100"
-						[style.right.px]="skillsDetailsRight">
-					</app-card-details>
-					<app-skills-details
-						*ngIf="checkShowSkills(day)"
-						[skills]="findSkills(day)"
-						[style.right.px]="skillsDetailsRight"
-						class="h-100">
-					</app-skills-details>
-					<app-day-info-panel
-						class="h-100"
-						[style.min-width.px]="dayPanelWidth"
-						[day]="day">
-					</app-day-info-panel>
+					<!--<app-card-details-->
+						<!--*ngIf="checkShowCardDetails(day)"-->
+						<!--[card]="findCard(day)"-->
+						<!--class="h-100"-->
+						<!--[style.right.px]="lateralPanelRight">-->
+					<!--</app-card-details>-->
+					<!--<app-skills-details-->
+						<!--*ngIf="checkShowSkills(day)"-->
+						<!--[skills]="findSkills(day)"-->
+						<!--[style.right.px]="lateralPanelRight"-->
+						<!--class="h-100">-->
+					<!--</app-skills-details>-->
+					<!--<app-day-info-panel-->
+						<!--class="h-100"-->
+						<!--[style.min-width.px]="dayPanelWidth"-->
+						<!--[day]="day">-->
+					<!--</app-day-info-panel>-->
 				</div>
 			</div>
 			<app-tools-bar

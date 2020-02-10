@@ -7,6 +7,7 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Subscription} from "rxjs/internal/Subscription";
+import {DayAppointmentsCounter} from "../../objects/day-appointments-counter";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -17,6 +18,7 @@ import {Subscription} from "rxjs/internal/Subscription";
 export class ToolsBarComponent implements OnInit {
 
 	@Input() day: Date;
+	@Input() dayAppointmentsCounter: DayAppointmentsCounter;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
@@ -75,18 +77,6 @@ export class ToolsBarComponent implements OnInit {
 	}
 
 	// endregion
-
-	findDayAppointmentsCounter(day: Date = this.day): any {
-		return this.daysAppointmentsCounter[day.getTime()];
-	}
-
-	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
-		return this.appointmentsService.findSaturationPercentage(appointments, max, appointmentSaturation);
-	}
-
-	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
-		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);
-	}
 
 	// region Button actions
 

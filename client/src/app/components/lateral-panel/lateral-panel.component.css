@@ -1,0 +1,11 @@
+:host {
+	height: 100%;
+}
+
+.lateral-panel-container {
+	-webkit-transition: width .2s;
+	-moz-transition: width .2s;
+	-ms-transition: width .2s;
+	-o-transition: width .2s;
+	transition: width .2s;
+}

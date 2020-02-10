@@ -20,7 +20,6 @@ export class Constants {
 		LINE_HEIGHT_DEFAULT: 40,
 		LINE_HEIGHT_NARROW: 25,
 		MECHANIC_INFO_WIDTH: 180,
-		DAY_PANEL_WIDTH: 200,
 		TOOLS_BAR_WIDTH: 50,
 		MINUTES_PER_INTERVAL: 5,
 		CARD_MIN_DURATION: 10,
@@ -36,9 +35,13 @@ export class Constants {
 		INTERVALS_PER_QUARTER: 3,
 		SKILLS_PANEL_WIDTH: 250,
 		CARD_DETAILS_PANEL_WIDTH: 350,
+		LATERAL_PANEL_WIDTH: 300,
 		MECHANICS_SATURATION_PERCENTAGE: 60,
 		JOB_LINE_TYPE_HEIGHT: 5,
 		TIME_INDICATOR_INTERVAL: 60000,
+	};
+	public static ID: any = {
+		MECHANIC_LINE: 'mechanic-line'
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
@@ -106,6 +109,11 @@ export class Constants {
 	public static readonly LINK_HANDLER_IMAGE: any = {
 		JOINED: 'link_handler_joined.svg',
 		SPLITTED: 'link_handler_splitted.svg'
+	};
+	public static readonly LATERAL_PANEL_INFO_TYPE: any = {
+		SKILLS: 'SKILLS',
+		CARD_DETAILS: 'CARD_DETAILS',
+		APPOINTMENTS_DETAILS: 'APPOINTMENTS_DETAILS'
 	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";

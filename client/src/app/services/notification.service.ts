@@ -10,10 +10,9 @@ import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Coordinates} from "../objects/coordinates";
 import {CardsGroup} from "../objects/cards-group";
 import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
-import {DayCardDetails} from "../objects/card-details-update/day-card-details";
 import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
-import {DayContextMenu} from "../objects/context-menu-update/day-context-menu";
 import {ContextMenuInfo} from "../objects/context-menu-info";
+import {DayLateralPanelInfo} from "../objects/lateral-panel-info/day-lateral-panel-info";
 
 @Injectable({
 	providedIn: 'root'
@@ -44,12 +43,6 @@ export class NotificationService {
 	private static draggingSubject: Subject<boolean>;
 	private static _dragging$: Observable<boolean>;
 
-	private static skillsSubject: Subject<DayMechanicSkills>;
-	private static _skills$: Observable<DayMechanicSkills>;
-
-	private static cardDetailsSubject: Subject<DayCardDetails>;
-	private static _cardDetails$: Observable<DayCardDetails>;
-
 	private static quartersSaturationSubject: Subject<DayQuartersSaturation>;
 	private static _quartersSaturation$: Observable<DayQuartersSaturation>;
 
@@ -58,6 +51,9 @@ export class NotificationService {
 
 	private static onlyAppointmentsModeSubject: Subject<void>;
 	private static _onlyAppointmentsMode$: Observable<void>;
+
+	private static lateralInfoSubject: Subject<DayLateralPanelInfo>;
+	private static _lateralInfo$: Observable<DayLateralPanelInfo>;
 
 	// region Init
 
@@ -86,12 +82,6 @@ export class NotificationService {
 		this.draggingSubject = new BehaviorSubject<boolean>(false);
 		this.dragging$ = this.draggingSubject.asObservable();
 
-		this.skillsSubject = new Subject<DayMechanicSkills>();
-		this.skills$ = this.skillsSubject.asObservable();
-
-		this.cardDetailsSubject = new Subject<DayCardDetails>();
-		this.cardDetails$ = this.cardDetailsSubject.asObservable();
-
 		this.quartersSaturationSubject = new Subject<DayQuartersSaturation>();
 		this.quartersSaturation$ = this.quartersSaturationSubject.asObservable();
 
@@ -100,6 +90,9 @@ export class NotificationService {
 
 		this.onlyAppointmentsModeSubject = new Subject<void>();
 		this.onlyAppointmentsMode$ = this.onlyAppointmentsModeSubject.asObservable();
+
+		this.lateralInfoSubject = new Subject<DayLateralPanelInfo>();
+		this.lateralInfo$ = this.lateralInfoSubject.asObservable();
 	}
 
 	// endregion
@@ -170,22 +163,6 @@ export class NotificationService {
 		this._coordinates$ = value;
 	}
 
-	static get skills$(): Observable<DayMechanicSkills> {
-		return this._skills$;
-	}
-
-	static set skills$(value: Observable<DayMechanicSkills>) {
-		this._skills$ = value;
-	}
-
-	static get cardDetails$(): Observable<DayCardDetails> {
-		return this._cardDetails$;
-	}
-
-	static set cardDetails$(value: Observable<DayCardDetails>) {
-		this._cardDetails$ = value;
-	}
-
 	static get quartersSaturation$(): Observable<DayQuartersSaturation> {
 		return this._quartersSaturation$;
 	}
@@ -208,6 +185,14 @@ export class NotificationService {
 
 	static set onlyAppointmentsMode$(value: Observable<void>) {
 		this._onlyAppointmentsMode$ = value;
+	}
+
+	static get lateralInfo$(): Observable<DayLateralPanelInfo> {
+		return this._lateralInfo$;
+	}
+
+	static set lateralInfo$(value: Observable<DayLateralPanelInfo>) {
+		this._lateralInfo$ = value;
 	}
 
 	// endregion
@@ -249,14 +234,6 @@ export class NotificationService {
 		this.draggingSubject.next(dragging);
 	}
 
-	static notifySkills(daySkills: DayMechanicSkills): void {
-		this.skillsSubject.next(daySkills);
-	}
-
-	static notifyCardDetails(dayCardDetails: DayCardDetails): void {
-		this.cardDetailsSubject.next(dayCardDetails);
-	}
-
 	static notifyQuartersSaturation(dayQuartersSaturation: DayQuartersSaturation): void {
 		this.quartersSaturationSubject.next(dayQuartersSaturation);
 	}
@@ -267,6 +244,10 @@ export class NotificationService {
 
 	static notifyOnlyAppointmentsMode(): void {
 		this.onlyAppointmentsModeSubject.next();
+	}
+
+	static notifyLateralInfo(dayLateralInfo: DayLateralPanelInfo): void {
+		this.lateralInfoSubject.next(dayLateralInfo)
 	}
 
 }

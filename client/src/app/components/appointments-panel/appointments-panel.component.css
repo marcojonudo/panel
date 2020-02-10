@@ -1,3 +1,9 @@
+.appointments-panel {
+	font-size: .8em;
+	max-height: 300px;
+	text-align: center;
+}
+
 .appointments-panel table {
 	display: flex;
 	flex-direction: column;

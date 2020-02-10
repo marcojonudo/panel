@@ -1,0 +1,13 @@
+.appointments-summary-container {
+	cursor: pointer;
+	font-size: .8em;
+}
+
+.appointments-summary-title {
+	background-color: #595959;
+	color: #ffffff;
+}
+
+.appointment-summary-item {
+	height: 60px;
+}

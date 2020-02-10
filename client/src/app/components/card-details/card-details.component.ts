@@ -12,14 +12,6 @@ export class CardDetailsComponent {
 
 	@Input() card: Card;
 
-	// region Getters / setters
-
-	get cardDetailsWidth(): number {
-		return Constants.VALUE.CARD_DETAILS_PANEL_WIDTH;
-	}
-
-	// endregion
-
 	findStateName(state: string): string {
 		return Constants.ORDER_STATE_NAME[state];
 	}

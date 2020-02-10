@@ -4,9 +4,10 @@ import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {CardPositionService} from "../../services/card-position.service";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
-import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
 import {Card} from "../../objects/card";
 import {DimensionsService} from "../../services/dimensions.service";
+import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
+import {CardDetailsInfo} from "../../objects/lateral-panel-info/card-details-info";
 
 @Component({
 	selector: 'app-card-context-menu',
@@ -78,7 +79,12 @@ export class CardContextMenuComponent implements OnInit {
 		const clickedCard = this.contextMenuInfo.group.cards.find((card: Card) =>
 			DimensionsService.calcLeftFromStart(card.end) > xLeft
 		);
-		NotificationService.notifyCardDetails(new DayCardDetails(clickedCard.day, clickedCard));
+		NotificationService.notifyLateralInfo(
+			new DayLateralPanelInfo(
+				clickedCard.day,
+				new CardDetailsInfo(clickedCard)
+			)
+		);
 		NotificationService.notifyContextMenu(undefined);
 	}
 

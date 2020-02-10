@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
 import {JobLineType} from "../../objects/job-line-type";
@@ -9,6 +9,9 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {NotificationService} from "../../services/notification.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {JobLineTypeService} from "../../services/job-line-type.service";
+import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
+import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
+import {MechanicSkills} from "../../objects/mechanic-skills";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -38,19 +41,6 @@ export class MechanicInfoComponent {
 		this.highlightMechanic = false;
 		this.showAppointmentSchedulesDialog = false;
 	}
-
-	// ngOnInit(): void {
-	// 	// this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
-	// 	// 	// TODO Añadir detectChanges
-	// 	// 	this.oneDayMode = oneDayMode;
-	// 	// });
-	// 	this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
-	// 		if (!(skills.length && this.mechanic.skills == skills)) {
-	// 			this.highlightMechanic = false;
-	// 			this.cdRef.detectChanges();
-	// 		}
-	// 	});
-	// }
 
 	// region Getters / setters
 
@@ -132,8 +122,15 @@ export class MechanicInfoComponent {
 		mechanicCode: string,
 		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
 	) {
-		NotificationService.notifySkills(
-			new DayMechanicSkills(day, mechanicCode, dayMechanicSkills && dayMechanicSkills.skills.length ? [] : skills)
+		NotificationService.notifyLateralInfo(
+			new DayLateralPanelInfo(
+				day,
+				new SkillsDetailsInfo(
+					new MechanicSkills(
+						mechanicCode, dayMechanicSkills && dayMechanicSkills.skills.length ? [] : skills
+					)
+				)
+			)
 		);
 	}
 

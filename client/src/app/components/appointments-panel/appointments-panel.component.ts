@@ -5,6 +5,7 @@ import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {AppointmentDay} from "../../objects/appointment-day";
 import {NotificationService} from "../../services/notification.service";
+import {DayAppointmentsCounter} from "../../objects/day-appointments-counter";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -15,12 +16,12 @@ import {NotificationService} from "../../services/notification.service";
 export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 
 	@Input() day: Date;
+	@Input() dayAppointmentsCounter: DayAppointmentsCounter;
 
 	private readonly TOTAL: string = 'TOTAL';
 	private readonly MAX: string = 'MAX';
 
 	private appointmentsCounterSubscription: Subscription;
-	private _daysAppointmentsCounter: any;
 
 	constructor(
 		private appointmentsService: AppointmentsService,
@@ -29,7 +30,6 @@ export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 	) {}
 
 	ngOnInit() {
-		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
 		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(() => {
 			this.cdRef.detectChanges();
 		});
@@ -40,14 +40,6 @@ export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 	}
 
 	// region Getters / setters
-
-	get daysAppointmentsCounter(): any {
-		return this._daysAppointmentsCounter;
-	}
-
-	set daysAppointmentsCounter(value: any) {
-		this._daysAppointmentsCounter = value;
-	}
 
 	get morning(): string {
 		return Constants.SCHEDULE_TYPE.MORNING;
@@ -66,10 +58,6 @@ export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
-
-	findDayAppointmentsCounter(day: Date): any {
-		return this.daysAppointmentsCounter[day.getTime()];
-	}
 
 	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
 		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);

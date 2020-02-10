@@ -27,6 +27,10 @@ import {DaysContextMenu} from "../../objects/context-menu-update/days-context-me
 import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {interval} from "rxjs/internal/observable/interval";
+import {DaysLateralPanelInfo} from "../../objects/days-lateral-panel-info";
+import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
+import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
+import {AppointmentsService} from "../../services/appointments.service";
 
 @Component({
 	selector: 'app-main',
@@ -46,6 +50,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _daysMechanicSkills: DaysMechanicSkills;
 	private _daysCardDetails: DaysCardDetails;
+	private _daysLateralInfo: DaysLateralPanelInfo;
 	private _daysQuartersSaturation: DaysQuartersSaturation;
 
 	private _daysContextMenu: DaysContextMenu;
@@ -75,11 +80,13 @@ export class MainComponent implements OnInit, OnDestroy {
 	private quartersSaturationSubscription: Subscription;
 	private contextMenuSubscription: Subscription;
 	private onlyAppointmentsModeSubscription: Subscription;
+	private lateralInfoSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
 		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,
+		private appointmentsService: AppointmentsService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.days = this.mechanicsService.days;
@@ -163,15 +170,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		// 	this.cdRef.detectChanges();
 		// });
 
-		this.skillsSubscription = NotificationService.skills$.subscribe((dayMechanicSkills: DayMechanicSkills) => {
-			dayMechanicSkills.skills = this.buildAllSkillsArray(dayMechanicSkills.skills);
-			this.daysMechanicSkills[dayMechanicSkills.day.getTime()] = dayMechanicSkills;
-			this.mechanicInfoUpdate = new MechanicInfoUpdate(dayMechanicSkills.day, dayMechanicSkills.mechanicCode);
-			this.cdRef.detectChanges();
-		});
-		this.cardDetailsSubscription = NotificationService.cardDetails$.subscribe((dayCardDetails: DayCardDetails) => {
-			dayCardDetails.card = this.daysCardDetails[dayCardDetails.day.getTime()].card ? undefined : dayCardDetails.card;
-			this.daysCardDetails[dayCardDetails.day.getTime()] = dayCardDetails;
+		this.lateralInfoSubscription = NotificationService.lateralInfo$
+				.subscribe((dayLateralInfo: DayLateralPanelInfo) => {
+			if (dayLateralInfo.info && dayLateralInfo.info.type == Constants.LATERAL_PANEL_INFO_TYPE.SKILLS) {
+				dayLateralInfo.info.handle(this.daysMechanicSkills, dayLateralInfo.day);
+			}
+			this.daysLateralInfo[dayLateralInfo.day.getTime()] = dayLateralInfo;
 			this.cdRef.detectChanges();
 		});
 
@@ -187,17 +191,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.initialScrollLeft = this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2;
 	}
 
-	private buildAllSkillsArray(parentSkills: Skill[]): Skill[] {
-		const skills = [];
-		parentSkills.forEach((parent: Skill) => {
-			skills.push(parent);
-			parent.children.forEach((child: Skill) => {
-				skills.push(child);
-			});
-		});
-		return skills;
-	}
-
 	ngOnDestroy(): void {
 		this.oneDayModeSubscription.unsubscribe();
 		this.maxScheduleWidthSubscription.unsubscribe();
@@ -206,6 +199,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.cardDetailsSubscription.unsubscribe();
 		this.quartersSaturationSubscription.unsubscribe();
 		this.onlyAppointmentsModeSubscription.unsubscribe();
+		this.lateralInfoSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -278,10 +272,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._maxScheduleHours = value;
 	}
 
-	get dayPanelWidth(): number {
-		return Constants.VALUE.DAY_PANEL_WIDTH;
-	}
-
 	get dayContainerWidth(): number {
 		return this._dayContainerWidth;
 	}
@@ -290,8 +280,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._dayContainerWidth = value;
 	}
 
-	get skillsDetailsRight(): number {
-		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
+	get lateralPanelRight(): number {
+		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.LATERAL_PANEL_WIDTH;
 	}
 
 	get mechanicLineUpdate(): MechanicUpdate {
@@ -374,6 +364,14 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._initialScrollLeft = value;
 	}
 
+	get daysLateralInfo(): DaysLateralPanelInfo {
+		return this._daysLateralInfo;
+	}
+
+	set daysLateralInfo(value: DaysLateralPanelInfo) {
+		this._daysLateralInfo = value;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
@@ -381,6 +379,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.daysCardDetails = {};
 		this.daysQuartersSaturation = {};
 		this.daysContextMenu = {};
+		this.daysLateralInfo = {};
 		days.forEach((day: Date) => {
 			this.daysMechanicSkills[day.getTime()] = new DayMechanicSkills();
 			this.daysCardDetails[day.getTime()] = new DayCardDetails();
@@ -389,6 +388,7 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.cardsService.checkQuarterSaturation(day)
 			);
 			this.daysContextMenu[day.getTime()] = undefined;
+			this.daysLateralInfo[day.getTime()] = new DayLateralPanelInfo();
 		});
 	}
 
@@ -430,20 +430,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		return this.mechanicsService.findDayMechanics(today) != undefined;
 	}
 
-	checkShowCardDetails(day: Date, daysCardDetails: DaysCardDetails = this.daysCardDetails): boolean {
-		return daysCardDetails[day.getTime()].card != undefined;
+	findLateralInfo(day: Date, daysLateralInfo: DaysLateralPanelInfo = this.daysLateralInfo): LateralPanelInfo {
+		return daysLateralInfo[day.getTime()].info;
 	}
 
-	findCard(day: Date, daysCardDetails: DaysCardDetails = this.daysCardDetails): Card {
-		return daysCardDetails[day.getTime()].card;
-	}
-
-	checkShowSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): boolean {
-		return daysMechanicSkills[day.getTime()].skills.length != 0;
-	}
-
-	findSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): Skill[] {
-		return daysMechanicSkills[day.getTime()].skills;
+	findDayAppointmentsCounter(day: Date): any {
+		return this.appointmentsService.daysAppointmentsCounter[day.getTime()];
 	}
 
 	calcTimeIndicatorLeft(time: Date = new Date()): number {

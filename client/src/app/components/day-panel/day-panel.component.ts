@@ -32,6 +32,10 @@ export class DayPanelComponent implements OnInit {
 		this.timeIndicatorHeight = DimensionsService.calcGridCompleteHeight(this.mechanics);
 	}
 
+	checkShowTimeIndicator(): boolean {
+		return this.timeIndicatorLeft < this.maxScheduleWidth;
+	}
+
 	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
 		return contextMenuInfo != undefined;
 	}

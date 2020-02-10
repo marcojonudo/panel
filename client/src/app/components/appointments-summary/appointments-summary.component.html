@@ -1,0 +1,23 @@
+<div
+	class="d-flex flex-column appointments-summary-container"
+	(click)="openAppointmentsDetails()">
+	<span class="align-center appointments-summary-title">Citas</span>
+	<div
+		*ngFor="let item of dayAppointmentsCounter | keyvalue"
+		class="d-flex flex-column appointment-summary-item">
+		<span class="align-center flex-grow-1 flex-basis-0">{{item.key}}</span>
+		<span class="align-center flex-grow-1 flex-basis-0">{{findSaturationPercentage(item.value.total, item.value.max)}}%</span>
+		<div class="d-flex flex-grow-1 flex-basis-0">
+			<div
+				class="flex-grow-1 flex-basis-0 align-center"
+				[ngClass]="checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
+				M
+			</div>
+			<div
+				class="flex-grow-1 flex-basis-0 align-center"
+				[ngClass]="checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
+				T
+			</div>
+		</div>
+	</div>
+</div>

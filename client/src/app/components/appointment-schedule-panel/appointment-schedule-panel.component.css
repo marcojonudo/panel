@@ -1,4 +1,7 @@
 :host {
+	width: auto;
+	min-width: 200px;
+	position: absolute;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;

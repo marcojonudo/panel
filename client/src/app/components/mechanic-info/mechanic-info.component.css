@@ -46,9 +46,3 @@
 .job-line-type-select > option {
 	background-color: #ffffff;
 }
-
-.appointment-schedule-panel-container {
-	width: auto;
-	min-width: 200px;
-	position: absolute;
-}

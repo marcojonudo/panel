@@ -53,6 +53,8 @@ import {CardContextMenuComponent} from './components/card-context-menu/card-cont
 import {HorizontalScrollableDirective} from './directives/horizontal-scrollable.directive';
 import {MechanicsPipe} from './pipes/mechanics.pipe';
 import { TimeIndicatorComponent } from './components/time-indicator/time-indicator.component';
+import { LateralPanelComponent } from './components/lateral-panel/lateral-panel.component';
+import { AppointmentsSummaryComponent } from './components/appointments-summary/appointments-summary.component';
 
 @NgModule({
 	declarations: [
@@ -92,7 +94,9 @@ import { TimeIndicatorComponent } from './components/time-indicator/time-indicat
 		CardContextMenuComponent,
 		HorizontalScrollableDirective,
 		MechanicsPipe,
-		TimeIndicatorComponent
+		TimeIndicatorComponent,
+		LateralPanelComponent,
+		AppointmentsSummaryComponent
 	],
 	imports: [
 		BrowserModule,

@@ -1,0 +1,17 @@
+<div
+	class="h-100 lateral-panel-container blank-background"
+	[ngClass]="{'border-left border-semi-dark': info != undefined}"
+	[style.width.px]="findLateralPanelWidth()">
+	<app-skills-details
+		*ngIf="checkShowSkills()"
+		[mechanicSkills]="info.params">
+	</app-skills-details>
+	<app-card-details
+		*ngIf="checkShowCardDetails()"
+		[card]="info.params">
+	</app-card-details>
+	<app-appointments-panel
+		*ngIf="checkShowAppointmentsDetails()"
+		[dayAppointmentsCounter]="info.params">
+	</app-appointments-panel>
+</div>

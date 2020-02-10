@@ -2,15 +2,15 @@
 	<table class="table h-100">
 		<thead>
 			<tr>
-				<th scope="col"></th>
+				<th scope="col">Tipo</th>
 				<th scope="col">Mañ.</th>
 				<th scope="col">Tarde</th>
 				<th scope="col">Total</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr *ngFor="let item of findDayAppointmentsCounter(day) | keyvalue">
-				<th scope="row">{{item.key}}</th>
+			<tr *ngFor="let item of dayAppointmentsCounter | keyvalue">
+				<th scope="row">{{item.value.appointmentType.name}}</th>
 				<td
 					[ngClass]="{'background-color-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
 					{{item.value.morning}}
