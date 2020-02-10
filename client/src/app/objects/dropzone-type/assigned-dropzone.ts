@@ -51,7 +51,6 @@ export class AssignedDropzone implements Dropzone {
 		return CardPositionService.updateAssignedGroupsPosition(
 			position,
 			groups
-			// this.dayMechanicGroups
 		);
 	}
 

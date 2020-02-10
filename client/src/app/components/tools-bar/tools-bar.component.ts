@@ -20,7 +20,6 @@ export class ToolsBarComponent implements OnInit {
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
-
 	private appointmentsCounterSubscription: Subscription;
 	private _daysAppointmentsCounter: any;
 	private _showingFinished: boolean;

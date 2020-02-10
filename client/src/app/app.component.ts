@@ -13,6 +13,7 @@ import {SkillsService} from "./services/skills.service";
 import {DimensionsService} from "./services/dimensions.service";
 import {Url} from "./objects/url";
 import {JobLineTypeService} from "./services/job-line-type.service";
+import {DropzoneService} from "./services/dropzone.service";
 
 @Component({
 	selector: 'app-root',
@@ -38,6 +39,7 @@ export class AppComponent implements AfterViewInit {
 		this.generateRandomId();
 		NotificationService.init();
 		CardPositionService.init();
+		DropzoneService.init(cardsService, appointmentsService);
 		this.http.get(Url.initialData())
 			.subscribe((data: any) => {
 				console.log('Received data', data);

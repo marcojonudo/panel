@@ -150,7 +150,7 @@ export class DimensionsService {
 		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
 			daysMechanics, today, this.gridContainerHeight
 		);
-		this.gridWidth = this.calcGridWidth(displayScrollbar);
+		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar);
 
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;

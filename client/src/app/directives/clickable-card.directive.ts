@@ -14,6 +14,7 @@ import {CardsService} from "../services/cards.service";
 import {NotificationService} from "../services/notification.service";
 import {Constants} from "../objects/constants";
 import {CardTypeBehaviour} from "../objects/card-type-behaviour/card-type-behaviour";
+import {DropzoneService} from "../services/dropzone.service";
 
 @Directive({
 	selector: '[appDraggable]',
@@ -134,7 +135,9 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 		CardPositionService.setHelperGroup(this.cardBehaviour.findHelperGroup(this.cardsGroup));
 		/* Permite asignar o eliminar la clase que añade una transición al helper, para desplazarse a la posicíon
 		*  final */
-		NotificationService.notifyDragging(true);
+		CardPositionService.setDragging(true);
+
+		CardPositionService.originDropzone = DropzoneService.findDropzone(this.cardsGroup.cards[0]);
 	}
 
 	private initCoordinates(event: PointerEvent, cardRect: any = this.cardRect): void {
@@ -161,7 +164,7 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 			}
 			/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
 			 * de su posición de origen */
-			NotificationService.notifyDragging(false);
+			CardPositionService.setDragging(false);
 
 			// TODO Revisar hiddenGroup y comprobar si hace falta emitter
 			CardPositionService.hiddenGroup = undefined;

@@ -9,6 +9,7 @@ export class Constants {
 		SCROLLABLE_CONTAINER: 'scrollableContainer'
 	};
 	public static EVENT: any = {
+		POINTER_ENTER: 'pointerenter',
 		POINTER_DOWN: 'pointerdown',
 		POINTER_MOVE: 'pointermove',
 		POINTER_UP: 'pointerup',

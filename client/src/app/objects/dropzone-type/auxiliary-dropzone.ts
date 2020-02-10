@@ -7,8 +7,6 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
-import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
-import {UtilsService} from "../../services/utils.service";
 
 export class AuxiliaryDropzone implements Dropzone {
 

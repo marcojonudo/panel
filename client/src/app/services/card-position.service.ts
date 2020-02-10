@@ -175,6 +175,8 @@ export class CardPositionService {
 		this.relativeScrollLeft = 0;
 		this.relativeScrollTop = 0;
 		this.barScrollLeft = 0;
+
+		this.dragging = false;
 	}
 
 	// endregion
@@ -184,6 +186,11 @@ export class CardPositionService {
 	static setHelperGroup(cardsGroup: CardsGroup) {
 		this.helperGroup = cardsGroup;
 		NotificationService.notifyHelperGroup(this.helperGroup);
+	}
+
+	static setDragging(dragging: boolean) {
+		this.dragging = dragging;
+		NotificationService.notifyDragging(this.dragging);
 	}
 
 	// endregion
@@ -202,16 +209,6 @@ export class CardPositionService {
 				group.cards.forEach((card) => {
 					card.width = DimensionsService.calcWidthFromDuration(card.duration);
 				});
-				group.left = DimensionsService.calcUnassignedGroupLeft(groups, i);
-			});
-		}
-	}
-
-	static updateUnassignedLeft(
-		unassignedTypesCardsGroups: GroupedTypeCards
-	): void {
-		for (const groups of Object.values(unassignedTypesCardsGroups)) {
-			groups.forEach((group: CardsGroup, i: number) => {
 				group.left = DimensionsService.calcUnassignedGroupLeft(groups, i);
 			});
 		}
@@ -353,7 +350,6 @@ export class CardPositionService {
 	static updateAssignedGroupsPosition(
 		position: Coordinates,
 		clonedGroups: CardsGroup[],
-		// dayMechanicCardsGroups: CardsGroup[],
 		helperGroup: CardsGroup = this.helperGroup
 	): Coordinates {
 		const helperClonedGroup = clonedGroups.find(group => group.id == helperGroup.id);
@@ -409,7 +405,7 @@ export class CardPositionService {
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
 
 		return this.checkOutsideLeft(leftX, dropzoneLeft)
-			|| this.checkOutsideRight(leftX + duration, dropzoneRight, this.GROUP_ROUND_POSITION_OFFSET);
+			|| this.checkOutsideRight(leftX + duration, dropzoneRight);
 	}
 
 	private static checkOutsideLeft(leftX: number, dropzoneLeft: number): boolean {
@@ -419,7 +415,7 @@ export class CardPositionService {
 		return dropzoneLeft - leftX > 2;
 	}
 
-	private static checkOutsideRight(rightX: number, dropzoneRight: number, offset: number = 0): boolean {
+	private static checkOutsideRight(rightX: number, dropzoneRight: number): boolean {
 		return rightX - dropzoneRight > 2;
 	}
 
@@ -429,7 +425,7 @@ export class CardPositionService {
 
 		const line = Math.abs(
 			Math.round(
-				(this.absolutePositionToTop(position.y) - this.dropzoneAbsolutePositionToTop(rect.top)) / DimensionsService.lineHeight
+				(this.absolutePositionToTop(position.y) - rect.top) / DimensionsService.lineHeight
 			)
 		);
 		const y = this.dropzoneTopToAbsolutePosition(rect.top) + line * DimensionsService.lineHeight;
@@ -552,50 +548,36 @@ export class CardPositionService {
 	 * mecánico */
 	static absolutePositionToLeft(
 		value: number,
-		initialScrollLeft: number = this.initialScrollLeft,
-		scrollLeft: number = this.scrollLeft,
-		relativeScrollLeft: number = this.relativeScrollLeft
+		scrollLeft: number = this.scrollLeft
 	): number {
-		return value + (relativeScrollLeft != 0 ? initialScrollLeft + relativeScrollLeft : scrollLeft) - Constants.VALUE.MECHANIC_INFO_WIDTH;
+		return value + scrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
 	private static dropzoneAbsolutePositionToLeft(
-		value: number,
-		initialScrollLeft: number = this.initialScrollLeft
+		value: number
 	): number {
-		return value + initialScrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
+		return value - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
 	private static leftToAbsolutePosition(
 		value: number,
-		initialScrollLeft: number = this.initialScrollLeft,
-		scrollLeft: number = this.scrollLeft,
-		relativeScrollLeft: number = this.relativeScrollLeft
+		scrollLeft: number = this.scrollLeft
 	): number {
-		return value - (relativeScrollLeft != 0 ? initialScrollLeft + relativeScrollLeft : scrollLeft) + Constants.VALUE.MECHANIC_INFO_WIDTH;
+		return value - scrollLeft + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
 	static absolutePositionToTop(
 		value: number,
-		initialScrollTop: number = this.initialScrollTop,
-		scrollTop: number = this.scrollTop,
-		relativeScrollTop: number = this.relativeScrollTop
+		scrollTop: number = this.scrollTop
 	): number {
-		return value + (relativeScrollTop != 0 ? initialScrollTop + relativeScrollTop : scrollTop);
-	}
-
-	private static dropzoneAbsolutePositionToTop(
-		value: number,
-		initialScrollTop: number = this.initialScrollTop
-	): number {
-		return value + initialScrollTop;
+		return value + scrollTop;
 	}
 
 	private static dropzoneTopToAbsolutePosition(
 		top: number,
-		relativeScrollTop: number = this.relativeScrollTop
+		scrollTop: number = this.scrollTop
 	) {
-		return top - relativeScrollTop;
+		return top - scrollTop;
 	}
 
 	static barLeftToAbsolutePosition(left: number, barScrollLeft: number = this.barScrollLeft): number {
