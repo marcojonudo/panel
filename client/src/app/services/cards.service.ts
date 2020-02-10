@@ -31,8 +31,6 @@ import {DefaultCardBehaviour} from "../objects/card-type-behaviour/default-card-
 import {CardTypeBehaviour} from "../objects/card-type-behaviour/card-type-behaviour";
 import {CutCardModeAction} from "../objects/card-mode-action/cut-card-mode-action";
 import {CardModeAction} from "../objects/card-mode-action/card-mode-action";
-import {AssignedCardLinkHandler} from "../objects/card-links/assigned-card-link-handler";
-import {UnassignedCardLinkHandler} from "../objects/card-links/unassigned-card-link-handler";
 import {CardLinkHandler} from "../objects/card-links/card-link-handler";
 import {CardPositionService} from "./card-position.service";
 
@@ -300,7 +298,7 @@ export class CardsService {
 	) {
 		const allOriginalGroups = dayMechanicGroups.concat(helperGroup);
 
-		clonedGroups.forEach(clonedGroup => {
+		clonedGroups.forEach((clonedGroup: CardsGroup) => {
 			/* Se obtiene el grupo de todos los del día, en lugar de sólo los de la línea, porque la ficha que se está
 			*  moviendo puede provenir de otra línea. Además, se añade cardsGroup porque si se mueve desde otra línea de
 			*  mecánico, no va a estar en dayMechanicsCardsGroups */
@@ -315,9 +313,11 @@ export class CardsService {
 	}
 
 	updateDbCardsPosition(groups: CardsGroup[]): void {
-		const temporalCard = groups[0].cards[0].type == Constants.CARD_TYPE.AUXILIARY;
-		/* Si la ficha es temporal, se debe crear en base de datos */
-		if (temporalCard) {
+		const newAuxiliaryCard = groups[0].cards[0].type == Constants.CARD_TYPE.AUXILIARY
+			&& groups[0].cards[0].lastStatus == Constants.CARD_STATUS.DEFAULT;
+		/* Si la ficha es auxiliar, y se acaba de asignar desde la cinta (status DEFAULT), se debe crear en base de
+		*  datos. Una vez se haya asignado, su estado cambia a AUXILIARY */
+		if (newAuxiliaryCard) {
 			this.http.post(Url.cards(), [].concat(...groups.map(g => g.cards))).subscribe();
 		} else {
 			this.http.put(Url.cardsPosition(), [].concat(...groups.map(g => g.cards))).subscribe();
@@ -362,16 +362,18 @@ export class CardsService {
 		/* Sólo se puede mover un grupo a la vez, ya que es lo que se arrastra cuando se desplazan fichas por el
 		*  panel; sin embargo, en caso de haber solapamientos, son varios los que deben ser actualizados. Por ese
 		*  motivo se usa un array en lugar de un sólo grupo */
+		const status = group.cards[0].type == Constants.CARD_TYPE.AUXILIARY
+			? Constants.CARD_STATUS.AUXILIARY : Constants.CARD_STATUS.DEFAULT;
 		group.left = left;
-		group.status = Constants.CARD_STATUS.DEFAULT;
+		group.status = status;
 		group.line = line;
 
 		group.cards.forEach((card: Card, index: number) => {
 			card.setDay(day);
 			card.setMechanicCode(mechanicCode);
-			card.status = Constants.CARD_STATUS.DEFAULT;
+			card.setStatus(status);
 			card.setLine(line);
-			this.setOrderCode(card);
+			this.updateOrderCode(card, group, index);
 
 			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setStart(
@@ -385,7 +387,7 @@ export class CardsService {
 		group.end = group.cards[group.cards.length - 1].end;
 	}
 
-	private setOrderCode(card: Card): void {
+	private updateOrderCode(card: Card, group: CardsGroup, index: number): void {
 		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
 			if (card.order.code == Constants.AUXILIARY_DEFAULT_ORDER_CODE) {
 				const assignedAuxiliaryGroups = this.assignedCardsGroups.filter((group: CardsGroup) =>
@@ -394,7 +396,14 @@ export class CardsService {
 				const currentIndex = assignedAuxiliaryGroups.length
 					? +assignedAuxiliaryGroups[assignedAuxiliaryGroups.length - 1].cards[0].order.code.substring(1) : 0;
 				card.order.code = `${card.order.code.substring(0, 1)}${currentIndex+1}`;
+				card.order.number = currentIndex + 1;
 				card.panelId = CardsService.buildPanelId(card);
+
+				/* Si el índice es 0 (primera ficha del grupo), se actualiza tambíen su id para reflejar el cambio de
+				*  numeración */
+				if (index == 0) {
+					group.id = card.panelId;
+				}
 			}
 		}
 	}

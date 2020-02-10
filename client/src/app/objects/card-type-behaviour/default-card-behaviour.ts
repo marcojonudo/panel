@@ -3,7 +3,6 @@ import {CardTypeBehaviour} from "./card-type-behaviour";
 import {NotificationService} from "../../services/notification.service";
 import {ContextMenuInfo} from "../context-menu-info";
 import {Coordinates} from "../coordinates";
-import {DayContextMenu} from "../context-menu-update/day-context-menu";
 import {CardsService} from "../../services/cards.service";
 
 export class DefaultCardBehaviour implements CardTypeBehaviour{

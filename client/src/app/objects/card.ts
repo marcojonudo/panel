@@ -14,6 +14,7 @@ export class Card {
 	mechanicCode: string;
 	lastMechanicCode: string;
 	status: string;
+	lastStatus: string;
 
 	start: Date;
 	lastStart: Date;
@@ -109,6 +110,11 @@ export class Card {
 		this.panelId = CardsService.buildPanelId(this);
 	}
 
+	setStatus(status: string): void {
+		this.lastStatus = this.status;
+		this.status = status;
+	}
+
 	clone(): Card {
 		const card = new Card({
 			type: this.type,
@@ -126,8 +132,8 @@ export class Card {
 		card.end = this.end;
 		card.group = this.group.clone();
 		card.order = this.order.clone();
-		card.client = this.client.clone();
-		card.vehicle = this.vehicle.clone();
+		card.client = this.client ? this.client.clone() : undefined;
+		card.vehicle = this.vehicle ? this.vehicle.clone() : undefined;
 		card.lastDay = this.lastDay;
 		card.lastStart = this.lastStart;
 		card.lastEnd = this.lastEnd;
