@@ -143,7 +143,8 @@ export class MechanicsService {
 		let prevPosition = mechanics[removedMechanicIndex].panelPosition;
 		mechanics.splice(removedMechanicIndex, 1);
 
-		for (let i = removedMechanicIndex; i < mechanics.length; i++) {
+		const lastMechanicIndex = mechanics[mechanics.length - 1].fixed ? mechanics.length - 2 : mechanics.length;
+		for (let i = removedMechanicIndex; i < lastMechanicIndex; i++) {
 			const newPosition = mechanics[i].panelPosition;
 			mechanics[i].panelPosition = prevPosition;
 			prevPosition = newPosition;

@@ -15,7 +15,7 @@ import panel.publisher.PanelPublisher
 import panel.utils.Constants
 
 @CompileStatic
-@Filter(["/panel/cards/**", "/schedules/mechanic/**", "/cubo/appointment/**"])
+@Filter(["/panel/cards/**", "/cubo/mechanic/**", "/cubo/appointment/**"])
 class RealTimePublisherClientFilter implements HttpClientFilter {
 
 	private static final List<HttpMethod> GET_BODY_METHODS = [HttpMethod.POST, HttpMethod.PUT]
