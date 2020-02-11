@@ -6,7 +6,7 @@
 		<label
 			for="appointment-{{i}}-type-input"
 			class="h-50 align-center appointment-type-schedule-label">
-			{{getScheduleTypeName(schedule.type, i)}}
+			{{getScheduleTypeName(schedule.intervals[i])}}
 		</label>
 		<select
 			id="appointment-{{i}}-type-input"

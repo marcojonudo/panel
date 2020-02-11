@@ -11,6 +11,7 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {Mechanic} from "../../objects/mechanic";
 import {HourQuarters} from "../../objects/hour-quarters";
 import {DragScheduleAction} from "../../objects/drag-schedule/drag-schedule-action";
+import {ScheduleInterval} from "../../objects/schedule-interval";
 
 @Component({
 	selector: 'app-appointment-schedule-panel',
@@ -103,8 +104,8 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 			: Constants.SCHEDULE_TYPE.AFTERNOON;
 	}
 
-	getScheduleTypeName(type: string, index: number): string {
-		return this.getScheduleType(type, index) == Constants.SCHEDULE_TYPE.MORNING ? 'Mañana' : 'Tarde';
+	getScheduleTypeName(interval: ScheduleInterval): string {
+		return interval.type == Constants.SCHEDULE_TYPE.MORNING ? 'Mañana' : 'Tarde';
 	}
 
 	isQuarterDisabled(quarter: number, quarters: number[]): boolean {
