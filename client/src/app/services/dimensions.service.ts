@@ -150,7 +150,7 @@ export class DimensionsService {
 		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
 			daysMechanics, today, this.gridContainerHeight
 		);
-		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar);
+		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
 
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;
@@ -236,10 +236,15 @@ export class DimensionsService {
 
 	private static calcGridWidth(
 		scrollbar: boolean,
+		oneDayMode: boolean,
+		appointmentsSummaryWidth: number = Constants.VALUE.TOOLS_BAR_WIDTH,
 		toolsBarWidth: number = Constants.VALUE.TOOLS_BAR_WIDTH,
 		scrollbarSize: number = Constants.VALUE.SCROLLBAR_SIZE
 	): number {
-		return window.innerWidth - toolsBarWidth - (scrollbar ? scrollbarSize : 0);
+		return window.innerWidth
+			- toolsBarWidth
+			- (oneDayMode ? 0 : appointmentsSummaryWidth)
+			- (scrollbar ? scrollbarSize : 0);
 	}
 
 	static calcGridCompleteHeight(dayMechanics: Mechanic[]): number {
@@ -333,6 +338,7 @@ export class DimensionsService {
 	 * @returns {number[]} Array de horas del horario
 	 */
 	static updateMaxSchedule(oneDayMode: boolean): void {
+		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, oneDayMode);
 		/* Se actualiza el número de horas. Un horario de otro día puede tener más horas y, por tanto, necesitasr un
 		*  mayor ancho del contenedor para albergarlo */
 		this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;

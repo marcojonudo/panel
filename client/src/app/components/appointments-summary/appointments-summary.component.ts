@@ -4,6 +4,7 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {NotificationService} from "../../services/notification.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointments-details-info";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-appointments-summary',
@@ -17,6 +18,14 @@ export class AppointmentsSummaryComponent {
 	@Input() dayAppointmentsCounter: DayAppointmentsCounter;
 
 	constructor(private appointmentsService: AppointmentsService) {}
+
+	// region Getters / setters
+
+	get toolsBarWidth(): number {
+		return Constants.VALUE.TOOLS_BAR_WIDTH;
+	}
+
+	// endregion
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
 		return this.appointmentsService.findSaturationPercentage(appointments, max, appointmentSaturation);

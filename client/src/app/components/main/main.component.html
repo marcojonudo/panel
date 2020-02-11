@@ -80,23 +80,11 @@
 							</app-day-panel>
 						</div>
 					</div>
-					<!--<app-card-details-->
-						<!--*ngIf="checkShowCardDetails(day)"-->
-						<!--[card]="findCard(day)"-->
-						<!--class="h-100"-->
-						<!--[style.right.px]="lateralPanelRight">-->
-					<!--</app-card-details>-->
-					<!--<app-skills-details-->
-						<!--*ngIf="checkShowSkills(day)"-->
-						<!--[skills]="findSkills(day)"-->
-						<!--[style.right.px]="lateralPanelRight"-->
-						<!--class="h-100">-->
-					<!--</app-skills-details>-->
-					<!--<app-day-info-panel-->
-						<!--class="h-100"-->
-						<!--[style.min-width.px]="dayPanelWidth"-->
-						<!--[day]="day">-->
-					<!--</app-day-info-panel>-->
+					<app-appointments-summary
+						class="blank-background border-left border-semi-dark"
+						[day]="day"
+						[dayAppointmentsCounter]="findDayAppointmentsCounter(day)">
+					</app-appointments-summary>
 				</div>
 			</div>
 			<app-tools-bar

@@ -78,6 +78,10 @@ export class ToolsBarComponent implements OnInit {
 
 	// endregion
 
+	checkShowAppointmentsSummary(day: Date = this.day): boolean {
+		return day != undefined;
+	}
+
 	// region Button actions
 
 	toggleDayMode(): void {
