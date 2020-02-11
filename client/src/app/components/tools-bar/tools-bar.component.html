@@ -25,13 +25,12 @@
 	<hr class="w-75">
 	<app-dimension-sliders
 		[maxScheduleWidth]="maxScheduleWidth"
-		[maxScheduleMaxWidth]="maxScheduleMaxWidth"
-		class="w-100 flex-grow-1">
+		[maxScheduleMaxWidth]="maxScheduleMaxWidth">
 	</app-dimension-sliders>
 	<div
 		appDropzone
 		[type]="finishDropzoneType"
-		class="align-center mb-2"
+		class="align-center mt-auto mb-2"
 		(click)="showFinishedCardsBar()">
 		<i class="far fa-2x fa-trash-alt"></i>
 	</div>

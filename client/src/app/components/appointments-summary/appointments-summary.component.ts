@@ -4,7 +4,6 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {NotificationService} from "../../services/notification.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointments-details-info";
-import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-appointments-summary',
