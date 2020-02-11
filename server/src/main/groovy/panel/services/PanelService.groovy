@@ -173,19 +173,7 @@ class PanelService {
 		orderTasks.each { Task task ->
 			boolean alreadyProcessedTask = processedTasks.find { it.articleCode == task.articleCode }
 			if (!alreadyProcessedTask) {
-				List<Group> possibleGroups = task.groups?.findAll {
-					!it.tasks.find { it.articleCode in processedTasks.articleCode }
-				}?.sort { a, b ->
-					if (b.tasks.size() == a.tasks.size()) {
-						return a.color.order <=> b.color.order
-					} else {
-						b.tasks.size() <=> a.tasks.size()
-					}
-				}
-				Group selectedGroup = possibleGroups?.find { Group group ->
-					List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks.articleCode }
-					return group.tasks.size() == commonTasks.size()
-				}
+				Group selectedGroup = findSelectedGroup(orderTasks, task.groups, processedTasks)
 				if (selectedGroup) {
 					selectedGroupsInfo << new GroupUnits(
 							group: selectedGroup,
@@ -198,6 +186,44 @@ class PanelService {
 			}
 		}
 		return selectedGroupsInfo
+	}
+
+	static Group findSelectedGroup(List<Task> orderTasks, List<Group> groups, List<Task> processedTasks) {
+		List<Group> possibleGroups = sortPossibleGroups(groups, processedTasks)
+		Group selectedGroup = possibleGroups.find { Group group ->
+			List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks.articleCode }
+			/* Si el tamaño de las tareas del grupo y las comunes es el mismo, significa que todas las del grupo están
+			*  en la orden. Por lo tanto, ese sería el grupo seleccionado */
+			return group.tasks.size() == commonTasks.size()
+		}
+		return selectedGroup
+	}
+
+	static List<Group> sortPossibleGroups(List<Group> groups, List<Task> processedTasks) {
+		List<Group> sortedGroups = []
+		/* Si la tarea tiene agrupaciones asociadas (debería tener siempre, se contempla sólo por prevenir errores) */
+		if (groups) {
+			/* Se filtran los grupos cuyas unidades aún no hayan sido procesadas. Si un grupo tiene una tarea 1, y esa
+			*  tarea ya forma parte de otro grupo creado con anterioridad, no se tiene en cuenta */
+			sortedGroups = groups.findAll {
+				!it.tasks.find { it.articleCode in processedTasks.articleCode }
+			}
+			/* Se ordenan primero por número de tareas (grupo con 4 tareas más preferencia que uno de 3), después por
+			*  orden del color, y en caso de igualdad, por código de agrupación (únicamente para evitar generación de
+			*  agrupaciones distintas) */
+			sortedGroups.sort { Group a, Group b ->
+				if (b.tasks.size() == a.tasks.size()) {
+					if (a.color.order == b.color.order) {
+						return a.code <=> b.code
+					} else {
+						return a.color.order <=> b.color.order
+					}
+				} else {
+					return b.tasks.size() <=> a.tasks.size()
+				}
+			}
+		}
+		return sortedGroups
 	}
 
 	static List<Float> getOrderGroupUnits(Order order, Group group) {

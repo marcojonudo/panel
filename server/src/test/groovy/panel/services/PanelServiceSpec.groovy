@@ -13,6 +13,7 @@ import spock.lang.Specification
 import utils.Utils
 import utils.pogos.fviberi.*
 import utils.pogos.panel.Group
+import utils.pogos.panel.GroupUnits
 import utils.pogos.panel.Task
 import utils.pogos.schedules.EmployeeSchedule
 
@@ -397,7 +398,7 @@ class PanelServiceSpec extends Specification {
 	@Shared Group group42 = new Group(code: 42, tasks: [], color: [order: 3])
 	@Shared Group group43 = new Group(code: 43, tasks: [], color: [order: 3])
 	@Shared Group group44 = new Group(code: 44, tasks: [], color: [order: 3])
-	@Shared Group group45 = new Group(code: 45, tasks: [], color: [order: 4])
+	@Shared Group group45 = new Group(code: 45, tasks: [], color: [order: 3])
 	@Shared Group group46 = new Group(code: 46, tasks: [], color: [order: 4])
 	@Shared Group group47 = new Group(code: 47, tasks: [], color: [order: 3])
 	@Shared Group group48 = new Group(code: 48, tasks: [], color: [order: 3])
@@ -1491,7 +1492,130 @@ class PanelServiceSpec extends Specification {
 //	}
 
 //	// endregion
-//
+
+	// region Sort possible groups
+
+	void "test sort possible groups no task groups"() {
+		given:
+		List<Group> groups = []
+
+		when:
+		List<Group> possibleGroups = panelService.sortPossibleGroups(groups, [])
+
+		then:
+		!possibleGroups
+	}
+
+	void "test sort possible groups different tasks number"() {
+		given:
+		List<Group> groups = [group43, group45]
+
+		when:
+		List<Group> possibleGroups = panelService.sortPossibleGroups(groups, [])
+
+		then:
+		possibleGroups
+		possibleGroups.size() == 2
+		possibleGroups[0].code == 45
+		possibleGroups[1].code == 43
+	}
+
+	void "test sort possible groups same tasks number different color"() {
+		given:
+		List<Group> groups = [group45, group88]
+
+		when:
+		List<Group> possibleGroups = panelService.sortPossibleGroups(groups, [])
+
+		then:
+		possibleGroups
+		possibleGroups.size() == 2
+		possibleGroups[0].code == 88
+		possibleGroups[1].code == 45
+	}
+
+	void "test sort possible groups same tasks number same color"() {
+		given:
+		List<Group> groups = [group43, group45, group47]
+
+		when:
+		List<Group> possibleGroups = panelService.sortPossibleGroups(groups, [])
+
+		then:
+		possibleGroups
+		possibleGroups.size() == 3
+		possibleGroups[0].code == 45
+		possibleGroups[1].code == 47
+		possibleGroups[2].code == 43
+	}
+
+	// endregion
+
+	// region Find selected group
+
+	void "test find selected groups no task groups"() {
+		given:
+		List<Group> groups = []
+
+		when:
+		Group selectedGroup = panelService.findSelectedGroup([], groups, [])
+
+		then:
+		!selectedGroup
+	}
+
+	void "test find selected groups different tasks number"() {
+		given:
+		List<Task> orderTasks = [task015, task021]
+		List<Group> groups = [group43, group45]
+
+		when:
+		Group selectedGroup = panelService.findSelectedGroup(orderTasks, groups, [])
+
+		then:
+		selectedGroup.code == 45
+	}
+
+	void "test find selected groups different tasks number already processed task"() {
+		given:
+		List<Task> orderTasks = [task015, task021]
+		List<Group> groups = [group43, group45]
+		List<Task> processedTasks = [task021]
+
+		when:
+		Group selectedGroup = panelService.findSelectedGroup(orderTasks, groups, processedTasks)
+
+		then:
+		selectedGroup.code == 43
+	}
+
+	void "test find selected groups same tasks number different color"() {
+		given:
+		List<Task> orderTasks = [task010, task200]
+		List<Group> groups = [group45, group88]
+
+		when:
+		Group selectedGroup = panelService.findSelectedGroup(orderTasks, groups, [])
+
+		then:
+		selectedGroup.code == 88
+	}
+
+	void "test find selected groups same tasks number different color processed task"() {
+		given:
+		List<Task> orderTasks = [task010, task200]
+		List<Group> groups = [group45, group88]
+		List<Task> processedTasks = [task010]
+
+		when:
+		Group selectedGroup = panelService.findSelectedGroup(orderTasks, groups, processedTasks)
+
+		then:
+		!selectedGroup
+	}
+
+	// endregion
+
 //	// region getOrderGroups
 //
 //	void "test get order groups 1"() {
@@ -1614,6 +1738,39 @@ class PanelServiceSpec extends Specification {
 //		groupUnits[8].group.code == 87
 //		groupUnits[9].group.code == 316
 //	}
+
+	void "test get order groups 6"() {
+		given:
+		Order order = new Order(
+				number: 1,
+				timeInfo: new OrderTime(shortCode: 'C1'),
+				lines: [
+						new OrderLine(article: new Article(code: 99013)),
+						new OrderLine(article: new Article(code: 99015)),
+						new OrderLine(article: new Article(code: 99021)),
+						new OrderLine(article: new Article(code: 99073)),
+						new OrderLine(article: new Article(code: 99212)),
+						new OrderLine(article: new Article(code: 99277)),
+						new OrderLine(article: new Article(code: 99339))
+				],
+				vehicle: new Vehicle([:])
+		)
+
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+				order,
+				[task013, task015, task021, task073, task212, task277, task339]
+		)
+
+		then:
+		groupUnits.size() == 6
+		groupUnits[0].group.code == 30
+		groupUnits[1].group.code == 45
+		groupUnits[2].group.code == 122
+		groupUnits[3].group.code == 54
+		groupUnits[4].group.code == 53
+		groupUnits[5].group.code == 73
+	}
 
 //	void "test get order groups one article one absorbable task"() {
 //		given:
