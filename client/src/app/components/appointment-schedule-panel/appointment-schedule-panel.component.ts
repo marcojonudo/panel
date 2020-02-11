@@ -98,12 +98,6 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 
 	// endregion
 
-	getScheduleType(type: string, index: number): string {
-		return (type == Constants.SCHEDULE_TYPE.FULL_TIME && index == 0) || type == Constants.SCHEDULE_TYPE.MORNING
-			? Constants.SCHEDULE_TYPE.MORNING
-			: Constants.SCHEDULE_TYPE.AFTERNOON;
-	}
-
 	getScheduleTypeName(interval: ScheduleInterval): string {
 		return interval.type == Constants.SCHEDULE_TYPE.MORNING ? 'Mañana' : 'Tarde';
 	}

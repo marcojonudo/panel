@@ -2,7 +2,7 @@
 	id="mechanic-line"
 	class="h-100 mechanic-line">
 	<div
-		*ngFor="let appointment of mechanic.appointments | appointments"
+		*ngFor="let appointment of findAppointments()"
 		class="d-flex appointment-schedule-container"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(appointment.schedule.intervals[0].duration),

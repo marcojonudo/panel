@@ -46,7 +46,6 @@ import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppointmentSchedulePanelComponent} from './components/appointment-schedule-panel/appointment-schedule-panel.component';
 import {DraggableScheduleDirective} from './directives/draggable-schedule.directive';
-import {AppointmentsPipe} from './pipes/appointments.pipe';
 import {CardSectionPipe} from './pipes/card-section.pipe';
 import {CardDetailsComponent} from './components/card-details/card-details.component';
 import {CardContextMenuComponent} from './components/card-context-menu/card-context-menu.component';
@@ -88,7 +87,6 @@ import { AppointmentsSummaryComponent } from './components/appointments-summary/
 		SkillsDetailsComponent,
 		AppointmentSchedulePanelComponent,
 		DraggableScheduleDirective,
-		AppointmentsPipe,
 		CardSectionPipe,
 		CardDetailsComponent,
 		CardContextMenuComponent,
