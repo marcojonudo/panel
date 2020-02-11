@@ -1,4 +1,4 @@
-import {DayMechanicSkills} from "./skills-update/day-mechanic-skills";
+import {DayMechanicSkills} from "./day-mechanic-skills";
 
 export interface DaysMechanicSkills {
 

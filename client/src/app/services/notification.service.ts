@@ -5,14 +5,13 @@ import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-ca
 import {MechanicUpdate} from "../objects/update-days-cards/mechanic-update";
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
-import {AppointmentsCounterUpdate} from "../objects/update-appointments-counter/appointments-counter-update";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Coordinates} from "../objects/coordinates";
 import {CardsGroup} from "../objects/cards-group";
-import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
 import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
 import {ContextMenuInfo} from "../objects/context-menu-info";
 import {DayLateralPanelInfo} from "../objects/lateral-panel-info/day-lateral-panel-info";
+import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -25,8 +24,8 @@ export class NotificationService {
 	private static bandSubject: Subject<UnassignedCardUpdate>;
 	private static _band$: Observable<UnassignedCardUpdate>;
 
-	private static appointmentsCounterSubject: Subject<AppointmentsCounterUpdate>;
-	private static _appointmentsCounter$: Observable<AppointmentsCounterUpdate>;
+	private static appointmentsCounterSubject: Subject<DayAppointmentsCounterUpdate>;
+	private static _appointmentsCounter$: Observable<DayAppointmentsCounterUpdate>;
 
 	private static oneDayModeSubject: Subject<boolean>;
 	private static _oneDayMode$: Observable<boolean>;
@@ -64,7 +63,7 @@ export class NotificationService {
 		this.bandSubject = new Subject<UnassignedCardUpdate>();
 		this.band$ = this.bandSubject.asObservable();
 
-		this.appointmentsCounterSubject = new Subject<AppointmentsCounterUpdate>();
+		this.appointmentsCounterSubject = new Subject<DayAppointmentsCounterUpdate>();
 		this.appointmentsCounter$ = this.appointmentsCounterSubject.asObservable();
 
 		this.oneDayModeSubject = new Subject<boolean>();
@@ -115,11 +114,11 @@ export class NotificationService {
 		this._band$ = value;
 	}
 
-	static get appointmentsCounter$(): Observable<AppointmentsCounterUpdate> {
+	static get appointmentsCounter$(): Observable<DayAppointmentsCounterUpdate> {
 		return this._appointmentsCounter$;
 	}
 
-	static set appointmentsCounter$(value: Observable<AppointmentsCounterUpdate>) {
+	static set appointmentsCounter$(value: Observable<DayAppointmentsCounterUpdate>) {
 		this._appointmentsCounter$ = value;
 	}
 
@@ -210,8 +209,8 @@ export class NotificationService {
 		this.mechanicLineSubject.next(new MechanicLineUpdate(day, mechanicCode));
 	}
 
-	static notifyAppointmentsCounter(update: AppointmentsCounterUpdate): void {
-		this.appointmentsCounterSubject.next(update);
+	static notifyAppointmentsCounter(dayAppointmentsCounters: DayAppointmentsCounterUpdate): void {
+		this.appointmentsCounterSubject.next(dayAppointmentsCounters);
 	}
 
 	static notifyOneDayMode(oneDayMode: boolean): void {

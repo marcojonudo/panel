@@ -11,8 +11,8 @@ import {NotificationService} from "./notification.service";
 import {UtilsService} from "./utils.service";
 import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
 import {Url} from "../objects/url";
-import {AppointmentsCounterUpdateTrigger} from "../objects/update-appointments-counter/appointments-counter-update-trigger";
 import {UpdateAppointmentDayParams} from "../objects/update-appointment-day-params";
+import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -159,7 +159,7 @@ export class AppointmentsService {
 					}
 				});
 			}
-			NotificationService.notifyAppointmentsCounter(new AppointmentsCounterUpdateTrigger(day, cards));
+			NotificationService.notifyAppointmentsCounter(new DayAppointmentsCounterUpdate(day));
 
 			if (updateDb) {
 				this.http.put(Url.appointmentsDaysCounters(), this.appointmentDaysToUpdate).subscribe();

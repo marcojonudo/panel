@@ -7,7 +7,6 @@ import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
-import {Skill} from "../../objects/skill";
 import {NotificationService} from "../../services/notification.service";
 import {UtilsService} from "../../services/utils.service";
 import {DimensionsService} from "../../services/dimensions.service";
@@ -15,15 +14,10 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
 import {CardPositionService} from "../../services/card-position.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
-import {MechanicInfoUpdate} from "../../objects/update-days-cards/mechanic-info-update";
-import {DaysMechanicSkills} from "../../objects/days-mechanic-skills";
-import {DaysCardDetails} from "../../objects/days-card-details";
-import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
-import {Card} from "../../objects/card";
+import {DaysMechanicSkills} from "../../objects/skills-update/days-mechanic-skills";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/days-quarters-saturation";
 import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
-import {DaysContextMenu} from "../../objects/context-menu-update/days-context-menu";
 import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {interval} from "rxjs/internal/observable/interval";
@@ -31,6 +25,8 @@ import {DaysLateralPanelInfo} from "../../objects/days-lateral-panel-info";
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {AppointmentsService} from "../../services/appointments.service";
+import {DaysAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/days-appointments-counter-update";
+import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 
 @Component({
 	selector: 'app-main',
@@ -49,11 +45,9 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
 
 	private _daysMechanicSkills: DaysMechanicSkills;
-	private _daysCardDetails: DaysCardDetails;
 	private _daysLateralInfo: DaysLateralPanelInfo;
 	private _daysQuartersSaturation: DaysQuartersSaturation;
-
-	private _daysContextMenu: DaysContextMenu;
+	private _daysAppointmentsCounterUpdate: DaysAppointmentsCounterUpdate;
 
 	private _oneDayMode: boolean;
 	private _maxScheduleHours: number[];
@@ -81,6 +75,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private contextMenuSubscription: Subscription;
 	private onlyAppointmentsModeSubscription: Subscription;
 	private lateralInfoSubscription: Subscription;
+	private appointmentsCounterSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
@@ -95,7 +90,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		const today = UtilsService.clearTime(new Date()).getTime();
 		this.today = this.days.find(day => day.getTime() == today);
 		this.oneDayMode = true;
-		// this.maxScheduleHours = this.timeService.updateMaxSchedule(this.oneDayMode);
 		this.maxScheduleHours = DimensionsService.maxScheduleHours;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
@@ -119,7 +113,6 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		// this.daysQuartersSaturation[this.today.getTime()].quartersSaturation = this.cardsService.quartersSaturation;
 		this.quartersSaturationSubscription = NotificationService.quartersSaturation$
 				.subscribe((dayQuartersSaturation: DayQuartersSaturation) => {
 			this.daysQuartersSaturation[dayQuartersSaturation.day.getTime()] = dayQuartersSaturation;
@@ -180,6 +173,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		});
 
 		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$.subscribe(() => {
+			this.cdRef.detectChanges();
+		});
+
+		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$
+				.subscribe((dayAppointmentsCounters: DayAppointmentsCounterUpdate) => {
+			this.daysAppointmentsCounterUpdate[dayAppointmentsCounters.day.getTime()] = dayAppointmentsCounters;
 			this.cdRef.detectChanges();
 		});
 
@@ -292,13 +291,13 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._mechanicLineUpdate = value;
 	}
 
-	get mechanicInfoUpdate(): MechanicUpdate {
-		return this._mechanicInfoUpdate;
-	}
-
-	set mechanicInfoUpdate(value: MechanicUpdate) {
-		this._mechanicInfoUpdate = value;
-	}
+	// get mechanicInfoUpdate(): MechanicUpdate {
+	// 	return this._mechanicInfoUpdate;
+	// }
+    //
+    // set mechanicInfoUpdate(value: MechanicUpdate) {
+		// this._mechanicInfoUpdate = value;
+	// }
 
 	get daysMechanicSkills(): DaysMechanicSkills {
 		return this._daysMechanicSkills;
@@ -308,28 +307,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._daysMechanicSkills = value;
 	}
 
-	get daysCardDetails(): DaysCardDetails {
-		return this._daysCardDetails;
-	}
-
-	set daysCardDetails(value: DaysCardDetails) {
-		this._daysCardDetails = value;
-	}
-
 	get daysQuartersSaturation(): DaysQuartersSaturation {
 		return this._daysQuartersSaturation;
 	}
 
 	set daysQuartersSaturation(value: DaysQuartersSaturation) {
 		this._daysQuartersSaturation = value;
-	}
-
-	get daysContextMenu(): DaysContextMenu {
-		return this._daysContextMenu;
-	}
-
-	set daysContextMenu(value: DaysContextMenu) {
-		this._daysContextMenu = value;
 	}
 
 	get contextMenuInfo(): ContextMenuInfo {
@@ -372,23 +355,29 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._daysLateralInfo = value;
 	}
 
+	get daysAppointmentsCounterUpdate(): DaysAppointmentsCounterUpdate {
+		return this._daysAppointmentsCounterUpdate;
+	}
+
+	set daysAppointmentsCounterUpdate(value: DaysAppointmentsCounterUpdate) {
+		this._daysAppointmentsCounterUpdate = value;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
 		this.daysMechanicSkills = {};
-		this.daysCardDetails = {};
 		this.daysQuartersSaturation = {};
-		this.daysContextMenu = {};
 		this.daysLateralInfo = {};
+		this.daysAppointmentsCounterUpdate = {};
 		days.forEach((day: Date) => {
 			this.daysMechanicSkills[day.getTime()] = new DayMechanicSkills();
-			this.daysCardDetails[day.getTime()] = new DayCardDetails();
 			this.daysQuartersSaturation[day.getTime()] = new DayQuartersSaturation(
 				day,
 				this.cardsService.checkQuarterSaturation(day)
 			);
-			this.daysContextMenu[day.getTime()] = undefined;
 			this.daysLateralInfo[day.getTime()] = new DayLateralPanelInfo();
+			this.daysAppointmentsCounterUpdate[day.getTime()] = new DayAppointmentsCounterUpdate(day)
 		});
 	}
 
@@ -434,8 +423,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		return daysLateralInfo[day.getTime()].info;
 	}
 
-	findDayAppointmentsCounter(day: Date): any {
-		return this.appointmentsService.daysAppointmentsCounter[day.getTime()];
+	findDayAppointmentsCounterUpdate(day: Date): any {
+		return this.daysAppointmentsCounterUpdate[day.getTime()];
 	}
 
 	calcTimeIndicatorLeft(time: Date = new Date()): number {

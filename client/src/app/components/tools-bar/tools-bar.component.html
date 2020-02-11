@@ -4,7 +4,7 @@
 	<app-appointments-summary
 		*ngIf="checkShowAppointmentsSummary()"
 		[day]="day"
-		[dayAppointmentsCounter]="dayAppointmentsCounter">
+		[dayAppointmentsCounterUpdate]="dayAppointmentsCounterUpdate">
 	</app-appointments-summary>
 	<div class="d-flex flex-column align-items-center">
 		<div
@@ -36,3 +36,4 @@
 		<i class="far fa-2x fa-trash-alt"></i>
 	</div>
 </div>
+<div>{{check()}}</div>

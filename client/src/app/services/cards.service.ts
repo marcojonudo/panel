@@ -23,7 +23,7 @@ import {MechanicsService} from "./mechanics.service";
 import {ScheduleInterval} from "../objects/schedule-interval";
 import {HourQuarters} from "../objects/hour-quarters";
 import {QuartersSaturation} from "../objects/quarters-saturation";
-import {QuarterSaturation} from "../objects/quarter-saturation";
+import {QuarterSaturation} from "../objects/quarters-saturation-update/quarter-saturation";
 import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
 import {UnassignedAuxiliarySection} from "../objects/unassigned-sections/unassigned-temporal-section";
 import {AuxiliaryCardBehaviour} from "../objects/card-type-behaviour/auxiliary-card-behaviour";
@@ -631,42 +631,6 @@ export class CardsService {
 		if (updateDb) {
 			this.http.put(Url.cardsLinks(), group.cards.slice(lastGroupCardIndex)).subscribe();
 		}
-	}
-
-	link(card: Card, side: string, linkHandler: CardLinkHandler, updateDb: boolean = true): void {
-		const groups = linkHandler.findGroups(card);
-		const group = this.findCardGroup(groups, card.panelId);
-
-		const offset = side == Constants.NEXT_CARD_DIRECTION.RIGHT ? 1 : -1;
-		const nextGroup = this.findNextGroup(groups, group.id, offset);
-
-		//----
-
-		const leftGroup = this.findLeftGroup(groups, group.id);
-
-		leftGroup.cards[leftGroup.cards.length - 1].linkedNext = card;
-		card.linkedPrevious = leftGroup.cards[leftGroup.cards.length - 1];
-
-		const lastLeftGroupCardIndex = leftGroup.cards.length - 1;
-		leftGroup.addCards(group.cards);
-
-		//----
-		const rightGroup = this.findRightGroup(groups, group.id);
-
-		rightGroup.cards[0].linkedPrevious = card;
-		card.linkedNext = rightGroup.cards[0];
-
-		const lastGroupCardIndex = group.cards.length - 1;
-		group.addCards(rightGroup.cards);
-
-		//----
-
-
-		linkHandler.updateGroupsRemove(group);
-		this.http.put(
-			`${environment.serverUrl}/panel/cards/links`,
-			leftGroup.cards.slice(lastLeftGroupCardIndex)
-		).subscribe();
 	}
 
 	// endregion

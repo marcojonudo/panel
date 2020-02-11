@@ -40,7 +40,7 @@
 			</app-lateral-panel>
 			<app-tools-bar
 				[day]="today"
-				[dayAppointmentsCounter]="findDayAppointmentsCounter(today)"
+				[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(today)"
 				[maxScheduleWidth]="maxScheduleWidth"
 				[maxScheduleMaxWidth]="maxScheduleMaxWidth"
 				class="h-100">
@@ -80,10 +80,14 @@
 							</app-day-panel>
 						</div>
 					</div>
+					<app-lateral-panel
+						[info]="findLateralInfo(day)"
+						[style.right.px]="lateralPanelRight">
+					</app-lateral-panel>
 					<app-appointments-summary
 						class="blank-background border-left border-semi-dark"
 						[day]="day"
-						[dayAppointmentsCounter]="findDayAppointmentsCounter(day)">
+						[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(day)">
 					</app-appointments-summary>
 				</div>
 			</div>

@@ -1,6 +1,6 @@
 import {LateralPanelInfo} from "./lateral-panel-info";
 import {Constants} from "../constants";
-import {DaysMechanicSkills} from "../days-mechanic-skills";
+import {DaysMechanicSkills} from "../skills-update/days-mechanic-skills";
 import {DayMechanicSkills} from "../skills-update/day-mechanic-skills";
 import {MechanicSkills} from "../mechanic-skills";
 

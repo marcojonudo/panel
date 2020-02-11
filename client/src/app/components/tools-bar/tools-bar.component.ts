@@ -1,13 +1,11 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
 import {NotificationService} from "../../services/notification.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
-import {AppointmentsService} from "../../services/appointments.service";
-import {Subscription} from "rxjs/internal/Subscription";
-import {DayAppointmentsCounter} from "../../objects/day-appointments-counter";
+import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -15,31 +13,20 @@ import {DayAppointmentsCounter} from "../../objects/day-appointments-counter";
 	styleUrls: ['./tools-bar.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToolsBarComponent implements OnInit {
+export class ToolsBarComponent {
 
 	@Input() day: Date;
-	@Input() dayAppointmentsCounter: DayAppointmentsCounter;
+	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
-	private appointmentsCounterSubscription: Subscription;
-	private _daysAppointmentsCounter: any;
 	private _showingFinished: boolean;
 
 	constructor(
 		private cardsService: CardsService,
-		private mechanicsService: MechanicsService,
-		private appointmentsService: AppointmentsService,
-		private cdRef: ChangeDetectorRef
+		private mechanicsService: MechanicsService
 	) {
 		this.showingFinished = false;
-	}
-
-	ngOnInit() {
-		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
-		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(() => {
-			this.cdRef.detectChanges();
-		});
 	}
 
 	// region Getters / setters
@@ -60,14 +47,6 @@ export class ToolsBarComponent implements OnInit {
 		this._showingFinished = value;
 	}
 
-	get daysAppointmentsCounter(): any {
-		return this._daysAppointmentsCounter;
-	}
-
-	set daysAppointmentsCounter(value: any) {
-		this._daysAppointmentsCounter = value;
-	}
-
 	get morningAppointmentSaturation(): number {
 		return Constants.APPOINTMENT_SATURATION.MORNING;
 	}
@@ -78,9 +57,13 @@ export class ToolsBarComponent implements OnInit {
 
 	// endregion
 
+	// region Checks
+
 	checkShowAppointmentsSummary(day: Date = this.day): boolean {
 		return day != undefined;
 	}
+
+	// endregion
 
 	// region Button actions
 
@@ -106,5 +89,11 @@ export class ToolsBarComponent implements OnInit {
 	}
 
 	// endregion
+
+	check(): void {
+		if (Constants.CHECK) {
+			console.log('checking tools bar component', this.dayAppointmentsCounterUpdate);
+		}
+	}
 
 }
