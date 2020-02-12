@@ -1,19 +1,14 @@
-import {Injectable, OnInit} from '@angular/core';
-import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
-import {Observable} from "rxjs/internal/Observable";
+import {Injectable} from '@angular/core';
 import {Coordinates} from "../objects/coordinates";
 import {Card} from "../objects/card";
 import {CardsGroup} from "../objects/cards-group";
 import {UtilsService} from "./utils.service";
 import {Constants} from "../objects/constants";
-import {CardsService} from "./cards.service";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
-import {GroupedTypeCards} from "../objects/grouped-type-cards";
 import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
 import {DimensionsService} from "./dimensions.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {NotificationService} from "./notification.service";
-import {Mechanic} from "../objects/mechanic";
 
 @Injectable({
 	providedIn: 'root'
@@ -21,23 +16,15 @@ import {Mechanic} from "../objects/mechanic";
 export class CardPositionService {
 
 	private static readonly GROUP_ROUND_POSITION_OFFSET: number = 5;
-	// private scrollLeftSubject;
-	// scrollLeft$: Observable<number>;
 	private static _dragging: boolean;
 	private static _hiddenGroup: CardsGroup;
-	private static _dropzone: Dropzone;
 	private static _destinyDropzone: Dropzone;
 	private static _originDropzone: Dropzone;
 
 	private static _unassignedCardTop: number;
 
-	private static _initialScrollLeft: number;
-	private static _initialScrollTop: number;
 	private static _scrollLeft: number;
 	private static _scrollTop: number;
-	private static _lastScrollTop: number;
-	private static _relativeScrollLeft: number;
-	private static _relativeScrollTop: number;
 	private static _barScrollLeft: number;
 
 	private static _position: Coordinates;
@@ -93,22 +80,6 @@ export class CardPositionService {
 		this._helperGroup = value;
 	}
 
-	static get initialScrollTop(): number {
-		return this._initialScrollTop;
-	}
-
-	static set initialScrollTop(value: number) {
-		this._initialScrollTop = value;
-	}
-
-	static get initialScrollLeft(): number {
-		return this._initialScrollLeft;
-	}
-
-	static set initialScrollLeft(value: number) {
-		this._initialScrollLeft = value;
-	}
-
 	static get scrollLeft(): number {
 		return this._scrollLeft;
 	}
@@ -123,22 +94,6 @@ export class CardPositionService {
 
 	static set scrollTop(value: number) {
 		this._scrollTop = value;
-	}
-
-	static get relativeScrollLeft(): number {
-		return this._relativeScrollLeft;
-	}
-
-	static set relativeScrollLeft(value: number) {
-		this._relativeScrollLeft = value;
-	}
-
-	static get relativeScrollTop(): number {
-		return this._relativeScrollTop;
-	}
-
-	static set relativeScrollTop(value: number) {
-		this._relativeScrollTop = value;
 	}
 
 	static get unassignedCardTop(): number {
@@ -168,12 +123,8 @@ export class CardPositionService {
 		const unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
 		this.unassignedCardTop = window.innerHeight - unassignedCardRelativeTop - Constants.VALUE.LINE_HEIGHT_DEFAULT;
 
-		this.initialScrollLeft = 0;
-		this.initialScrollTop = 0;
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
-		this.relativeScrollLeft = 0;
-		this.relativeScrollTop = 0;
 		this.barScrollLeft = 0;
 
 		this.dragging = false;
