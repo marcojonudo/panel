@@ -137,6 +137,8 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 		*  final */
 		CardPositionService.setDragging(true);
 
+		/* La dropzone de origen se obtiene de forma programática para evitar problemas con los eventos de cursor. Por
+		*  ejemplo, que por desplazarlo muy rápido no se lance y se produzcan fallos al no estar definida */
 		CardPositionService.originDropzone = DropzoneService.findDropzone(this.cardsGroup.cards[0]);
 	}
 

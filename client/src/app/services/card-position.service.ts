@@ -9,6 +9,7 @@ import {UnassignedSection} from "../objects/unassigned-sections/unassigned-secti
 import {DimensionsService} from "./dimensions.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {NotificationService} from "./notification.service";
+import {Position} from "../objects/position";
 
 @Injectable({
 	providedIn: 'root'
@@ -269,7 +270,7 @@ export class CardPositionService {
 		}
 
 		/* La posición se redondea a los múltiplos de 5 minutos */
-		position = this.roundLastPosition(position, destinyDropzone.rect, intervalWidth);
+		position = this.roundLastPosition(position, destinyDropzone.position, intervalWidth);
 
 		/* Se comprueba si, una vez arreglada y redondeada la posición, el intervalo que ocupa el grupo sigue saliéndose
 		*  del horario. Si es así, se retorna undefined para volver a la posición original */
@@ -313,8 +314,8 @@ export class CardPositionService {
 		groups: CardsGroup[],
 		dropzone: Dropzone = this.destinyDropzone
 	): boolean {
-		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.rect.x, 2));
-		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
+		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.position.left, 2));
+		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
 
 		return groups.find(group => {
 			const duration = DimensionsService.calcWidthFromDuration(group.findDuration());
@@ -330,8 +331,8 @@ export class CardPositionService {
 	): Coordinates {
 		const leftX = this.absolutePositionToLeft(position.x);
 		const durationWidth = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
-		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.rect.x);
-		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
+		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.position.left);
+		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
 
 		let outsideLeft = this.checkOutsideLeft(leftX, dropzoneLeft);
 		if (outsideLeft) {
@@ -352,8 +353,8 @@ export class CardPositionService {
 	): boolean {
 		const leftX = this.absolutePositionToLeft(position.x);
 		const duration = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
-		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.rect.x, 2));
-		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.rect.right);
+		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.position.left, 2));
+		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
 
 		return this.checkOutsideLeft(leftX, dropzoneLeft)
 			|| this.checkOutsideRight(leftX + duration, dropzoneRight);
@@ -370,16 +371,16 @@ export class CardPositionService {
 		return rightX - dropzoneRight > 2;
 	}
 
-	private static roundLastPosition(position: Coordinates, rect: any, intervalWidth: number): Coordinates {
+	private static roundLastPosition(position: Coordinates, dropzonePosition: Position, intervalWidth: number): Coordinates {
 		const leftIntervals = Math.floor(this.absolutePositionToLeft(position.x) / intervalWidth);
 		const x = this.leftToAbsolutePosition(leftIntervals * intervalWidth);
 
 		const line = Math.abs(
 			Math.round(
-				(this.absolutePositionToTop(position.y) - rect.top) / DimensionsService.lineHeight
+				(this.absolutePositionToTop(position.y) - dropzonePosition.top) / DimensionsService.lineHeight
 			)
 		);
-		const y = this.dropzoneTopToAbsolutePosition(rect.top) + line * DimensionsService.lineHeight;
+		const y = this.dropzoneTopToAbsolutePosition(dropzonePosition.top) + line * DimensionsService.lineHeight;
 		[position.x, position.y, position.line] = [x, y, line];
 		return position;
 	}

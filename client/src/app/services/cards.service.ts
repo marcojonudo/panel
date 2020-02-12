@@ -466,7 +466,11 @@ export class CardsService {
 		});
 
 		group.end = UtilsService.addMinutes(group.end, durationIncrease);
-		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.CARD_DURATION,
+			card.day,
+			card.mechanicCode
+		);
 	}
 
 	groupOutsideSchedule(group: CardsGroup, schedule: Schedule): boolean {
@@ -524,12 +528,20 @@ export class CardsService {
 
 	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
-		NotificationService.notifyMechanicLine(day, mechanicCode);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
+			day,
+			mechanicCode
+		);
 	}
 
 	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
-		NotificationService.notifyMechanicLine(day, mechanicCode);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.REMOVE_GROUP,
+			day,
+			mechanicCode
+		);
 	}
 
 	handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined): void {
@@ -938,7 +950,11 @@ export class CardsService {
 
 	updateCardMode(group: CardsGroup, mode: string): void {
 		group.mode = mode;
-		NotificationService.notifyMechanicLine(group.cards[0].day, group.cards[0].mechanicCode);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
+			group.cards[0].day,
+			group.cards[0].mechanicCode
+		);
 	}
 
 	// endregion

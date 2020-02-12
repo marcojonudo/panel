@@ -7,6 +7,7 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
+import {Position} from "../position";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -16,7 +17,7 @@ export class AssignedDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.ASSIGNED;
 	subType: string;
 	mechanic: Mechanic;
-	rect: any;
+	position: Position;
 
 	dayMechanicGroups: CardsGroup[];
 

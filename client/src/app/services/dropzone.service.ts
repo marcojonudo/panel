@@ -48,7 +48,7 @@ export class DropzoneService {
 		this.dropzoneType[Constants.DROPZONE_TYPE.FINISH] =
 			() => new FinishDropzone(cardsService, appointmentsService);
 
-		this.dropzones = []
+		this.dropzones = [];
 	}
 
 	static findDropzoneType(type: string, mechanic: Mechanic, subType: string): Dropzone {

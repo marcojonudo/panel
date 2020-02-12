@@ -9,7 +9,7 @@
 			class="timeline-container-wrapper">
 		</app-timeline-container>
 		<app-time-indicator
-			*ngIf="checkShowTimeIndicator()"
+			*ngIf="showTimeIndicator"
 			[left]="timeIndicatorLeft"
 			[height]="timeIndicatorHeight">
 		</app-time-indicator>
@@ -18,8 +18,7 @@
 			[mechanics]="mechanics"
 			[mechanicLineUpdate]="mechanicLineUpdate"
 			[dayMechanicSkills]="dayMechanicSkills"
-			[showAppointmentsName]="showAppointmentsName"
-			[maxScheduleWidth]="maxScheduleWidth">
+			[showAppointmentsName]="showAppointmentsName">
 		</app-grid>
 		<app-card-context-menu
 			*ngIf="checkShowContextMenu()"

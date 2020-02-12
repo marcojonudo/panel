@@ -33,6 +33,7 @@
 		appDropzone
 		[type]="assignedDropzoneType"
 		[mechanic]="mechanic"
+		[update]="checkUpdateDropzone()"
 		*ngFor="let interval of mechanic.schedule.intervals"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(interval.duration),

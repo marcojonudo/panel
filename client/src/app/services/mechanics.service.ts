@@ -7,6 +7,7 @@ import {NotificationService} from "./notification.service";
 import {HttpClient} from "@angular/common/http";
 import {Url} from "../objects/url";
 import {DimensionsService} from "./dimensions.service";
+import {Constants} from "../objects/constants";
 
 @Injectable({
 	providedIn: 'root'
@@ -114,7 +115,11 @@ export class MechanicsService {
 
 	updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.setLines(newLines);
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
+			mechanic.day,
+			mechanic.code
+		);
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {
@@ -132,7 +137,11 @@ export class MechanicsService {
 		const index = mechanics.indexOf(mechanic);
 		this.rearrangeMechanics(mechanics, index);
 
-		NotificationService.notifyMechanicLine(day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.LINES_NUMBER,
+			day,
+			mechanic.code
+		);
 
 		if (updateDb) {
 			this.http.put(Url.mechanicsPosition(), mechanics.concat(mechanic)).subscribe();

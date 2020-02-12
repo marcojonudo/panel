@@ -3,7 +3,7 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {Mechanic} from "../mechanic";
-import {Constants} from "../constants";
+import {Position} from "../position";
 
 export interface Dropzone {
 
@@ -12,7 +12,7 @@ export interface Dropzone {
 	type: string;
 	subType: string;
 	mechanic: Mechanic;
-	rect: any;
+	position: Position;
 
 	validateMovement(position: Coordinates): CardsGroup[];
 

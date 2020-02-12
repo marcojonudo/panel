@@ -22,7 +22,7 @@ export class MechanicLineComponent {
 	@Input() day: Date;
 	@Input() mechanic: Mechanic;
 	@Input() mechanicLineUpdate: MechanicUpdate;
-	@Input() maxScheduleWidth: number;
+	// @Input() maxScheduleWidth: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() showAppointmentsName: boolean;
 
@@ -105,6 +105,11 @@ export class MechanicLineComponent {
 
 	checkHideGroup(groupId: string): boolean {
 		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
+	}
+
+	checkUpdateDropzone(mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
+		return mechanicLineUpdate && mechanicLineUpdate.type == Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH
+			? mechanicLineUpdate : undefined;
 	}
 
 	trackByItem(index, item) {

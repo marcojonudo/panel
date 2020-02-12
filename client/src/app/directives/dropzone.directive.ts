@@ -1,26 +1,28 @@
 import {
-	ChangeDetectorRef,
 	Directive,
 	ElementRef,
 	HostBinding,
-	Input,
+	Input, OnChanges,
 	OnInit,
-	Renderer2
+	Renderer2, SimpleChanges
 } from '@angular/core';
 import {CardPositionService} from "../services/card-position.service";
 import {Mechanic} from "../objects/mechanic";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Constants} from "../objects/constants";
 import {DropzoneService} from "../services/dropzone.service";
+import {DimensionsService} from "../services/dimensions.service";
+import {MechanicUpdate} from "../objects/update-days-cards/mechanic-update";
 
 @Directive({
 	selector: '[appDropzone]'
 })
-export class DropzoneDirective implements OnInit {
+export class DropzoneDirective implements OnInit, OnChanges {
 
 	@Input() type: string;
 	@Input() subType?: string;
 	@Input() mechanic: Mechanic;
+	@Input() update: MechanicUpdate;
 
 	//TODO Revisar comportamiento dragging
 	@HostBinding('class.dropzone-dragging') entered: boolean;
@@ -45,8 +47,21 @@ export class DropzoneDirective implements OnInit {
 
 	ngOnInit() {
 		this.dropzone = DropzoneService.findDropzoneType(this.type, this.mechanic, this.subType);
-		this.dropzone.rect = this.element.nativeElement.getBoundingClientRect();
+		this.dropzone.position = DimensionsService.createPosition(this.element.nativeElement.getBoundingClientRect());
 		DropzoneService.addDropzone(this.dropzone);
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		/* Si la línea de mecánico está siendo actualizada por un cambio de zoom, se deben actualizar las posiciones y
+		*  de la dropzone */
+		if (changes.update && changes.update.currentValue) {
+			/* Se define el timeout para dar tiempo a que actualice la interfaz y se genere un rect real */
+			setTimeout(() => {
+				this.dropzone.position =
+					DimensionsService.createPosition(this.element.nativeElement.getBoundingClientRect());
+			}, 1)
+
+		}
 	}
 
 	onPointerEnter(): void {

@@ -232,7 +232,11 @@ export class AppointmentsService {
 			appointment.reset();
 		}
 		mechanic.appointments = mechanic.appointments.slice();
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_TYPE,
+			mechanic.day,
+			mechanic.code
+		);
 	}
 
 	updateAppointmentSchedule(
@@ -260,7 +264,11 @@ export class AppointmentsService {
 		} else {
 			this.http.put(Url.appointmentSchedule(), appointment).subscribe()
 		}
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
+			mechanic.day,
+			mechanic.code
+		);
 	}
 
 	// endregion

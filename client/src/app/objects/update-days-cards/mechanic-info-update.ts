@@ -2,6 +2,7 @@ import {MechanicUpdate} from "./mechanic-update";
 
 export class MechanicInfoUpdate implements MechanicUpdate {
 
+	type: string;
 	day: Date;
 	mechanicCode: string;
 

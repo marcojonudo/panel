@@ -27,6 +27,7 @@ import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-
 import {AppointmentsService} from "../../services/appointments.service";
 import {DaysAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/days-appointments-counter-update";
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
+import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 
 @Component({
 	selector: 'app-main',
@@ -136,6 +137,7 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.cardsService.assignedDaysCardsGroups
 			);
 			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
+			this.mechanicLineUpdate = new MechanicLineUpdate(Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH);
 			this.cdRef.detectChanges();
 		});
 		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
@@ -148,6 +150,8 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.cardsService.assignedDaysCardsGroups
 			);
 			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+			// TODO Evaluar si hace falta el notifyAll. Puede que con usar el detectChanges y un obtejo mechanicLieUpdate
+			// sea suficiente
 			NotificationService.notifyAll();
 			this.cdRef.detectChanges();
 		});
@@ -291,14 +295,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._mechanicLineUpdate = value;
 	}
 
-	// get mechanicInfoUpdate(): MechanicUpdate {
-	// 	return this._mechanicInfoUpdate;
-	// }
-    //
-    // set mechanicInfoUpdate(value: MechanicUpdate) {
-		// this._mechanicInfoUpdate = value;
-	// }
-
 	get daysMechanicSkills(): DaysMechanicSkills {
 		return this._daysMechanicSkills;
 	}
@@ -383,6 +379,10 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	findDayMechanics(day: Date): Mechanic[] {
 		return this.mechanicsService.findDayMechanics(day);
+	}
+
+	checkShowTimeIndicator(): boolean {
+		return this.timeIndicatorLeft < this.maxScheduleWidth;
 	}
 
 	checkTriggerLineCd(day: Date, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {

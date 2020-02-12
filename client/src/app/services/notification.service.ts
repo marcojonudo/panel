@@ -12,6 +12,7 @@ import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-q
 import {ContextMenuInfo} from "../objects/context-menu-info";
 import {DayLateralPanelInfo} from "../objects/lateral-panel-info/day-lateral-panel-info";
 import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
+import {Constants} from "../objects/constants";
 
 @Injectable({
 	providedIn: 'root'
@@ -198,15 +199,15 @@ export class NotificationService {
 
 	static notifyAll(): void {
 		NotificationService.notifyBand();
-		NotificationService.notifyMechanicLine();
+		NotificationService.notifyMechanicLine(Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH);
 	}
 
 	static notifyBand(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger()): void {
 		this.bandSubject.next(cardUpdate);
 	}
 
-	static notifyMechanicLine(day: Date = undefined, mechanicCode: string = undefined): void {
-		this.mechanicLineSubject.next(new MechanicLineUpdate(day, mechanicCode));
+	static notifyMechanicLine(type: string = undefined, day: Date = undefined, mechanicCode: string = undefined): void {
+		this.mechanicLineSubject.next(new MechanicLineUpdate(type, day, mechanicCode));
 	}
 
 	static notifyAppointmentsCounter(dayAppointmentsCounters: DayAppointmentsCounterUpdate): void {

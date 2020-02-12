@@ -7,6 +7,7 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
+import {Position} from "../position";
 
 export class AuxiliaryDropzone implements Dropzone {
 
@@ -16,7 +17,7 @@ export class AuxiliaryDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.AUXILIARY;
 	subType: string;
 	mechanic: Mechanic;
-	rect: any;
+	position: Position;
 
 	constructor(
 		cardsService: CardsService,

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
@@ -16,7 +16,6 @@ export class MechanicLineContainerComponent {
 	@Input() day: Date;
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;
-	@Input() maxScheduleWidth: number;
 	@Input() mechanic: Mechanic;
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];

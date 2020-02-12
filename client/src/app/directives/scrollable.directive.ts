@@ -1,6 +1,7 @@
 import {AfterViewInit, Directive, ElementRef, HostListener, Input, OnInit, Renderer2} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {CardPositionService} from "../services/card-position.service";
+import {DimensionsService} from "../services/dimensions.service";
 
 @Directive({
 	selector: '[appScrollable]'
@@ -26,14 +27,16 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 		private renderer: Renderer2
 	) {
 		this.scrollZoneSize = 50;
-		this.step = 20;
+		this.step = 30;
 
 		this.scrollTop = 0;
 		this.scrollLeft = 0;
 	}
 
 	ngOnInit() {
-		this.setPositionValues(this.element.nativeElement.getBoundingClientRect());
+		setTimeout(() => {
+			this.setPositionValues(this.element.nativeElement.getBoundingClientRect());
+		}, 1);
 		this.renderer.listen(
 			this.element.nativeElement,
 			Constants.EVENT.POINTER_MOVE,

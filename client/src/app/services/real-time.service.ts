@@ -213,7 +213,11 @@ export class RealTimeService {
 		*  y si se asigna sólo el horario no tendrá información sobre su tipo */
 		appointment.appointmentType = updatedAppointment.appointmentType;
 		appointment.schedule = updatedAppointment.schedule;
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
+			mechanic.day,
+			mechanic.code
+		);
 	}
 
 	updateAppointmentType(updatedAppointment: AppointmentSchedule): void {
@@ -243,7 +247,11 @@ export class RealTimeService {
 			);
 			appointment.appointmentType = updatedAppointment.appointmentType;
 		}
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_TYPE,
+			mechanic.day,
+			mechanic.code
+		);
 	}
 
 }

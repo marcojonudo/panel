@@ -140,7 +140,11 @@ export class MechanicInfoComponent {
 
 	updateJobLineType(mechanic: Mechanic = this.mechanic): void {
 		this.jobLineTypeService.updateJobLineType(mechanic);
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.JOB_LINE_TYPE,
+			mechanic.day,
+			mechanic.code
+		);
 		this.cdRef.detectChanges();
 	}
 

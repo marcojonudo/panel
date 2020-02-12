@@ -21,7 +21,6 @@ export class GridComponent implements OnInit {
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;
 	@Input() showAppointmentsName: boolean;
-	@Input() maxScheduleWidth: number;
 
 	private pointerDownListener: () => void;
 
@@ -60,13 +59,16 @@ export class GridComponent implements OnInit {
 		mechanicCode: string,
 		mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate
 	): MechanicUpdate {
-		return mechanicLineUpdate && mechanicCode == mechanicLineUpdate.mechanicCode ? mechanicLineUpdate : undefined;
+		return mechanicLineUpdate
+			&& (mechanicLineUpdate.mechanicCode == mechanicCode
+				|| mechanicLineUpdate.type == Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH)
+			? mechanicLineUpdate : undefined;
 	}
 
 	checkTriggerMechanicInfoCd(
 		mechanicCode: string,
 		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
-	): MechanicUpdate {
+	): DayMechanicSkills {
 		return dayMechanicSkills && mechanicCode == dayMechanicSkills.mechanicCode ? dayMechanicSkills : undefined;
 	}
 

@@ -5,6 +5,7 @@ import {DaysMechanics} from "../objects/days-mechanics";
 import {Mechanic} from "../objects/mechanic";
 import {Constants} from "../objects/constants";
 import {NotificationService} from "./notification.service";
+import {Position} from "../objects/position";
 
 @Injectable({
 	providedIn: 'root'
@@ -451,6 +452,19 @@ export class DimensionsService {
 
 	static getIntervalsNumberFromWidth(width: number) {
 		return Math.round(width / this.intervalWidth);
+	}
+
+	static createPosition(rect: any, scrollLeft: number = undefined, scrollTop: number = undefined): Position {
+		let [left, right, top, bottom] = [rect.left, rect.right, rect.top, rect.bottom];
+		if (scrollLeft) {
+			left = left + scrollLeft;
+			right = right + scrollLeft;
+		}
+		if (scrollTop) {
+			top = top + scrollTop;
+			bottom = bottom + scrollTop;
+		}
+		return new Position(left, right, top, bottom);
 	}
 
 	// endregion

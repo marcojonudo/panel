@@ -8,6 +8,7 @@ import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
+import {Position} from "../position";
 
 export class UnassignedFinishedDropzone implements Dropzone {
 
@@ -17,7 +18,7 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED;
 	subType: string;
 	mechanic: Mechanic;
-	rect: any;
+	position: Position;
 
 	constructor(
 		cardsService: CardsService,
