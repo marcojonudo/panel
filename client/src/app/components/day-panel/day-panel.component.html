@@ -9,7 +9,8 @@
 			class="timeline-container-wrapper">
 		</app-timeline-container>
 		<app-time-indicator
-			*ngIf="showTimeIndicator"
+			*ngIf="checkShowTimeIndicator()"
+			[left]="timeIndicatorLeft"
 			[height]="timeIndicatorHeight">
 		</app-time-indicator>
 		<app-grid

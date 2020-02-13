@@ -385,10 +385,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		return this.mechanicsService.findDayMechanics(day);
 	}
 
-	checkShowTimeIndicator(): boolean {
-		return this.timeIndicatorLeft < this.maxScheduleWidth;
-	}
-
 	checkTriggerLineCd(day: Date, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
 		let update = undefined;
 		if (mechanicLineUpdate) {

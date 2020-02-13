@@ -10,13 +10,8 @@ import {DimensionsService} from "../../services/dimensions.service";
 })
 export class TimeIndicatorComponent {
 
+	@Input() left: number;
 	@Input() height: number;
-
-	left: number;
-
-	constructor() {
-		this.left = DimensionsService.calcLeftFromStart(new Date()) + Constants.VALUE.MECHANIC_INFO_WIDTH;
-	}
 
 	check(): void {
 		if (Constants.CHECK) {

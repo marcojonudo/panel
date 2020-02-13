@@ -23,13 +23,17 @@ export class DayPanelComponent implements OnInit {
 	@Input() contextMenuInfo: ContextMenuInfo;
 	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleHours: number[];
-	@Input() maxScheduleWidth: number[];
-	@Input() showTimeIndicator: number;
+	@Input() maxScheduleWidth: number;
+	@Input() timeIndicatorLeft: number;
 
 	private timeIndicatorHeight: number;
 
 	ngOnInit() {
 		this.timeIndicatorHeight = DimensionsService.calcGridCompleteHeight(this.mechanics);
+	}
+
+	checkShowTimeIndicator(): boolean {
+		return this.timeIndicatorLeft < this.maxScheduleWidth;
 	}
 
 	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
