@@ -63,6 +63,14 @@ export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);
 	}
 
+	findMax(max: number, appointmentsSaturation): number {
+		return this.appointmentsService.findMax(max, appointmentsSaturation);
+	}
+
+	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
+		return this.appointmentsService.findSaturationPercentage(appointments, max, appointmentSaturation);
+	}
+
 	addMax(appointmentDay: AppointmentDay): void {
 		this.appointmentsService.addMax(appointmentDay);
 		this.cdRef.detectChanges();

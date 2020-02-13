@@ -124,12 +124,16 @@ export class AppointmentsService {
 
 	// region Saturation
 
+	findMax(max: number, appointmentsSaturation): number {
+		return Math.round(appointmentsSaturation * max)
+	}
+
 	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
-		return appointments > Math.round(max * appointmentSaturation);
+		return appointments > this.findMax(max, appointmentSaturation);
 	}
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
-		return appointments && max ? Math.round((appointments / (max * appointmentSaturation)) * 100) : 0;
+		return appointments && max ? Math.round((appointments / this.findMax(max, appointmentSaturation)) * 100) : 0;
 	}
 
 	// endregion

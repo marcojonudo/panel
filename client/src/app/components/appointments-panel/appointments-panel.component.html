@@ -11,20 +11,35 @@
 		[ngStyle]="{'background-color': item.value.appointmentType.color, 'height.px': appointmentSummaryItemHeight}">
 		<div class="flex-grow-1 flex-basis-0 align-center">{{item.value.appointmentType.name}}</div>
 		<div
-			class="flex-grow-1 flex-basis-0 align-center"
+			class="flex-grow-1 flex-basis-0 d-flex flex-column"
 			[ngClass]="{'background-color-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
-			{{item.value.morning}}
+			<div class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage">
+				{{findSaturationPercentage(item.value.morning, item.value.max, morningAppointmentSaturation)}}%
+			</div>
+			<div class="flex-grow-1 flex-basis-0 align-center">
+				{{item.value.morning}}/{{findMax(item.value.max, morningAppointmentSaturation)}}
+			</div>
 		</div>
 		<div
-			class="flex-grow-1 flex-basis-0 align-center"
+			class="flex-grow-1 flex-basis-0 d-flex flex-column"
 			[ngClass]="{'background-color-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">
-			{{item.value.afternoon}}
+			<div class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage">
+				{{findSaturationPercentage(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}}%
+			</div>
+			<div class="flex-grow-1 flex-basis-0 align-center">
+				{{item.value.afternoon}}/{{findMax(item.value.max, afternoonAppointmentSaturation)}}
+			</div>
 		</div>
 		<div class="flex-grow-1 flex-basis-0 d-flex">
 			<div
-				class="h-100 flex-grow-1 flex-basis-0 align-center"
+				class="h-100 flex-grow-1 flex-basis-0 d-flex flex-column"
 				[ngClass]="{'background-color-red': checkSaturation(item.value.total, item.value.max)}">
-				{{item.value.total}}
+				<div class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage">
+					{{findSaturationPercentage(item.value.total, item.value.max)}}%
+				</div>
+				<div class="flex-grow-1 flex-basis-0 align-center">
+					{{item.value.total}}/{{item.value.max}}
+				</div>
 			</div>
 			<div class="w-25 h-100 d-flex flex-column border-left">
 				<div class="h-25 appointment-number-icon align-center" (click)="addMax(item.value)">

@@ -8,6 +8,11 @@
 	color: #ffffff;
 }
 
+.appointments-panel-percentage {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
 .appointment-number-icon {
 	font-size: .6em;
 }
