@@ -8,6 +8,7 @@ import {Coordinates} from "../coordinates";
 import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -17,6 +18,7 @@ export class AssignedDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.ASSIGNED;
 	subType: string;
 	mechanic: Mechanic;
+	interval: ScheduleInterval;
 	position: Position;
 
 	dayMechanicGroups: CardsGroup[];
@@ -24,11 +26,13 @@ export class AssignedDropzone implements Dropzone {
 	constructor(
 		cardsService: CardsService,
 		appointmentsService: AppointmentsService,
-		mechanic: Mechanic
+		mechanic: Mechanic,
+		interval: ScheduleInterval
 	) {
 		this.cardsService = cardsService;
 		this.appointmentsService = appointmentsService;
 		this.mechanic = mechanic;
+		this.interval = interval;
 	}
 
 	validateMovement(position: Coordinates): CardsGroup[] {

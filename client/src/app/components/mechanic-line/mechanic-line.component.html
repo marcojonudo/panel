@@ -29,16 +29,17 @@
 		</div>
 	</div>
 	<div
-		class="h-100 d-flex schedule-line"
-		appDropzone
-		[type]="assignedDropzoneType"
-		[mechanic]="mechanic"
-		[update]="checkUpdateDropzone()"
 		*ngFor="let interval of mechanic.schedule.intervals"
+		class="h-100 d-flex schedule-line"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(interval.duration),
 		 	'left.px': calcScheduleLeft(interval.start)
-		}">
+		}"
+		appDropzone
+		[type]="assignedDropzoneType"
+		[mechanic]="mechanic"
+		[interval]="interval"
+		[update]="checkUpdateDropzone()">
 		<div
 			class="schedule-border schedule-left-border"
 			[ngStyle]="{background: findScheduleLeftBorderBackground('red')}">

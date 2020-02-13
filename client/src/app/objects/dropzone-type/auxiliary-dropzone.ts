@@ -8,6 +8,7 @@ import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class AuxiliaryDropzone implements Dropzone {
 
@@ -17,6 +18,7 @@ export class AuxiliaryDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.AUXILIARY;
 	subType: string;
 	mechanic: Mechanic;
+	interval: ScheduleInterval;
 	position: Position;
 
 	constructor(

@@ -10,13 +10,14 @@ import {UnassignedFinishedDropzone} from "../objects/dropzone-type/unassigned-fi
 import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Mechanic} from "../objects/mechanic";
 import {Card} from "../objects/card";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class DropzoneService {
 
-	private static dropzoneType: { [key: string]: ((any) => Dropzone) };
+	private static dropzoneType: { [key: string]: ((...any) => Dropzone) };
 
 	private static _dropzones: Dropzone[];
 
@@ -38,7 +39,8 @@ export class DropzoneService {
 	) {
 		this.dropzoneType = {};
 		this.dropzoneType[Constants.DROPZONE_TYPE.ASSIGNED] =
-			(mechanic: Mechanic) => new AssignedDropzone(cardsService, appointmentsService, mechanic);
+			(mechanic: Mechanic, interval: ScheduleInterval) =>
+				new AssignedDropzone(cardsService, appointmentsService, mechanic, interval);
 		this.dropzoneType[Constants.DROPZONE_TYPE.UNASSIGNED] =
 			(subType: string) => new UnassignedDropzone(cardsService, appointmentsService, subType);
 		this.dropzoneType[Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED] =
@@ -51,14 +53,22 @@ export class DropzoneService {
 		this.dropzones = [];
 	}
 
-	static findDropzoneType(type: string, mechanic: Mechanic, subType: string): Dropzone {
-		return this.dropzoneType[type](type == Constants.DROPZONE_TYPE.ASSIGNED ? mechanic : subType)
+	static findDropzoneType(type: string, subType: string, mechanic: Mechanic, interval: ScheduleInterval): Dropzone {
+		if (type == Constants.DROPZONE_TYPE.ASSIGNED) {
+			return this.dropzoneType[type](mechanic, interval);
+		} else {
+			return this.dropzoneType[type](subType);
+		}
 	}
 
 	static addDropzone(dropzone: Dropzone) {
-		const existent = this.dropzones.find((d: Dropzone) =>
-			d.type == dropzone.type && d.subType && d.subType == dropzone.subType
-		);
+		const existent = this.dropzones.find((d: Dropzone) => {
+			if (dropzone.type == Constants.DROPZONE_TYPE.ASSIGNED) {
+				return d.interval == dropzone.interval;
+			} else {
+				return d.type == dropzone.type && d.subType == dropzone.subType
+			}
+		});
 		if (!existent) {
 			this.dropzones.push(dropzone);
 		}
@@ -68,7 +78,10 @@ export class DropzoneService {
 		if (card.mechanicCode) {
 			/* Podría haber 2 dropzones para un mismo mecánico (mañana y tarde); no obstante, sólo interesa saber el
 			*  tipo para poder ejecutar los métodos asociados, por lo que se obtiene una de ellas */
-			return this.dropzones.find((dropzone: Dropzone) => dropzone.mechanic.code == card.mechanicCode);
+			return this.dropzones.find((dropzone: Dropzone) =>
+				dropzone.mechanic && dropzone.mechanic.code == card.mechanicCode
+					&& dropzone.mechanic.day.getTime() == card.day.getTime()
+			);
 		} else {
 			if (card.start == Constants.CARD_STATUS.FINISHED) {
 				return this.dropzones.find((dropzone: Dropzone) =>

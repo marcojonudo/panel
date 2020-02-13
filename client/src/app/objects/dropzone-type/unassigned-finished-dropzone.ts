@@ -9,6 +9,7 @@ import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class UnassignedFinishedDropzone implements Dropzone {
 
@@ -18,6 +19,7 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED;
 	subType: string;
 	mechanic: Mechanic;
+	interval: ScheduleInterval;
 	position: Position;
 
 	constructor(

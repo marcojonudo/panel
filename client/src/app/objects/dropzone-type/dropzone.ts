@@ -4,6 +4,7 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {Mechanic} from "../mechanic";
 import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
 
 export interface Dropzone {
 
@@ -12,6 +13,7 @@ export interface Dropzone {
 	type: string;
 	subType: string;
 	mechanic: Mechanic;
+	interval: ScheduleInterval;
 	position: Position;
 
 	validateMovement(position: Coordinates): CardsGroup[];

@@ -13,6 +13,7 @@ import {Constants} from "../objects/constants";
 import {DropzoneService} from "../services/dropzone.service";
 import {DimensionsService} from "../services/dimensions.service";
 import {MechanicUpdate} from "../objects/update-days-cards/mechanic-update";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Directive({
 	selector: '[appDropzone]'
@@ -22,10 +23,8 @@ export class DropzoneDirective implements OnInit, OnChanges {
 	@Input() type: string;
 	@Input() subType?: string;
 	@Input() mechanic: Mechanic;
+	@Input() interval: ScheduleInterval;
 	@Input() update: MechanicUpdate;
-
-	//TODO Revisar comportamiento dragging
-	@HostBinding('class.dropzone-dragging') entered: boolean;
 
 	private dropzone: Dropzone;
 
@@ -46,7 +45,7 @@ export class DropzoneDirective implements OnInit, OnChanges {
 	}
 
 	ngOnInit() {
-		this.dropzone = DropzoneService.findDropzoneType(this.type, this.mechanic, this.subType);
+		this.dropzone = DropzoneService.findDropzoneType(this.type, this.subType, this.mechanic, this.interval);
 		this.dropzone.position = DimensionsService.createPosition(this.element.nativeElement.getBoundingClientRect());
 		DropzoneService.addDropzone(this.dropzone);
 	}

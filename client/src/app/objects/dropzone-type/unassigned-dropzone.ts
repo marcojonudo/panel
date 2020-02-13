@@ -10,6 +10,7 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {UtilsService} from "../../services/utils.service";
 import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -19,6 +20,7 @@ export class UnassignedDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.UNASSIGNED;
 	subType: string;
 	mechanic: Mechanic;
+	interval: ScheduleInterval;
 	position: Position;
 
 	constructor(
