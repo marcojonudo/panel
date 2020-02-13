@@ -28,6 +28,7 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {DaysAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/days-appointments-counter-update";
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
+import {Toast} from "../../objects/toasts/toast";
 
 @Component({
 	selector: 'app-main',
@@ -55,6 +56,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _maxScheduleWidth: number;
 	private _maxScheduleMaxWidth: number;
 
+	private _toast: Toast;
+
 	private _mechanicLineUpdate: MechanicUpdate;
 	private _mechanicInfoUpdate: MechanicUpdate;
 
@@ -77,6 +80,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private onlyAppointmentsModeSubscription: Subscription;
 	private lateralInfoSubscription: Subscription;
 	private appointmentsCounterSubscription: Subscription;
+	private toastSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
@@ -183,6 +187,11 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$
 				.subscribe((dayAppointmentsCounters: DayAppointmentsCounterUpdate) => {
 			this.daysAppointmentsCounterUpdate[dayAppointmentsCounters.day.getTime()] = dayAppointmentsCounters;
+			this.cdRef.detectChanges();
+		});
+
+		this.toastSubscription = NotificationService.toast$.subscribe((toast: Toast) => {
+			this.toast = toast;
 			this.cdRef.detectChanges();
 		});
 
@@ -361,6 +370,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	get toolsBarWidth(): number {
 		return Constants.VALUE.TOOLS_BAR_WIDTH;
+	}
+
+	get toast(): Toast {
+		return this._toast;
+	}
+
+	set toast(value: Toast) {
+		this._toast = value;
 	}
 
 	// endregion

@@ -13,6 +13,7 @@ import {ContextMenuInfo} from "../objects/context-menu-info";
 import {DayLateralPanelInfo} from "../objects/lateral-panel-info/day-lateral-panel-info";
 import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 import {Constants} from "../objects/constants";
+import {Toast} from "../objects/toasts/toast";
 
 @Injectable({
 	providedIn: 'root'
@@ -55,6 +56,9 @@ export class NotificationService {
 	private static lateralInfoSubject: Subject<DayLateralPanelInfo>;
 	private static _lateralInfo$: Observable<DayLateralPanelInfo>;
 
+	private static toastSubject: Subject<Toast>;
+	private static _toast$: Observable<Toast>;
+
 	// region Init
 
 	static init(): void {
@@ -93,6 +97,9 @@ export class NotificationService {
 
 		this.lateralInfoSubject = new Subject<DayLateralPanelInfo>();
 		this.lateralInfo$ = this.lateralInfoSubject.asObservable();
+
+		this.toastSubject = new Subject<Toast>();
+		this.toast$ = this.toastSubject.asObservable();
 	}
 
 	// endregion
@@ -195,6 +202,14 @@ export class NotificationService {
 		this._lateralInfo$ = value;
 	}
 
+	static get toast$(): Observable<Toast> {
+		return this._toast$;
+	}
+
+	static set toast$(value: Observable<Toast>) {
+		this._toast$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -248,6 +263,10 @@ export class NotificationService {
 
 	static notifyLateralInfo(dayLateralInfo: DayLateralPanelInfo): void {
 		this.lateralInfoSubject.next(dayLateralInfo)
+	}
+
+	static notifyToast(toast: Toast): void {
+		this.toastSubject.next(toast);
 	}
 
 }

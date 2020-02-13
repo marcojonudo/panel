@@ -47,6 +47,13 @@ app-day-panel:not(:first-child):not(:last-child) {
 	z-index: 3;
 }
 
+.toast-position {
+	position: absolute;
+	top: 50px;
+	right: 100px;
+}
+
+
 /*.ng-draggable {*/
 /*cursor: grab;*/
 /*}*/

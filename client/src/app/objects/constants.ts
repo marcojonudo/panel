@@ -40,7 +40,8 @@ export class Constants {
 		MECHANICS_SATURATION_PERCENTAGE: 60,
 		JOB_LINE_TYPE_HEIGHT: 5,
 		TIME_INDICATOR_INTERVAL: 60000,
-		APPOINTMENT_SUMMARY_ITEM_HEIGHT: 60
+		APPOINTMENT_SUMMARY_ITEM_HEIGHT: 60,
+		DEFAULT_TOAST_DELAY: 5000
 	};
 	public static ID: any = {
 		MECHANIC_LINE: 'mechanic-line'
@@ -102,11 +103,13 @@ export class Constants {
 	};
 	public static readonly GROUP_MODE: any = {
 		DRAG: 'DRAG',
-		CUT: 'CUT'
+		CUT: 'CUT',
+		REPLACE: 'REPLACE',
 	};
 	public static readonly GROUP_MODE_CURSOR: any = {
 		DRAG: 'move',
-		CUT: 'crosshair'
+		CUT: 'crosshair',
+		REPLACE: 'pointer'
 	};
 	public static readonly LINK_HANDLER_IMAGE: any = {
 		JOINED: 'link_handler_joined.svg',
@@ -127,6 +130,9 @@ export class Constants {
 		JOB_LINE_TYPE: 'JOB_LINE_TYPE',
 		LINES_NUMBER: 'LINES_NUMBER',
 		MAX_SCHEDULE_WIDTH: 'MAX_SCHEDULE_WIDTH',
+	};
+	public static readonly TOAST_CLASSNAME: any = {
+		WARNING: 'bg-warning'
 	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";
