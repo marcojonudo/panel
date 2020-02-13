@@ -17,7 +17,7 @@ export class TimelineComponent {
 	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleWidth: number;
 
-	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 3000;
+	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 3500;
 	private readonly QUARTERS: string[] = ['00', '15', '30', '45'];
 
 	// region Getters / setters

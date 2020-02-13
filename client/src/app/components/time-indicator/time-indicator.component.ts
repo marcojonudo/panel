@@ -12,7 +12,7 @@ export class TimeIndicatorComponent {
 
 	@Input() height: number;
 
-	private left: number;
+	left: number;
 
 	constructor() {
 		this.left = DimensionsService.calcLeftFromStart(new Date()) + Constants.VALUE.MECHANIC_INFO_WIDTH;

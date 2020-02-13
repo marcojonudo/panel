@@ -23,6 +23,7 @@ export class DayPanelComponent implements OnInit {
 	@Input() contextMenuInfo: ContextMenuInfo;
 	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleWidth: number[];
 	@Input() showTimeIndicator: number;
 
 	private timeIndicatorHeight: number;
