@@ -40,6 +40,7 @@ export class Constants {
 		MECHANICS_SATURATION_PERCENTAGE: 60,
 		JOB_LINE_TYPE_HEIGHT: 5,
 		TIME_INDICATOR_INTERVAL: 60000,
+		APPOINTMENT_SUMMARY_ITEM_HEIGHT: 60
 	};
 	public static ID: any = {
 		MECHANIC_LINE: 'mechanic-line'

@@ -1,43 +1,87 @@
 <div class="h-100 appointments-panel">
-	<table class="table h-100">
-		<thead>
-			<tr>
-				<th scope="col">Tipo</th>
-				<th scope="col">Mañ.</th>
-				<th scope="col">Tarde</th>
-				<th scope="col">Total</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let item of dayAppointmentsCounter | keyvalue">
-				<th scope="row">{{item.value.appointmentType.name}}</th>
-				<td
-					[ngClass]="{'background-color-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
-					{{item.value.morning}}
-				</td>
-				<td
-					[ngClass]="{'background-color-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">
-					{{item.value.afternoon}}
-				</td>
-				<td class="d-flex">
-					<div
-						class="h-100 flex-grow-1 flex-basis-0 align-center"
-						[ngClass]="{'background-color-red': checkSaturation(item.value.total, item.value.max)}">
-						{{item.value.total}}
-					</div>
-					<div class="w-25 h-100 d-flex flex-column border-left">
-						<div class="h-25 appointment-number-icon align-center" (click)="addMax(item.value)">
-							<i class="fas fa-chevron-up"></i>
-						</div>
-						<div class="flex-grow-1 flex-basis-0 align-center max-appointment-limit">
-							{{item.value.max}}
-						</div>
-						<div class="h-25 appointment-number-icon align-center" (click)="subtractMax(item.value)">
-							<i class="fas fa-chevron-down"></i>
-						</div>
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+	<div class="d-flex appointments-panel-header" [style.height.px]="timelineHeight">
+		<div class="flex-grow-1 flex-basis-0 align-center">Tipo</div>
+		<div class="flex-grow-1 flex-basis-0 align-center">Mañ.</div>
+		<div class="flex-grow-1 flex-basis-0 align-center">Tarde</div>
+		<div class="flex-grow-1 flex-basis-0 align-center">Total</div>
+	</div>
+	<div
+		class="d-flex"
+		*ngFor="let item of dayAppointmentsCounter | keyvalue"
+		[ngStyle]="{'background-color': item.value.appointmentType.color, 'height.px': appointmentSummaryItemHeight}">
+		<div class="flex-grow-1 flex-basis-0 align-center">{{item.value.appointmentType.name}}</div>
+		<div
+			class="flex-grow-1 flex-basis-0 align-center"
+			[ngClass]="{'background-color-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
+			{{item.value.morning}}
+		</div>
+		<div
+			class="flex-grow-1 flex-basis-0 align-center"
+			[ngClass]="{'background-color-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">
+			{{item.value.afternoon}}
+		</div>
+		<div class="flex-grow-1 flex-basis-0 d-flex">
+			<div
+				class="h-100 flex-grow-1 flex-basis-0 align-center"
+				[ngClass]="{'background-color-red': checkSaturation(item.value.total, item.value.max)}">
+				{{item.value.total}}
+			</div>
+			<div class="w-25 h-100 d-flex flex-column border-left">
+				<div class="h-25 appointment-number-icon align-center" (click)="addMax(item.value)">
+					<i class="fas fa-chevron-up"></i>
+				</div>
+				<div class="flex-grow-1 flex-basis-0 align-center max-appointment-limit">
+					{{item.value.max}}
+				</div>
+				<div class="h-25 appointment-number-icon align-center" (click)="subtractMax(item.value)">
+					<i class="fas fa-chevron-down"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!--<table class="table">-->
+		<!--<thead [style.height.px]="timelineHeight">-->
+			<!--<tr>-->
+				<!--<th scope="col">Tipo</th>-->
+				<!--<th scope="col">Mañ.</th>-->
+				<!--<th scope="col">Tarde</th>-->
+				<!--<th scope="col">Total</th>-->
+			<!--</tr>-->
+		<!--</thead>-->
+		<!--<tbody>-->
+			<!--<tr-->
+				<!--*ngFor="let item of dayAppointmentsCounter | keyvalue"-->
+				<!--[style.height.px]="appointmentSummaryItemHeight">-->
+				<!--<th scope="row">{{item.value.appointmentType.name}}</th>-->
+				<!--<td-->
+					<!--[ngClass]="{'background-color-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">-->
+					<!--{{item.value.morning}}-->
+				<!--</td>-->
+				<!--<td-->
+					<!--[ngClass]="{'background-color-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">-->
+					<!--{{item.value.afternoon}}-->
+				<!--</td>-->
+				<!--<td class="d-flex">-->
+					<!--<div-->
+						<!--class="h-100 flex-grow-1 flex-basis-0 align-center"-->
+						<!--[ngClass]="{'background-color-red': checkSaturation(item.value.total, item.value.max)}">-->
+						<!--{{item.value.total}}-->
+					<!--</div>-->
+					<!--<div class="w-25 h-100 d-flex flex-column border-left">-->
+						<!--<div class="h-25 appointment-number-icon align-center" (click)="addMax(item.value)">-->
+							<!--<i class="fas fa-chevron-up"></i>-->
+						<!--</div>-->
+						<!--<div class="flex-grow-1 flex-basis-0 align-center max-appointment-limit">-->
+							<!--{{item.value.max}}-->
+						<!--</div>-->
+						<!--<div class="h-25 appointment-number-icon align-center" (click)="subtractMax(item.value)">-->
+							<!--<i class="fas fa-chevron-down"></i>-->
+						<!--</div>-->
+					<!--</div>-->
+				<!--</td>-->
+			<!--</tr>-->
+		<!--</tbody>-->
+	<!--</table>-->
 </div>

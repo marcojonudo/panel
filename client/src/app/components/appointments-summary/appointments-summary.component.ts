@@ -22,8 +22,12 @@ export class AppointmentsSummaryComponent {
 
 	// region Getters / setters
 
-	get toolsBarWidth(): number {
-		return Constants.VALUE.TOOLS_BAR_WIDTH;
+	get timelineHeight(): number {
+		return Constants.VALUE.TIMELINE_HEIGHT;
+	}
+
+	get appointmentSummaryItemHeight(): number {
+		return Constants.VALUE.APPOINTMENT_SUMMARY_ITEM_HEIGHT;
 	}
 
 	// endregion

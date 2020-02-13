@@ -41,8 +41,7 @@
 				[day]="today"
 				[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(today)"
 				[maxScheduleWidth]="maxScheduleWidth"
-				[maxScheduleMaxWidth]="maxScheduleMaxWidth"
-				class="h-100">
+				[maxScheduleMaxWidth]="maxScheduleMaxWidth">
 			</app-tools-bar>
 		</div>
 		<div *ngIf="!oneDayMode" class="col w-100 h-100 padding-0 d-flex parent-sections-container">
@@ -84,6 +83,7 @@
 					</app-lateral-panel>
 					<app-appointments-summary
 						class="blank-background border-left border-semi-dark"
+						[style.width.px]="toolsBarWidth"
 						[day]="day"
 						[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(day)">
 					</app-appointments-summary>

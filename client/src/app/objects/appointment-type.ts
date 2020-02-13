@@ -11,7 +11,7 @@ export class AppointmentType {
 		this.code = appointmentType.code;
 		this.workingLine = appointmentType.workingLine;
 		this.counter= appointmentType.counter;
-		this.color = appointmentType.name;
+		this.color = appointmentType.color;
 	}
 
 }

@@ -41,20 +41,20 @@ export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 
 	// region Getters / setters
 
-	get morning(): string {
-		return Constants.SCHEDULE_TYPE.MORNING;
-	}
-
-	get afternoon(): string {
-		return Constants.SCHEDULE_TYPE.AFTERNOON;
-	}
-
 	get morningAppointmentSaturation(): number {
 		return Constants.APPOINTMENT_SATURATION.MORNING;
 	}
 
 	get afternoonAppointmentSaturation(): number {
 		return Constants.APPOINTMENT_SATURATION.AFTERNOON;
+	}
+
+	get timelineHeight(): number {
+		return Constants.VALUE.TIMELINE_HEIGHT;
+	}
+
+	get appointmentSummaryItemHeight(): number {
+		return Constants.VALUE.APPOINTMENT_SUMMARY_ITEM_HEIGHT;
 	}
 
 	// endregion

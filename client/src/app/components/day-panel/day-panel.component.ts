@@ -25,7 +25,7 @@ export class DayPanelComponent implements OnInit {
 	@Input() maxScheduleHours: number[];
 	@Input() showTimeIndicator: number;
 
-	timeIndicatorHeight: number;
+	private timeIndicatorHeight: number;
 
 	ngOnInit() {
 		this.timeIndicatorHeight = DimensionsService.calcGridCompleteHeight(this.mechanics);

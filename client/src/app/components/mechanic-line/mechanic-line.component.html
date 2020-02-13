@@ -12,9 +12,9 @@
 		<div
 			class="w-100 appointment-schedule d-flex">
 			<div
-				class="w-100 align-center appointment-schedule-text"
+				class="w-100 align-center"
 				[style.background-color]="appointment.appointmentType.color">
-				<span *ngIf="showAppointmentsName">{{appointment.appointmentType.name}}</span>
+				<span *ngIf="showAppointmentsName" class="appointment-schedule-text">{{appointment.appointmentType.name}}</span>
 			</div>
 			<div
 				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].start)"

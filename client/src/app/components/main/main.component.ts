@@ -359,6 +359,10 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._daysAppointmentsCounterUpdate = value;
 	}
 
+	get toolsBarWidth(): number {
+		return Constants.VALUE.TOOLS_BAR_WIDTH;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
