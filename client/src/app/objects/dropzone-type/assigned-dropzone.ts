@@ -76,7 +76,7 @@ export class AssignedDropzone implements Dropzone {
 		*  desplazamiento */
 		setTimeout(
 			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
+			CardPositionService.getAddGroupDelay()
 		);
 	}
 
@@ -85,7 +85,7 @@ export class AssignedDropzone implements Dropzone {
 		*  actualizar propiedades, ni el panel de citas) */
 		setTimeout(
 			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
+			CardPositionService.getAddGroupDelay()
 		);
 	}
 

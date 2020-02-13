@@ -76,15 +76,15 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	// endregion
 
+	updateCard() {
+		CardPositionService.hiddenGroup = undefined;
+		CardPositionService.setHelperGroup(undefined);
+	}
+
 	check(): void {
 		if (Constants.CHECK) {
 			console.log('checking overlay');
 		}
-	}
-
-	updateCard() {
-		CardPositionService.hiddenGroup = undefined;
-		CardPositionService.setHelperGroup(undefined);
 	}
 
 }

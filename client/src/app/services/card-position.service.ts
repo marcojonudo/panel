@@ -538,4 +538,8 @@ export class CardPositionService {
 
 	// endregion
 
+	static getAddGroupDelay(): number {
+		return Constants.VALUE.CARD_MOVEMENT_DURATION - Constants.VALUE.CARD_MOVEMENT_DURATION_OFFSET
+	}
+
 }

@@ -58,14 +58,14 @@ export class UnassignedFinishedDropzone implements Dropzone {
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
 		setTimeout(
 			() => NotificationService.notifyBand(),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
+			CardPositionService.getAddGroupDelay()
 		);
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
 			() => this.cardsService.addToUnassigned(group),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
+			CardPositionService.getAddGroupDelay()
 		);
 	}
 
