@@ -7,6 +7,7 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {NotificationService} from "../../services/notification.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
 	selector: 'app-grid',
@@ -26,6 +27,7 @@ export class GridComponent implements OnInit {
 
 	constructor(
 		private mechanicsService: MechanicsService,
+		private cardsService: CardsService,
 		private element: ElementRef,
 		private renderer: Renderer2,
 	) {}
@@ -52,6 +54,9 @@ export class GridComponent implements OnInit {
 			NotificationService.notifyLateralInfo(
 				new DayLateralPanelInfo(this.day, undefined)
 			);
+			if (CardsService.auxiliaryGroupToReplace) {
+				this.cardsService.updateCardMode(this.cardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
+			}
 		}
 	}
 
