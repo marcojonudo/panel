@@ -8,6 +8,8 @@ import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {CardTypeBehaviour} from "../../objects/card-type-behaviour/card-type-behaviour";
+import {UtilsService} from "../../services/utils.service";
+import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({
 	selector: 'app-draggable-group',
@@ -20,7 +22,7 @@ export class DraggableGroupComponent {
 
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
-	constructor(private cardsService: CardsService) {
+	constructor(private cardsService: CardsService, private sanitizer: DomSanitizer) {
 		this.hiddenCardsGroup = new EventEmitter();
 	}
 
@@ -29,7 +31,10 @@ export class DraggableGroupComponent {
 	}
 
 	findCursor(mode: string): string {
-		return Constants.GROUP_MODE_CURSOR[mode];
+		const cursorName = Constants.GROUP_MODE_CURSOR[mode];
+		return UtilsService.isImage(cursorName)
+			? this.sanitizer.bypassSecurityTrustStyle(`url(../../../assets/img/cursors/${cursorName}), auto`)
+			: cursorName;
 	}
 
 	emitHiddenCardsGroup(cardsGroup: CardsGroup) {

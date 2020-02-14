@@ -11,7 +11,7 @@ export class ReplaceCardModeAction implements CardModeAction {
 	constructor(cardsService: CardsService) {
 		this.execute = (group: CardsGroup) => {
 			cardsService.replaceGroup(group);
-			cardsService.updateCardMode(cardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
+			cardsService.updateCardMode(cardsService.unassignedCardsGroups.concat(group), Constants.GROUP_MODE.DRAG);
 		}
 	}
 

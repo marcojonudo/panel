@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {Card} from "../objects/card";
 import {Constants} from "../objects/constants";
 
 @Injectable({
@@ -133,8 +132,8 @@ export class UtilsService {
 		return Math.floor(n/roundTo) * roundTo;
 	}
 
-	public static roundd(n: number, roundTo: number): number {
-		return Math.round(n/roundTo) * roundTo;
+	public static isImage(fileName: string): boolean {
+		return fileName.indexOf('.png') > -1;
 	}
 
 }

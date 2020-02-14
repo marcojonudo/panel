@@ -109,7 +109,7 @@ export class Constants {
 	public static readonly GROUP_MODE_CURSOR: any = {
 		DRAG: 'move',
 		CUT: 'crosshair',
-		REPLACE: 'pointer'
+		REPLACE: 'exchange.png'
 	};
 	public static readonly LINK_HANDLER_IMAGE: any = {
 		JOINED: 'link_handler_joined.svg',
