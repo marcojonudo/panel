@@ -53,11 +53,11 @@
 }
 
 .schedule-left-border {
-	left: 0;
+	left: -11px;
 }
 
 .schedule-right-border {
-	right: 0;
+	right: -11px;
 }
 
 .quarter-border {
