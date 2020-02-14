@@ -30,13 +30,17 @@ export class FinishDropzone implements Dropzone {
 		this.appointmentsService = appointmentsService;
 	}
 
-	validateMovement(position: Coordinates): CardsGroup[] {
+	validateCoordinates(coordinates: Coordinates): Coordinates {
+		return new Coordinates();
+	}
+
+	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
 		return [];
 	}
 
 	removeGroup(group: CardsGroup, validated: boolean): void {}
 
-	findLastPosition(groups: CardsGroup[], group: CardsGroup): Coordinates {
+	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
 		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */
 		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, Constants.CARD_STATUS.FINISHED);
 		return CardPositionService.handleUnassignedPosition(group, sectionGroups);

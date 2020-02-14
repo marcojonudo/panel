@@ -21,6 +21,8 @@ export class CardsGroup {
 	private _lastLine: number;
 	private _line: number;
 
+	private _coordinates: Coordinates;
+
 	cut: boolean;
 	mode: string;
 
@@ -127,6 +129,14 @@ export class CardsGroup {
 
 	set lastStart(value: Date) {
 		this._lastStart = value;
+	}
+
+	get coordinates(): Coordinates {
+		return this._coordinates;
+	}
+
+	set coordinates(value: Coordinates) {
+		this._coordinates = value;
 	}
 
 	// endregion

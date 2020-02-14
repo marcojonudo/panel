@@ -16,11 +16,13 @@ export interface Dropzone {
 	interval: ScheduleInterval;
 	position: Position;
 
-	validateMovement(position: Coordinates): CardsGroup[];
+	validateCoordinates(coordinates: Coordinates): Coordinates;
+
+	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[];
 
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void;
 
-	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
+	findLastCoordinates(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
 
 	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone, line: number): void;
 

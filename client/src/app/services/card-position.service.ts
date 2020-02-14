@@ -10,6 +10,7 @@ import {DimensionsService} from "./dimensions.service";
 import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {NotificationService} from "./notification.service";
 import {Position} from "../objects/position";
+import {CardsService} from "./cards.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -28,7 +29,7 @@ export class CardPositionService {
 	private static _scrollTop: number;
 	private static _barScrollLeft: number;
 
-	private static _position: Coordinates;
+	private static _coordinates: Coordinates;
 	private static _helperGroup: CardsGroup;
 
 	// region Getters / setters
@@ -65,12 +66,12 @@ export class CardPositionService {
 		this._destinyDropzone = value;
 	}
 
-	static get position(): Coordinates {
-		return this._position;
+	static get coordinates(): Coordinates {
+		return this._coordinates;
 	}
 
-	static set position(value: Coordinates) {
-		this._position = value;
+	static set coordinates(value: Coordinates) {
+		this._coordinates = value;
 	}
 
 	static get helperGroup(): CardsGroup {
@@ -192,30 +193,49 @@ export class CardPositionService {
 	// region Handle position updates
 
 	static handleDestinyPosition(
-		position: Coordinates,
+		coordinates: Coordinates,
 		startPosition: Coordinates,
-		group: CardsGroup = this.helperGroup
+		helperGroup: CardsGroup = this.helperGroup
 	): Coordinates {
 		if (this.destinyDropzone) {
 			/* Se valida si el grupo encaja en la posición de destino (podría no caber en el horario, por ejemplo) */
-			const groupsToUpdate = this.destinyDropzone.validateMovement(position);
+			const validatedCoordinates = this.destinyDropzone.validateCoordinates(coordinates);
+
 			/* Se elimina el grupo del dropzone de origen. En el siguiente paso, en función de si el movimiento había
 			*  validado o no, se añadirá al de destino o volverá de nuevo al de origen */
-			this.originDropzone.removeGroup(group, groupsToUpdate != undefined, this.destinyDropzone);
+			this.originDropzone.removeGroup(helperGroup, validatedCoordinates != undefined, this.destinyDropzone);
 
-			if (groupsToUpdate) { /* Si el movimiento es válido */
-				const lastPosition = this.destinyDropzone.findLastPosition(groupsToUpdate, group, position);
+			let groupsToUpdate = undefined;
+			if (validatedCoordinates) {
+				const clonedGroup = this.cloneGroupLeft(helperGroup, validatedCoordinates.x);
+				groupsToUpdate = this.destinyDropzone.findGroupsToUpdate(clonedGroup, validatedCoordinates.line);
+			}
+
+			/* Si el movimiento es válido */
+			if (groupsToUpdate != undefined) {
+				const lastCoordinates = this.destinyDropzone.findLastCoordinates(groupsToUpdate, helperGroup, coordinates);
 				/* Se añade el grupo al dropzone de destino */
-				this.destinyDropzone.addGroup(groupsToUpdate, group, this.originDropzone, lastPosition.line);
-				return lastPosition;
+				this.destinyDropzone.addGroup(groupsToUpdate, helperGroup, this.originDropzone, lastCoordinates.line);
+				return lastCoordinates;
 			} else {
-				this.originDropzone.handleNotValidatedMovement(group);
+				this.originDropzone.handleNotValidatedMovement(helperGroup);
 			}
 		} else {
-			this.originDropzone.removeGroup(group, false, this.destinyDropzone);
-			this.originDropzone.handleNotValidatedMovement(group);
+			this.originDropzone.removeGroup(helperGroup, false, this.destinyDropzone);
+			this.originDropzone.handleNotValidatedMovement(helperGroup);
 		}
 		return startPosition;
+	}
+
+	static cloneGroupLeft(group: CardsGroup, x: number): CardsGroup {
+		/* En este punto, modificar las propiedades reales del grupo puede ser problemático, ya que no se han completado
+        *  todas las validaciones; todavía faltan aquellas relativas a los grupos solapados. Por lo tanto, se clona para
+        *  poder modificarlo sin hacerlo en el objeto original */
+		const clonedGroup = this.helperGroup.clone();
+		/* Se actualiza la propiedad left para que se tenga en cuenta a la hora de identificar las fichas
+        *  solapadas */
+		this.updateLeft(clonedGroup, x);
+		return clonedGroup;
 	}
 
 	static handleUnassignedPosition(
@@ -254,60 +274,62 @@ export class CardPositionService {
 		return groups;
 	}
 
-	static validateAssignedPosition(
-		position: Coordinates,
+	static validateCoordinates(
+		coordinates: Coordinates,
 		dayMechanicCardsGroups: CardsGroup[],
-		destinyDropzone: Dropzone = this.destinyDropzone,
-		intervalWidth: number = DimensionsService.intervalWidth,
+		dropzonePosition: Position = this.destinyDropzone.position,
 		helperGroup: CardsGroup = this.helperGroup
-	): CardsGroup[] {
+	): Coordinates {
 		/* Se comprueba si los laterales del grupo están fuera de la dropzone. Si lo están, se actualiza la posición
 		 * para ajustar a los límites */
-		position = this.fixGroupOutsideDropzonePosition(position, helperGroup);
+		coordinates = this.fixGroupOutsideDropzonePosition(coordinates, helperGroup);
 		/* Si la ficha no cabe en el horario, se devuelve undefined para retornar a la posición original*/
-		if (!position) {
+		if (!coordinates) {
 			return undefined;
 		}
 
 		/* La posición se redondea a los múltiplos de 5 minutos */
-		position = this.roundLastPosition(position, destinyDropzone.position, intervalWidth);
+		coordinates = this.roundLastPosition(coordinates, dropzonePosition);
 
 		/* Se comprueba si, una vez arreglada y redondeada la posición, el intervalo que ocupa el grupo sigue saliéndose
 		*  del horario. Si es así, se retorna undefined para volver a la posición original */
-		const positionOutsideDropzone = this.checkPositionOutsideDropzone(position, helperGroup);
+		const positionOutsideDropzone = this.checkPositionOutsideDropzone(coordinates, helperGroup);
 		if (positionOutsideDropzone) {
 			return undefined;
 		}
 
-		/* En este punto, modificar las propiedades reales del grupo puede ser problemático, ya que no se han completado
-		*  todas las validaciones; todavía faltan aquellas relativas a los grupos solapados. Por lo tanto, se clona para
-		*  poder modificarlo sin hacerlo en el objeto original */
-		const clonedGroup = helperGroup.clone();
+		return coordinates;
+	}
 
+	static findGroupsToUpdate(
+		clonedGroup: CardsGroup,
+		dayMechanicCardsGroups: CardsGroup[],
+		line: number,
+		destinyDropzone: Dropzone
+	): CardsGroup[] {
 		/* Se gestionan los movimientos de fichas solapadas. La lista que se retorna contiene tanto los grupos
 		 * solapados, como el grupo original; es decir, todos los que se deben actualizar tras completar el movimiento */
-		const groupsToUpdate = this.handleOverlappedMovements(dayMechanicCardsGroups, clonedGroup, position);
+		const groupsToUpdate = this.handleOverlappedMovements(dayMechanicCardsGroups, clonedGroup, line);
 
 		/* Se comprueba si alguno de los grupos solapados se sale del horario */
-		const groupsOutsideDropzone = this.checkGroupsOutsideDropzone(groupsToUpdate);
+		const groupsOutsideDropzone = this.checkGroupsOutsideDropzone(groupsToUpdate, destinyDropzone);
 		/* Si es así, se retorna undefined para voler a la posición original */
 		if (groupsOutsideDropzone) {
 			return undefined;
 		}
 
-		/* Si todas las validaciones finalizan con éxito, se devuelve la posición redondeada que tendrá el grupo */
 		return groupsToUpdate;
 	}
 
 	static updateAssignedGroupsPosition(
-		position: Coordinates,
+		coordinates: Coordinates,
 		clonedGroups: CardsGroup[],
 		helperGroup: CardsGroup = this.helperGroup
 	): Coordinates {
 		const helperClonedGroup = clonedGroups.find(group => group.id == helperGroup.id);
 
-		position.x = this.leftToAbsolutePosition(helperClonedGroup.left);
-		return position;
+		coordinates.x = this.leftToAbsolutePosition(helperClonedGroup.left);
+		return coordinates;
 	}
 
 	private static checkGroupsOutsideDropzone(
@@ -325,33 +347,33 @@ export class CardPositionService {
 	}
 
 	private static fixGroupOutsideDropzonePosition(
-		position: Coordinates,
+		coordinates: Coordinates,
 		cardsGroup: CardsGroup,
 		dropzone: Dropzone = this.destinyDropzone
 	): Coordinates {
-		const leftX = this.absolutePositionToLeft(position.x);
+		const leftX = this.absolutePositionToLeft(coordinates.x);
 		const durationWidth = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
 		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.position.left);
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
 
 		let outsideLeft = this.checkOutsideLeft(leftX, dropzoneLeft);
 		if (outsideLeft) {
-			position.x = this.leftToAbsolutePosition(dropzoneLeft + this.GROUP_ROUND_POSITION_OFFSET);
+			coordinates.x = this.leftToAbsolutePosition(dropzoneLeft + this.GROUP_ROUND_POSITION_OFFSET);
 		}
 		let outsideRight = this.checkOutsideRight(leftX + durationWidth, dropzoneRight);
 		if (outsideRight) {
-			position.x = this.leftToAbsolutePosition(dropzoneRight - durationWidth + this.GROUP_ROUND_POSITION_OFFSET);
+			coordinates.x = this.leftToAbsolutePosition(dropzoneRight - durationWidth + this.GROUP_ROUND_POSITION_OFFSET);
 		}
 
-		return outsideLeft && outsideRight ? undefined : position;
+		return outsideLeft && outsideRight ? undefined : coordinates;
 	}
 
 	private static checkPositionOutsideDropzone(
-		position: Coordinates,
+		coordinates: Coordinates,
 		cardsGroup: CardsGroup,
 		dropzone: Dropzone = this.destinyDropzone
 	): boolean {
-		const leftX = this.absolutePositionToLeft(position.x);
+		const leftX = this.absolutePositionToLeft(coordinates.x);
 		const duration = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
 		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.position.left, 2));
 		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
@@ -371,34 +393,34 @@ export class CardPositionService {
 		return rightX - dropzoneRight > 2;
 	}
 
-	private static roundLastPosition(position: Coordinates, dropzonePosition: Position, intervalWidth: number): Coordinates {
-		const leftIntervals = Math.floor(this.absolutePositionToLeft(position.x) / intervalWidth);
+	private static roundLastPosition(
+		coordinates: Coordinates,
+		dropzonePosition: Position,
+		intervalWidth: number = DimensionsService.intervalWidth
+	): Coordinates {
+		const leftIntervals = Math.floor(this.absolutePositionToLeft(coordinates.x) / intervalWidth);
 		const x = this.leftToAbsolutePosition(leftIntervals * intervalWidth);
 
 		const line = Math.abs(
 			Math.round(
-				(this.absolutePositionToTop(position.y) - dropzonePosition.top) / DimensionsService.lineHeight
+				(this.absolutePositionToTop(coordinates.y) - dropzonePosition.top) / DimensionsService.lineHeight
 			)
 		);
 		const y = this.dropzoneTopToAbsolutePosition(dropzonePosition.top) + line * DimensionsService.lineHeight;
-		[position.x, position.y, position.line] = [x, y, line];
-		return position;
+		[coordinates.x, coordinates.y, coordinates.line] = [x, y, line];
+		return coordinates;
 	}
 
-	private static updateLeft(cardsGroup: CardsGroup, position: Coordinates): void {
-		cardsGroup.left = this.absolutePositionToLeft(position.x);
+	private static updateLeft(cardsGroup: CardsGroup, x: number): void {
+		cardsGroup.left = this.absolutePositionToLeft(x);
 	}
 
 	private static handleOverlappedMovements(
 		dayMechanicsGroups: CardsGroup[],
 		clonedGroup: CardsGroup,
-		position: Coordinates
+		line: number
 	): CardsGroup[] {
-		/* Se actualizan los datos relativos a la posicíon (left y topLine) en helperGroup para que se tengan en
-		*  cuenta a la hora de identificar las fichas solapadas */
-		this.updateLeft(clonedGroup, position);
-
-		const lineGroups = dayMechanicsGroups.filter(group => group.line == position.line);
+		const lineGroups = dayMechanicsGroups.filter(group => group.line == line);
 		const overlappedGroups = this.iterateSuccessiveMovements(clonedGroup, lineGroups);
 		return overlappedGroups.includes(clonedGroup) ? overlappedGroups : overlappedGroups.concat(clonedGroup);
 	}
@@ -412,6 +434,7 @@ export class CardPositionService {
 		/* Se obtienen los grupos solapados. Se clonan para evitar que se actualice el left de los grupos originales,
 		 * ya que si al final se determina que la ficha no se puede mover, ya se habría actualizado este valor */
 		const overlappedCardsGroups = this.findOverlappedCardsGroups(clonedGroup, lineGroups, alreadyProcessedGroups);
+		console.log('overlappedGroups', overlappedCardsGroups);
 		/* Se hacen los cálculos sólo si se encuentran fichas solapadas */
 		if (overlappedCardsGroups.length) {
 			const clonedOverlappedGroups = overlappedCardsGroups.map(group => group.clone());
@@ -451,12 +474,15 @@ export class CardPositionService {
 		lineGroups: CardsGroup[],
 		alreadyProcessedGroups: CardsGroup[]
 	): CardsGroup[] {
+		const omittedIds = CardsService.auxiliaryGroupToReplace
+			? [clonedGroup.id, CardsService.auxiliaryGroupToReplace.id] : [clonedGroup.id];
 		/* Para calcular solapamientos, sólo se tienen en cuenta grupos que no hayan sido procesados con anterioridad.
 		*  Si, por ejmeplo, en la primera iteración se procesa el grupo 7 y se actualiza su left, no debe tenerse en
 		*  cuenta en la siguiente, ya que todas las operaciones que se le tenían que realizar finalizaron en su
 		*  iteración */
-		lineGroups = lineGroups.filter(group =>
-			alreadyProcessedGroups.find(g => g.id == group.id) == undefined && group.id != clonedGroup.id
+		lineGroups = lineGroups.filter((group: CardsGroup) =>
+			alreadyProcessedGroups.find((g: CardsGroup) => g.id == group.id) == undefined
+				&& omittedIds.indexOf(group.id) == -1
 		);
 
 		let newCardsMinutes = this.getDurationArray(
@@ -466,7 +492,7 @@ export class CardPositionService {
 		newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);
 
 		return lineGroups.filter(group => {
-			const minutesArray = this.getDurationArray(group.cards[0].start, group.cards);
+			const minutesArray = CardPositionService.getDurationArray(group.cards[0].start, group.cards);
 			return minutesArray.find(minutes => newCardsMinutes.indexOf(minutes) >= 0);
 		});
 	}
@@ -480,7 +506,7 @@ export class CardPositionService {
 
 	private static calcLeft(cardsGroups: CardsGroup[]) {
 		cardsGroups.forEach((cardsGroup, index) => {
-			const width = this.findCardsGroupsWidth(cardsGroups.slice(0, index));
+			const width = CardPositionService.findCardsGroupsWidth(cardsGroups.slice(0, index));
 			cardsGroup.left = cardsGroups[0].left + width;
 		});
 	}

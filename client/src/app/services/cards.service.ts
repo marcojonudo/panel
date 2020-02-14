@@ -36,6 +36,7 @@ import {CardPositionService} from "./card-position.service";
 import {ReplaceCardModeAction} from "../objects/card-mode-action/replace-card-mode-action";
 import {DropzoneService} from "./dropzone.service";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
+import {WarningToast} from "../objects/toasts/warning-toast";
 
 @Injectable({
 	providedIn: 'root'
@@ -1112,21 +1113,28 @@ export class CardsService {
 		const originDropzone = DropzoneService.findDropzone(group.cards[0]);
 		const destinyDropzone = DropzoneService.findDropzone(groupToReplace.cards[0]);
 
-		this.updateReplacementGroup(group, groupToReplace, originDropzone, destinyDropzone);
-		this.deleteReplacedGroup(groupToReplace, destinyDropzone);
+		/* Al usar las dropzones para llevar a cabo el movimiento, la propiedad left debe estar actualizada, ya que es
+		*  la que se toma como referencia para calcular el resto de propiedades */
+		const clonedGroup = group.clone();
+		clonedGroup.left = groupToReplace.left;
+		const groupsToUpdate = destinyDropzone.findGroupsToUpdate(clonedGroup, groupToReplace.line);
+		if (groupsToUpdate) {
+			this.deleteReplacedGroup(groupToReplace, destinyDropzone);
+			this.updateReplacementGroup(group, groupsToUpdate, groupToReplace.line, originDropzone, destinyDropzone);
+		} else {
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_REPLACEMENT_SPACE));
+		}
 	}
 
 	updateReplacementGroup(
 		group: CardsGroup,
-		groupToReplace: CardsGroup,
+		groupsToUpdate: CardsGroup[],
+		line: number,
 		originDropzone: Dropzone,
 		destinyDropzone: Dropzone
 	): void {
-		/* Al usar las dropzones para llevar a cabo el movimiento, la propiedad left debe estar actualizada, ya que es
-		*  la que se toma como referencia para calcular el resto de propiedades */
-		group.left = groupToReplace.left;
 		originDropzone.removeGroup(group, false, destinyDropzone);
-		destinyDropzone.addGroup([group], group, originDropzone, groupToReplace.line);
+		destinyDropzone.addGroup(groupsToUpdate, group, originDropzone, line);
 	}
 
 	deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {

@@ -135,7 +135,8 @@ export class Constants {
 		WARNING: 'bg-warning'
 	};
 	public static readonly MESSAGE: any = {
-		NO_UNASSIGNED_GROUPS_TO_REPLACE: 'No quedan fichas sin asignar para sustituir la auxiliar'
+		NO_UNASSIGNED_GROUPS_TO_REPLACE: 'No quedan fichas sin asignar para sustituir la auxiliar',
+		NO_REPLACEMENT_SPACE: 'No hay espacio suficiente para reemplazar la ficha auxiliar con la agrupación seleccionada'
 	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";

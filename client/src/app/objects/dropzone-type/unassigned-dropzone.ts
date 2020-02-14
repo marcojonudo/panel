@@ -33,9 +33,11 @@ export class UnassignedDropzone implements Dropzone {
 		this.subType = subType;
 	}
 
-	validateMovement(): CardsGroup[] {
-		/* Si el destino es la cita, no hace falta validar ya que siempre es un movimiento válido. Por tanto, se
-		*  devuelve una lista vacía en lugar de undefined */
+	validateCoordinates(coordinates: Coordinates): Coordinates {
+		return new Coordinates();
+	}
+
+	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
 		return [];
 	}
 
@@ -48,7 +50,7 @@ export class UnassignedDropzone implements Dropzone {
 		}
 	}
 
-	findLastPosition(groups: CardsGroup[], group: CardsGroup): Coordinates {
+	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
 		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, group.status);
 		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
 	}

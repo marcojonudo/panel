@@ -30,9 +30,9 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 
 	private cardRect;
 
-	private startPosition: Coordinates;
+	private startCoordinates: Coordinates;
 	private startEventCoordinates: Coordinates;
-	private position: Coordinates;
+	private coordinates: Coordinates;
 
 	private pointerDownListener: () => void;
 	private pointerMoveListener: () => void;
@@ -53,7 +53,7 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 		this.init = false;
 		this.hiddenCardsGroup = new EventEmitter();
 
-		this.position = new Coordinates(0, 0);
+		this.coordinates = new Coordinates(0, 0);
 	}
 
 	ngOnInit() {
@@ -119,9 +119,9 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 			this.initDragging(event);
 			this.init = false;
 		}
-		this.position.x = this.startPosition.x + event.clientX - this.startEventCoordinates.x;
-		this.position.y = this.startPosition.y + event.clientY - this.startEventCoordinates.y;
-		NotificationService.notifyCoordinates(this.position);
+		this.coordinates.x = this.startCoordinates.x + event.clientX - this.startEventCoordinates.x;
+		this.coordinates.y = this.startCoordinates.y + event.clientY - this.startEventCoordinates.y;
+		NotificationService.notifyCoordinates(this.coordinates);
 	}
 
 	private initDragging(event: PointerEvent): void {
@@ -143,24 +143,24 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 	}
 
 	private initCoordinates(event: PointerEvent, cardRect: any = this.cardRect): void {
-		this.startPosition = new Coordinates(cardRect.left, cardRect.top);
-		this.position = new Coordinates(cardRect.left, cardRect.top);
+		this.startCoordinates = new Coordinates(cardRect.left, cardRect.top);
+		this.coordinates = new Coordinates(cardRect.left, cardRect.top);
 		this.startEventCoordinates = new Coordinates(event.clientX, event.clientY);
 
 		/* Se notifican las coordenadas iniciales para que el helper se ubique en la posición correcta */
-		NotificationService.notifyCoordinates(this.startPosition);
+		NotificationService.notifyCoordinates(this.startCoordinates);
 	}
 
 	onPointerUp(): void {
 		if (!this.init) {
 			this.cdRef.detectChanges();
 
-			const position = CardPositionService.handleDestinyPosition(this.position, this.startPosition);
-			if (position) {
-				this.position = position;
+			const coordinates = CardPositionService.handleDestinyPosition(this.coordinates, this.startCoordinates);
+			if (coordinates) {
+				this.coordinates = coordinates;
 
 				/* Se emite la última posición ya redondeada */
-				NotificationService.notifyCoordinates(this.position);
+				NotificationService.notifyCoordinates(this.coordinates);
 			} else {
 				CardPositionService.setHelperGroup(undefined);
 			}

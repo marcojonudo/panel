@@ -35,12 +35,14 @@ export class AssignedDropzone implements Dropzone {
 		this.interval = interval;
 	}
 
-	validateMovement(position: Coordinates): CardsGroup[] {
+	validateCoordinates(coordinates: Coordinates): Coordinates {
 		this.dayMechanicGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		return CardPositionService.validateAssignedPosition(
-			position,
-			this.dayMechanicGroups
-		);
+		return CardPositionService.validateCoordinates(coordinates, this.dayMechanicGroups);
+	}
+
+	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
+		const dayMechanicGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		return CardPositionService.findGroupsToUpdate(group, dayMechanicGroups, line, this);
 	}
 
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
@@ -50,11 +52,11 @@ export class AssignedDropzone implements Dropzone {
 		this.cardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
-	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates {
+	findLastCoordinates(groups: CardsGroup[], group: CardsGroup, coordinates: Coordinates): Coordinates {
 		/* Se actualiza el left, start y end de los grupos y se retorna la posición final a la que se tendrá que
 		*  desplazar la ficha, una vez tenidos en cuenta los solapamientos */
 		return CardPositionService.updateAssignedGroupsPosition(
-			position,
+			coordinates,
 			groups
 		);
 	}
