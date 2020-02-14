@@ -22,7 +22,7 @@ export interface Dropzone {
 
 	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
 
-	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone, lastPosition: Coordinates): void;
+	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone, line: number): void;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
 

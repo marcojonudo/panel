@@ -42,6 +42,10 @@ export class Url {
 		return `${environment.serverUrl}/panel/cards/links`;
 	}
 
+	public static cardsDeletion(): string {
+		return `${environment.serverUrl}/panel/cards/delete`;
+	}
+
 	public static appointmentDayMax(): string {
 		return `${environment.serverUrl}/panel/appointmentDay/max`;
 	}

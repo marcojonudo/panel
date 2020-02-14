@@ -52,7 +52,7 @@ export class FinishDropzone implements Dropzone {
 		this.cardsService.addToFinished(group);
 		setTimeout(
 			() => NotificationService.notifyBand(),
-			CardPositionService.getAddGroupDelay()
+			CardPositionService.getAddGroupDelay(group)
 		);
 	}
 

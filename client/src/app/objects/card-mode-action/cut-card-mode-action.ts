@@ -18,7 +18,7 @@ export class CutCardModeAction implements CardModeAction {
 				groupX = CardPositionService.barLeftToAbsolutePosition(group.left);
 			}
 			cardsService.cutCard(group, groupX, x);
-			cardsService.updateCardMode(group, Constants.GROUP_MODE.DRAG);
+			cardsService.updateCardMode([group], Constants.GROUP_MODE.DRAG);
 		}
 	}
 

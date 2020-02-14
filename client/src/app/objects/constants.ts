@@ -41,7 +41,7 @@ export class Constants {
 		JOB_LINE_TYPE_HEIGHT: 5,
 		TIME_INDICATOR_INTERVAL: 60000,
 		APPOINTMENT_SUMMARY_ITEM_HEIGHT: 60,
-		DEFAULT_TOAST_DELAY: 5000
+		DEFAULT_TOAST_DELAY: 10000
 	};
 	public static ID: any = {
 		MECHANIC_LINE: 'mechanic-line'
@@ -133,6 +133,9 @@ export class Constants {
 	};
 	public static readonly TOAST_CLASSNAME: any = {
 		WARNING: 'bg-warning'
+	};
+	public static readonly MESSAGE: any = {
+		NO_UNASSIGNED_GROUPS_TO_REPLACE: 'No quedan fichas sin asignar para sustituir la auxiliar'
 	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";

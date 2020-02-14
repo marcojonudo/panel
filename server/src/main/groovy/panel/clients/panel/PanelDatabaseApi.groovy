@@ -33,7 +33,7 @@ interface PanelDatabaseApi {
 
 	void updateCardsLinks(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
-	List<Card> deleteCards(@Body List<Long> ids)
+	void deleteCards(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
 	HttpResponse<Void> updateCardsPosition(@Header String sessionId, @Body List<Map<String, Object>> cards)
 

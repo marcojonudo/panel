@@ -69,6 +69,11 @@ class PanelController {
 		panelDatabaseClient.updateCardsLinks(sessionId, cards)
 	}
 
+	@Put("/cards/delete")
+	void deleteCards(@Header String sessionId, @Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.deleteCards(sessionId, cards)
+	}
+
 	@Put("/mechanic/position")
 	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
 		cuboDatabaseClient.updateMechanicsPosition(sessionId, mechanics)

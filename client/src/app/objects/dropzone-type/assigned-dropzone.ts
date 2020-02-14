@@ -63,15 +63,18 @@ export class AssignedDropzone implements Dropzone {
 		groups: CardsGroup[],
 		group: CardsGroup,
 		originDropzone: Dropzone,
-		lastPosition: Coordinates
+		line: number
 	): void {
+		const dayMechanicGroups = this.dayMechanicGroups
+			? this.dayMechanicGroups
+			: this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
 		this.cardsService.updateAssignedCards(
 			groups,
 			group,
 			this.mechanic.day,
 			this.mechanic.code,
-			lastPosition.line,
-			this.dayMechanicGroups
+			line,
+			dayMechanicGroups
 		);
 		this.updateAppointmentsCounterAdd(group, originDropzone);
 
@@ -80,7 +83,7 @@ export class AssignedDropzone implements Dropzone {
 		*  desplazamiento */
 		setTimeout(
 			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
-			CardPositionService.getAddGroupDelay()
+			CardPositionService.getAddGroupDelay(group)
 		);
 	}
 
@@ -89,7 +92,7 @@ export class AssignedDropzone implements Dropzone {
 		*  actualizar propiedades, ni el panel de citas) */
 		setTimeout(
 			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
-			CardPositionService.getAddGroupDelay()
+			CardPositionService.getAddGroupDelay(group)
 		);
 	}
 

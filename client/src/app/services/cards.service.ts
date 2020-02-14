@@ -33,6 +33,9 @@ import {CutCardModeAction} from "../objects/card-mode-action/cut-card-mode-actio
 import {CardModeAction} from "../objects/card-mode-action/card-mode-action";
 import {CardLinkHandler} from "../objects/card-links/card-link-handler";
 import {CardPositionService} from "./card-position.service";
+import {ReplaceCardModeAction} from "../objects/card-mode-action/replace-card-mode-action";
+import {DropzoneService} from "./dropzone.service";
+import {Dropzone} from "../objects/dropzone-type/dropzone";
 
 @Injectable({
 	providedIn: 'root'
@@ -54,6 +57,8 @@ export class CardsService {
 	private _cardTypeBehaviour: {[key: string]: CardTypeBehaviour};
 	private _cardModeAction: {[key: string]: any};
 
+	private static _auxiliaryGroupToReplace: CardsGroup;
+
 	constructor(
 		private appointmentsService: AppointmentsService,
 		private mechanicsService: MechanicsService,
@@ -72,6 +77,7 @@ export class CardsService {
 
 		this.cardModeAction = {};
 		this.cardModeAction[Constants.GROUP_MODE.CUT] = new CutCardModeAction(this);
+		this.cardModeAction[Constants.GROUP_MODE.REPLACE] = new ReplaceCardModeAction(this);
 	}
 
 	// region Getters / setters
@@ -146,6 +152,14 @@ export class CardsService {
 
 	set cardModeAction(value: { [p: string]: any }) {
 		this._cardModeAction = value;
+	}
+
+	static get auxiliaryGroupToReplace(): CardsGroup {
+		return this._auxiliaryGroupToReplace;
+	}
+
+	static set auxiliaryGroupToReplace(value: CardsGroup) {
+		this._auxiliaryGroupToReplace = value;
 	}
 
 	// endregion
@@ -948,13 +962,19 @@ export class CardsService {
 		return this.cardModeAction[mode];
 	}
 
-	updateCardMode(group: CardsGroup, mode: string): void {
-		group.mode = mode;
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
-			group.cards[0].day,
-			group.cards[0].mechanicCode
-		);
+	updateCardMode(groups: CardsGroup[], mode: string): void {
+		groups.forEach((group: CardsGroup) => {
+			group.mode = mode;
+		});
+		if (groups[0].cards[0].day) {
+			NotificationService.notifyMechanicLine(
+				Constants.MECHANIC_LINE_UPDATE_TYPE.CARD_MODE,
+				groups[0].cards[0].day,
+				groups[0].cards[0].mechanicCode
+			);
+		} else {
+			NotificationService.notifyBand();
+		}
 	}
 
 	// endregion
@@ -1082,6 +1102,36 @@ export class CardsService {
 				card.linkedNext = cards[i+1].clone();
 			}
 		});
+	}
+
+	// endregion
+
+	// region Auxiliary replacement
+
+	replaceGroup(group: CardsGroup, groupToReplace: CardsGroup = CardsService.auxiliaryGroupToReplace): void {
+		const originDropzone = DropzoneService.findDropzone(group.cards[0]);
+		const destinyDropzone = DropzoneService.findDropzone(groupToReplace.cards[0]);
+
+		this.updateReplacementGroup(group, groupToReplace, originDropzone, destinyDropzone);
+		this.deleteReplacedGroup(groupToReplace, destinyDropzone);
+	}
+
+	updateReplacementGroup(
+		group: CardsGroup,
+		groupToReplace: CardsGroup,
+		originDropzone: Dropzone,
+		destinyDropzone: Dropzone
+	): void {
+		/* Al usar las dropzones para llevar a cabo el movimiento, la propiedad left debe estar actualizada, ya que es
+		*  la que se toma como referencia para calcular el resto de propiedades */
+		group.left = groupToReplace.left;
+		originDropzone.removeGroup(group, false, destinyDropzone);
+		destinyDropzone.addGroup([group], group, originDropzone, groupToReplace.line);
+	}
+
+	deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {
+		destinyDropzone.removeGroup(groupToReplace, false, undefined);
+		this.http.put(Url.cardsDeletion(), groupToReplace.cards).subscribe();
 	}
 
 	// endregion

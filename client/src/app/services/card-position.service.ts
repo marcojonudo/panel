@@ -206,7 +206,7 @@ export class CardPositionService {
 			if (groupsToUpdate) { /* Si el movimiento es válido */
 				const lastPosition = this.destinyDropzone.findLastPosition(groupsToUpdate, group, position);
 				/* Se añade el grupo al dropzone de destino */
-				this.destinyDropzone.addGroup(groupsToUpdate, group, this.originDropzone, lastPosition);
+				this.destinyDropzone.addGroup(groupsToUpdate, group, this.originDropzone, lastPosition.line);
 				return lastPosition;
 			} else {
 				this.originDropzone.handleNotValidatedMovement(group);
@@ -538,8 +538,9 @@ export class CardPositionService {
 
 	// endregion
 
-	static getAddGroupDelay(): number {
-		return Constants.VALUE.CARD_MOVEMENT_DURATION - Constants.VALUE.CARD_MOVEMENT_DURATION_OFFSET
+	static getAddGroupDelay(group: CardsGroup): number {
+		return group.mode == Constants.GROUP_MODE.DRAG
+			? Constants.VALUE.CARD_MOVEMENT_DURATION - Constants.VALUE.CARD_MOVEMENT_DURATION_OFFSET : 0;
 	}
 
 }

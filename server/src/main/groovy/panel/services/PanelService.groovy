@@ -499,7 +499,8 @@ class PanelService {
 			cards += panelDatabaseClient.updateCards(updateCards.updatedCards)
 		}
 		if (updateCards.deletedCards) {
-			cards += panelDatabaseClient.deleteCards(updateCards.deletedCards.id)
+			panelDatabaseClient.deleteCards("", updateCards.deletedCards.collect { it.properties })
+			cards += updateCards.deletedCards
 		}
 		return cards
 	}
