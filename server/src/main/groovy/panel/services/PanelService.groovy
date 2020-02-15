@@ -500,7 +500,6 @@ class PanelService {
 		}
 		if (updateCards.deletedCards) {
 			panelDatabaseClient.deleteCards("", updateCards.deletedCards.collect { it.properties })
-			cards += updateCards.deletedCards
 		}
 		return cards
 	}
