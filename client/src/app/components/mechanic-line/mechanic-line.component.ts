@@ -83,10 +83,12 @@ export class MechanicLineComponent {
 	}
 
 	findScheduleLeftBorderBackground(color: string): string {
+		color = Constants.SCHEDULE_BORDER_COLOR[color] || color;
 		return `linear-gradient(${color} 5px, transparent 5px, transparent, transparent calc(100% - 5px), ${color} calc(100% - 5px)) center/100% auto no-repeat, #f1f1f1 linear-gradient(90deg, ${color}, ${color} 5px, transparent 5px, transparent) center/100% auto no-repeat`;
 	}
 
 	findScheduleRightBorderBackground(color: string): string {
+		color = Constants.SCHEDULE_BORDER_COLOR[color] || color;
 		return `linear-gradient(${color} 5px, transparent 5px, transparent, transparent calc(100% - 5px), ${color} calc(100% - 5px)) center/100% auto no-repeat, #f1f1f1 linear-gradient(90deg, transparent, transparent 5px, ${color} 5px, ${color}) center/100% auto no-repeat`;
 	}
 

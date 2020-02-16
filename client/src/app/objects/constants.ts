@@ -138,6 +138,13 @@ export class Constants {
 		NO_UNASSIGNED_GROUPS_TO_REPLACE: 'No quedan fichas sin asignar para sustituir la auxiliar',
 		NO_REPLACEMENT_SPACE: 'No hay espacio suficiente para reemplazar la ficha auxiliar con la agrupación seleccionada'
 	};
+	public static readonly SCHEDULE_BORDER_COLOR: any = {
+		'#c5e0b4': '#38a83d',
+		'#b4c7e7': '#3847e7',
+		'#b3e1d2': '#00e1ab',
+		'#f8cbad': '#f8a240',
+		'#fffcb0': '#fbff00'
+	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly DEFAULT_JOB_LINE_TYPE_COLOR: string = "#f1f1f1";
