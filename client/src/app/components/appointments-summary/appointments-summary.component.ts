@@ -18,7 +18,13 @@ export class AppointmentsSummaryComponent {
 	@Input() day: Date;
 	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
 
-	constructor(private appointmentsService: AppointmentsService) {}
+	private showingLateralPanel: boolean;
+
+	constructor(
+		private appointmentsService: AppointmentsService
+	) {
+		this.showingLateralPanel = false;
+	}
 
 	// region Getters / setters
 
@@ -49,10 +55,11 @@ export class AppointmentsSummaryComponent {
 			new DayLateralPanelInfo(
 				day,
 				new AppointmentsDetailsInfo(
-					this.findDayAppointmentsCounter()
+					this.showingLateralPanel ? undefined : this.findDayAppointmentsCounter()
 				)
 			)
 		);
+		this.showingLateralPanel = !this.showingLateralPanel;
 	}
 
 }
