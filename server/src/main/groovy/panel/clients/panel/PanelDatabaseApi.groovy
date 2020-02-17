@@ -9,6 +9,7 @@ import io.micronaut.http.annotation.QueryValue
 import panel.utils.Constants
 import utils.pogos.panel.*
 
+import javax.annotation.Nullable
 import javax.inject.Singleton
 
 @Singleton
@@ -17,7 +18,10 @@ interface PanelDatabaseApi {
 
 	List<Task> getTasks(@QueryValue List<Integer> articles)
 
-	List<Card> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
+	List<Card> getCards(
+			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date from,
+			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date to
+	)
 
 	List<JobLineType> getJobLineTypes()
 

@@ -1941,7 +1941,7 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
-//	// region checkUpdatedOrderInfo
+	// region checkUpdatedOrderInfo
 
 	void "test check updated card same fields"() {
 		given:

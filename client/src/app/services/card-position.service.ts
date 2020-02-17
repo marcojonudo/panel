@@ -434,7 +434,6 @@ export class CardPositionService {
 		/* Se obtienen los grupos solapados. Se clonan para evitar que se actualice el left de los grupos originales,
 		 * ya que si al final se determina que la ficha no se puede mover, ya se habría actualizado este valor */
 		const overlappedCardsGroups = this.findOverlappedCardsGroups(clonedGroup, lineGroups, alreadyProcessedGroups);
-		console.log('overlappedGroups', overlappedCardsGroups);
 		/* Se hacen los cálculos sólo si se encuentran fichas solapadas */
 		if (overlappedCardsGroups.length) {
 			const clonedOverlappedGroups = overlappedCardsGroups.map(group => group.clone());

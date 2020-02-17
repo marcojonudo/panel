@@ -53,10 +53,12 @@ class PanelService {
 		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(day)
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
 
+		deletePendingCards(day)
+
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
 		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-		List<Card> dbCards = panelDatabaseClient.getCards(day)
+		List<Card> dbCards = panelDatabaseClient.getCards(day, null)
 		List<Card> temporalCards = dbCards.findAll { checkAuxiliaryCard(it) }
 		List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
 
@@ -132,6 +134,13 @@ class PanelService {
 	// endregion
 
 	// region Get cards
+
+	void deletePendingCards(Date day) {
+		List<Card> pendingCards = panelDatabaseClient.getCards(null, day)
+		if (pendingCards) {
+			panelDatabaseClient.deleteCards("", pendingCards.collect { it.properties })
+		}
+	}
 
 	static List<Card> handleOrdersCards(List<Order> orders, List<Card> dbOrdersCards) {
 		dbOrdersCards.each { Card card ->

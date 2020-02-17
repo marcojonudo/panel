@@ -13,6 +13,7 @@ import utils.pogos.panel.JobLineType
 import utils.pogos.panel.Task
 import utils.pogos.panel.AppointmentType
 
+import javax.annotation.Nullable
 import javax.inject.Singleton
 
 @Singleton
@@ -25,7 +26,10 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<Task> getTasks(@QueryValue List<Integer> articles)
 
 	@Get("/cards")
-	List<Card> getCards(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
+	List<Card> getCards(
+			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date from,
+			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date to
+	)
 
 	@Get("/jobLineTypes")
 	List<JobLineType> getJobLineTypes()
