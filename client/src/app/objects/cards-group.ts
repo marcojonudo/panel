@@ -144,7 +144,7 @@ export class CardsGroup {
 	setStart(start: Date): void {
 		this.start = start;
 		this.left = this.start ? DimensionsService.calcLeftFromStart(this.start) : undefined;
-		this.end = UtilsService.addMinutes(this.start, this.findDuration());
+		this.end = this.start ? UtilsService.addMinutes(this.start, this.findDuration()) : undefined;
 	}
 
 	addCards(cards: Card[]): void {
