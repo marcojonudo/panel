@@ -8,10 +8,16 @@ import panel.clients.fviberi.FviberiDatabaseApi
 import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseApi
 import panel.clients.panel.PanelDatabaseClient
+import panel.pogos.UpdateAppointmentDays
+import panel.pogos.UpdateCards
 import spock.lang.Shared
 import spock.lang.Specification
+import utils.DateFormat
 import utils.Utils
 import utils.pogos.fviberi.*
+import utils.pogos.panel.AppointmentDay
+import utils.pogos.panel.AppointmentType
+import utils.pogos.panel.Card
 import utils.pogos.panel.Group
 import utils.pogos.panel.GroupUnits
 import utils.pogos.panel.Task
@@ -1450,46 +1456,46 @@ class PanelServiceSpec extends Specification {
 
 	// region Integrate fixed mechanics
 
-//	void "test get day mechanics sort not null days"() {
-//		given:
-//		Date date = new Date()
-//		List<EmployeeSchedule> mechanics = [
-//				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
-//				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
-//				new EmployeeSchedule(day: new java.sql.Date(1566939600000))
-//		]
-//
-//		when:
-//		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
-//
-//		then:
-//		daysMechanics.size() == 2
-//		daysMechanics['2019-08-29']
-//		daysMechanics['2019-08-29'].size() == 2
-//		daysMechanics['2019-08-27']
-//		daysMechanics['2019-08-27'].size() == 1
-//	}
-//
-//	void "test get day mechanics null days"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		java.sql.Date tomorrow = Utils.newDate(Utils.addDays(new Date(), 1))
-//		List<EmployeeSchedule> mechanics = [
-//				new EmployeeSchedule(day: today),
-//				new EmployeeSchedule(day: tomorrow),
-//				new EmployeeSchedule(day: null),
-//		]
-//
-//		when:
-//		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
-//
-//		then:
-//		daysMechanics.size() == 2
-//		daysMechanics[today.toString()]
-//		daysMechanics[today.toString()].size() == 2
-//		daysMechanics[tomorrow.toString()]
-//		daysMechanics[tomorrow.toString()].size() == 1
-//	}
+	void "test get day mechanics sort not null days"() {
+		given:
+		Date date = new Date()
+		List<EmployeeSchedule> mechanics = [
+				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
+				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
+				new EmployeeSchedule(day: new java.sql.Date(1566939600000))
+		]
+
+		when:
+		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
+
+		then:
+		daysMechanics.size() == 2
+		daysMechanics['2019-08-29']
+		daysMechanics['2019-08-29'].size() == 2
+		daysMechanics['2019-08-27']
+		daysMechanics['2019-08-27'].size() == 1
+	}
+
+	void "test get day mechanics null days"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		java.sql.Date tomorrow = Utils.newDate(Utils.addDays(new Date(), 1))
+		List<EmployeeSchedule> mechanics = [
+				new EmployeeSchedule(day: today),
+				new EmployeeSchedule(day: tomorrow),
+				new EmployeeSchedule(day: null),
+		]
+
+		when:
+		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
+
+		then:
+		daysMechanics.size() == 2
+		daysMechanics[today.toString()]
+		daysMechanics[today.toString()].size() == 2
+		daysMechanics[tomorrow.toString()]
+		daysMechanics[tomorrow.toString()].size() == 1
+	}
 
 //	// endregion
 
@@ -1616,128 +1622,128 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
-//	// region getOrderGroups
-//
-//	void "test get order groups 1"() {
-//		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task026, task066, task129, task169])
-//
-//		then:
-//		groupUnits.size() == 4
-//		groupUnits[0].group.code == 135
-//		groupUnits[1].group.code == 113
-//		groupUnits[2].group.code == 262
-//		groupUnits[3].group.code == 214
-//	}
-//
-//	void "test get order groups 2"() {
-//		given: // Articles 99108 and 99273 form group 38
-//		Order order = new Order(
-//				number: 1,
-//				timeInfo: new OrderTime(shortCode: 'C1'),
-//				lines: [
-//						new OrderLine(article: new Article(code: 99108)),
-//						new OrderLine(article: new Article(code: 99273)),
-//						new OrderLine(article: new Article(code: 99169)),
-//				],
-//				vehicle: new Vehicle([:])
-//		)
-//
-//		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task108, task169, task273])
-//
-//		then:
-//		groupUnits.size() == 2
-//		groupUnits[0].group.code == 38
-//		groupUnits[1].group.code == 214
-//	}
-//
-//	void "test get order groups 3"() {
-//		given: // Now order doesn't have 99273 and 99108 forms group 36
-//		Order order = new Order(
-//				number: 1,
-//				timeInfo: new OrderTime(shortCode: 'C1'),
-//				lines: [
-//						new OrderLine(article: new Article(code: 99108)),
-//						new OrderLine(article: new Article(code: 99086)),
-//						new OrderLine(article: new Article(code: 99169)),
-//				],
-//				vehicle: new Vehicle([:])
-//		)
-//
-//		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task108, task086, task169])
-//
-//		then:
-//		groupUnits.size() == 3
-//		groupUnits[0].group.code == 36
-//		groupUnits[1].group.code == 44
-//		groupUnits[2].group.code == 214
-//	}
-//
-//	void "test get order groups 4"() {
-//		given:
-//		Order order = new Order(
-//				number: 1,
-//				timeInfo: new OrderTime(shortCode: 'C1'),
-//				lines: [
-//						new OrderLine(article: new Article(code: 99086)),
-//						new OrderLine(article: new Article(code: 99021)),
-//						new OrderLine(article: new Article(code: 99277)),
-//				],
-//				vehicle: new Vehicle([:])
-//		)
-//
-//		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task086, task021, task277])
-//
-//		then:
-//		groupUnits.size() == 2
-//		groupUnits[0].group.code == 48
-//		groupUnits[1].group.code == 52
-//	}
-//
-//	void "test get order groups 5"() {
-//		given:
-//		Order order = new Order(
-//				number: 1,
-//				timeInfo: new OrderTime(shortCode: 'C1'),
-//				lines: [
-//						new OrderLine(article: new Article(code: 99001)),//
-//						new OrderLine(article: new Article(code: 99004)),//
-//						new OrderLine(article: new Article(code: 99021)),//
-//						new OrderLine(article: new Article(code: 99022)),
-//						new OrderLine(article: new Article(code: 99025)),
-//						new OrderLine(article: new Article(code: 99026)),
-//						new OrderLine(article: new Article(code: 99066)),
-//						new OrderLine(article: new Article(code: 99086)),
-//						new OrderLine(article: new Article(code: 99112)),//
-//						new OrderLine(article: new Article(code: 99151)),
-//						new OrderLine(article: new Article(code: 99200)),
-//						new OrderLine(article: new Article(code: 99330))
-//				],
-//				vehicle: new Vehicle([:])
-//		)
-//
-//		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(
-//				order,
-//				[task001, task004, task021, task022, task025, task026, task066, task086, task112, task151, task200, task330]
-//		)
-//
-//		then:
-//		groupUnits.size() == 10
-//		groupUnits[0].group.code == 1
-//		groupUnits[1].group.code == 60
-//		groupUnits[2].group.code == 141
-//		groupUnits[3].group.code == 134
-//		groupUnits[4].group.code == 135
-//		groupUnits[5].group.code == 113
-//		groupUnits[6].group.code == 44
-//		groupUnits[7].group.code == 31
-//		groupUnits[8].group.code == 87
-//		groupUnits[9].group.code == 316
-//	}
+	// region getOrderGroups
+
+	void "test get order groups 1"() {
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task026, task066, task129, task169])
+
+		then:
+		groupUnits.size() == 4
+		groupUnits[0].group.code == 135
+		groupUnits[1].group.code == 113
+		groupUnits[2].group.code == 262
+		groupUnits[3].group.code == 214
+	}
+
+	void "test get order groups 2"() {
+		given: // Articles 99108 and 99273 form group 38
+		Order order = new Order(
+				number: 1,
+				timeInfo: new OrderTime(shortCode: 'C1'),
+				lines: [
+						new OrderLine(article: new Article(code: 99108)),
+						new OrderLine(article: new Article(code: 99273)),
+						new OrderLine(article: new Article(code: 99169)),
+				],
+				vehicle: new Vehicle([:])
+		)
+
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task108, task169, task273])
+
+		then:
+		groupUnits.size() == 2
+		groupUnits[0].group.code == 38
+		groupUnits[1].group.code == 214
+	}
+
+	void "test get order groups 3"() {
+		given: // Now order doesn't have 99273 and 99108 forms group 36
+		Order order = new Order(
+				number: 1,
+				timeInfo: new OrderTime(shortCode: 'C1'),
+				lines: [
+						new OrderLine(article: new Article(code: 99108)),
+						new OrderLine(article: new Article(code: 99086)),
+						new OrderLine(article: new Article(code: 99169)),
+				],
+				vehicle: new Vehicle([:])
+		)
+
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task108, task086, task169])
+
+		then:
+		groupUnits.size() == 3
+		groupUnits[0].group.code == 36
+		groupUnits[1].group.code == 44
+		groupUnits[2].group.code == 214
+	}
+
+	void "test get order groups 4"() {
+		given:
+		Order order = new Order(
+				number: 1,
+				timeInfo: new OrderTime(shortCode: 'C1'),
+				lines: [
+						new OrderLine(article: new Article(code: 99086)),
+						new OrderLine(article: new Article(code: 99021)),
+						new OrderLine(article: new Article(code: 99277)),
+				],
+				vehicle: new Vehicle([:])
+		)
+
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task086, task021, task277])
+
+		then:
+		groupUnits.size() == 2
+		groupUnits[0].group.code == 48
+		groupUnits[1].group.code == 52
+	}
+
+	void "test get order groups 5"() {
+		given:
+		Order order = new Order(
+				number: 1,
+				timeInfo: new OrderTime(shortCode: 'C1'),
+				lines: [
+						new OrderLine(article: new Article(code: 99001)),//
+						new OrderLine(article: new Article(code: 99004)),//
+						new OrderLine(article: new Article(code: 99021)),//
+						new OrderLine(article: new Article(code: 99022)),
+						new OrderLine(article: new Article(code: 99025)),
+						new OrderLine(article: new Article(code: 99026)),
+						new OrderLine(article: new Article(code: 99066)),
+						new OrderLine(article: new Article(code: 99086)),
+						new OrderLine(article: new Article(code: 99112)),//
+						new OrderLine(article: new Article(code: 99151)),
+						new OrderLine(article: new Article(code: 99200)),
+						new OrderLine(article: new Article(code: 99330))
+				],
+				vehicle: new Vehicle([:])
+		)
+
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+				order,
+				[task001, task004, task021, task022, task025, task026, task066, task086, task112, task151, task200, task330]
+		)
+
+		then:
+		groupUnits.size() == 10
+		groupUnits[0].group.code == 1
+		groupUnits[1].group.code == 60
+		groupUnits[2].group.code == 141
+		groupUnits[3].group.code == 134
+		groupUnits[4].group.code == 135
+		groupUnits[5].group.code == 113
+		groupUnits[6].group.code == 44
+		groupUnits[7].group.code == 31
+		groupUnits[8].group.code == 87
+		groupUnits[9].group.code == 316
+	}
 
 	void "test get order groups 6"() {
 		given:
@@ -1772,1443 +1778,1443 @@ class PanelServiceSpec extends Specification {
 		groupUnits[5].group.code == 73
 	}
 
+	void "test get order groups one article one absorbable task"() {
+		given:
+		Order order = new Order(
+				number: 1,
+				timeInfo: new OrderTime(shortCode: 'C1'),
+				lines: [
+						new OrderLine(article: new Article(code: 99001)),//
+						new OrderLine(article: new Article(code: 99004)),//
+						new OrderLine(article: new Article(code: 99021)),//
+						new OrderLine(article: new Article(code: 99022)),
+						new OrderLine(article: new Article(code: 99025)),
+						new OrderLine(article: new Article(code: 99026)),
+						new OrderLine(article: new Article(code: 99066)),
+						new OrderLine(article: new Article(code: 99086)),
+						new OrderLine(article: new Article(code: 99112)),//
+						new OrderLine(article: new Article(code: 99151)),
+						new OrderLine(article: new Article(code: 99200)),
+						new OrderLine(article: new Article(code: 99330))
+				],
+				vehicle: new Vehicle([:])
+		)
+
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+				order,
+				[task001, task004, task021, task022, task025, task026, task066, task086, task112, task151, task200, task330]
+		)
+
+		then:
+		groupUnits.size() == 10
+		groupUnits[0].group.code == 1
+		groupUnits[1].group.code == 60
+		groupUnits[2].group.code == 141
+		groupUnits[3].group.code == 134
+		groupUnits[4].group.code == 135
+		groupUnits[5].group.code == 113
+		groupUnits[6].group.code == 44
+		groupUnits[7].group.code == 31
+		groupUnits[8].group.code == 87
+		groupUnits[9].group.code == 316
+	}
+
 //	void "test get order groups one article one absorbable task"() {
 //		given:
-//		Order order = new Order(
-//				number: 1,
-//				timeInfo: new OrderTime(shortCode: 'C1'),
-//				lines: [
-//						new OrderLine(article: new Article(code: 99001)),//
-//						new OrderLine(article: new Article(code: 99004)),//
-//						new OrderLine(article: new Article(code: 99021)),//
-//						new OrderLine(article: new Article(code: 99022)),
-//						new OrderLine(article: new Article(code: 99025)),
-//						new OrderLine(article: new Article(code: 99026)),
-//						new OrderLine(article: new Article(code: 99066)),
-//						new OrderLine(article: new Article(code: 99086)),
-//						new OrderLine(article: new Article(code: 99112)),//
-//						new OrderLine(article: new Article(code: 99151)),
-//						new OrderLine(article: new Article(code: 99200)),
-//						new OrderLine(article: new Article(code: 99330))
-//				],
-//				vehicle: new Vehicle([:])
-//		)
+//		group1.tasks = [task1]
+//		task1.absorbable = true
+//		task1.groups = [group1]
+////		List<Task> tasks = [
+////				new Task(articleCode: 1, absorbable: true, groups: [new Group(code: 1)])
+////		]
 //
 //		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(
-//				order,
-//				[task001, task004, task021, task022, task025, task026, task066, task086, task112, task151, task200, task330]
-//		)
+//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order1Article, [task1])
 //
 //		then:
-//		groupUnits.size() == 10
+//		groupUnits.size() == 1
 //		groupUnits[0].group.code == 1
-//		groupUnits[1].group.code == 60
-//		groupUnits[2].group.code == 141
-//		groupUnits[3].group.code == 134
-//		groupUnits[4].group.code == 135
-//		groupUnits[5].group.code == 113
-//		groupUnits[6].group.code == 44
-//		groupUnits[7].group.code == 31
-//		groupUnits[8].group.code == 87
-//		groupUnits[9].group.code == 316
 //	}
 //
-////	void "test get order groups one article one absorbable task"() {
-////		given:
-////		group1.tasks = [task1]
-////		task1.absorbable = true
-////		task1.groups = [group1]
-//////		List<Task> tasks = [
-//////				new Task(articleCode: 1, absorbable: true, groups: [new Group(code: 1)])
-//////		]
-////
-////		when:
-////		List<GroupUnits> groupUnits = panelService.getOrderGroups(order1Article, [task1])
-////
-////		then:
-////		groupUnits.size() == 1
-////		groupUnits[0].group.code == 1
-////	}
-////
-////	void "test get order groups several articles several absorbable tasks"() {
-////		given:
-////		group1.tasks = [task1, task2, task3, task4]
-////		task2.absorbable = true
-////		task3.absorbable = true
-////		task4.absorbable = true
-////		task1.groups = [group1]
-////		task2.groups = [group1]
-////		task3.groups = [group1]
-////		task4.groups = [group1]
-////
-////		when:
-////		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task1, task2, task3, task4])
-////
-////		then:
-////		groupUnits.size() == 1
-////		groupUnits[0].group.code == 1
-////	}
-//
-//	// endregion
-//
-//	// region buildOrdersCards
-//
-//	void "test build order cards 1"() {
+//	void "test get order groups several articles several absorbable tasks"() {
 //		given:
-//		GroupUnits groupUnits = new GroupUnits(group: group1, units: [1])
-//		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
-//				(order1Article): [groupUnits]
-//		]
-//		panelDatabaseClient.getDurations(
-//				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-//		) >> [(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 30])]]
+//		group1.tasks = [task1, task2, task3, task4]
+//		task2.absorbable = true
+//		task3.absorbable = true
+//		task4.absorbable = true
+//		task1.groups = [group1]
+//		task2.groups = [group1]
+//		task3.groups = [group1]
+//		task4.groups = [group1]
 //
 //		when:
-//		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
+//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task1, task2, task3, task4])
 //
 //		then:
-//		cards.size() == 1
-//		cards[0].order.number == order1Article.number
-//		cards[0].order.code == order1Article.timeInfo.shortCode
-//		cards[0].code == group1.shortName
-//		cards[0].group.code == group1.code
-//		cards[0].status == Card.Status.DEFAULT
-//		cards[0].duration == 30
+//		groupUnits.size() == 1
+//		groupUnits[0].group.code == 1
 //	}
-//
-//	void "test build order cards 2"() {
-//		given:
-//		GroupUnits groupUnits1 = new GroupUnits(group: group1, units: [1])
-//		GroupUnits groupUnits2 = new GroupUnits(group: group2, units: [1, 1])
-//		GroupUnits groupUnits3 = new GroupUnits(group: group3, units: [3])
-//		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
-//				(order1Article): [groupUnits1],
-//				(order4Articles): [groupUnits1, groupUnits2, groupUnits3]
-//		]
-//		panelDatabaseClient.getDurations(
-//				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-//		) >> [
-//				(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 10])],
-//				(order4Articles.number): [
-//						new GroupUnits([group: group1, units: [1], duration: 10]),
-//						new GroupUnits([group: group2, units: [2], duration: 30]),
-//						new GroupUnits([group: group3, units: [3], duration: 45])
-//				],
-//		]
-//
-//		when:
-//		List<Card> cards = panelService.buildOrdersCards([order1Article, order4Articles], ordersGroupsUnits)
-//
-//		then:
-//		cards.size() == 4
-//		cards[0].order.number == order1Article.number
-//		cards[0].group.code == group1.code
-//		cards[0].duration == 10
-//		cards[1].order.number == order4Articles.number
-//		cards[1].group.code == group1.code
-//		cards[1].duration == 10
-//		cards[2].order.number == order4Articles.number
-//		cards[2].group.code == group2.code
-//		cards[2].duration == 30
-//		cards[3].order.number == order4Articles.number
-//		cards[3].group.code == group3.code
-//		cards[3].duration == 45
-//	}
-//
-//	void "test build order cards duration not found for group"() {
-//		given:
-//		GroupUnits groupUnits1 = new GroupUnits(group: group1, units: [1])
-//		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
-//				(order1Article): [groupUnits1]
-//		]
-//		panelDatabaseClient.getDurations(
-//				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-//		) >> [(order1Article.number): []]
-//
-//		when:
-//		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
-//
-//		then:
-//		!cards
-//	}
-//
-//	// endregion
-//
-////	// region checkUpdatedOrderInfo
-//
-//	void "test check updated card same fields"() {
-//		given:
-//		Card builtCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV'])
-//		Card dayCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV'])
-//
-//		when:
-//		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
-//
-//		then:
-//		!updated
-//	}
-//
-//	void "test check updated card updated order info"() {
-//		given:
-//		Card builtCard = new Card(order: [number: 1, code: 'C1'], duration: 20, vehicle: [brand: 'FV'])
-//		Card dayCard = new Card(order: [number: 1, code: 'C2'], duration: 20, vehicle: [brand: 'FV'])
-//
-//		when:
-//		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
-//
-//		then:
-//		updated
-//	}
-//
-//	void "test check updated card updated vehicle info"() {
-//		given:
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], duration: 30)
-//		Card dayCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], duration: 30)
-//
-//		when:
-//		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
-//
-//		then:
-//		updated
-//	}
-//
-//	// endregion
-//
-//	// region updateCardOrderInfo
-//
-//	void "test update card order info"() {
-//		given:
-//		Card dayCard = new Card(order: [number: 1, state: 'A'], vehicle: [brand: 'BMW'], duration: 10)
-//		Card builtCard = new Card(order: [number: 1, state: 'V'], vehicle: [brand: 'FV'], duration: 10)
-//
-//		when:
-//		Card updatedDayCard = panelService.updateCardOrderInfo(dayCard, builtCard)
-//
-//		then:
-//		updatedDayCard.vehicle.brand == 'FV'
-//		updatedDayCard.order.state == Order.State.V
-//	}
-//
-//	// endregion
-//
-//	// region findReplacedCard
-//
-//	void "test find replaced card same tasks"() {
-//		given:
-//		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2]]])
-//
-//		when:
-//		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
-//
-//		then:
-//		!replacedCard
-//	}
-//
-//	void "test find replaced card one more task"() {
-//		given:
-//		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
-//
-//		when:
-//		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
-//
-//		then:
-//		replacedCard
-//		replacedCard.group.code == 1
-//		replacedCard.group.tasks.size() == 2
-//	}
-//
-//	void "test find replaced card one less task"() {
-//		given:
-//		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1]]])
-//
-//		when:
-//		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
-//
-//		then:
-//		replacedCard
-//		replacedCard.group.code == 1
-//		replacedCard.group.tasks.size() == 2
-//	}
-//
-//	void "test find replaced card completely different tasks"() {
-//		given:
-//		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3], [articleCode: 4]]])]
-//		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 5], [articleCode: 6], [articleCode: 7]]])
-//
-//		when:
-//		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
-//
-//		then:
-//		!replacedCard
-//	}
-//
-//	// endregion
-//
-//	// region updateCardGroupInfo
-//
-//	void "test update card group info same groups"() {
-//		given:
-//		Card dayCard = new Card(group: [code: 1], duration: 20)
-//		Card builtCard = new Card(group: [code: 1], duration: 20)
-//
-//		when:
-//		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
-//
-//		then:
-//		updatedCard.group.code == 1
-//		updatedCard.duration == 20
-//	}
-//
-//	void "test update card group info updated group"() {
-//		given:
-//		Card dayCard = new Card(group: [code: 1], duration: 20)
-//		Card builtCard = new Card(group: [code: 2], duration: 30)
-//
-//		when:
-//		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
-//
-//		then:
-//		updatedCard.group.code == 2
-//		updatedCard.duration == 30
-//	}
-//
-//	// endregion
-//
-//	// region handleExistentGroupCard
-//
-//	void "test handle existent group card new group"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])
-//
-//		when:
-//		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		!handled
-//		!updateCards.updatedCards
-//		!updateCards.sameCards
-//	}
-//
-//	void "test handle existent group card same group not updated card"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
-//
-//		when:
-//		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		handled
-//		!updateCards.updatedCards
-//		updateCards.sameCards.size() == 1
-//	}
-//
-//	void "test handle existent group card same group updated card"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])
-//
-//		when:
-//		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		handled
-//		updateCards.updatedCards
-//		updateCards.updatedCards.size() == 1
-//		updateCards.updatedCards[0].vehicle.brand == 'FV'
-//		!updateCards.sameCards
-//	}
-//
-//	void "test handle existent group card not updated divided day order cards"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [
-//				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-//				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
-//		]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
-//
-//		when:
-//		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		handled
-//		updateCards.sameCards
-//		updateCards.sameCards.size() == 2
-//	}
-//
-//	void "test handle existent group card same group updated divided day order cards"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [
-//				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-//				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
-//		]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])
-//
-//		when:
-//		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		handled
-//		updateCards.updatedCards
-//		updateCards.updatedCards.size() == 2
-//		updateCards.updatedCards[0].vehicle.brand == 'FV'
-//		!updateCards.sameCards
-//	}
-//
-//	// endregion
-//
-//	// region handleReplacedGroupCard
-//
-//	void "test handle replaced group card completely new group"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]])
-//
-//		when:
-//		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		updateCards.newCards
-//		updateCards.newCards.size() == 1
-//		updateCards.newCards[0].group.code == 2
-//		!updateCards.updatedCards
-//		!updateCards.deletedCards
-//	}
-//
-//	void "test handle replaced group card replaced group no updated card"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
-//
-//		when:
-//		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		updateCards.updatedCards
-//		updateCards.updatedCards.size() == 1
-//		updateCards.updatedCards[0].group.code == 2
-//		updateCards.updatedCards[0].vehicle.brand == 'BMW'
-//		!updateCards.newCards
-//		!updateCards.deletedCards
-//	}
-//
-//	void "test handle replaced group card replaced group updated card"() {
-//		given:
-//		UpdateCards updateCards = new UpdateCards()
-//		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
-//
-//		when:
-//		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
-//
-//		then:
-//		updateCards.updatedCards
-//		updateCards.updatedCards.size() == 1
-//		updateCards.updatedCards[0].group.code == 2
-//		updateCards.updatedCards[0].vehicle.brand == 'FV'
-//		!updateCards.newCards
-//		!updateCards.deletedCards
-//	}
-//
-//	// endregion
-//
-//	// region getNewOrUpdatedCards
-//
-//	void "test get new order cards new card with new group"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [
-//				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-//				new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
-//		]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
-//
-//		then:
-//		updateCards.newCards
-//		updateCards.newCards.size() == 1
-//		updateCards.newCards[0].order.number == 2
-//		updateCards.sameCards
-//		updateCards.sameCards.size() == 1
-//		updateCards.sameCards[0].order.number == 1
-//		!updateCards.updatedCards
-//		!updateCards.deletedCards
-//	}
-//
-//	void "test get updated order cards no updated cards"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
-//
-//		then:
-//		updateCards.sameCards.size() == updateCards.getAll().size()
-//		updateCards.sameCards[0].order.number == 1
-//	}
-//
-//	void "test get updated order cards updated order info card"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
-//
-//		then:
-//		updateCards.updatedCards
-//		updateCards.updatedCards.size() == 1
-//		updateCards.updatedCards[0].order.number == 1
-//		updateCards.updatedCards[0].vehicle.brand == 'FV'
-//		updateCards.updatedCards[0].group.code == 1
-//		!updateCards.newCards
-//		!updateCards.deletedCards
-//		!updateCards.sameCards
-//	}
-//
-//	void "test get updated order cards updated replaced card"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1]]])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
-//
-//		then:
-//		updateCards.updatedCards
-//		updateCards.updatedCards.size() == 1
-//		updateCards.updatedCards[0].order.number == 1
-//		updateCards.updatedCards[0].vehicle.brand == 'BMW'
-//		updateCards.updatedCards[0].group.code == 2
-//		!updateCards.newCards
-//		!updateCards.deletedCards
-//		!updateCards.sameCards
-//	}
-//
-//	void "test get updated order cards updated replaced card and updated order info"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
-//
-//		then:
-//		updateCards.updatedCards
-//		updateCards.updatedCards.size() == 1
-//		updateCards.updatedCards[0].order.number == 1
-//		updateCards.updatedCards[0].vehicle.brand == 'FV'
-//		updateCards.updatedCards[0].group.code == 2
-//	}
-//
-//	// endregion
-//
-//	// region getDeletedOrdersCards
-//
-//	void "test deleted orders cards no cards to delete"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dayCards)
-//
-//		then:
-//		!cards
-//	}
-//
-//	void "test deleted orders cards card to delete"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dayCards)
-//
-//		then:
-//		cards.size() == 1
-//		cards[0].order.number == 2
-//	}
-//
-//	// endregion
-//
-//	// region getUpdatedGroupCards
-//
-//	void "test get updated group deleted cards no cards to delete"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dayCards, builtCards)
-//
-//		then:
-//		!cards
-//	}
-//
-//	void "test get updated group deleted cards cards to delete"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
-//
-//		when:
-//		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dayCards, builtCards)
-//
-//		then:
-//		cards.size() == 1
-//		cards[0].order.number == 1
-//		cards[0].group.code == 1
-//	}
-//
-//	// endregion
-//
-//	// region deleteCard
-//
-//	void "test delete card"() {
-//		given:
-//		Card card = new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
-//
-//		when:
-//		Card deletedCard = panelService.deleteCard(card)
-//
-//		then:
-//		deletedCard.dateDeleted
-//	}
-//
-//	// endregion
-//
-//	// region getDeletedCards
-//
-//	void "test get deleted cards no deleted cards"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		List<Card> cards = panelService.getDeletedCards([order4Articles], dayCards, builtCards)
-//
-//		then:
-//		!cards
-//	}
-//
-//	void "test get deleted cards deleted order deleted cards"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		List<Card> cards = panelService.getDeletedCards([order1Article], dayCards, builtCards)
-//
-//		then:
-//		cards
-//		cards.size() == 1
-//		cards[0].order.number == 1
-//	}
-//
-//	void "test get deleted cards deleted updated group deleted card"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
-//
-//		when:
-//		List<Card> cards = panelService.getDeletedCards([order4Articles], dayCards, builtCards)
-//
-//		then:
-//		cards
-//		cards.size() == 1
-//		cards[0].group.code == 1
-//	}
-//
-//	// endregion
-//
-//	// region getCardsToUpdate
-//
-//	void "test handle cards no actions needed"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
-//
-//		then:
-//		!updateCards.newCards
-//		!updateCards.updatedCards
-//		!updateCards.deletedCards
-//		updateCards.sameCards.size() == 1
-//		updateCards.sameCards[0].order.number == 1
-//	}
-//
-//	void "test handle cards new cards"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = dayCards + [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles, order1Article], dayCards, builtCards)
-//
-//		then:
-//		updateCards.newCards.size() == 1
-//		updateCards.newCards[0].order.number == 2
-//		updateCards.sameCards.size() == 1
-//		updateCards.sameCards[0].order.number == 1
-//		!updateCards.updatedCards
-//		!updateCards.deletedCards
-//	}
-//
-//	void "test handle cards updated cards"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
-//
-//		then:
-//		updateCards.updatedCards.size() == 1
-//		updateCards.updatedCards[0].order.number == 1
-//		updateCards.updatedCards[0].vehicle.brand == 'FV'
-//		!updateCards.sameCards
-//	}
-//
-//	void "test handle cards updated new cards"() {
-//		given:
-//		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [[code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
-//		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]])]
-//
-//		when:
-//		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
-//
-//		then:
-//		updateCards.newCards.size() == 1
-//		updateCards.newCards[0].group.code == 2
-//		!updateCards.newCards[0].dateDeleted
-//		updateCards.deletedCards.size() == 1
-//		updateCards.deletedCards[0].group.code == 1
-//		updateCards.deletedCards[0].dateDeleted
-//		!updateCards.updatedCards
-//		!updateCards.sameCards
-//	}
-//
-//	// endregion
-//
-//	// region Save cards
-//
-//	void "test relate cards IDs no relations"() {
-//		given:
-//		List<Card> cards = [
-//				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
-//		]
-//
-//		when:
-//		panelService.relateCards(cards)
-//
-//		then:
-//		!cards[0].linkedPrevious
-//		!cards[0].linkedNext
-//	}
-//
-//	void "test relate cards IDs different orders"() {
-//		given:
-//		List<Card> cards = [
-//				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
-//				new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
-//		]
-//
-//		when:
-//		panelService.relateCards(cards)
-//
-//		then:
-//		!cards[0].linkedPrevious
-//		!cards[0].linkedNext
-//		!cards[1].linkedPrevious
-//		!cards[1].linkedNext
-//	}
-//
-//	void "test relate cards IDs same order"() {
-//		given:
-//		List<Card> cards = [
-//				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
-//				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]])
-//		]
-//
-//		when:
-//		panelService.relateCards(cards)
-//
-//		then:
-//		!cards[0].linkedPrevious
-//		cards[0].linkedNext == 2
-//		cards[1].linkedPrevious == 1
-//		!cards[1].linkedNext
-//	}
-//
-//	void "test relate cards IDs same order several cards rising order"() {
-//		given:
-//		List<Card> cards = [
-//				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
-//				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
-//				new Card(id: 3, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 1]]),
-//				new Card(id: 4, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 2]])
-//		]
-//
-//		when:
-//		panelService.relateCards(cards)
-//
-//		then:
-//		!cards[0].linkedPrevious
-//		cards[0].linkedNext == 2
-//		cards[1].linkedPrevious == 1
-//		cards[1].linkedNext == 3
-//		cards[2].linkedPrevious == 2
-//		cards[2].linkedNext == 4
-//		cards[3].linkedPrevious == 3
-//		!cards[3].linkedNext
-//	}
-//
-//	void "test relate cards IDs same order several cards random order"() {
-//		given:
-//		List<Card> cards = [
-//				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 3]]),
-//				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 1]]),
-//				new Card(id: 3, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
-//				new Card(id: 4, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 2]])
-//		]
-//
-//		when:
-//		panelService.relateCards(cards)
-//
-//		then:
-//		cards[0].linkedPrevious == 4
-//		!cards[0].linkedNext
-//		cards[1].linkedPrevious == 3
-//		cards[1].linkedNext == 4
-//		!cards[2].linkedPrevious
-//		cards[2].linkedNext == 2
-//		cards[3].linkedPrevious == 2
-//		cards[3].linkedNext == 1
-//	}
-//
-//	// endregion
-//
-//	// region Update appointment days
-//
-//	void "test update appointment days different card appointment type"() {
-//		given:
-//		List<AppointmentDay> appointmentDayTypes = [
-//		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
-//		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP'), total: 1),
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'TP')]
-//				)
-//		]
-//
-//		when:
-//		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
-//
-//		then:
-//		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 1
-//		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 2
-//	}
-//
-//	void "test update appointment days same card appointment type"() {
-//		given:
-//		List<AppointmentDay> appointmentDayTypes = [
-//		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
-//		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP')),
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
-//
-//		then:
-//		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 2
-//		!appointmentDays.find { it.appointmentType.code == 'TP' }
-//	}
-//
-//	// endregion
-//
-//	// region Create appointment days
-//
-//	void "test create appointment days no cards"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//
-//		when:
-//		List<AppointmentDay> appointmentDays = panelService.createAppointmentDays(today, appointmentTypes, [])
-//
-//		then:
-//		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 0
-//		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 0
-//	}
-//
-//	void "test create appointment days different card appointment type"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'TP')]
-//				)
-//		]
-//
-//		when:
-//		List<AppointmentDay> appointmentDays = panelService.createAppointmentDays(today, appointmentTypes, cards)
-//
-//
-//		then:
-//		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 1
-//		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 1
-//	}
-//
-//	// endregion
-//
-//	// region Sync schedule appointment days
-//
-//	void "test sync schedule appointments no existent appointment days"() {
-//		given:
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: Utils.newDate(new Date()))
-//				]
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
-//				daysMechanics,
-//				[],
-//				appointmentTypes,
-//				[]
-//		)
-//
-//		then:
-//		updateInfo.created.size() == 2
-//		updateInfo.updated.size() == 0
-//		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 0
-//		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 0
-//	}
-//
-//	void "test sync schedule appointments existent appointment days without new cards"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentDay> appointmentDayTypes = [
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
-//				daysMechanics,
-//				appointmentDayTypes,
-//				appointmentTypes,
-//				[]
-//		)
-//
-//		then:
-//		updateInfo.created.size() == 0
-//		updateInfo.updated.size() == 0
-//	}
-//
-//	void "test sync schedule appointments existent appointment days new cards different appointment types"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentDay> appointmentDayTypes = [
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'TP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
-//				daysMechanics,
-//				appointmentDayTypes,
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		updateInfo.created.size() == 0
-//		updateInfo.updated.size() == 2
-//		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 1
-//		AppointmentDay tpAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 1
-//	}
-//
-//	void "test sync schedule appointments existent appointment days new cards same appointment types"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentDay> appointmentDayTypes = [
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
-//				daysMechanics,
-//				appointmentDayTypes,
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		updateInfo.updated.size() == 1
-//		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 2
-//	}
-//
-//	void "test sync schedule appointments existent appointment days future new cards"() {
-//		given:
-//		Calendar nowCal = Utils.newCalendar(new Date())
-//		java.sql.Date futureDay = Utils.newDate(
-//				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-//		)
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentDay> appointmentDayTypes = [
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
-//				daysMechanics,
-//				appointmentDayTypes,
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		!updateInfo.created
-//		!updateInfo.updated
-//	}
-//
-//	void "test sync schedule appointments no appointment days new cards same appointment types"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
-//				daysMechanics,
-//				[],
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		updateInfo.created.size() == 2
-//		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 2
-//		!updateInfo.updated
-//	}
-//
-//	// endregion
-//
-//	// region Sync cards appointments days
-//
-//	void "test sync cards appointments no future cards"() {
-//		given:
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentDay> appointmentDayTypes = [
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
-//				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
-//				daysMechanics,
-//				appointmentDayTypes,
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		!updateInfo.created
-//		!updateInfo.updated
-//	}
-//
-//	void "test sync cards appointments different future cards existent appointment days"() {
-//		given:
-//		Calendar nowCal = Utils.newCalendar(new Date())
-//		java.sql.Date futureDay = Utils.newDate(
-//				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-//		)
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentDay> appointmentDayTypes = [
-//				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
-//				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'TP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
-//				daysMechanics,
-//				appointmentDayTypes,
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		updateInfo.updated.size() == 2
-//		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 1
-//		AppointmentDay tpAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 1
-//	}
-//
-//	void "test sync cards appointments same type future cards existent appointment days"() {
-//		given:
-//		Calendar nowCal = Utils.newCalendar(new Date())
-//		java.sql.Date futureDay = Utils.newDate(
-//				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-//		)
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentDay> appointmentDayTypes = [
-//				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
-//				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
-//				daysMechanics,
-//				appointmentDayTypes,
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		updateInfo.updated.size() == 1
-//		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 2
-//		!updateInfo.created
-//	}
-//
-//	void "test sync cards appointments different type future cards no appointment days"() {
-//		given:
-//		Calendar nowCal = Utils.newCalendar(new Date())
-//		java.sql.Date futureDay = Utils.newDate(
-//				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-//		)
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'TP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
-//				daysMechanics,
-//				[],
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		updateInfo.created.size() == 2
-//		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 1
-//		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 1
-//	}
-//
-//	void "test sync cards appointments same type future cards no appointment days"() {
-//		given:
-//		Calendar nowCal = Utils.newCalendar(new Date())
-//		java.sql.Date futureDay = Utils.newDate(
-//				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-//		)
-//		java.sql.Date today = Utils.newDate(new Date())
-//		Map<String, List<EmployeeSchedule>> daysMechanics = [
-//				(Utils.format(new Date(), DateFormat.MYSQL)): [
-//						new EmployeeSchedule(day: today)
-//				]
-//		]
-//		List<AppointmentType> appointmentTypes = [
-//				new AppointmentType(code: 'RAP'),
-//				new AppointmentType(code: 'TP')
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: futureDay.time],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
-//				daysMechanics,
-//				[],
-//				appointmentTypes,
-//				cards
-//		)
-//
-//		then:
-//		updateInfo.created.size() == 2
-//		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 2
-//		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 0
-//	}
-//
-//	// endregion
+
+	// endregion
+
+	// region buildOrdersCards
+
+	void "test build order cards 1"() {
+		given:
+		GroupUnits groupUnits = new GroupUnits(group: group1, units: [1])
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
+				(order1Article): [groupUnits]
+		]
+		panelDatabaseClient.getDurations(
+				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+		) >> [(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 30])]]
+
+		when:
+		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
+
+		then:
+		cards.size() == 1
+		cards[0].order.number == order1Article.number
+		cards[0].order.code == order1Article.timeInfo.shortCode
+		cards[0].code == group1.shortName
+		cards[0].group.code == group1.code
+		cards[0].status == Card.Status.DEFAULT
+		cards[0].duration == 30
+	}
+
+	void "test build order cards 2"() {
+		given:
+		GroupUnits groupUnits1 = new GroupUnits(group: group1, units: [1])
+		GroupUnits groupUnits2 = new GroupUnits(group: group2, units: [1, 1])
+		GroupUnits groupUnits3 = new GroupUnits(group: group3, units: [3])
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
+				(order1Article): [groupUnits1],
+				(order4Articles): [groupUnits1, groupUnits2, groupUnits3]
+		]
+		panelDatabaseClient.getDurations(
+				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+		) >> [
+				(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 10])],
+				(order4Articles.number): [
+						new GroupUnits([group: group1, units: [1], duration: 10]),
+						new GroupUnits([group: group2, units: [2], duration: 30]),
+						new GroupUnits([group: group3, units: [3], duration: 45])
+				],
+		]
+
+		when:
+		List<Card> cards = panelService.buildOrdersCards([order1Article, order4Articles], ordersGroupsUnits)
+
+		then:
+		cards.size() == 4
+		cards[0].order.number == order1Article.number
+		cards[0].group.code == group1.code
+		cards[0].duration == 10
+		cards[1].order.number == order4Articles.number
+		cards[1].group.code == group1.code
+		cards[1].duration == 10
+		cards[2].order.number == order4Articles.number
+		cards[2].group.code == group2.code
+		cards[2].duration == 30
+		cards[3].order.number == order4Articles.number
+		cards[3].group.code == group3.code
+		cards[3].duration == 45
+	}
+
+	void "test build order cards duration not found for group"() {
+		given:
+		GroupUnits groupUnits1 = new GroupUnits(group: group1, units: [1])
+		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
+				(order1Article): [groupUnits1]
+		]
+		panelDatabaseClient.getDurations(
+				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+		) >> [(order1Article.number): []]
+
+		when:
+		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
+
+		then:
+		!cards
+	}
+
+	// endregion
+
+//	// region checkUpdatedOrderInfo
+
+	void "test check updated card same fields"() {
+		given:
+		Card builtCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV'])
+		Card dayCard = new Card(duration: 10, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV'])
+
+		when:
+		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
+
+		then:
+		!updated
+	}
+
+	void "test check updated card updated order info"() {
+		given:
+		Card builtCard = new Card(order: [number: 1, code: 'C1'], duration: 20, vehicle: [brand: 'FV'])
+		Card dayCard = new Card(order: [number: 1, code: 'C2'], duration: 20, vehicle: [brand: 'FV'])
+
+		when:
+		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
+
+		then:
+		updated
+	}
+
+	void "test check updated card updated vehicle info"() {
+		given:
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], duration: 30)
+		Card dayCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], duration: 30)
+
+		when:
+		boolean updated = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
+
+		then:
+		updated
+	}
+
+	// endregion
+
+	// region updateCardOrderInfo
+
+	void "test update card order info"() {
+		given:
+		Card dayCard = new Card(order: [number: 1, state: 'A'], vehicle: [brand: 'BMW'], duration: 10)
+		Card builtCard = new Card(order: [number: 1, state: 'V'], vehicle: [brand: 'FV'], duration: 10)
+
+		when:
+		Card updatedDayCard = panelService.updateCardOrderInfo(dayCard, builtCard)
+
+		then:
+		updatedDayCard.vehicle.brand == 'FV'
+		updatedDayCard.order.state == Order.State.V
+	}
+
+	// endregion
+
+	// region findReplacedCard
+
+	void "test find replaced card same tasks"() {
+		given:
+		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2]]])
+
+		when:
+		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+
+		then:
+		!replacedCard
+	}
+
+	void "test find replaced card one more task"() {
+		given:
+		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
+
+		when:
+		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+
+		then:
+		replacedCard
+		replacedCard.group.code == 1
+		replacedCard.group.tasks.size() == 2
+	}
+
+	void "test find replaced card one less task"() {
+		given:
+		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1]]])
+
+		when:
+		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+
+		then:
+		replacedCard
+		replacedCard.group.code == 1
+		replacedCard.group.tasks.size() == 2
+	}
+
+	void "test find replaced card completely different tasks"() {
+		given:
+		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3], [articleCode: 4]]])]
+		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 5], [articleCode: 6], [articleCode: 7]]])
+
+		when:
+		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+
+		then:
+		!replacedCard
+	}
+
+	// endregion
+
+	// region updateCardGroupInfo
+
+	void "test update card group info same groups"() {
+		given:
+		Card dayCard = new Card(group: [code: 1], duration: 20)
+		Card builtCard = new Card(group: [code: 1], duration: 20)
+
+		when:
+		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
+
+		then:
+		updatedCard.group.code == 1
+		updatedCard.duration == 20
+	}
+
+	void "test update card group info updated group"() {
+		given:
+		Card dayCard = new Card(group: [code: 1], duration: 20)
+		Card builtCard = new Card(group: [code: 2], duration: 30)
+
+		when:
+		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
+
+		then:
+		updatedCard.group.code == 2
+		updatedCard.duration == 30
+	}
+
+	// endregion
+
+	// region handleExistentGroupCard
+
+	void "test handle existent group card new group"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])
+
+		when:
+		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		!handled
+		!updateCards.updatedCards
+		!updateCards.sameCards
+	}
+
+	void "test handle existent group card same group not updated card"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+
+		when:
+		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		handled
+		!updateCards.updatedCards
+		updateCards.sameCards.size() == 1
+	}
+
+	void "test handle existent group card same group updated card"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])
+
+		when:
+		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		handled
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		!updateCards.sameCards
+	}
+
+	void "test handle existent group card not updated divided day order cards"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+		]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+
+		when:
+		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		handled
+		updateCards.sameCards
+		updateCards.sameCards.size() == 2
+	}
+
+	void "test handle existent group card same group updated divided day order cards"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+		]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])
+
+		when:
+		boolean handled = panelService.handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		handled
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 2
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		!updateCards.sameCards
+	}
+
+	// endregion
+
+	// region handleReplacedGroupCard
+
+	void "test handle replaced group card completely new group"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]])
+
+		when:
+		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		updateCards.newCards
+		updateCards.newCards.size() == 1
+		updateCards.newCards[0].group.code == 2
+		!updateCards.updatedCards
+		!updateCards.deletedCards
+	}
+
+	void "test handle replaced group card replaced group no updated card"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
+
+		when:
+		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].group.code == 2
+		updateCards.updatedCards[0].vehicle.brand == 'BMW'
+		!updateCards.newCards
+		!updateCards.deletedCards
+	}
+
+	void "test handle replaced group card replaced group updated card"() {
+		given:
+		UpdateCards updateCards = new UpdateCards()
+		List<Card> dayOrderCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		Card builtCard = new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
+
+		when:
+		panelService.handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
+
+		then:
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].group.code == 2
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		!updateCards.newCards
+		!updateCards.deletedCards
+	}
+
+	// endregion
+
+	// region getNewOrUpdatedCards
+
+	void "test get new order cards new card with new group"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
+				new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
+		]
+
+		when:
+		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
+
+		then:
+		updateCards.newCards
+		updateCards.newCards.size() == 1
+		updateCards.newCards[0].order.number == 2
+		updateCards.sameCards
+		updateCards.sameCards.size() == 1
+		updateCards.sameCards[0].order.number == 1
+		!updateCards.updatedCards
+		!updateCards.deletedCards
+	}
+
+	void "test get updated order cards no updated cards"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
+
+		then:
+		updateCards.sameCards.size() == updateCards.getAll().size()
+		updateCards.sameCards[0].order.number == 1
+	}
+
+	void "test get updated order cards updated order info card"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])]
+
+		when:
+		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
+
+		then:
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		updateCards.updatedCards[0].group.code == 1
+		!updateCards.newCards
+		!updateCards.deletedCards
+		!updateCards.sameCards
+	}
+
+	void "test get updated order cards updated replaced card"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1]]])]
+
+		when:
+		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
+
+		then:
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'BMW'
+		updateCards.updatedCards[0].group.code == 2
+		!updateCards.newCards
+		!updateCards.deletedCards
+		!updateCards.sameCards
+	}
+
+	void "test get updated order cards updated replaced card and updated order info"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]])]
+
+		when:
+		UpdateCards updateCards = panelService.getNewOrUpdatedCards(dayCards, builtCards)
+
+		then:
+		updateCards.updatedCards
+		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		updateCards.updatedCards[0].group.code == 2
+	}
+
+	// endregion
+
+	// region getDeletedOrdersCards
+
+	void "test deleted orders cards no cards to delete"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dayCards)
+
+		then:
+		!cards
+	}
+
+	void "test deleted orders cards card to delete"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dayCards)
+
+		then:
+		cards.size() == 1
+		cards[0].order.number == 2
+	}
+
+	// endregion
+
+	// region getUpdatedGroupCards
+
+	void "test get updated group deleted cards no cards to delete"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dayCards, builtCards)
+
+		then:
+		!cards
+	}
+
+	void "test get updated group deleted cards cards to delete"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
+
+		when:
+		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dayCards, builtCards)
+
+		then:
+		cards.size() == 1
+		cards[0].order.number == 1
+		cards[0].group.code == 1
+	}
+
+	// endregion
+
+	// region deleteCard
+
+	void "test delete card"() {
+		given:
+		Card card = new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
+
+		when:
+		Card deletedCard = panelService.deleteCard(card)
+
+		then:
+		deletedCard.dateDeleted
+	}
+
+	// endregion
+
+	// region getDeletedCards
+
+	void "test get deleted cards no deleted cards"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		List<Card> cards = panelService.getDeletedCards([order4Articles], dayCards, builtCards)
+
+		then:
+		!cards
+	}
+
+	void "test get deleted cards deleted order deleted cards"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		List<Card> cards = panelService.getDeletedCards([order1Article], dayCards, builtCards)
+
+		then:
+		cards
+		cards.size() == 1
+		cards[0].order.number == 1
+	}
+
+	void "test get deleted cards deleted updated group deleted card"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])]
+
+		when:
+		List<Card> cards = panelService.getDeletedCards([order4Articles], dayCards, builtCards)
+
+		then:
+		cards
+		cards.size() == 1
+		cards[0].group.code == 1
+	}
+
+	// endregion
+
+	// region getCardsToUpdate
+
+	void "test handle cards no actions needed"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
+
+		then:
+		!updateCards.newCards
+		!updateCards.updatedCards
+		!updateCards.deletedCards
+		updateCards.sameCards.size() == 1
+		updateCards.sameCards[0].order.number == 1
+	}
+
+	void "test handle cards new cards"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = dayCards + [new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])]
+
+		when:
+		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles, order1Article], dayCards, builtCards)
+
+		then:
+		updateCards.newCards.size() == 1
+		updateCards.newCards[0].order.number == 2
+		updateCards.sameCards.size() == 1
+		updateCards.sameCards[0].order.number == 1
+		!updateCards.updatedCards
+		!updateCards.deletedCards
+	}
+
+	void "test handle cards updated cards"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1])]
+
+		when:
+		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
+
+		then:
+		updateCards.updatedCards.size() == 1
+		updateCards.updatedCards[0].order.number == 1
+		updateCards.updatedCards[0].vehicle.brand == 'FV'
+		!updateCards.sameCards
+	}
+
+	void "test handle cards updated new cards"() {
+		given:
+		List<Card> dayCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [[code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
+		List<Card> builtCards = [new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]])]
+
+		when:
+		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dayCards, builtCards)
+
+		then:
+		updateCards.newCards.size() == 1
+		updateCards.newCards[0].group.code == 2
+		!updateCards.newCards[0].dateDeleted
+		updateCards.deletedCards.size() == 1
+		updateCards.deletedCards[0].group.code == 1
+		updateCards.deletedCards[0].dateDeleted
+		!updateCards.updatedCards
+		!updateCards.sameCards
+	}
+
+	// endregion
+
+	// region Save cards
+
+	void "test relate cards IDs no relations"() {
+		given:
+		List<Card> cards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1])
+		]
+
+		when:
+		panelService.relateCards(cards)
+
+		then:
+		!cards[0].linkedPrevious
+		!cards[0].linkedNext
+	}
+
+	void "test relate cards IDs different orders"() {
+		given:
+		List<Card> cards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]),
+				new Card(order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1])
+		]
+
+		when:
+		panelService.relateCards(cards)
+
+		then:
+		!cards[0].linkedPrevious
+		!cards[0].linkedNext
+		!cards[1].linkedPrevious
+		!cards[1].linkedNext
+	}
+
+	void "test relate cards IDs same order"() {
+		given:
+		List<Card> cards = [
+				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]])
+		]
+
+		when:
+		panelService.relateCards(cards)
+
+		then:
+		!cards[0].linkedPrevious
+		cards[0].linkedNext.id == 2
+		cards[1].linkedPrevious.id == 1
+		!cards[1].linkedNext
+	}
+
+	void "test relate cards IDs same order several cards rising order"() {
+		given:
+		List<Card> cards = [
+				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 3, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 1]]),
+				new Card(id: 4, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 2]])
+		]
+
+		when:
+		panelService.relateCards(cards)
+
+		then:
+		!cards[0].linkedPrevious
+		cards[0].linkedNext.id == 2
+		cards[1].linkedPrevious.id == 1
+		cards[1].linkedNext.id == 3
+		cards[2].linkedPrevious.id == 2
+		cards[2].linkedNext.id == 4
+		cards[3].linkedPrevious.id == 3
+		!cards[3].linkedNext
+	}
+
+	void "test relate cards IDs same order several cards random order"() {
+		given:
+		List<Card> cards = [
+				new Card(id: 1, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 3]]),
+				new Card(id: 2, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 1]]),
+				new Card(id: 3, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 0]]),
+				new Card(id: 4, order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, color: [order: 2]])
+		]
+
+		when:
+		panelService.relateCards(cards)
+
+		then:
+		!cards[0].linkedPrevious
+		cards[0].linkedNext.id == 2
+		cards[1].linkedPrevious.id == 1
+		cards[1].linkedNext.id == 3
+		cards[2].linkedPrevious.id == 2
+		cards[2].linkedNext.id == 4
+		cards[3].linkedPrevious.id == 3
+		!cards[3].linkedNext
+	}
+
+	// endregion
+
+	// region Update appointment days
+
+	void "test update appointment days different card appointment type"() {
+		given:
+		List<AppointmentDay> appointmentDayTypes = [
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP'), total: 1),
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 2
+	}
+
+	void "test update appointment days same card appointment type"() {
+		given:
+		List<AppointmentDay> appointmentDayTypes = [
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
+		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP')),
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		!appointmentDays.find { it.appointmentType.code == 'TP' }
+	}
+
+	// endregion
+
+	// region Create appointment days
+
+	void "test create appointment days no cards"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.createAppointmentDays(today, appointmentTypes, [])
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 0
+		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 0
+	}
+
+	void "test create appointment days different card appointment type"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		List<AppointmentDay> appointmentDays = panelService.createAppointmentDays(today, appointmentTypes, cards)
+
+
+		then:
+		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	// endregion
+
+	// region Sync schedule appointment days
+
+	void "test sync schedule appointments no existent appointment days"() {
+		given:
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: Utils.newDate(new Date()))
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				[]
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		updateInfo.updated.size() == 0
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 0
+		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 0
+	}
+
+	void "test sync schedule appointments existent appointment days without new cards"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				[]
+		)
+
+		then:
+		updateInfo.created.size() == 0
+		updateInfo.updated.size() == 0
+	}
+
+	void "test sync schedule appointments existent appointment days new cards different appointment types"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 0
+		updateInfo.updated.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	void "test sync schedule appointments existent appointment days new cards same appointment types"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.updated.size() == 1
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+	}
+
+	void "test sync schedule appointments existent appointment days future new cards"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		!updateInfo.created
+		!updateInfo.updated
+	}
+
+	void "test sync schedule appointments no appointment days new cards same appointment types"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncSchedulesAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		!updateInfo.updated
+	}
+
+	// endregion
+
+	// region Sync cards appointments days
+
+	void "test sync cards appointments no future cards"() {
+		given:
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		!updateInfo.created
+		!updateInfo.updated
+	}
+
+	void "test sync cards appointments different future cards existent appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.updated.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	void "test sync cards appointments same type future cards existent appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentDay> appointmentDayTypes = [
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				appointmentDayTypes,
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.updated.size() == 1
+		AppointmentDay rapAppointmentDay = updateInfo.updated.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		!updateInfo.created
+	}
+
+	void "test sync cards appointments different type future cards no appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'TP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 1
+		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 1
+	}
+
+	void "test sync cards appointments same type future cards no appointment days"() {
+		given:
+		Calendar nowCal = Utils.newCalendar(new Date())
+		java.sql.Date futureDay = Utils.newDate(
+				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
+		)
+		java.sql.Date today = Utils.newDate(new Date())
+		Map<String, List<EmployeeSchedule>> daysMechanics = [
+				(Utils.format(new Date(), DateFormat.MYSQL)): [
+						new EmployeeSchedule(day: today)
+				]
+		]
+		List<AppointmentType> appointmentTypes = [
+				new AppointmentType(code: 'RAP'),
+				new AppointmentType(code: 'TP')
+		]
+		List<Card> cards = [
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				),
+				new Card(
+						order: [number: 1, code: 'C1', day: futureDay.time],
+						duration: 20,
+						vehicle: [brand: 'FV'],
+						group: [appointmentType: new AppointmentType(code: 'RAP')]
+				)
+		]
+
+		when:
+		UpdateAppointmentDays updateInfo = panelService.syncCardsAppointmentDays(
+				daysMechanics,
+				[],
+				appointmentTypes,
+				cards
+		)
+
+		then:
+		updateInfo.created.size() == 2
+		AppointmentDay rapAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'RAP' }
+		rapAppointmentDay.total == 2
+		AppointmentDay tpAppointmentDay = updateInfo.created.find { it.appointmentType.code == 'TP' }
+		tpAppointmentDay.total == 0
+	}
+
+	// endregion
 
 }
