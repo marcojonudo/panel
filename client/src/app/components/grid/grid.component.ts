@@ -8,6 +8,8 @@ import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills
 import {NotificationService} from "../../services/notification.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {CardsService} from "../../services/cards.service";
+import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
+import {MechanicSkills} from "../../objects/mechanic-skills";
 
 @Component({
 	selector: 'app-grid',
@@ -52,7 +54,15 @@ export class GridComponent implements OnInit {
 		if ((<HTMLElement> event.target).id == Constants.ID.MECHANIC_LINE) {
 			NotificationService.notifyContextMenu(undefined);
 			NotificationService.notifyLateralInfo(
-				new DayLateralPanelInfo(this.day, undefined)
+				new DayLateralPanelInfo(
+					this.day,
+					new SkillsDetailsInfo(
+						new MechanicSkills(
+							this.dayMechanicSkills.mechanicCode,
+							[]
+						)
+					)
+				)
 			);
 			if (CardsService.auxiliaryGroupToReplace) {
 				this.cardsService.updateCardMode(this.cardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
