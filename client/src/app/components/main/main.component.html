@@ -56,7 +56,7 @@
 					class="w-100 h-auto d-flex"
 					[ngClass]="{'overflow-hidden': oneDayMode}">
 					<div
-						class="h-100 panel-container padding-0"
+						class="w-100 h-100 panel-container padding-0"
 						[ngClass]="{
 							'width-0-scrollbar': !oneDayMode || !displayVerticalScrollbar,
 							'overflow-scroll': !showNonexistentScheduleMessage,
@@ -85,9 +85,9 @@
 					</app-lateral-panel>
 					<app-appointments-summary
 						class="blank-background border-left border-semi-dark"
-						[style.width.px]="toolsBarWidth"
 						[day]="day"
-						[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(day)">
+						[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(day)"
+						[width]="toolsBarWidth">
 					</app-appointments-summary>
 				</div>
 			</div>

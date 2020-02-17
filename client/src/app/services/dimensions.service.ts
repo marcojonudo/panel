@@ -340,12 +340,13 @@ export class DimensionsService {
 	 */
 	static updateMaxSchedule(oneDayMode: boolean): void {
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, oneDayMode);
+		this.hourWidth = this.calcHourWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		/* Se actualiza el número de horas. Un horario de otro día puede tener más horas y, por tanto, necesitasr un
 		*  mayor ancho del contenedor para albergarlo */
 		this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
 		/* Sabiendo el número de horas, se calcula el mayor ancho posible que puede adquirir: cuando el ancho de la
 		*  hora es el mayor posible; es decir, el default */
-		this.maxScheduleMaxWidth = this.calcScheduleWidth(this.maxScheduleHours, this.defaultHourWidth);
+		this.maxScheduleMaxWidth = this.calcScheduleWidth(this.maxScheduleHours, this.hourWidth);
 		/* Si se está activando el modo de un sólo día, el ancho de los horarios coincide con el máximo. Si no, es el
 		*  ancho del grid, ya que al activar la vista de varios días, automáticamente se ajusta a la pantalla */
 		this.maxScheduleWidth = oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth;

@@ -17,6 +17,7 @@ export class AppointmentsSummaryComponent {
 
 	@Input() day: Date;
 	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
+	@Input() width: number;
 
 	private showingLateralPanel: boolean;
 

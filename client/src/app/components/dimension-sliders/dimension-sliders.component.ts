@@ -19,21 +19,10 @@ export class DimensionSlidersComponent implements OnInit {
 	private _max: number;
 	private _width: number;
 
-	constructor() {
-		this.min = DimensionsService.gridWidth;
-	}
-
 	ngOnInit(): void {
 		this.width = this.maxScheduleWidth;
+		this.min = DimensionsService.gridWidth;
 		this.max = this.maxScheduleMaxWidth;
-		// this.maxScheduleMaxWidthSubscription = this.timeService.maxScheduleMaxWidth$.subscribe(maxScheduleMaxWidth => {
-		// 	this.max = maxScheduleMaxWidth;
-		// 	/* Se limitan los decimales porque con el número por defecto, el step no llega al max y en el slider se
-		// 	*  muestra la bola en un punto medio del eje */
-		// 	this.step = parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));
-		// 	console.log(111111111111111, this.max, this.step);
-		// 	this.cdRef.detectChanges();
-		// });
 	}
 
 	// region Getters / setters
