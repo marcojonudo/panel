@@ -407,7 +407,7 @@ export class DimensionsService {
 
 	static calcLeftFromCardsGroups(groupIndex: number, groups: CardsGroup[]) {
 		const previousWidth = this.findCardsGroupsWidth(groups.slice(0, groupIndex));
-		return (groups[0].left ? groups[0].left : 0) + previousWidth;
+		return (groupIndex == 0 ? 0 : groups[0].left) + previousWidth;
 	}
 
 	private static findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {

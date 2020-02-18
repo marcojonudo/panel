@@ -154,8 +154,6 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.cardsService.assignedDaysCardsGroups
 			);
 			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
-			// TODO Evaluar si hace falta el notifyAll. Puede que con usar el detectChanges y un obtejo mechanicLieUpdate
-			// sea suficiente
 			NotificationService.notifyAll();
 			this.cdRef.detectChanges();
 		});
