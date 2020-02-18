@@ -441,7 +441,7 @@ export class CardsService {
 			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
 				if (!mechanic) {
 					const groupIndex = groups.findIndex((g: CardsGroup) => g.id == group.id);
-					updatedGroups = groups.slice(groupIndex+1, groups.length+1);
+					const updatedGroups = groups.slice(groupIndex+1, groups.length+1);
 					this.updatePositionByStep(updatedGroups, widthIncrease, durationIncrease);
 				}
 				this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
