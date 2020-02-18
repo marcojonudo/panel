@@ -6,6 +6,7 @@ import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-
 import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointments-details-info";
 import {Constants} from "../../objects/constants";
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
+import {KeyValue} from "@angular/common";
 
 @Component({
 	selector: 'app-appointments-summary',
@@ -61,6 +62,10 @@ export class AppointmentsSummaryComponent {
 			)
 		);
 		this.showingLateralPanel = !this.showingLateralPanel;
+	}
+
+	defaultOrder(a: KeyValue<number,string>, b: KeyValue<number,string>): number {
+		return 0;
 	}
 
 }

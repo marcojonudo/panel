@@ -6,6 +6,7 @@ import {CardsService} from "../../services/cards.service";
 import {AppointmentDay} from "../../objects/appointment-day";
 import {NotificationService} from "../../services/notification.service";
 import {DayAppointmentsCounter} from "../../objects/day-appointments-counter";
+import {KeyValue} from "@angular/common";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -79,6 +80,10 @@ export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 	subtractMax(appointmentDay: AppointmentDay): void {
 		this.appointmentsService.subtractMax(appointmentDay);
 		this.cdRef.detectChanges();
+	}
+
+	defaultOrder(a: KeyValue<number,string>, b: KeyValue<number,string>): number {
+		return 0;
 	}
 
 }
