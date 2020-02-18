@@ -11,9 +11,10 @@
 		[ngStyle]="{'background-color': item.value.appointmentType.color, 'height.px': appointmentSummaryItemHeight}">
 		<div class="flex-grow-1 flex-basis-0 align-center">{{item.value.appointmentType.name}}</div>
 		<div
-			class="flex-grow-1 flex-basis-0 d-flex flex-column"
-			[ngClass]="{'background-color-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
-			<div class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage">
+			class="flex-grow-1 flex-basis-0 d-flex flex-column">
+			<div
+				class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage"
+				[ngClass]="{'text-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
 				{{findSaturationPercentage(item.value.morning, item.value.max, morningAppointmentSaturation)}}%
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
@@ -21,9 +22,10 @@
 			</div>
 		</div>
 		<div
-			class="flex-grow-1 flex-basis-0 d-flex flex-column"
-			[ngClass]="{'background-color-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">
-			<div class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage">
+			class="flex-grow-1 flex-basis-0 d-flex flex-column">
+			<div
+				class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage"
+				[ngClass]="{'text-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">
 				{{findSaturationPercentage(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}}%
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
@@ -32,9 +34,10 @@
 		</div>
 		<div class="flex-grow-1 flex-basis-0 d-flex">
 			<div
-				class="h-100 flex-grow-1 flex-basis-0 d-flex flex-column"
-				[ngClass]="{'background-color-red': checkSaturation(item.value.total, item.value.max)}">
-				<div class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage">
+				class="h-100 flex-grow-1 flex-basis-0 d-flex flex-column">
+				<div
+					class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage"
+					[ngClass]="{'text-red': checkSaturation(item.value.total, item.value.max)}">
 					{{findSaturationPercentage(item.value.total, item.value.max)}}%
 				</div>
 				<div class="flex-grow-1 flex-basis-0 align-center">
@@ -54,49 +57,4 @@
 			</div>
 		</div>
 	</div>
-
-
-	<!--<table class="table">-->
-		<!--<thead [style.height.px]="timelineHeight">-->
-			<!--<tr>-->
-				<!--<th scope="col">Tipo</th>-->
-				<!--<th scope="col">Mañ.</th>-->
-				<!--<th scope="col">Tarde</th>-->
-				<!--<th scope="col">Total</th>-->
-			<!--</tr>-->
-		<!--</thead>-->
-		<!--<tbody>-->
-			<!--<tr-->
-				<!--*ngFor="let item of dayAppointmentsCounter | keyvalue"-->
-				<!--[style.height.px]="appointmentSummaryItemHeight">-->
-				<!--<th scope="row">{{item.value.appointmentType.name}}</th>-->
-				<!--<td-->
-					<!--[ngClass]="{'background-color-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">-->
-					<!--{{item.value.morning}}-->
-				<!--</td>-->
-				<!--<td-->
-					<!--[ngClass]="{'background-color-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">-->
-					<!--{{item.value.afternoon}}-->
-				<!--</td>-->
-				<!--<td class="d-flex">-->
-					<!--<div-->
-						<!--class="h-100 flex-grow-1 flex-basis-0 align-center"-->
-						<!--[ngClass]="{'background-color-red': checkSaturation(item.value.total, item.value.max)}">-->
-						<!--{{item.value.total}}-->
-					<!--</div>-->
-					<!--<div class="w-25 h-100 d-flex flex-column border-left">-->
-						<!--<div class="h-25 appointment-number-icon align-center" (click)="addMax(item.value)">-->
-							<!--<i class="fas fa-chevron-up"></i>-->
-						<!--</div>-->
-						<!--<div class="flex-grow-1 flex-basis-0 align-center max-appointment-limit">-->
-							<!--{{item.value.max}}-->
-						<!--</div>-->
-						<!--<div class="h-25 appointment-number-icon align-center" (click)="subtractMax(item.value)">-->
-							<!--<i class="fas fa-chevron-down"></i>-->
-						<!--</div>-->
-					<!--</div>-->
-				<!--</td>-->
-			<!--</tr>-->
-		<!--</tbody>-->
-	<!--</table>-->
 </div>

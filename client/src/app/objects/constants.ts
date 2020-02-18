@@ -70,8 +70,8 @@ export class Constants {
 		FULL_TIME: 'full_time'
 	};
 	public static readonly APPOINTMENT_SATURATION: any = {
-		MORNING: 0.4,
-		AFTERNOON: 0.6
+		MORNING: 0.6,
+		AFTERNOON: 0.4
 	};
 	public static readonly QUARTERS: any = {
 		STEP_0: 0,
