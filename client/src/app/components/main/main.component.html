@@ -15,7 +15,7 @@
 					class="h-100"
 					[style.width.px]="maxScheduleWidth">
 					<app-day-panel
-						class="animated slideInRight"
+						class="animated fadeIn"
 						[day]="today"
 						[mechanics]="findDayMechanics(today) | mechanics: onlyAppointmentsMode"
 						[quartersSaturation]="findQuartersSaturation(today)"
@@ -47,44 +47,32 @@
 		</div>
 		<div *ngIf="!oneDayMode" class="col w-100 h-100 padding-0 d-flex parent-sections-container">
 			<div
-				class="d-flex flex-column"
+				class="d-flex flex-column overflow-y-scroll"
 				appScrollable
-				[style.width.px]="dayContainerWidth"
-				[ngClass]="{'overflow-y-scroll': !oneDayMode}">
+				[style.width.px]="dayContainerWidth">
 				<div
 					*ngFor="let day of days | days: oneDayMode; trackBy: trackByDay;"
-					class="w-100 h-auto d-flex"
-					[ngClass]="{'overflow-hidden': oneDayMode}">
-					<div
-						class="w-100 h-100 panel-container padding-0"
-						[ngClass]="{
-							'width-0-scrollbar': !oneDayMode || !displayVerticalScrollbar,
-							'overflow-scroll': !showNonexistentScheduleMessage,
-							'overflow-hidden': showNonexistentScheduleMessage
-						}">
-						<div
-							class="h-100"
-							[style.width.px]="maxScheduleWidth">
-							<app-day-panel
-								class="animated slideInRight"
-								[day]="day"
-								[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
-								[quartersSaturation]="findQuartersSaturation(day)"
-								[mechanicLineUpdate]="checkTriggerLineCd(day)"
-								[dayMechanicSkills]="findDayMechanicSkills(day)"
-								[contextMenuInfo]="findAssignedContextMenuInfo()"
-								[showAppointmentsName]="showAppointmentsName"
-								[maxScheduleHours]="maxScheduleHours"
-								[maxScheduleWidth]="maxScheduleWidth">
-							</app-day-panel>
-						</div>
-					</div>
+					class="h-auto d-flex"
+					[style.width.px]="maxScheduleWidth + toolsBarWidth">
+					<app-day-panel
+						class="w-100 animated fadeIn"
+						[day]="day"
+						[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
+						[quartersSaturation]="findQuartersSaturation(day)"
+						[mechanicLineUpdate]="checkTriggerLineCd(day)"
+						[dayMechanicSkills]="findDayMechanicSkills(day)"
+						[contextMenuInfo]="findAssignedContextMenuInfo()"
+						[showAppointmentsName]="showAppointmentsName"
+						[maxScheduleHours]="maxScheduleHours"
+						[maxScheduleWidth]="maxScheduleWidth">
+					</app-day-panel>
 					<app-lateral-panel
 						[info]="findLateralInfo(day)"
 						[style.right.px]="lateralPanelRight">
 					</app-lateral-panel>
 					<app-appointments-summary
-						class="blank-background border-left border-semi-dark"
+						class="appointments-summary blank-background border-left border-semi-dark"
+						[style.width.px]="toolsBarWidth"
 						[day]="day"
 						[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(day)"
 						[width]="toolsBarWidth">

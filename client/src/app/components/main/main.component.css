@@ -53,6 +53,10 @@ app-day-panel:not(:first-child):not(:last-child) {
 	right: 100px;
 }
 
+.appointments-summary {
+	position: sticky;
+	right: 0;
+}
 
 /*.ng-draggable {*/
 /*cursor: grab;*/
