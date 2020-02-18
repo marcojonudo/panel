@@ -38,7 +38,10 @@
 			<div *ngIf="!mechanic.fixed" class="w-100 h-25">
 				<select
 					class="w-100 h-100 align-center job-line-type-select"
-					[style.background-color]="findJobLineTypeColor(mechanic.jobLineType)"
+					[ngStyle]="{
+						'background-color': findJobLineTypeBackgroundColor(mechanic.jobLineType),
+						'color': findJobLineTypeColor(mechanic.jobLineType)
+					}"
 					[(ngModel)]="mechanic.jobLineType"
 					(change)="updateJobLineType()">
 					<option></option>

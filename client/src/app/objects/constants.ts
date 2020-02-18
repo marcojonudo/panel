@@ -145,6 +145,13 @@ export class Constants {
 		'#f8cbad': '#f8a240',
 		'#fffcb0': '#fbff00'
 	};
+	public static readonly JOB_LINE_TYPE: any = {
+		AA: 'A/A'
+	};
+	public static readonly COLOR: any = {
+		WHITE: '#ffffff',
+		BLACK: '#000000',
+	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly DEFAULT_JOB_LINE_TYPE_COLOR: string = "#f1f1f1";

@@ -134,8 +134,12 @@ export class MechanicInfoComponent {
 		);
 	}
 
-	findJobLineTypeColor(code: string): string {
+	findJobLineTypeBackgroundColor(code: string): string {
 		return this.jobLineTypeService.findJobLineTypeColor(code);
+	}
+
+	findJobLineTypeColor(code: string): string {
+		return code == Constants.JOB_LINE_TYPE.AA ? Constants.COLOR.WHITE : Constants.COLOR.BLACK;
 	}
 
 	updateJobLineType(mechanic: Mechanic = this.mechanic): void {
