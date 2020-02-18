@@ -429,40 +429,54 @@ export class CardsService {
 
 	handleCardDurationUpdate(card: Card, widthIncrease: number, mechanic: Mechanic): Card[] {
 		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
-		const group = this.findCardGroup(this.findLineGroups(card.day, card.mechanicCode, card.line), card.panelId);
+		const groups = mechanic
+			? this.findLineGroups(card.day, card.mechanicCode, card.line)
+			: this.findUnassignedGroups(card.type, card.status);
+		const group = this.findCardGroup(groups, card.panelId);
 
 		/* Si la ficha se está reduciendo, no es necesario hacer comprobaciones relativas a los límites del horario
 		*  u otros grupos desplazados, ya que no los afectaría */
 		if (widthIncrease < 0) {
 			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
 			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
+				if (!mechanic) {
+					const groupIndex = groups.findIndex((g: CardsGroup) => g.id == group.id);
+					updatedGroups = groups.slice(groupIndex+1, groups.length+1);
+					this.updatePositionByStep(updatedGroups, widthIncrease, durationIncrease);
+				}
 				this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
 				return group.cards
 			}
 			return []
 		}
 
-		/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que está
-		*  asignada*/
-		const schedule = mechanic.schedule;
-		const groupOutsideSchedule = this.groupOutsideSchedule(group, schedule);
-		/* Si ya está en el límite, no se actualiza la información */
-		if (groupOutsideSchedule) {
-			return [];
-		}
+		let updatedGroups = [];
+		if (mechanic) {
+			/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que está
+            *  asignada*/
+			const schedule = mechanic.schedule;
+			const groupOutsideSchedule = this.groupOutsideSchedule(group, schedule);
+			/* Si ya está en el límite, no se actualiza la información */
+			if (groupOutsideSchedule) {
+				return [];
+			}
 
-		const updatedGroups = this.findUpdatedDurationGroups(card);
-		/* Si el aumento de duración no desplaza otros grupos, se actualiza la ficha */
-		if (!updatedGroups.length) {
-			this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
-			return group.cards
-		}
+			updatedGroups = this.findUpdatedDurationGroups(card);
+			/* Si el aumento de duración no desplaza otros grupos, se actualiza la ficha */
+			if (!updatedGroups.length) {
+				this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
+				return group.cards
+			}
 
-		/* En caso de que se desplacen otros grupos, estos podrían sobresalir del horario. Si es así, no se actualiza
-		*  la información */
-		const translatedGroupOutsideSchedule = this.groupOutsideSchedule(updatedGroups[updatedGroups.length - 1], schedule);
-		if (translatedGroupOutsideSchedule) {
-			return [];
+			/* En caso de que se desplacen otros grupos, estos podrían sobresalir del horario. Si es así, no se actualiza
+            *  la información */
+			const translatedGroupOutsideSchedule = this.groupOutsideSchedule(updatedGroups[updatedGroups.length - 1], schedule);
+			if (translatedGroupOutsideSchedule) {
+				return [];
+			}
+		} else {
+			const groupIndex = groups.findIndex((g: CardsGroup) => g.id == group.id);
+			updatedGroups = groups.slice(groupIndex+1, groups.length+1);
 		}
 
 		/* Si se desplazan grupos pero todos están dentro del horario, se actualizan */
@@ -480,12 +494,16 @@ export class CardsService {
 			}
 		});
 
-		group.end = UtilsService.addMinutes(group.end, durationIncrease);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.CARD_DURATION,
-			card.day,
-			card.mechanicCode
-		);
+		if (group.start) {
+			group.end = UtilsService.addMinutes(group.end, durationIncrease);
+			NotificationService.notifyMechanicLine(
+				Constants.MECHANIC_LINE_UPDATE_TYPE.CARD_DURATION,
+				card.day,
+				card.mechanicCode
+			);
+		} else {
+			NotificationService.notifyBand();
+		}
 	}
 
 	groupOutsideSchedule(group: CardsGroup, schedule: Schedule): boolean {
@@ -519,13 +537,15 @@ export class CardsService {
 		const cards = [];
 		groups.forEach(group => {
 			group.left += widthStep;
-			group.start = UtilsService.addMinutes(group.start, durationStep);
-			group.end = UtilsService.addMinutes(group.end, durationStep);
+			if (group.start) {
+				group.start = UtilsService.addMinutes(group.start, durationStep);
+				group.end = UtilsService.addMinutes(group.end, durationStep);
 
-			group.cards.forEach(c => {
-				c.start = UtilsService.addMinutes(c.start, durationStep);
-				c.end = UtilsService.addMinutes(c.start, c.duration);
-			});
+				group.cards.forEach(c => {
+					c.start = UtilsService.addMinutes(c.start, durationStep);
+					c.end = UtilsService.addMinutes(c.start, c.duration);
+				});
+			}
 			cards.push(...group.cards);
 		});
 		return cards;
