@@ -454,8 +454,7 @@ export class CardsService {
 		if (mechanic) {
 			/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que está
             *  asignada*/
-			const schedule = mechanic.schedule;
-			const groupOutsideSchedule = this.groupOutsideSchedule(group, schedule);
+			const groupOutsideSchedule = this.groupOutsideSchedule(group, mechanic.schedules);
 			/* Si ya está en el límite, no se actualiza la información */
 			if (groupOutsideSchedule) {
 				return [];
@@ -470,7 +469,10 @@ export class CardsService {
 
 			/* En caso de que se desplacen otros grupos, estos podrían sobresalir del horario. Si es así, no se actualiza
             *  la información */
-			const translatedGroupOutsideSchedule = this.groupOutsideSchedule(updatedGroups[updatedGroups.length - 1], schedule);
+			const translatedGroupOutsideSchedule = this.groupOutsideSchedule(
+				updatedGroups[updatedGroups.length - 1],
+				mechanic.schedules
+			);
 			if (translatedGroupOutsideSchedule) {
 				return [];
 			}
@@ -506,12 +508,12 @@ export class CardsService {
 		}
 	}
 
-	groupOutsideSchedule(group: CardsGroup, schedule: Schedule): boolean {
+	groupOutsideSchedule(group: CardsGroup, schedules: ScheduleInterval[]): boolean {
 		// TODO Revisar sin threshold
 		// const threshold = schedule.thresholds.filter((t, i) => i % 2 == 1).find(threshold => {
 		// 	return threshold.getTime() == group.end.getTime();
 		// });
-		const threshold = schedule.intervals.find(interval =>
+		const threshold = schedules.find(interval =>
 			interval.end.getTime() == group.end.getTime()
 		);
 		return threshold != undefined;
@@ -961,7 +963,7 @@ export class CardsService {
 
 	findQuarterMechanics(dayMechanics: Mechanic[], quarter: number): Mechanic[] {
 		return dayMechanics.filter((mechanic: Mechanic) => {
-			return mechanic.schedule.intervals.find((interval: ScheduleInterval) =>
+			return mechanic.schedules.find((interval: ScheduleInterval) =>
 				interval.hourQuarters.find((hourQuarter: HourQuarters) =>
 					hourQuarter.quarters.find((q: number) =>
 						quarter == UtilsService.calcMinutes(hourQuarter.hour, q)

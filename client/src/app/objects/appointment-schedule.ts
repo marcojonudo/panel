@@ -1,29 +1,32 @@
-import {Schedule} from "./schedule";
 import {AppointmentType} from "./appointment-type";
+import {ScheduleInterval} from "./schedule-interval";
+import {Mechanic} from "./mechanic";
+import {UtilsService} from "../services/utils.service";
 
 export class AppointmentSchedule {
 
-	id: number;
-	mechanicId: number;
-	index: number;
+	day: Date;
+	mechanicCode: string;
+	id: string;
 	appointmentType: AppointmentType;
-	schedule: Schedule;
+	schedule: ScheduleInterval;
 
-	constructor(mechanicId: number, index: number, appointmentSchedule: any = undefined) {
-		this.mechanicId = mechanicId;
-		this.index = index;
-		if (appointmentSchedule) {
-			this.id = appointmentSchedule.id;
-			this.appointmentType = appointmentSchedule.appointmentType;
-			this.schedule = appointmentSchedule.schedule
-				? new Schedule(
-					appointmentSchedule.schedule.morningStart,
-					appointmentSchedule.schedule.morningEnd,
-					appointmentSchedule.schedule.afternoonStart,
-					appointmentSchedule.schedule.afternoonEnd
-				)
-				: undefined;
-		}
+	constructor(
+		mechanic: Mechanic,
+		appointmentType: AppointmentType,
+		start: string,
+		end: string
+	) {
+		this.day = mechanic.day;
+		this.mechanicCode = mechanic.code;
+		this.id = this.buildId(mechanic.day, mechanic.code, start);
+		console.log(this.id);
+		this.appointmentType = appointmentType;
+		this.schedule = new ScheduleInterval(start, end);
+	}
+
+	buildId(day: Date, mechanicCode: string, start: string): string {
+		return `${UtilsService.formatDay(day)}-${mechanicCode}-${start}`;
 	}
 
 	reset(): void {

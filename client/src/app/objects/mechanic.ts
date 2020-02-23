@@ -15,7 +15,7 @@ export class Mechanic {
 	personalData: PersonalData;
 	skills: Skill[];
 	highlightedSkills: Skill[];
-	schedule: Schedule;
+	schedules: ScheduleInterval[] = [];
 	lines: number;
 	showInPanel: boolean;
 	height: number;
@@ -50,26 +50,30 @@ export class Mechanic {
 				return new Skill(skill, employeeSkill ? employeeSkill.skillExpertise.level : undefined);
 			});
 		}
-		this.schedule = new Schedule(
-			mechanic.schedule.morningStart,
-			mechanic.schedule.morningEnd,
-			mechanic.schedule.afternoonStart,
-			mechanic.schedule.afternoonEnd
-		);
+		if (mechanic.schedule.morningStart) {
+			this.schedules.push(new ScheduleInterval(mechanic.schedule.morningStart, mechanic.schedule.morningEnd))
+		}
+		if (mechanic.schedule.afternoonStart) {
+			this.schedules.push(new ScheduleInterval(mechanic.schedule.afternoonStart, mechanic.schedule.afternoonEnd))
+		}
 		this.lines = mechanic.lines;
 		this.showInPanel = mechanic.showInPanel;
 		this.height = this.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
-		const appointments = mechanic.appointments.map(appointment => new AppointmentSchedule(this.id, undefined, appointment));
-		this.appointments = this.schedule.intervals.map((interval: ScheduleInterval, i: number) => {
-			const appointment = appointments.find(appointment =>
-				interval.start <= appointment.schedule.start && appointment.schedule.end <= interval.end
-			);
-			if (appointment) {
-				appointment.index = i;
-				return appointment;
+		const appointmentsSchedules = [];
+		mechanic.appointments.forEach((appointment: any) => {
+			let start, end;
+			if (appointment.schedule.morningStart) {
+				start = appointment.schedule.morningStart;
+				end = appointment.schedule.morningEnd;
+			} else {
+				start = appointment.schedule.afternoonStart;
+				end = appointment.schedule.afternoonEnd;
 			}
-			return new AppointmentSchedule(this.id, i);
+			appointmentsSchedules.push(
+				new AppointmentSchedule(this, appointment.appointmentType, start, end)
+			)
 		});
+		this.appointments = appointmentsSchedules;
 		this.jobLineType = mechanic.jobLineType;
 		this.fixed = Constants.FIXED_MECHANIC_CODES.indexOf(this.code) > -1;
 	}

@@ -55,7 +55,7 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 		*  que se muestre */
 		this.appointments.forEach((appointment: AppointmentSchedule) => {
 			if (appointment.schedule) {
-				appointment.schedule.intervals[0].hourQuarters.forEach((hourQuarters: HourQuarters) => {
+				appointment.schedule.hourQuarters.forEach((hourQuarters: HourQuarters) => {
 					hourQuarters.quarters.forEach(quarter => {
 						this.dragTypeSchedule[appointment.schedule.type.toLowerCase()].push(
 							new DragScheduleInfo(hourQuarters.hour, quarter, hourQuarters.type)
@@ -122,12 +122,12 @@ export class AppointmentSchedulePanelComponent implements OnInit {
 		appointment: AppointmentSchedule,
 		index: number,
 		scheduleType: string,
-		schedule: Schedule = this.mechanic.schedule
+		schedules: ScheduleInterval[] = this.mechanic.schedules
 	): void {
 		/* Se filtra la información de los horarios para que no se guarden datos fuera de los límites */
 		this.dragTypeSchedule[scheduleType] = this.dragTypeSchedule[scheduleType].filter((dragInfo: DragScheduleInfo) => {
 			const time = UtilsService.parseTimeFromMinutes(dragInfo.hour*Constants.HOUR_MINUTES + dragInfo.quarter, new Date());
-			return schedule.intervals[index].start <= time && time < schedule.intervals[index].end
+			return schedules[index].start <= time && time < schedules[index].end
 		});
 
 		const [start, end] = [

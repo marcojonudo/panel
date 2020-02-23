@@ -55,6 +55,7 @@ import {TimeIndicatorComponent} from './components/time-indicator/time-indicator
 import {LateralPanelComponent} from './components/lateral-panel/lateral-panel.component';
 import {AppointmentsSummaryComponent} from './components/appointments-summary/appointments-summary.component';
 import {ToastsContainerComponent} from './components/toasts-container/toasts-container.component';
+import { DragScheduleDirective } from './directives/drag-schedule.directive';
 
 @NgModule({
 	declarations: [
@@ -96,7 +97,8 @@ import {ToastsContainerComponent} from './components/toasts-container/toasts-con
 		TimeIndicatorComponent,
 		LateralPanelComponent,
 		AppointmentsSummaryComponent,
-		ToastsContainerComponent
+		ToastsContainerComponent,
+		DragScheduleDirective
 	],
 	imports: [
 		BrowserModule,

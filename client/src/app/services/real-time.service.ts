@@ -203,50 +203,50 @@ export class RealTimeService {
 		const dayMechanics = this.mechanicsService.findDayMechanics(
 			UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
 		);
-		const [mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
-			dayMechanics,
-			updatedAppointment.mechanicId,
-			updatedAppointment.index
-		);
+		// const [mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
+		// 	dayMechanics,
+		// 	updatedAppointment.mechanicId,
+		// 	updatedAppointment.index
+		// );
 
 		/* El id y tipo se actualizan por el caso de creación de nueva cita. En ese caso, la cita del mecánico estará vacía,
 		*  y si se asigna sólo el horario no tendrá información sobre su tipo */
-		appointment.appointmentType = updatedAppointment.appointmentType;
-		appointment.schedule = updatedAppointment.schedule;
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
-			mechanic.day,
-			mechanic.code
-		);
+		// appointment.appointmentType = updatedAppointment.appointmentType;
+		// appointment.schedule = updatedAppointment.schedule;
+		// NotificationService.notifyMechanicLine(
+		// 	Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
+		// 	mechanic.day,
+		// 	mechanic.code
+		// );
 	}
 
 	updateAppointmentType(updatedAppointment: AppointmentSchedule): void {
 		let mechanic, appointment;
-		if (!updatedAppointment.appointmentType) {
-			for (const mechanics of Object.values(this.mechanicsService.daysMechanics)) {
-				if (!mechanic) {
-					let [mec, app] = this.appointmentsService.findMechanicAppointmentByMechanic(
-						<Mechanic[]> mechanics,
-						updatedAppointment.mechanicId,
-						updatedAppointment.index
-					);
-					if (mec) {
-						[mechanic, appointment] = [mec, app]
-					}
-				}
-			}
-			appointment.reset();
-		} else {
-			const dayMechanics = this.mechanicsService.findDayMechanics(
-				UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
-			);
-			[mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
-				dayMechanics,
-				updatedAppointment.mechanicId,
-				updatedAppointment.index
-			);
-			appointment.appointmentType = updatedAppointment.appointmentType;
-		}
+		// if (!updatedAppointment.appointmentType) {
+		// 	for (const mechanics of Object.values(this.mechanicsService.daysMechanics)) {
+		// 		if (!mechanic) {
+		// 			let [mec, app] = this.appointmentsService.findMechanicAppointmentByMechanic(
+		// 				<Mechanic[]> mechanics,
+		// 				updatedAppointment.mechanicId,
+		// 				updatedAppointment.index
+		// 			);
+		// 			if (mec) {
+		// 				[mechanic, appointment] = [mec, app]
+		// 			}
+		// 		}
+		// 	}
+		// 	appointment.reset();
+		// } else {
+		// 	const dayMechanics = this.mechanicsService.findDayMechanics(
+		// 		UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
+		// 	);
+		// 	[mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
+		// 		dayMechanics,
+		// 		updatedAppointment.mechanicId,
+		// 		updatedAppointment.index
+		// 	);
+		// 	appointment.appointmentType = updatedAppointment.appointmentType;
+		// }
 		NotificationService.notifyMechanicLine(
 			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_TYPE,
 			mechanic.day,

@@ -2,12 +2,12 @@
 	id="mechanic-line"
 	class="h-100 mechanic-line">
 	<div
-		*ngFor="let appointment of findAppointments()"
+		*ngFor="let appointment of mechanic.appointments"
 		class="d-flex appointment-schedule-container"
 		[ngStyle]="{
-			'width.px': calcScheduleWidth(appointment.schedule.intervals[0].duration),
+			'width.px': calcScheduleWidth(appointment.schedule.duration),
 			'height.px': calcScheduleHeight(mechanic.lines),
-			'left.px': calcScheduleLeft(appointment.schedule.intervals[0].start)
+			'left.px': calcScheduleLeft(appointment.schedule.start)
 		}">
 		<div
 			class="w-100 appointment-schedule d-flex">
@@ -17,19 +17,19 @@
 				<span *ngIf="showAppointmentsName" class="appointment-schedule-text">{{appointment.appointmentType.name}}</span>
 			</div>
 			<div
-				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].start)"
+				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedules, appointment.schedule.start)"
 				class="schedule-border schedule-left-border"
 				[ngStyle]="{background: findScheduleLeftBorderBackground(appointment.appointmentType.color)}">
 			</div>
 			<div
-				*ngIf="checkShowAppointmentEndSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].end)"
+				*ngIf="checkShowAppointmentEndSquareBracket(mechanic.schedules, appointment.schedule.end)"
 				class="schedule-border schedule-right-border"
 				[ngStyle]="{background: findScheduleRightBorderBackground(appointment.appointmentType.color)}">
 			</div>
 		</div>
 	</div>
 	<div
-		*ngFor="let interval of mechanic.schedule.intervals"
+		*ngFor="let interval of mechanic.schedules"
 		class="h-100 d-flex schedule-line"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(interval.duration),
@@ -39,7 +39,8 @@
 		[type]="assignedDropzoneType"
 		[mechanic]="mechanic"
 		[interval]="interval"
-		[update]="checkUpdateDropzone()">
+		[update]="checkUpdateDropzone()"
+		appDragSchedule>
 		<div
 			class="schedule-border schedule-left-border"
 			[ngStyle]="{background: findScheduleLeftBorderBackground(redColor)}">

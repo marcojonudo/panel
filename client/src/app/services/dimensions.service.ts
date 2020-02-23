@@ -209,8 +209,12 @@ export class DimensionsService {
 	 * @returns {Date[]} Par de fechas (comienzo y fin)
 	 */
 	private static getScheduleLimits(mechanics: Mechanic[]) {
-		const minSchedule = new Date(Math.min(...mechanics.map(mechanic => mechanic.schedule.start.getTime())));
-		const maxSchedule = new Date(Math.max(...mechanics.map(mechanic => mechanic.schedule.end.getTime())));
+		const minSchedule = new Date(
+			Math.min(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[0].start.getTime()))
+		);
+		const maxSchedule = new Date(
+			Math.max(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[mechanic.schedules.length-1].end.getTime()))
+		);
 		return [minSchedule, maxSchedule];
 	}
 
@@ -452,7 +456,8 @@ export class DimensionsService {
 	}
 
 	static getIntervalsNumberFromWidth(width: number) {
-		return Math.round(width / this.intervalWidth);
+		// TODO Revisar el cambio de round a floor
+		return Math.floor(width / this.intervalWidth);
 	}
 
 	static createPosition(rect: any, scrollLeft: number = undefined, scrollTop: number = undefined): Position {

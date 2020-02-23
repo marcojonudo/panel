@@ -19,6 +19,10 @@ export class UtilsService {
 		return date;
 	}
 
+	public static formatTime(time: Date): string {
+		return `${time.getHours()}:${time.getMinutes()}:00`;
+	}
+
 	public static parseTimeFromMinutes(minutes: number, day: Date = new Date()): Date {
 		return new Date(day.getFullYear(), day.getMonth(), day.getDate(), minutes/60, minutes%60)
 	}
@@ -35,6 +39,10 @@ export class UtilsService {
 	public static parseCompleteDate(day: Date, start: string): Date {
 		const timeInfo = start.split(':');
 		return new Date(day.getFullYear(), day.getMonth(), day.getDate(), +timeInfo[0], +timeInfo[1], +timeInfo[2]);
+	}
+
+	public static formatDay(day: Date): string {
+		return `${day.getFullYear()}-${day.getMonth()+1}-${day.getDate()}`;
 	}
 
 	public static getTotalMinutes(time: Date): number {
@@ -67,6 +75,10 @@ export class UtilsService {
 
 	public static calcMinutes(hour: number, minutes: number): number {
 		return hour * Constants.HOUR_MINUTES + minutes;
+	}
+
+	public static diffMinutes(date1: Date, date2: Date) {
+		return (date2.getTime() - date1.getTime()) / 60000;
 	}
 
 	// endregion

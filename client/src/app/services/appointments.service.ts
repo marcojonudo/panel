@@ -13,6 +13,7 @@ import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
 import {Url} from "../objects/url";
 import {UpdateAppointmentDayParams} from "../objects/update-appointment-day-params";
 import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Injectable({
 	providedIn: 'root'
@@ -229,10 +230,10 @@ export class AppointmentsService {
 				this.http.put(Url.appointmentType(), appointment).subscribe();
 			}
 		} else {
-			this.http.delete(
-				Url.appointmentType(),
-				{params: {id: `${appointment.id}`, mechanicId: `${mechanic.id}`, index: `${appointment.index}`}}
-			).subscribe();
+			// this.http.delete(
+			// 	Url.appointmentType(),
+			// 	{params: {id: `${appointment.id}`, mechanicId: `${mechanic.id}`, index: `${appointment.index}`}}
+			// ).subscribe();
 			appointment.reset();
 		}
 		mechanic.appointments = mechanic.appointments.slice();
@@ -253,8 +254,8 @@ export class AppointmentsService {
 		const insertNewAppointment = appointment.schedule == undefined;
 
 		appointment.schedule = type == Constants.SCHEDULE_TYPE.MORNING
-			? new Schedule(start, end, undefined, undefined)
-			: new Schedule(undefined, undefined, start, end);
+			? new ScheduleInterval(start, end)
+			: new ScheduleInterval(start, end);
 
 		mechanic.appointments = mechanic.appointments.slice();
 		if (insertNewAppointment) {
@@ -263,11 +264,70 @@ export class AppointmentsService {
 				appointment,
 				{params: {mechanicId: `${mechanic.id}`}}
 			).subscribe((createdAppointment: AppointmentSchedule) => {
-				appointment.id = createdAppointment.id;
+				// appointment.id = createdAppointment.id;
 			});
 		} else {
 			this.http.put(Url.appointmentSchedule(), appointment).subscribe()
 		}
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
+			mechanic.day,
+			mechanic.code
+		);
+	}
+
+	create(
+		mechanic: Mechanic,
+		type: AppointmentType,
+		start: Date,
+		end: Date
+	): AppointmentSchedule {
+		const newAppointment = new AppointmentSchedule(
+			mechanic,
+			undefined,
+			type,
+			UtilsService.formatTime(start),
+			UtilsService.formatTime(end)
+		);
+		mechanic.appointments.push(newAppointment);
+
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
+			mechanic.day,
+			mechanic.code
+		);
+
+		return newAppointment;
+	}
+
+	updateSchedule(
+		mechanic: Mechanic,
+		appointment: AppointmentSchedule,
+		start: Date,
+		end: Date
+	): void {
+		const appointmentSchedule = mechanic.appointments.find((appointmentSchedule: AppointmentSchedule) =>
+			appointmentSchedule.id == appointment.id
+		);
+		appointmentSchedule.schedule.setStart(start);
+		appointmentSchedule.schedule.setEnd(end);
+
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
+			mechanic.day,
+			mechanic.code
+		);
+	}
+
+	delete(
+		mechanic: Mechanic,
+		appointment: AppointmentSchedule
+	): void {
+		const appointmentIndex = mechanic.appointments.findIndex((appointmentSchedule: AppointmentSchedule) =>
+			appointmentSchedule.id == appointment.id
+		);
+		mechanic.appointments.splice(appointmentIndex, 1);
+
 		NotificationService.notifyMechanicLine(
 			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
 			mechanic.day,

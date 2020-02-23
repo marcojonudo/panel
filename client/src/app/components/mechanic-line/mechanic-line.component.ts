@@ -54,10 +54,6 @@ export class MechanicLineComponent {
 
 	// endregion
 
-	findAppointments(mechanic: Mechanic = this.mechanic): AppointmentSchedule[] {
-		return mechanic.appointments.filter(appointment => appointment.schedule)
-	}
-
 	findGroups(day: Date, mechanicCode: string): CardsGroup[] {
 		return this.cardsService.findDayMechanicGroups(day, mechanicCode);
 	}

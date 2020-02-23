@@ -8,7 +8,15 @@ export class RealTimeAppointmentUpdateSchedule extends RealTimeUpdate {
 
 	constructor(appointment: any) {
 		super();
-		this.appointment = new AppointmentSchedule(appointment.mechanicId, appointment.index, appointment);
+		let start, end;
+		if (appointment.schedule.morningStart) {
+			start = appointment.schedule.morningStart;
+			end = appointment.schedule.morningEnd;
+		} else {
+			start = appointment.schedule.afternoonStart;
+			end = appointment.schedule.afternoonEnd;
+		}
+		// this.appointment = new AppointmentSchedule(undefined, appointment.appointmentType, start, end);
 	}
 
 	update(realTimeService: RealTimeService): void {

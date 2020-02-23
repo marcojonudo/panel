@@ -31,4 +31,9 @@ export class ScheduleInterval {
 		}
 	}
 
+	setEnd(end: Date): void {
+		this.end = end;
+		this.duration = UtilsService.getScheduleMinutes(this.start, this.end);
+	}
+
 }
