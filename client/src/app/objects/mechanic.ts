@@ -5,6 +5,7 @@ import {Skill} from "./skill";
 import {AppointmentSchedule} from "./appointment-schedule";
 import {ScheduleInterval} from "./schedule-interval";
 import {DimensionsService} from "../services/dimensions.service";
+import {AppointmentsService} from "../services/appointments.service";
 
 export class Mechanic {
 
@@ -59,21 +60,14 @@ export class Mechanic {
 		this.lines = mechanic.lines;
 		this.showInPanel = mechanic.showInPanel;
 		this.height = this.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
-		const appointmentsSchedules = [];
-		mechanic.appointments.forEach((appointment: any) => {
-			let start, end;
-			if (appointment.schedule.morningStart) {
-				start = appointment.schedule.morningStart;
-				end = appointment.schedule.morningEnd;
-			} else {
-				start = appointment.schedule.afternoonStart;
-				end = appointment.schedule.afternoonEnd;
-			}
-			appointmentsSchedules.push(
-				new AppointmentSchedule(this, appointment.appointmentType, start, end)
+		this.appointments = mechanic.appointments.map((appointment: any) =>
+			new AppointmentSchedule(
+				this,
+				AppointmentsService.findAppointmentType(appointment.appointmentTypeCode),
+				appointment.schedule.start,
+				appointment.schedule.end
 			)
-		});
-		this.appointments = appointmentsSchedules;
+		);
 		this.jobLineType = mechanic.jobLineType;
 		this.fixed = Constants.FIXED_MECHANIC_CODES.indexOf(this.code) > -1;
 	}

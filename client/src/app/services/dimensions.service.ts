@@ -456,7 +456,6 @@ export class DimensionsService {
 	}
 
 	static getIntervalsNumberFromWidth(width: number) {
-		// TODO Revisar el cambio de round a floor
 		return Math.floor(width / this.intervalWidth);
 	}
 

@@ -5,6 +5,7 @@ import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.QueryValue
+import panel.pogos.MechanicAppointment
 import panel.utils.Constants
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.EmployeeScheduleAppointment
@@ -25,8 +26,7 @@ interface CuboDatabaseApi {
 
 	EmployeeScheduleAppointment createAppointment(
 			@Header String sessionId,
-			@Body Map<String, Object> appointment,
-			@QueryValue long mechanicId
+			@Body MechanicAppointment mechanicAppointment
 	)
 
 	void updateAppointmentType(@Header String sessionId, @Body Map<String, Object> appointment)

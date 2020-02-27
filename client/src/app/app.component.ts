@@ -44,6 +44,11 @@ export class AppComponent implements AfterViewInit {
 			.subscribe((data: any) => {
 				console.log('Received data', data);
 
+				this.appointmentsService.init(
+					data.appointmentTypes,
+					data.appointmentDays
+				);
+
 				this.mechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
 				this.cardsService.init(
@@ -59,11 +64,6 @@ export class AppComponent implements AfterViewInit {
 				);
 
 				this.jobLineTypeService.init(data.jobLineTypes);
-
-				this.appointmentsService.init(
-					data.appointmentTypes,
-					data.appointmentDays
-				);
 
 				this.loading = false;
 				this.cdRef.detectChanges();

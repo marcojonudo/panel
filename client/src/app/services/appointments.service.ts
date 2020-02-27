@@ -23,7 +23,7 @@ export class AppointmentsService {
 	private readonly TOTAL: string = 'TOTAL';
 	private readonly MAX: string = 'MAX';
 
-	private _appointmentTypes: AppointmentType[];
+	private static _appointmentTypes: AppointmentType[];
 	private appointmentDays: AppointmentDay[];
 
 	private _daysAppointmentsCounter: DaysAppointmentsCounter;
@@ -38,11 +38,11 @@ export class AppointmentsService {
 
 	// region Getters / setters
 
-	get appointmentTypes(): AppointmentType[] {
+	static get appointmentTypes(): AppointmentType[] {
 		return this._appointmentTypes;
 	}
 
-	set appointmentTypes(value: AppointmentType[]) {
+	static set appointmentTypes(value: AppointmentType[]) {
 		this._appointmentTypes = value;
 	}
 
@@ -66,7 +66,7 @@ export class AppointmentsService {
 
 	// region Finders
 
-	findAppointmentType(code: string): AppointmentType {
+	static findAppointmentType(code: string): AppointmentType {
 		return this.appointmentTypes.find(appointmentType => appointmentType.code == code);
 	}
 
@@ -87,12 +87,12 @@ export class AppointmentsService {
 		appointmentTypes: AppointmentType[],
 		appointmentDays: any[]
 	): void {
-		this.appointmentTypes = appointmentTypes;
+		AppointmentsService.appointmentTypes = appointmentTypes;
 		this.appointmentDays = UtilsService.sort(appointmentDays.map(appointmentDay => {
 			return new AppointmentDay(appointmentDay.appointmentType, appointmentDay.day, appointmentDay)
 		}), (appointmentDay) => appointmentDay.day);
 
-		console.log('Appointment types', this.appointmentTypes);
+		console.log('Appointment types', AppointmentsService.appointmentTypes);
 		console.log('Appointment days', this.appointmentDays);
 
 		this.daysAppointmentsCounter = this.initDaysAppointmentsCounter(this.appointmentDays);
@@ -222,7 +222,7 @@ export class AppointmentsService {
 		newAppointmentTypeCode: string
 	): void {
 		if (newAppointmentTypeCode) {
-			appointment.appointmentType = this.findAppointmentType(newAppointmentTypeCode);
+			appointment.appointmentType = AppointmentsService.findAppointmentType(newAppointmentTypeCode);
 
 			/* La info se guarda en DB sólo si ya tiene horario. Al definir una nueva cita, y escoger sólo el tipo, no
 			*  se guarda para no tener una cita sin horario (aunque sea temporalmente) en DB */
@@ -284,7 +284,6 @@ export class AppointmentsService {
 	): AppointmentSchedule {
 		const newAppointment = new AppointmentSchedule(
 			mechanic,
-			undefined,
 			type,
 			UtilsService.formatTime(start),
 			UtilsService.formatTime(end)
@@ -303,13 +302,11 @@ export class AppointmentsService {
 	updateSchedule(
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule,
-		start: Date,
 		end: Date
 	): void {
 		const appointmentSchedule = mechanic.appointments.find((appointmentSchedule: AppointmentSchedule) =>
 			appointmentSchedule.id == appointment.id
 		);
-		appointmentSchedule.schedule.setStart(start);
 		appointmentSchedule.schedule.setEnd(end);
 
 		NotificationService.notifyMechanicLine(
@@ -321,7 +318,8 @@ export class AppointmentsService {
 
 	delete(
 		mechanic: Mechanic,
-		appointment: AppointmentSchedule
+		appointment: AppointmentSchedule,
+		updateDb: boolean = true
 	): void {
 		const appointmentIndex = mechanic.appointments.findIndex((appointmentSchedule: AppointmentSchedule) =>
 			appointmentSchedule.id == appointment.id
@@ -333,6 +331,10 @@ export class AppointmentsService {
 			mechanic.day,
 			mechanic.code
 		);
+	}
+
+	createDb(appointment: AppointmentSchedule): void {
+		this.http.post(Url.appointmentSchedule(), appointment).subscribe();
 	}
 
 	// endregion

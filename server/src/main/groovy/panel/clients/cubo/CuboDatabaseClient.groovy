@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
+import panel.pogos.MechanicAppointment
 import panel.utils.Constants
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.EmployeeScheduleAppointment
@@ -34,8 +35,7 @@ interface CuboDatabaseClient extends CuboDatabaseApi {
 	@Post("/appointment/schedule")
 	EmployeeScheduleAppointment createAppointment(
 			@Header String sessionId,
-			@Body Map<String, Object> appointment,
-			@QueryValue long mechanicId
+			@Body MechanicAppointment mechanicAppointment
 	)
 
 	@Put("/appointment/type")

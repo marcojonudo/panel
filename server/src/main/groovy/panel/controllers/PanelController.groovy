@@ -1,5 +1,6 @@
 package panel.controllers
 
+import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.*
 import io.micronaut.http.sse.Event
@@ -7,6 +8,7 @@ import io.reactivex.subjects.PublishSubject
 import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.pogos.CompleteInfo
+import panel.pogos.MechanicAppointment
 import panel.pogos.PublisherInfo
 import panel.publisher.PanelPublisher
 import panel.services.PanelService
@@ -110,10 +112,9 @@ class PanelController {
 	@Post("/appointment/schedule")
 	EmployeeScheduleAppointment createAppointment(
 			@Header String sessionId,
-			@Body Map<String, Object> appointment,
-			@QueryValue long mechanicId
+			@Body MechanicAppointment mechanicAppointment
 	) {
-		return cuboDatabaseClient.createAppointment(sessionId, appointment, mechanicId)
+		return cuboDatabaseClient.createAppointment(sessionId, mechanicAppointment)
 	}
 
 	@Put("/appointment/schedule")

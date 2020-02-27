@@ -13,7 +13,7 @@ abstract class PublisherInfo {
 		        new MechanicPublisherInfo(updateProperty, (List<Map<String, Object>>) mechanics)
 	        },
 	        appointment: { String updateProperty, Object appointment ->
-		        new AppointmentPublisherInfo(updateProperty, (Map<String, Object>) appointment)
+		        new AppointmentPublisherInfo(updateProperty, (MechanicAppointment) appointment)
 	        }
 	]
 

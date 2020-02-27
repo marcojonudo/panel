@@ -20,7 +20,6 @@ export class AppointmentSchedule {
 		this.day = mechanic.day;
 		this.mechanicCode = mechanic.code;
 		this.id = this.buildId(mechanic.day, mechanic.code, start);
-		console.log(this.id);
 		this.appointmentType = appointmentType;
 		this.schedule = new ScheduleInterval(start, end);
 	}

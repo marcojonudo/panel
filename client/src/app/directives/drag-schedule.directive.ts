@@ -54,7 +54,7 @@ export class DragScheduleDirective implements OnInit {
 		];
 		this.appointmentSchedule = this.appointmentsService.create(
 			this.mechanic,
-			this.appointmentsService.findAppointmentType("RAP"),
+			AppointmentsService.findAppointmentType("RAP"),
 			this.quarterStart,
 			this.quarterEnd
 		);
@@ -86,25 +86,28 @@ export class DragScheduleDirective implements OnInit {
 				this.appointmentsService.updateSchedule(
 					this.mechanic,
 					this.appointmentSchedule,
-					this.quarterStart,
 					quarterEnd
 				);
 			} else {
 				/* En este caso, se colapsó el horario, por lo que se elimina la cita */
 				this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
-				this.resetListeners();
+				this.reset();
 			}
 		}
 	}
 
 	onPointerUp(): void {
 		this.lastMovedQuarter = 0;
-		this.resetListeners();
+		if (this.appointmentSchedule) {
+			this.appointmentsService.createDb(this.appointmentSchedule);
+		}
+		this.reset();
 	}
 
-	resetListeners(): void {
+	reset(): void {
 		this.pointerMoveListener();
 		this.pointerUpListener();
+		this.appointmentSchedule = undefined;
 	}
 
 }
