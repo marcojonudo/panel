@@ -111,6 +111,10 @@ export class Constants {
 		CUT: 'crosshair',
 		REPLACE: 'exchange.png'
 	};
+	public static readonly MAIN_CURSOR: any = {
+		DRAGGING_SCHEDULES: 'brush.png',
+		DEFAULT: 'default'
+	};
 	public static readonly LINK_HANDLER_IMAGE: any = {
 		JOINED: 'link_handler_joined.svg',
 		SPLITTED: 'link_handler_splitted.svg'

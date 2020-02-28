@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {AppointmentSchedule} from "../objects/appointment-schedule";
-import {Schedule} from "../objects/schedule";
 import {Constants} from "../objects/constants";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
@@ -22,6 +21,8 @@ export class AppointmentsService {
 
 	private readonly TOTAL: string = 'TOTAL';
 	private readonly MAX: string = 'MAX';
+
+	private static _dragSchedulesMode: boolean = false;
 
 	private static _appointmentTypes: AppointmentType[];
 	private appointmentDays: AppointmentDay[];
@@ -60,6 +61,14 @@ export class AppointmentsService {
 
 	set appointmentDaysToUpdate(value: AppointmentDay[]) {
 		this._appointmentDaysToUpdate = value;
+	}
+
+	static get dragSchedulesMode(): boolean {
+		return this._dragSchedulesMode;
+	}
+
+	static set dragSchedulesMode(value: boolean) {
+		this._dragSchedulesMode = value;
 	}
 
 	// endregion
@@ -338,5 +347,12 @@ export class AppointmentsService {
 	}
 
 	// endregion
+
+	static toggleDragSchedulesMode(): void {
+		this.dragSchedulesMode = !this.dragSchedulesMode;
+		NotificationService.notifyMainCursor(
+			this.dragSchedulesMode ? Constants.MAIN_CURSOR.DRAGGING_SCHEDULES : Constants.MAIN_CURSOR.DEFAULT
+		);
+	}
 
 }

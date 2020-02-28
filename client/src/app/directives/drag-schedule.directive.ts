@@ -42,33 +42,33 @@ export class DragScheduleDirective implements OnInit {
 	}
 
 	onPointerDown(event: PointerEvent): void {
-		const left = CardPositionService.absolutePositionToLeft(event.clientX);
-		const [quarterStartLeft, quarterEndLeft] = [
-			UtilsService.roundFloor(left, DimensionsService.intervalWidth * 3),
-			UtilsService.roundCeil(left, DimensionsService.intervalWidth * 3)
-		];
-		this.quarterEndLeft = quarterEndLeft;
-		[this.quarterStart, this.quarterEnd] = [
-			DimensionsService.calcStartFromLeft(quarterStartLeft, this.mechanic.day),
-			DimensionsService.calcStartFromLeft(quarterEndLeft, this.mechanic.day)
-		];
-		this.appointmentSchedule = this.appointmentsService.create(
-			this.mechanic,
-			AppointmentsService.findAppointmentType("RAP"),
-			this.quarterStart,
-			this.quarterEnd
-		);
+		if (AppointmentsService.dragSchedulesMode) {
+			const left = CardPositionService.absolutePositionToLeft(event.clientX);
+			const quarterStartLeft = UtilsService.roundFloor(left, DimensionsService.intervalWidth * 3);
+			const quarterEndLeft = quarterStartLeft + DimensionsService.intervalWidth * 3;
+			this.quarterEndLeft = quarterEndLeft;
+			[this.quarterStart, this.quarterEnd] = [
+				DimensionsService.calcStartFromLeft(quarterStartLeft, this.mechanic.day),
+				DimensionsService.calcStartFromLeft(quarterEndLeft, this.mechanic.day)
+			];
+			this.appointmentSchedule = this.appointmentsService.create(
+				this.mechanic,
+				AppointmentsService.findAppointmentType("RAP"),
+				this.quarterStart,
+				this.quarterEnd
+			);
 
-		this.pointerMoveListener = this.renderer.listen(
-			Constants.ELEMENT.DOCUMENT,
-			Constants.EVENT.POINTER_MOVE,
-			this.onPointerMove.bind(this)
-		);
-		this.pointerUpListener = this.renderer.listen(
-			Constants.ELEMENT.DOCUMENT,
-			Constants.EVENT.POINTER_UP,
-			this.onPointerUp.bind(this)
-		);
+			this.pointerMoveListener = this.renderer.listen(
+				Constants.ELEMENT.DOCUMENT,
+				Constants.EVENT.POINTER_MOVE,
+				this.onPointerMove.bind(this)
+			);
+			this.pointerUpListener = this.renderer.listen(
+				Constants.ELEMENT.DOCUMENT,
+				Constants.EVENT.POINTER_UP,
+				this.onPointerUp.bind(this)
+			);
+		}
 	}
 
 	onPointerMove(event: PointerEvent): void {

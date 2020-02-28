@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
@@ -6,6 +6,7 @@ import {NotificationService} from "../../services/notification.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
+import {AppointmentsService} from "../../services/appointments.service";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -24,7 +25,8 @@ export class ToolsBarComponent {
 
 	constructor(
 		private cardsService: CardsService,
-		private mechanicsService: MechanicsService
+		private mechanicsService: MechanicsService,
+		private cdRef: ChangeDetectorRef
 	) {
 		this.showingFinished = false;
 	}
@@ -55,6 +57,22 @@ export class ToolsBarComponent {
 		return Constants.APPOINTMENT_SATURATION.AFTERNOON;
 	}
 
+	get oneDayMode(): boolean {
+		return DimensionsService.oneDayMode;
+	}
+
+	get onlyAppointmentsMode(): boolean {
+		return MechanicsService.onlyAppointmentsMode;
+	}
+
+	get showAppointmentsName(): boolean {
+		return MechanicsService.showAppointmentsName;
+	}
+
+	get dragScheduleMode(): boolean {
+		return AppointmentsService.dragSchedulesMode;
+	}
+
 	// endregion
 
 	// region Checks
@@ -79,8 +97,9 @@ export class ToolsBarComponent {
 		this.mechanicsService.toggleShowAppointmentsName();
 	}
 
-	toggleDrawAppointmentsSchedules(): void {
-		this.mechanicsService.toggleShowAppointmentsName();
+	toggleDragSchedulesMode(): void {
+		AppointmentsService.toggleDragSchedulesMode();
+		this.cdRef.detectChanges();
 	}
 
 	showFinishedCardsBar(): void {

@@ -59,6 +59,9 @@ export class NotificationService {
 	private static toastSubject: Subject<Toast>;
 	private static _toast$: Observable<Toast>;
 
+	private static mainCursorSubject: Subject<string>;
+	private static _mainCursor$: Observable<string>;
+
 	// region Init
 
 	static init(): void {
@@ -100,6 +103,9 @@ export class NotificationService {
 
 		this.toastSubject = new Subject<Toast>();
 		this.toast$ = this.toastSubject.asObservable();
+
+		this.mainCursorSubject = new Subject<string>();
+		this.mainCursor$ = this.mainCursorSubject.asObservable();
 	}
 
 	// endregion
@@ -210,6 +216,14 @@ export class NotificationService {
 		this._toast$ = value;
 	}
 
+	static get mainCursor$(): Observable<string> {
+		return this._mainCursor$;
+	}
+
+	static set mainCursor$(value: Observable<string>) {
+		this._mainCursor$ = value;
+	}
+
 	// endregion
 
 	static notifyAll(): void {
@@ -267,6 +281,10 @@ export class NotificationService {
 
 	static notifyToast(toast: Toast): void {
 		this.toastSubject.next(toast);
+	}
+
+	static notifyMainCursor(cursor: string): void {
+		this.mainCursorSubject.next(cursor);
 	}
 
 }

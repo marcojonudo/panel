@@ -29,6 +29,7 @@ import {DaysAppointmentsCounterUpdate} from "../../objects/appointments-counter-
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 import {Toast} from "../../objects/toasts/toast";
+import {DomSanitizer} from "@angular/platform-browser";
 
 @Component({
 	selector: 'app-main',
@@ -58,6 +59,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _toast: Toast;
 
+	private _cursor: string;
+
 	private _mechanicLineUpdate: MechanicUpdate;
 	private _mechanicInfoUpdate: MechanicUpdate;
 
@@ -81,13 +84,15 @@ export class MainComponent implements OnInit, OnDestroy {
 	private lateralInfoSubscription: Subscription;
 	private appointmentsCounterSubscription: Subscription;
 	private toastSubscription: Subscription;
+	private dragSchedulesSubscription: Subscription;
 
 	constructor(
 		private cardsService: CardsService,
 		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,
 		private appointmentsService: AppointmentsService,
-		private cdRef: ChangeDetectorRef
+		private cdRef: ChangeDetectorRef,
+		private sanitizer: DomSanitizer
 	) {
 		this.days = this.mechanicsService.days;
 		this.initDaysUpdateObjects();
@@ -108,6 +113,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 
 		this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+		this.cursor = Constants.MAIN_CURSOR.DEFAULT;
 	}
 
 	ngOnInit(): void {
@@ -190,6 +196,12 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.toastSubscription = NotificationService.toast$.subscribe((toast: Toast) => {
 			this.toast = toast;
+			this.cdRef.detectChanges();
+		});
+
+		this.dragSchedulesSubscription = NotificationService.mainCursor$.subscribe((cursor: string) => {
+			console.log(111, cursor);
+			this.cursor = cursor;
 			this.cdRef.detectChanges();
 		});
 
@@ -378,6 +390,14 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._toast = value;
 	}
 
+	get cursor(): string {
+		return this._cursor;
+	}
+
+	set cursor(value: string) {
+		this._cursor = value;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Date[] = this.days): void {
@@ -444,6 +464,12 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	calcTimeIndicatorLeft(time: Date = new Date()): number {
 		return DimensionsService.calcLeftFromStart(time) + Constants.VALUE.MECHANIC_INFO_WIDTH;
+	}
+
+	findCursor(cursorName: string = this.cursor) {
+		return UtilsService.isImage(cursorName)
+			? this.sanitizer.bypassSecurityTrustStyle(`url(../../../assets/img/cursors/${cursorName}), auto`)
+			: cursorName;
 	}
 
 	trackByDay(index, item) {

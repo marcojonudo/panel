@@ -456,7 +456,7 @@ export class DimensionsService {
 	}
 
 	static getIntervalsNumberFromWidth(width: number) {
-		return Math.floor(width / this.intervalWidth);
+		return Math.round(width / this.intervalWidth);
 	}
 
 	static createPosition(rect: any, scrollLeft: number = undefined, scrollTop: number = undefined): Position {
