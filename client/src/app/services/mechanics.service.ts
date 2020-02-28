@@ -160,12 +160,12 @@ export class MechanicsService {
 		}
 	}
 
-	toggleOnlyAppointmentsMode(): void {
+	static toggleOnlyAppointmentsMode(): void {
 		MechanicsService.onlyAppointmentsMode = !MechanicsService.onlyAppointmentsMode;
 		NotificationService.notifyOnlyAppointmentsMode();
 	}
 
-	toggleShowAppointmentsName(): void {
+	static toggleShowAppointmentsName(): void {
 		MechanicsService.showAppointmentsName = !MechanicsService.showAppointmentsName;
 		/* Se notifica el Observer de onlyAppointmentsMode ya que una vez actualizada la variable (en este caso,
 		*  showAppointmentsMode), sólo interesa lanzar el CD */

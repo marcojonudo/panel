@@ -90,16 +90,17 @@ export class ToolsBarComponent {
 	}
 
 	toggleShowMechanicsWithoutAppointments(): void {
-		this.mechanicsService.toggleOnlyAppointmentsMode();
+		MechanicsService.toggleOnlyAppointmentsMode();
 	}
 
 	toggleShowAppointmentsName(): void {
-		this.mechanicsService.toggleShowAppointmentsName();
+		MechanicsService.toggleShowAppointmentsName();
 	}
 
 	toggleDragSchedulesMode(): void {
 		AppointmentsService.toggleDragSchedulesMode();
-		this.cdRef.detectChanges();
+		DimensionsService.updateMaxScheduleWidth(DimensionsService.gridWidth);
+		NotificationService.notifyMaxScheduleWidth(DimensionsService.gridWidth);
 	}
 
 	showFinishedCardsBar(): void {
