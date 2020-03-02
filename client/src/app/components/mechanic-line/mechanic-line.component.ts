@@ -10,6 +10,9 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {JobLineTypeService} from "../../services/job-line-type.service";
 import {ScheduleInterval} from "../../objects/schedule-interval";
 import {MechanicsService} from "../../services/mechanics.service";
+import {DragScheduleBehaviour} from "../../objects/drag-schedule-behaviour/drag-schedule-behaviour";
+import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/update-schedule-behaviour";
+import {CreateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/create-schedule-behaviour";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -112,6 +115,14 @@ export class MechanicLineComponent {
 	checkUpdateDropzone(mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
 		return mechanicLineUpdate && mechanicLineUpdate.type == Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH
 			? mechanicLineUpdate : undefined;
+	}
+
+	createCreateScheduleBehaviour(): DragScheduleBehaviour {
+		return new CreateScheduleBehaviour();
+	}
+
+	createUpdateScheduleBehaviour(left: boolean): DragScheduleBehaviour {
+		return new UpdateScheduleBehaviour(left);
 	}
 
 	trackByItem(index, item) {

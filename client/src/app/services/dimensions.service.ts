@@ -436,6 +436,12 @@ export class DimensionsService {
 
 	// endregion
 
+	// region Convert from properties
+
+
+
+	// endregion
+
 	// region Auxiliary methods
 
 	private static getRelativeMinutesFromStart(time: Date) {

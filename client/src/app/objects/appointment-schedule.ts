@@ -33,4 +33,10 @@ export class AppointmentSchedule {
 		this.schedule = undefined;
 	}
 
+	equals(appointmentSchedule: AppointmentSchedule): boolean {
+		return this.day.getTime() == appointmentSchedule.day.getTime()
+			&& this.mechanicCode == appointmentSchedule.mechanicCode
+			&& this.schedule.start.getTime() == appointmentSchedule.schedule.start.getTime();
+	}
+
 }

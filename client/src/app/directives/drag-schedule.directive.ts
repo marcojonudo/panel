@@ -1,11 +1,10 @@
 import {Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
 import {Constants} from "../objects/constants";
-import {DimensionsService} from "../services/dimensions.service";
-import {CardPositionService} from "../services/card-position.service";
 import {Mechanic} from "../objects/mechanic";
-import {UtilsService} from "../services/utils.service";
 import {AppointmentsService} from "../services/appointments.service";
 import {AppointmentSchedule} from "../objects/appointment-schedule";
+import {DragSchedulesService} from "../services/drag-schedules.service";
+import {DragScheduleBehaviour} from "../objects/drag-schedule-behaviour/drag-schedule-behaviour";
 
 @Directive({
 	selector: '[appDragSchedule]'
@@ -13,6 +12,8 @@ import {AppointmentSchedule} from "../objects/appointment-schedule";
 export class DragScheduleDirective implements OnInit {
 
 	@Input() mechanic: Mechanic;
+	@Input() appointment: AppointmentSchedule;
+	@Input() behaviour: DragScheduleBehaviour;
 
 	private pointerDownListener: () => void;
 	private pointerMoveListener: () => void;
@@ -21,9 +22,7 @@ export class DragScheduleDirective implements OnInit {
 	private lastMovedQuarter: number;
 
 	private appointmentSchedule: AppointmentSchedule;
-	private quarterEndLeft: number;
-	private quarterStart: Date;
-	private quarterEnd: Date;
+	private quarterRefLeft: number;
 
 	constructor(
 		private appointmentsService: AppointmentsService,
@@ -39,24 +38,32 @@ export class DragScheduleDirective implements OnInit {
 			Constants.EVENT.POINTER_DOWN,
 			this.onPointerDown.bind(this)
 		);
+		if (this.appointment) {
+			this.appointmentSchedule = this.appointment;
+		}
 	}
 
 	onPointerDown(event: PointerEvent): void {
 		if (AppointmentsService.dragSchedulesMode) {
-			const left = CardPositionService.absolutePositionToLeft(event.clientX);
-			const quarterStartLeft = UtilsService.roundFloor(left, DimensionsService.intervalWidth * 3);
-			const quarterEndLeft = quarterStartLeft + DimensionsService.intervalWidth * 3;
-			this.quarterEndLeft = quarterEndLeft;
-			[this.quarterStart, this.quarterEnd] = [
-				DimensionsService.calcStartFromLeft(quarterStartLeft, this.mechanic.day),
-				DimensionsService.calcStartFromLeft(quarterEndLeft, this.mechanic.day)
-			];
-			this.appointmentSchedule = this.appointmentsService.create(
-				this.mechanic,
-				AppointmentsService.findAppointmentType("RAP"),
-				this.quarterStart,
-				this.quarterEnd
-			);
+			// this.quarterStartLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointmentSchedule);
+			this.quarterRefLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointmentSchedule);
+			if (!this.appointmentSchedule) {
+				/* Si se está reando un horario nuevo, la referencia calculada previamente es la izquierda del cuarto
+				*  en el que se hizo clic */
+				const quarterEndLeft = DragSchedulesService.calcQuarterEndLeft(this.quarterRefLeft);
+				const [quarterStart, quarterEnd] =
+					DragSchedulesService.calcQuarterThresholdsStart(
+						this.quarterRefLeft,
+						quarterEndLeft,
+						this.mechanic.day
+					);
+				this.appointmentSchedule = AppointmentsService.create(
+					this.mechanic,
+					AppointmentsService.findAppointmentType("RAP"),
+					quarterStart,
+					quarterEnd
+				);
+			}
 
 			this.pointerMoveListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
@@ -72,34 +79,39 @@ export class DragScheduleDirective implements OnInit {
 	}
 
 	onPointerMove(event: PointerEvent): void {
-		const left = CardPositionService.absolutePositionToLeft(event.clientX);
-		const movedQuarters = Math.ceil((left - this.quarterEndLeft) / (DimensionsService.intervalWidth * 3));
+		const movedQuarters = DragSchedulesService.calcMovedQuarters(event.clientX, this.quarterRefLeft);
 		/* Sólo se ejecutan acciones si se ha movido el cursor lo suficiente como para rebasar un cuarto */
 		if (movedQuarters != this.lastMovedQuarter) {
-			/* Si movedQuarters es mayor que 0, se debe actualizar la hora de finalización del horario */
-			if (movedQuarters >= 0) {
-				const quarterEnd = DimensionsService.calcStartFromLeft(
-					this.quarterEndLeft + movedQuarters * DimensionsService.intervalWidth * 3,
-					this.mechanic.day
-				);
-				this.lastMovedQuarter = movedQuarters;
-				this.appointmentsService.updateSchedule(
+			this.lastMovedQuarter = movedQuarters;
+			// if (movedQuarters != 0) {
+				this.behaviour.updateQuarterRef(
+					this.quarterRefLeft,
+					movedQuarters,
 					this.mechanic,
-					this.appointmentSchedule,
-					quarterEnd
+					this.appointmentSchedule
 				);
-			} else {
-				/* En este caso, se colapsó el horario, por lo que se elimina la cita */
-				this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
-				this.reset();
-			}
+
+				// const quarterEnd = DimensionsService.calcStartFromLeft(
+				// 	this.quarterEndLeft + movedQuarters * DimensionsService.intervalWidth * 3,
+				// 	this.mechanic.day
+				// );
+				// AppointmentsService.updateSchedule(
+				// 	this.mechanic,
+				// 	this.appointmentSchedule,
+				// 	quarterEnd
+				// );
+			// } else {
+				// /* En este caso, se colapsó el horario, por lo que se elimina la cita */
+				// this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
+				// this.reset();
+			// }
 		}
 	}
 
 	onPointerUp(): void {
 		this.lastMovedQuarter = 0;
 		if (this.appointmentSchedule) {
-			this.appointmentsService.createDb(this.appointmentSchedule);
+			// this.appointmentsService.createDb(this.appointmentSchedule);
 		}
 		this.reset();
 	}

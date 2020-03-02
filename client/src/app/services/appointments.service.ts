@@ -285,7 +285,7 @@ export class AppointmentsService {
 		);
 	}
 
-	create(
+	static create(
 		mechanic: Mechanic,
 		type: AppointmentType,
 		start: Date,
@@ -308,14 +308,16 @@ export class AppointmentsService {
 		return newAppointment;
 	}
 
-	updateSchedule(
+	static updateSchedule(
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule,
+		start: Date,
 		end: Date
 	): void {
 		const appointmentSchedule = mechanic.appointments.find((appointmentSchedule: AppointmentSchedule) =>
-			appointmentSchedule.id == appointment.id
+			appointmentSchedule.equals(appointment)
 		);
+		appointmentSchedule.schedule.start = start;
 		appointmentSchedule.schedule.setEnd(end);
 
 		NotificationService.notifyMechanicLine(

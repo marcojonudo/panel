@@ -19,12 +19,20 @@
 			<div
 				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedules, appointment.schedule.start)"
 				class="schedule-border schedule-left-border"
-				[ngStyle]="{background: findScheduleLeftBorderBackground(appointment.appointmentType.color)}">
+				[ngStyle]="{background: findScheduleLeftBorderBackground(appointment.appointmentType.color)}"
+				appDragSchedule
+				[mechanic]="mechanic"
+				[appointment]="appointment"
+				[behaviour]="createUpdateScheduleBehaviour(true)">
 			</div>
 			<div
 				*ngIf="checkShowAppointmentEndSquareBracket(mechanic.schedules, appointment.schedule.end)"
 				class="schedule-border schedule-right-border"
-				[ngStyle]="{background: findScheduleRightBorderBackground(appointment.appointmentType.color)}">
+				[ngStyle]="{background: findScheduleRightBorderBackground(appointment.appointmentType.color)}"
+				appDragSchedule
+				[mechanic]="mechanic"
+				[appointment]="appointment"
+				[behaviour]="createUpdateScheduleBehaviour(false)">
 			</div>
 		</div>
 	</div>
@@ -40,7 +48,8 @@
 		[mechanic]="mechanic"
 		[interval]="interval"
 		[update]="checkUpdateDropzone()"
-		appDragSchedule>
+		appDragSchedule
+		[behaviour]="createCreateScheduleBehaviour()">
 		<div
 			class="schedule-border schedule-left-border"
 			[ngStyle]="{background: findScheduleLeftBorderBackground(redColor)}">

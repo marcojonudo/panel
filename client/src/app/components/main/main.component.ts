@@ -200,7 +200,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		});
 
 		this.dragSchedulesSubscription = NotificationService.mainCursor$.subscribe((cursor: string) => {
-			console.log(111, cursor);
 			this.cursor = cursor;
 			this.cdRef.detectChanges();
 		});
