@@ -38,6 +38,18 @@ interface CuboDatabaseClient extends CuboDatabaseApi {
 			@Body MechanicAppointment mechanicAppointment
 	)
 
+	@Patch("/appointment/schedule")
+	void updateAppointmentSchedule(
+			@Header String sessionId,
+			@Body MechanicAppointment mechanicAppointment
+	)
+
+	@Put("/appointment/schedule")
+	void deleteAppointmentSchedule(
+			@Header String sessionId,
+			@Body MechanicAppointment mechanicAppointment
+	)
+
 	@Put("/appointment/type")
 	void updateAppointmentType(
 			@Header String sessionId,
@@ -50,12 +62,6 @@ interface CuboDatabaseClient extends CuboDatabaseApi {
 			@QueryValue long id,
 			@QueryValue long mechanicId,
 			@QueryValue int index
-	)
-
-	@Put("/appointment/schedule")
-	void updateAppointmentSchedule(
-			@Header String sessionId,
-			@Body Map<String, Object> appointment
 	)
 
 }

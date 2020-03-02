@@ -25,12 +25,18 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 			quarterRefLeft + movedQuarters * DimensionsService.intervalWidth * 3,
 			mechanic.day
 		);
-		AppointmentsService.updateSchedule(
-			mechanic,
-			appointment,
-			appointment.schedule.start,
-			quarterEnd
-		);
+		if (quarterEnd.getTime() >= appointment.schedule.start.getTime()) {
+			AppointmentsService.updateSchedule(
+				mechanic,
+				appointment,
+				appointment.schedule.start,
+				quarterEnd
+			);
+		}
+	}
+
+	updateDatabase(appointmentsService: AppointmentsService, appointment: AppointmentSchedule): void {
+		appointmentsService.createDb(appointment);
 	}
 
 }

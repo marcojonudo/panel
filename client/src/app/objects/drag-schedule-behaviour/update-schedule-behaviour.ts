@@ -31,20 +31,28 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 			mechanic.day
 		);
 		if (this.left) {
-			AppointmentsService.updateSchedule(
-				mechanic,
-				appointment,
-				quarterRef,
-				appointment.schedule.end
-			);
+			if (quarterRef.getTime() <= appointment.schedule.end.getTime()) {
+				AppointmentsService.updateSchedule(
+					mechanic,
+					appointment,
+					quarterRef,
+					appointment.schedule.end
+				);
+			}
 		} else {
-			AppointmentsService.updateSchedule(
-				mechanic,
-				appointment,
-				appointment.schedule.start,
-				quarterRef
-			);
+			if (quarterRef.getTime() >= appointment.schedule.start.getTime()) {
+				AppointmentsService.updateSchedule(
+					mechanic,
+					appointment,
+					appointment.schedule.start,
+					quarterRef
+				);
+			}
 		}
+	}
+
+	updateDatabase(appointmentsService: AppointmentsService, appointment: AppointmentSchedule): void {
+		appointmentsService.updateDb(appointment);
 	}
 
 }

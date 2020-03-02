@@ -38,6 +38,11 @@ interface CuboDatabaseApi {
 			@QueryValue int index
 	)
 
-	void updateAppointmentSchedule(@Header String sessionId, @Body Map<String, Object> appointment)
+	void updateAppointmentSchedule(@Header String sessionId, @Body MechanicAppointment mechanicAppointment)
+
+	void deleteAppointmentSchedule(
+			@Header String sessionId,
+			@Body MechanicAppointment mechanicAppointment
+	)
 
 }

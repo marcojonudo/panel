@@ -342,10 +342,22 @@ export class AppointmentsService {
 			mechanic.day,
 			mechanic.code
 		);
+
+		if (updateDb) {
+			this.deleteDb(appointment)
+		}
 	}
 
 	createDb(appointment: AppointmentSchedule): void {
 		this.http.post(Url.appointmentSchedule(), appointment).subscribe();
+	}
+
+	updateDb(appointment: AppointmentSchedule): void {
+		this.http.patch(Url.appointmentSchedule(), appointment).subscribe();
+	}
+
+	deleteDb(appointment: AppointmentSchedule): void {
+		this.http.put(Url.appointmentSchedule(), appointment).subscribe();
 	}
 
 	// endregion

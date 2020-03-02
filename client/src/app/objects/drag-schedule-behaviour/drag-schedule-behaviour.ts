@@ -1,5 +1,6 @@
 import {AppointmentSchedule} from "../appointment-schedule";
 import {Mechanic} from "../mechanic";
+import {AppointmentsService} from "../../services/appointments.service";
 
 export interface DragScheduleBehaviour {
 
@@ -11,5 +12,7 @@ export interface DragScheduleBehaviour {
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule
 	): void;
+
+	updateDatabase(appointmentsService: AppointmentsService, appointment: AppointmentSchedule): void;
 
 }

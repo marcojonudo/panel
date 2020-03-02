@@ -117,12 +117,20 @@ class PanelController {
 		return cuboDatabaseClient.createAppointment(sessionId, mechanicAppointment)
 	}
 
-	@Put("/appointment/schedule")
+	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
 			@Header String sessionId,
-			@Body Map<String, Object> appointment
+			@Body MechanicAppointment mechanicAppointment
 	) {
-		cuboDatabaseClient.updateAppointmentSchedule(sessionId, appointment)
+		cuboDatabaseClient.updateAppointmentSchedule(sessionId, mechanicAppointment)
+	}
+
+	@Put("/appointment/schedule")
+	void deleteAppointmentSchedule(
+			@Header String sessionId,
+			@Body MechanicAppointment mechanicAppointment
+	) {
+		cuboDatabaseClient.deleteAppointmentSchedule(sessionId, mechanicAppointment)
 	}
 
 	@Put("/appointmentDay/counters")

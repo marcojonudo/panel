@@ -18,7 +18,7 @@ import panel.utils.Constants
 @Filter(["/panel/cards/**", "/cubo/mechanic/**", "/cubo/appointment/**"])
 class RealTimePublisherClientFilter implements HttpClientFilter {
 
-	private static final List<HttpMethod> GET_BODY_METHODS = [HttpMethod.POST, HttpMethod.PUT]
+	private static final List<HttpMethod> GET_BODY_METHODS = [HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH]
 
 	@Override
 	Publisher<? extends HttpResponse<?>> doFilter(MutableHttpRequest<?> request, ClientFilterChain chain) {

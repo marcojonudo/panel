@@ -5,6 +5,7 @@ import {AppointmentsService} from "../services/appointments.service";
 import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {DragSchedulesService} from "../services/drag-schedules.service";
 import {DragScheduleBehaviour} from "../objects/drag-schedule-behaviour/drag-schedule-behaviour";
+import {DimensionsService} from "../services/dimensions.service";
 
 @Directive({
 	selector: '[appDragSchedule]'
@@ -83,35 +84,21 @@ export class DragScheduleDirective implements OnInit {
 		/* Sólo se ejecutan acciones si se ha movido el cursor lo suficiente como para rebasar un cuarto */
 		if (movedQuarters != this.lastMovedQuarter) {
 			this.lastMovedQuarter = movedQuarters;
-			// if (movedQuarters != 0) {
-				this.behaviour.updateQuarterRef(
-					this.quarterRefLeft,
-					movedQuarters,
-					this.mechanic,
-					this.appointmentSchedule
-				);
-
-				// const quarterEnd = DimensionsService.calcStartFromLeft(
-				// 	this.quarterEndLeft + movedQuarters * DimensionsService.intervalWidth * 3,
-				// 	this.mechanic.day
-				// );
-				// AppointmentsService.updateSchedule(
-				// 	this.mechanic,
-				// 	this.appointmentSchedule,
-				// 	quarterEnd
-				// );
-			// } else {
-				// /* En este caso, se colapsó el horario, por lo que se elimina la cita */
-				// this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
-				// this.reset();
-			// }
+			this.behaviour.updateQuarterRef(
+				this.quarterRefLeft,
+				movedQuarters,
+				this.mechanic,
+				this.appointmentSchedule
+			);
 		}
 	}
 
 	onPointerUp(): void {
 		this.lastMovedQuarter = 0;
-		if (this.appointmentSchedule) {
-			// this.appointmentsService.createDb(this.appointmentSchedule);
+		if (this.appointmentSchedule.schedule.start.getTime() == this.appointmentSchedule.schedule.end.getTime()) {
+			this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
+		} else {
+			this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
 		}
 		this.reset();
 	}
@@ -119,7 +106,6 @@ export class DragScheduleDirective implements OnInit {
 	reset(): void {
 		this.pointerMoveListener();
 		this.pointerUpListener();
-		this.appointmentSchedule = undefined;
 	}
 
 }
