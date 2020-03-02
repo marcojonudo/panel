@@ -13,6 +13,7 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {DragScheduleBehaviour} from "../../objects/drag-schedule-behaviour/drag-schedule-behaviour";
 import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/update-schedule-behaviour";
 import {CreateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/create-schedule-behaviour";
+import {AppointmentsService} from "../../services/appointments.service";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -89,6 +90,12 @@ export class MechanicLineComponent {
 	findScheduleRightBorderBackground(color: string): string {
 		color = Constants.SCHEDULE_BORDER_COLOR[color] || color;
 		return `linear-gradient(${color} 5px, transparent 5px, transparent, transparent calc(100% - 5px), ${color} calc(100% - 5px)) center/100% auto no-repeat, #f1f1f1 linear-gradient(90deg, transparent, transparent 5px, ${color} 5px, ${color}) center/100% auto no-repeat`;
+	}
+
+	findCursor(): string {
+		return AppointmentsService.dragSchedulesMode
+			? Constants.SCHEDULE_BORDER_CURSOR.E_RESIZE
+			: Constants.SCHEDULE_BORDER_CURSOR.DEFAULT;
 	}
 
 	checkShowAppointmentStartSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentStart: Date): boolean {

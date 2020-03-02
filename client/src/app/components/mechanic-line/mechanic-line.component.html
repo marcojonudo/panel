@@ -19,7 +19,10 @@
 			<div
 				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedules, appointment.schedule.start)"
 				class="schedule-border schedule-left-border"
-				[ngStyle]="{background: findScheduleLeftBorderBackground(appointment.appointmentType.color)}"
+				[ngStyle]="{
+					background: findScheduleLeftBorderBackground(appointment.appointmentType.color),
+					cursor: findCursor()
+				}"
 				appDragSchedule
 				[mechanic]="mechanic"
 				[appointment]="appointment"
@@ -28,7 +31,10 @@
 			<div
 				*ngIf="checkShowAppointmentEndSquareBracket(mechanic.schedules, appointment.schedule.end)"
 				class="schedule-border schedule-right-border"
-				[ngStyle]="{background: findScheduleRightBorderBackground(appointment.appointmentType.color)}"
+				[ngStyle]="{
+					background: findScheduleRightBorderBackground(appointment.appointmentType.color),
+					cursor: findCursor()
+				}"
 				appDragSchedule
 				[mechanic]="mechanic"
 				[appointment]="appointment"
