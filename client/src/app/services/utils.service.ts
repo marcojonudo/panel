@@ -132,6 +132,10 @@ export class UtilsService {
 		return startDiff > endDiff ? Constants.SCHEDULE_TYPE.MORNING : Constants.SCHEDULE_TYPE.AFTERNOON;
 	}
 
+	public static findDiff(start: Date, end: Date): number {
+		return Math.abs(this.getTotalMinutes(start) - this.getTotalMinutes(end));
+	}
+
 	public static roundToDecimal(n: number, decimal: number): number {
 		return +n.toFixed(decimal);
 	}

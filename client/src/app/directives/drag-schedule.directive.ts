@@ -6,6 +6,10 @@ import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {DragSchedulesService} from "../services/drag-schedules.service";
 import {DragScheduleBehaviour} from "../objects/drag-schedule-behaviour/drag-schedule-behaviour";
 import {DimensionsService} from "../services/dimensions.service";
+import {UtilsService} from "../services/utils.service";
+import {NotificationService} from "../services/notification.service";
+import {WarningToast} from "../objects/toasts/warning-toast";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Directive({
 	selector: '[appDragSchedule]'
@@ -24,6 +28,7 @@ export class DragScheduleDirective implements OnInit {
 
 	private appointmentSchedule: AppointmentSchedule;
 	private quarterRefLeft: number;
+	private quarterRefStart: Date;
 
 	constructor(
 		private appointmentsService: AppointmentsService,
@@ -39,43 +44,34 @@ export class DragScheduleDirective implements OnInit {
 			Constants.EVENT.POINTER_DOWN,
 			this.onPointerDown.bind(this)
 		);
-		if (this.appointment) {
-			this.appointmentSchedule = this.appointment;
-		}
 	}
 
 	onPointerDown(event: PointerEvent): void {
 		if (AppointmentsService.dragSchedulesMode) {
-			// this.quarterStartLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointmentSchedule);
-			this.quarterRefLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointmentSchedule);
-			if (!this.appointmentSchedule) {
-				/* Si se está reando un horario nuevo, la referencia calculada previamente es la izquierda del cuarto
-				*  en el que se hizo clic */
-				const quarterEndLeft = DragSchedulesService.calcQuarterEndLeft(this.quarterRefLeft);
-				const [quarterStart, quarterEnd] =
-					DragSchedulesService.calcQuarterThresholdsStart(
-						this.quarterRefLeft,
-						quarterEndLeft,
-						this.mechanic.day
-					);
-				this.appointmentSchedule = AppointmentsService.create(
-					this.mechanic,
-					AppointmentsService.findAppointmentType("RAP"),
-					quarterStart,
-					quarterEnd
-				);
-			}
+			this.quarterRefLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointment);
+			this.quarterRefStart = DimensionsService.calcStartFromLeft(this.quarterRefLeft, this.mechanic.day);
 
-			this.pointerMoveListener = this.renderer.listen(
-				Constants.ELEMENT.DOCUMENT,
-				Constants.EVENT.POINTER_MOVE,
-				this.onPointerMove.bind(this)
+			this.appointmentSchedule = this.behaviour.createAppointment(
+				this.appointment,
+				this.quarterRefLeft,
+				"RAP",
+				this.mechanic
 			);
-			this.pointerUpListener = this.renderer.listen(
-				Constants.ELEMENT.DOCUMENT,
-				Constants.EVENT.POINTER_UP,
-				this.onPointerUp.bind(this)
-			);
+
+			if (this.appointmentSchedule) {
+				this.pointerMoveListener = this.renderer.listen(
+					Constants.ELEMENT.DOCUMENT,
+					Constants.EVENT.POINTER_MOVE,
+					this.onPointerMove.bind(this)
+				);
+				this.pointerUpListener = this.renderer.listen(
+					Constants.ELEMENT.DOCUMENT,
+					Constants.EVENT.POINTER_UP,
+					this.onPointerUp.bind(this)
+				);
+			} else {
+				NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.CREATE_SCHEDULE_TOO_CLOSE));
+			}
 		}
 	}
 
@@ -83,27 +79,74 @@ export class DragScheduleDirective implements OnInit {
 		const movedQuarters = DragSchedulesService.calcMovedQuarters(event.clientX, this.quarterRefLeft);
 		/* Sólo se ejecutan acciones si se ha movido el cursor lo suficiente como para rebasar un cuarto */
 		if (movedQuarters != this.lastMovedQuarter) {
-			this.lastMovedQuarter = movedQuarters;
-			this.behaviour.updateQuarterRef(
+			const quarterRef = this.behaviour.findMovedQuarterRef(
 				this.quarterRefLeft,
 				movedQuarters,
-				this.mechanic,
-				this.appointmentSchedule
+				this.mechanic.day
 			);
+			if (this.validateMovement(quarterRef, movedQuarters > 0)) {
+				this.lastMovedQuarter = movedQuarters;
+				this.behaviour.updateQuarterRef(
+					quarterRef,
+					this.mechanic,
+					this.appointmentSchedule
+				);
+			}
 		}
 	}
 
 	onPointerUp(): void {
 		this.lastMovedQuarter = 0;
+		/* Si se ha movido el cursor (para evitar fallos al hacer clic sin pointermove) */
 		if (this.appointmentSchedule.schedule.start.getTime() == this.appointmentSchedule.schedule.end.getTime()) {
-			this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
+			// this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
 		} else {
-			this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
+			// this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
 		}
 		this.reset();
 	}
 
-	reset(): void {
+	private validateMovement(quarterRef: Date, draggingRight: boolean): boolean {
+		const quarterRefTime = quarterRef.getTime();
+		const quarterRefStartTime = this.quarterRefStart.getTime();
+		if (!this.checkMovementInsideSchedule(quarterRefTime, quarterRefStartTime, draggingRight)) {
+			return false;
+		}
+		const tooCloseSchedule = this.mechanic.appointments.find((appointment: AppointmentSchedule) => {
+			const [startTime, endTime] = [appointment.schedule.start.getTime(), appointment.schedule.end.getTime()];
+			if (appointment.equals(this.appointmentSchedule)) {
+				return false;
+			}
+			if (draggingRight) {
+				return quarterRefStartTime < startTime && quarterRefTime >= startTime;
+			} else {
+				return quarterRefStartTime > endTime && quarterRefTime <= endTime;
+			}
+		});
+		return tooCloseSchedule == undefined;
+	}
+
+	private checkMovementInsideSchedule(
+		quarterRefTime: number,
+		quarterRefStartTime: number,
+		draggingRight: boolean
+	): boolean {
+		const outsideSchedule = this.mechanic.schedules.find((schedule: ScheduleInterval) => {
+			const [startTime, endTime] = [schedule.start.getTime(), schedule.end.getTime()];
+			const insideSchedule = startTime <= quarterRefStartTime && quarterRefStartTime <= endTime;
+			if (!insideSchedule) {
+				return false;
+			}
+			if (draggingRight) {
+				return quarterRefTime > endTime;
+			} else {
+				return quarterRefTime < startTime;
+			}
+		});
+		return outsideSchedule == undefined;
+	}
+
+	private reset(): void {
 		this.pointerMoveListener();
 		this.pointerUpListener();
 	}

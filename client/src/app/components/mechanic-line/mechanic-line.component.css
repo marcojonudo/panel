@@ -23,6 +23,7 @@
 	position: absolute;
 	font-size: 3.5em;
 	color: #000000;
+	transition: left .2s, width .2s;
 }
 
 .appointment-schedule {

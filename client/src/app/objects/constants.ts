@@ -144,7 +144,8 @@ export class Constants {
 	};
 	public static readonly MESSAGE: any = {
 		NO_UNASSIGNED_GROUPS_TO_REPLACE: 'No quedan fichas sin asignar para sustituir la auxiliar',
-		NO_REPLACEMENT_SPACE: 'No hay espacio suficiente para reemplazar la ficha auxiliar con la agrupación seleccionada'
+		NO_REPLACEMENT_SPACE: 'No hay espacio suficiente para reemplazar la ficha auxiliar con la agrupación seleccionada',
+		CREATE_SCHEDULE_TOO_CLOSE: 'Hay otros horarios de citas demasiado próximos. Por favor, escoge otro intervalo de horas'
 	};
 	public static readonly SCHEDULE_BORDER_COLOR: any = {
 		'#c5e0b4': '#38a83d',

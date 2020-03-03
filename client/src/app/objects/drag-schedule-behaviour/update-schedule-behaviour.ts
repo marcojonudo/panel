@@ -19,17 +19,27 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 		);
 	}
 
-	updateQuarterRef(
+	createAppointment(appointment: AppointmentSchedule): AppointmentSchedule {
+		return appointment;
+	}
+
+	findMovedQuarterRef(
 		quarterRefLeft: number,
 		movedQuarters: number,
+		day: Date
+	): Date {
+		movedQuarters = this.left ? movedQuarters : movedQuarters - 1;
+		return DimensionsService.calcStartFromLeft(
+			quarterRefLeft + movedQuarters * DimensionsService.intervalWidth * 3,
+			day
+		);
+	}
+
+	updateQuarterRef(
+		quarterRef: Date,
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule
 	): void {
-		movedQuarters = this.left ? movedQuarters : movedQuarters - 1;
-		const quarterRef = DimensionsService.calcStartFromLeft(
-			quarterRefLeft + movedQuarters * DimensionsService.intervalWidth * 3,
-			mechanic.day
-		);
 		if (this.left) {
 			if (quarterRef.getTime() <= appointment.schedule.end.getTime()) {
 				AppointmentsService.updateSchedule(

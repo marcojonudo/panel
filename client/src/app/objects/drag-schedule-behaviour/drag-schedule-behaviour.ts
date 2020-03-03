@@ -6,9 +6,17 @@ export interface DragScheduleBehaviour {
 
 	calcQuarterRefLeft(clientX: number, appointment: AppointmentSchedule): number;
 
-	updateQuarterRef(
+	createAppointment(
+		appointment: AppointmentSchedule,
 		quarterRefLeft: number,
-		movedQuarters: number,
+		appointmentTypeCode: string,
+		mechanic: Mechanic
+	): AppointmentSchedule;
+
+	findMovedQuarterRef(quarterRefLeft: number, movedQuarters: number, day: Date): Date;
+
+	updateQuarterRef(
+		quarterRef: Date,
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule
 	): void;
