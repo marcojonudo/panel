@@ -47,7 +47,7 @@ export class DragScheduleDirective implements OnInit {
 	}
 
 	onPointerDown(event: PointerEvent): void {
-		if (UtilsService.checkLeftClick(event) && AppointmentsService.dragSchedulesMode) {
+		if (DragSchedulesService.checkStartDragging(this.mechanic, event)) {
 			this.quarterRefLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointment);
 			this.quarterRefStart = DimensionsService.calcStartFromLeft(this.quarterRefLeft, this.mechanic.day);
 
