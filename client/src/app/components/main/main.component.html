@@ -97,6 +97,10 @@
 		</div>
 	</div>
 </div>
+<app-drag-schedule-context-menu
+	*ngIf="checkShowDragScheduleContextMenu()"
+	[contextMenuInfo]="findDragScheduleContextMenuInfo()">
+</app-drag-schedule-context-menu>
 <app-toasts-container
 	class="toast-position"
 	[toast]="toast">

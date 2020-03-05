@@ -15,6 +15,7 @@ import {NotificationService} from "../services/notification.service";
 import {Constants} from "../objects/constants";
 import {CardTypeBehaviour} from "../objects/card-type-behaviour/card-type-behaviour";
 import {DropzoneService} from "../services/dropzone.service";
+import {UtilsService} from "../services/utils.service";
 
 @Directive({
 	selector: '[appDraggable]',
@@ -40,8 +41,6 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 	private contextMenuListener: () => void;
 
 	private init: boolean;
-
-	private LEFT_CLICK_BUTTON_ID: number = 0;
 
 	constructor(
 		private element: ElementRef,
@@ -81,7 +80,7 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 	handleClick(event: PointerEvent): void {
 		/* Sólo se ejecuta una acción si se hace clic con el botón izquierdo. En caso de ser el derecho, se debe omitir
 		*  para que se ejecute el listener del evento contextmenu */
-		if (this.checkLeftClick(event) && this.checkDragElement((<HTMLElement> event.target).id)) {
+		if (UtilsService.checkLeftClick(event) && this.checkDragElement((<HTMLElement> event.target).id)) {
 			this.handleLeftClick(event);
 		}
 	}
@@ -103,10 +102,6 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 		} else {
 			this.cardBehaviour.handleLeftClick(this.cardsGroup, event.clientX);
 		}
-	}
-
-	private checkLeftClick(event: PointerEvent): boolean {
-		return event.button == this.LEFT_CLICK_BUTTON_ID;
 	}
 
 	private checkDragElement(id: string): boolean {

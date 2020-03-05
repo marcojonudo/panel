@@ -161,6 +161,13 @@ export class Constants {
 		WHITE: '#ffffff',
 		BLACK: '#000000',
 	};
+	public static readonly CONTEXT_MENU_TYPE: any = {
+		GROUP: 'GROUP',
+		DRAG_SCHEDULE: 'DRAG_SCHEDULE'
+	};
+	public static readonly APPOINTMENT_TYPE_CODE: any = {
+		RAP: 'RAP'
+	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly DEFAULT_JOB_LINE_TYPE_COLOR: string = "#f1f1f1";
@@ -169,5 +176,6 @@ export class Constants {
 	public static readonly HOUR_MINUTES: number = 60;
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards", "/mechanic/", "/appointment"];
 	public static readonly MORNING_AFTERNOON_THRESHOLD_MINUTES: number = 900;
+	public static readonly LEFT_CLICK_BUTTON_ID: number = 0;
 
 }

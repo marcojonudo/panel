@@ -23,6 +23,7 @@ export class AppointmentsService {
 	private readonly MAX: string = 'MAX';
 
 	private static _dragSchedulesMode: boolean = false;
+	private static _dragSchedulesAppointmentType: AppointmentType;
 
 	private static _appointmentTypes: AppointmentType[];
 	private appointmentDays: AppointmentDay[];
@@ -71,6 +72,14 @@ export class AppointmentsService {
 		this._dragSchedulesMode = value;
 	}
 
+	static get dragSchedulesAppointmentType(): AppointmentType {
+		return this._dragSchedulesAppointmentType;
+	}
+
+	static set dragSchedulesAppointmentType(value: AppointmentType) {
+		this._dragSchedulesAppointmentType = value;
+	}
+
 	// endregion
 
 	// region Finders
@@ -106,6 +115,11 @@ export class AppointmentsService {
 
 		this.daysAppointmentsCounter = this.initDaysAppointmentsCounter(this.appointmentDays);
 		console.log('Days appointments counter', this.daysAppointmentsCounter);
+
+		AppointmentsService.dragSchedulesAppointmentType = AppointmentsService.appointmentTypes
+			.find((appointmentType: AppointmentType) =>
+				appointmentType.code == Constants.APPOINTMENT_TYPE_CODE.RAP
+			)
 	}
 
 	// private init

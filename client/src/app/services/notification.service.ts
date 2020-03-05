@@ -9,7 +9,7 @@ import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Coordinates} from "../objects/coordinates";
 import {CardsGroup} from "../objects/cards-group";
 import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
-import {ContextMenuInfo} from "../objects/context-menu-info";
+import {ContextMenuInfo} from "../objects/context-menu/context-menu-info";
 import {DayLateralPanelInfo} from "../objects/lateral-panel-info/day-lateral-panel-info";
 import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 import {Constants} from "../objects/constants";

@@ -1,0 +1,32 @@
+<div
+	class="d-flex flex-column drag-schedule-context-menu-container"
+	[ngStyle]="{
+		'left.px': findLeft(contextMenuInfo.clickCoordinates.x),
+		'top.px': findTop(contextMenuInfo.clickCoordinates.y)
+	}">
+	<div
+		*ngFor="let type of findAppointmentTypes()"
+		class="drag-schedule-context-menu-item p-1"
+		(click)="selectAppointmentType(type)">
+		{{type.code}}
+	</div>
+	<!--<div-->
+		<!--class="d-flex align-center justify-content-start context-menu-option"-->
+		<!--[ngClass]="{'rounded selected-option': checkCutCardSelected()}"-->
+		<!--(click)="cutCard()">-->
+		<!--<i class="fas fa-cut context-menu-icon"></i>-->
+		<!--<span>Cortar</span>-->
+	<!--</div>-->
+	<!--<div-->
+		<!--class="d-flex align-center justify-content-start context-menu-option"-->
+		<!--(click)="cutCardByHalf()">-->
+		<!--<i class="fas fa-divide context-menu-icon"></i>-->
+		<!--<span>Dividir</span>-->
+	<!--</div>-->
+	<!--<div-->
+		<!--class="d-flex align-center justify-content-start context-menu-option"-->
+		<!--(click)="showCardDetails()">-->
+		<!--<i class="fas fa-clipboard context-menu-icon"></i>-->
+		<!--<span>Detalles</span>-->
+	<!--</div>-->
+</div>

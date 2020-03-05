@@ -31,7 +31,7 @@ export class GridComponent implements OnInit {
 		private mechanicsService: MechanicsService,
 		private cardsService: CardsService,
 		private element: ElementRef,
-		private renderer: Renderer2,
+		private renderer: Renderer2
 	) {}
 
 	ngOnInit(): void {

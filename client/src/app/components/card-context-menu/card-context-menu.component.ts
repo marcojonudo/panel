@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {NotificationService} from "../../services/notification.service";
-import {ContextMenuInfo} from "../../objects/context-menu-info";
 import {CardPositionService} from "../../services/card-position.service";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
@@ -8,6 +7,7 @@ import {Card} from "../../objects/card";
 import {DimensionsService} from "../../services/dimensions.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {CardDetailsInfo} from "../../objects/lateral-panel-info/card-details-info";
+import {GroupContextMenuInfo} from "../../objects/context-menu/group-context-menu-info";
 
 @Component({
 	selector: 'app-card-context-menu',
@@ -17,7 +17,7 @@ import {CardDetailsInfo} from "../../objects/lateral-panel-info/card-details-inf
 })
 export class CardContextMenuComponent implements OnInit {
 
-	@Input() contextMenuInfo: ContextMenuInfo;
+	@Input() contextMenuInfo: GroupContextMenuInfo;
 
 	private leftOffset: number;
 
@@ -30,7 +30,7 @@ export class CardContextMenuComponent implements OnInit {
 
 	findLeft(
 		x: number,
-		contextMenuInfo: ContextMenuInfo = this.contextMenuInfo
+		contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo
 	): number {
 		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedLeft(x) : this.findUnassignedLeft(x);
 	}
@@ -43,7 +43,7 @@ export class CardContextMenuComponent implements OnInit {
 		return x;
 	}
 
-	findTop(y: number, contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): number {
+	findTop(y: number, contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo): number {
 		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedTop(y) : this.findUnassignedTop();
 	}
 
@@ -63,7 +63,7 @@ export class CardContextMenuComponent implements OnInit {
 		this.cardsService.updateCardMode([this.contextMenuInfo.group], Constants.GROUP_MODE.CUT);
 	}
 
-	cutCardByHalf(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset): void {
+	cutCardByHalf(contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset): void {
 		const groupX = contextMenuInfo.group.start
 			? contextMenuInfo.group.left : CardPositionService.barLeftToAbsolutePosition(contextMenuInfo.group.left);
 		this.cardsService.cutCardByHalf(

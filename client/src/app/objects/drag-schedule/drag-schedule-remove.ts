@@ -1,6 +1,5 @@
 import {DragScheduleAction} from "./drag-schedule-action";
 import {DragScheduleInfo} from "../drag-schedule-info";
-import {HourQuarters} from "../hour-quarters";
 
 export class DragScheduleRemove implements DragScheduleAction {
 

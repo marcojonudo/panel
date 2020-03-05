@@ -3,7 +3,7 @@ import {Constants} from "../../objects/constants";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
-import {ContextMenuInfo} from "../../objects/context-menu-info";
+import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {DimensionsService} from "../../services/dimensions.service";
 

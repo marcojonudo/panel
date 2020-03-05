@@ -1,7 +1,7 @@
 import {
 	ChangeDetectionStrategy, ChangeDetectorRef,
-	Component,
-	OnDestroy, OnInit,
+	Component, ElementRef,
+	OnDestroy, OnInit, Renderer2,
 } from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
@@ -18,7 +18,7 @@ import {DaysMechanicSkills} from "../../objects/skills-update/days-mechanic-skil
 import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/days-quarters-saturation";
 import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
-import {ContextMenuInfo} from "../../objects/context-menu-info";
+import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {interval} from "rxjs/internal/observable/interval";
 import {DaysLateralPanelInfo} from "../../objects/days-lateral-panel-info";
@@ -30,6 +30,9 @@ import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-u
 import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 import {Toast} from "../../objects/toasts/toast";
 import {DomSanitizer} from "@angular/platform-browser";
+import {GroupContextMenuInfo} from "../../objects/context-menu/group-context-menu-info";
+import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
+import {Coordinates} from "../../objects/coordinates";
 
 @Component({
 	selector: 'app-main',
@@ -86,13 +89,17 @@ export class MainComponent implements OnInit, OnDestroy {
 	private toastSubscription: Subscription;
 	private dragSchedulesSubscription: Subscription;
 
+	private appointmentsTypesContextMenuListener: () => void;
+
 	constructor(
 		private cardsService: CardsService,
 		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,
 		private appointmentsService: AppointmentsService,
 		private cdRef: ChangeDetectorRef,
-		private sanitizer: DomSanitizer
+		private sanitizer: DomSanitizer,
+		private element: ElementRef,
+		private renderer: Renderer2
 	) {
 		this.days = this.mechanicsService.days;
 		this.initDaysUpdateObjects();
@@ -201,6 +208,12 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.dragSchedulesSubscription = NotificationService.mainCursor$.subscribe((cursor: string) => {
 			this.cursor = cursor;
+
+			this.appointmentsTypesContextMenuListener = this.renderer.listen(
+				this.element.nativeElement,
+				Constants.EVENT.CONTEXT_MENU,
+				this.openContextMenu.bind(this)
+			);
 			this.cdRef.detectChanges();
 		});
 
@@ -435,11 +448,22 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	findAssignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
-		return contextMenuInfo && contextMenuInfo.group.start ? contextMenuInfo : undefined;
+		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.GROUP &&
+			(<GroupContextMenuInfo> contextMenuInfo).group.start ? contextMenuInfo : undefined;
 	}
 
 	findUnassignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
-		return contextMenuInfo && !contextMenuInfo.group.start ? contextMenuInfo : undefined;
+		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.GROUP &&
+			!(<GroupContextMenuInfo> contextMenuInfo).group.start ? contextMenuInfo : undefined;
+	}
+
+	checkShowDragScheduleContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
+		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.DRAG_SCHEDULE;
+	}
+
+	findDragScheduleContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
+		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.DRAG_SCHEDULE
+			? contextMenuInfo : undefined;
 	}
 
 	findDayMechanicSkills(
@@ -469,6 +493,13 @@ export class MainComponent implements OnInit, OnDestroy {
 		return UtilsService.isImage(cursorName)
 			? this.sanitizer.bypassSecurityTrustStyle(`url(../../../assets/img/cursors/${cursorName}), auto`)
 			: cursorName;
+	}
+
+	openContextMenu(event: PointerEvent): void {
+		event.preventDefault();
+		NotificationService.notifyContextMenu(
+			new DragScheduleContextMenuInfo(new Coordinates(event.clientX, event.clientY))
+		);
 	}
 
 	trackByDay(index, item) {

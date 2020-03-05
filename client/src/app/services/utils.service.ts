@@ -152,4 +152,8 @@ export class UtilsService {
 		return fileName.indexOf('.png') > -1;
 	}
 
+	public static checkLeftClick(event: PointerEvent): boolean {
+		return event.button == Constants.LEFT_CLICK_BUTTON_ID;
+	}
+
 }

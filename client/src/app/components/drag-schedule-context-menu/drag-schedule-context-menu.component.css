@@ -1,0 +1,33 @@
+.drag-schedule-context-menu-container {
+	position: absolute;
+	background-color: #ffffff;
+	z-index: 1;
+	-webkit-box-shadow: 0 0 10px #717171;
+	-moz-box-shadow: 0 0 10px #717171;
+	box-shadow: 0 0 10px #717171;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+.drag-schedule-context-menu-item:first-child {
+	border-radius: 3px 3px 0 0;
+}
+
+.drag-schedule-context-menu-item:last-child {
+	border-radius: 0 0 3px 3px;
+}
+
+.drag-schedule-context-menu-item {
+	text-align: center;
+	cursor: pointer;
+	-webkit-transition: background-color .3s;
+	-moz-transition: background-color .3s;
+	-ms-transition: background-color .3s;
+	-o-transition: background-color .3s;
+	transition: background-color .3s;
+}
+
+.drag-schedule-context-menu-item:hover {
+	background-color: #e0e0e0;
+}

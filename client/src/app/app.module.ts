@@ -56,6 +56,7 @@ import {LateralPanelComponent} from './components/lateral-panel/lateral-panel.co
 import {AppointmentsSummaryComponent} from './components/appointments-summary/appointments-summary.component';
 import {ToastsContainerComponent} from './components/toasts-container/toasts-container.component';
 import { DragScheduleDirective } from './directives/drag-schedule.directive';
+import { DragScheduleContextMenuComponent } from './components/drag-schedule-context-menu/drag-schedule-context-menu.component';
 
 @NgModule({
 	declarations: [
@@ -98,7 +99,8 @@ import { DragScheduleDirective } from './directives/drag-schedule.directive';
 		LateralPanelComponent,
 		AppointmentsSummaryComponent,
 		ToastsContainerComponent,
-		DragScheduleDirective
+		DragScheduleDirective,
+		DragScheduleContextMenuComponent
 	],
 	imports: [
 		BrowserModule,

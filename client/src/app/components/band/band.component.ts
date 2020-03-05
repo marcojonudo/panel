@@ -9,7 +9,7 @@ import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../../objects/grouped-type-cards";
 import {UnassignedSection} from "../../objects/unassigned-sections/unassigned-section";
 import {NotificationService} from "../../services/notification.service";
-import {ContextMenuInfo} from "../../objects/context-menu-info";
+import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 
 @Component({
 	selector: 'app-band',
