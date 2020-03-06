@@ -51,7 +51,6 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 				return false;
 			}
 			const endDiff = UtilsService.findDiff(appointment.schedule.end, quarterRef);
-			console.log(endDiff);
 			return endDiff < 15;
 		});
 		return nextAppointment == undefined;
