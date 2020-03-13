@@ -117,6 +117,7 @@ class PanelController {
 		return cuboDatabaseClient.createAppointment(sessionId, mechanicAppointment)
 	}
 
+	// TODO REvisar MechanicAppointment de Utils
 	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
 			@Header String sessionId,

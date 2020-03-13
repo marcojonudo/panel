@@ -27,8 +27,8 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 
 	@Get("/cards")
 	List<Card> getCards(
-			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date from,
-			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date to
+			@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) Date from,
+			@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) Date to
 	)
 
 	@Get("/jobLineTypes")
@@ -38,7 +38,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<AppointmentType> getAppointmentTypes()
 
 	@Get("/appointmentDays")
-	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
+	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) Date from)
 
 	@Post("/durations")
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)

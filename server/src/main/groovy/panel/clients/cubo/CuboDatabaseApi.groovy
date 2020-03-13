@@ -10,13 +10,19 @@ import panel.utils.Constants
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.EmployeeScheduleAppointment
 
+import javax.annotation.Nullable
 import javax.inject.Singleton
+import java.time.LocalDate
 
 @Singleton
 @CompileStatic
 interface CuboDatabaseApi {
 
-	List<EmployeeSchedule> getMechanics(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date day, @QueryValue boolean fixedSchedules)
+	List<EmployeeSchedule> getMechanics(
+			@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
+			@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to,
+			@QueryValue boolean fixedSchedules
+	)
 
 	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
 
@@ -43,6 +49,12 @@ interface CuboDatabaseApi {
 	void deleteAppointmentSchedule(
 			@Header String sessionId,
 			@Body MechanicAppointment mechanicAppointment
+	)
+
+	List<utils.pogos.schedules.MechanicAppointment> getMechanicAppointments(
+			@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
+			@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to,
+			@QueryValue List<String> codes
 	)
 
 }

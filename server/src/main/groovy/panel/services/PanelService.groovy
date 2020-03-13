@@ -22,6 +22,7 @@ import utils.pogos.skills.Skill
 
 import javax.inject.Singleton
 import java.sql.Time
+import java.time.LocalDate
 
 @Singleton
 @CompileStatic
@@ -51,7 +52,7 @@ class PanelService {
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
 		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(day)
-		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(day)
+		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(LocalDate.now())
 
 		deletePendingCards(day)
 
@@ -95,8 +96,8 @@ class PanelService {
 	 * @param date Day to get mechanics
 	 * @return List of mechanic employees
 	 */
-	Map<String, List<EmployeeSchedule>> getDaysMechanics(Date date) {
-		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(date, true)
+	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from) {
+		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(from, null, true)
 		return integrateFixedMechanics(mechanics)
 	}
 
