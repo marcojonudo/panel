@@ -12,7 +12,6 @@ import {Dayjs} from "dayjs";
 export class DragSchedulesService {
 
 	static checkStartDragging(mechanic: Mechanic, event: PointerEvent): boolean {
-		console.log(UtilsService.checkLeftClick(event) && AppointmentsService.dragSchedulesMode && !mechanic.fixed);
 		return UtilsService.checkLeftClick(event) && AppointmentsService.dragSchedulesMode && !mechanic.fixed
 	}
 

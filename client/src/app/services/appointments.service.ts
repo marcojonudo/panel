@@ -13,7 +13,6 @@ import {Url} from "../objects/url";
 import {UpdateAppointmentDayParams} from "../objects/update-appointment-day-params";
 import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 import {ScheduleInterval} from "../objects/schedule-interval";
-import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
 
 @Injectable({

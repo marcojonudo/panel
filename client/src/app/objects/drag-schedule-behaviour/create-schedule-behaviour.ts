@@ -48,12 +48,12 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	private checkCreateSchedule(quarterRefLeft: number, mechanic: Mechanic): boolean {
 		const quarterRef = DimensionsService.calcStartFromLeft(quarterRefLeft, mechanic.day);
 		const nextAppointment = mechanic.appointments.find((appointment: AppointmentSchedule) => {
-			const startDiff = Math.abs(appointment.schedule.start.diff(quarterRef, Constants.DAY_JS.m));
-			if (startDiff < 15) {
-				return false;
-			}
-			const endDiff = Math.abs(appointment.schedule.end.diff(quarterRef, Constants.DAY_JS.m));
-			return endDiff < 15;
+			const startDiff = appointment.schedule.start.diff(quarterRef, Constants.DAY_JS.m);
+			const endDiff = appointment.schedule.end.diff(quarterRef, Constants.DAY_JS.m);
+			/* Si se cumple esta condición, se está haciendo clic dentro del horario de otra cita, con un margen de 15
+			*  minutos a izquierda y derecha. De esta forma, se evita crear otra nueva a no ser que se dejen, como
+			*  mínimo, esos 15 minutos a ambos lados */
+			return startDiff <= 15 && endDiff >= 0;
 		});
 		return nextAppointment == undefined;
 	}

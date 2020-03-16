@@ -6,9 +6,8 @@ import utils.pogos.Employee
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.ScheduleInterval
 
-import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
-import java.time.ZoneId
 
 @CompileStatic
 class MechanicAppointment {
@@ -20,7 +19,7 @@ class MechanicAppointment {
 	@JsonCreator
     MechanicAppointment(Map<String, Object> info) {
 		mechanic = new EmployeeSchedule(
-				day: Instant.ofEpochMilli((long) info.day).atZone(ZoneId.systemDefault()).toLocalDate(),
+				day: LocalDate.parse((String) info.day),
 				employee: new Employee(code: (String) info.mechanicCode)
 		)
 		appointmentTypeCode = ((Map<String, Object>) info.appointmentType).code
