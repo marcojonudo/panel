@@ -11,8 +11,6 @@ import panel.pogos.CompleteInfo
 import panel.pogos.UpdateAppointmentDays
 import panel.pogos.UpdateCards
 import panel.utils.Constants
-import utils.DateFormat
-import utils.Utils
 import utils.pogos.Schedule
 import utils.pogos.fviberi.Article
 import utils.pogos.fviberi.Order
@@ -21,8 +19,9 @@ import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.skills.Skill
 
 import javax.inject.Singleton
-import java.sql.Time
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Singleton
 @CompileStatic
@@ -47,7 +46,7 @@ class PanelService {
 		this.cuboDatabaseClient = cuboDatabaseClient
 	}
 
-	CompleteInfo getPanelInfo(Date day = new Date()) {
+	CompleteInfo getPanelInfo(LocalDate day = LocalDate.now()) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
@@ -103,7 +102,7 @@ class PanelService {
 
 	static Map<String, List<EmployeeSchedule>> integrateFixedMechanics(List<EmployeeSchedule> mechanics) {
 		Map<String, List<EmployeeSchedule>> daysMechanics = [:]
-		java.sql.Date today = Utils.newDate(new Date())
+		LocalDate today = LocalDate.now()
 		mechanics.each {
 			if (!it.day) {
 				it.schedule = findThresholdSchedule(mechanics)
@@ -118,10 +117,10 @@ class PanelService {
 	}
 
 	static Schedule findThresholdSchedule(List<EmployeeSchedule> mechanics) {
-		Time minMorningStart = mechanics.schedule.morningStart.min()
-		Time minAfternoonStart = mechanics.schedule.afternoonStart.min()
-		Time maxMorningEnd = mechanics.schedule.morningEnd.max()
-		Time maxAfternoonEnd = mechanics.schedule.afternoonEnd.max()
+		LocalTime minMorningStart = mechanics.schedule.morningStart.min()
+		LocalTime minAfternoonStart = mechanics.schedule.afternoonStart.min()
+		LocalTime maxMorningEnd = mechanics.schedule.morningEnd.max()
+		LocalTime maxAfternoonEnd = mechanics.schedule.afternoonEnd.max()
 
 		if (!minMorningStart) {
 			return new Schedule(morningStart: minAfternoonStart, morningEnd: maxAfternoonEnd)
@@ -136,7 +135,7 @@ class PanelService {
 
 	// region Get cards
 
-	void deletePendingCards(Date day) {
+	void deletePendingCards(LocalDate day) {
 		List<Card> pendingCards = panelDatabaseClient.getCards(null, day)
 		if (pendingCards) {
 			panelDatabaseClient.deleteCards("", pendingCards.collect { it.properties })
@@ -483,7 +482,7 @@ class PanelService {
 	 * @return Updated card
 	 */
 	static Card deleteCard(Card card) {
-		card.dateDeleted = new Date()
+		card.dateDeleted = LocalDateTime.now()
 		return card
 	}
 
@@ -582,7 +581,7 @@ class PanelService {
 		/* Sólo se tienen en cuenta aquellos horarios con día (los horarios fijos de taller y tienda, cuyo day es null,
 		*  se omiten) */
 		daysMechanics.findAll { it.key }.each {
-			java.sql.Date day = Utils.newDate(Utils.parse(it.key, DateFormat.MYSQL))
+			LocalDate day = LocalDate.parse(it.key)
 			/* Se obtienen los appointmentDay para cada tipo de cita para el día en concreto */
 			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == day }
 			/* Se obtienen las fichas cuya orden figura en el día en concreto */
@@ -609,9 +608,9 @@ class PanelService {
 	) {
 		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
 
-		java.sql.Date maxDay = daysMechanics.collect { it.value[0] }.day.max()
+		LocalDate maxDay = daysMechanics.collect { it.value[0] }.day.max()
 		List<Card> futureScheduleCards = createdCards.findAll { it.order.day > maxDay }
-		futureScheduleCards.groupBy { it.order.day }.each { java.sql.Date orderDay, List<Card> cards ->
+		futureScheduleCards.groupBy { it.order.day }.each { LocalDate orderDay, List<Card> cards ->
 			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == orderDay }
 			if (appointmentDayTypes) {
 				updateInfo.updated += updateAppointmentDays(appointmentDayTypes, cards)
@@ -637,7 +636,7 @@ class PanelService {
 	}
 
 	static List<AppointmentDay> createAppointmentDays(
-			java.sql.Date day,
+			LocalDate day,
 			List<AppointmentType> appointmentTypes,
 			List<Card> dayOrderCards
 	) {

@@ -80,7 +80,7 @@ export class DropzoneService {
 			*  tipo para poder ejecutar los métodos asociados, por lo que se obtiene una de ellas */
 			return this.dropzones.find((dropzone: Dropzone) =>
 				dropzone.mechanic && dropzone.mechanic.code == card.mechanicCode
-					&& dropzone.mechanic.day.getTime() == card.day.getTime()
+					&& dropzone.mechanic.day.isSame(card.day)
 			);
 		} else {
 			if (card.start == Constants.CARD_STATUS.FINISHED) {

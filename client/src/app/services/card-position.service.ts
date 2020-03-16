@@ -11,6 +11,8 @@ import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {NotificationService} from "./notification.service";
 import {Position} from "../objects/position";
 import {CardsService} from "./cards.service";
+import * as dayjs from "dayjs";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -485,7 +487,7 @@ export class CardPositionService {
 		);
 
 		let newCardsMinutes = this.getDurationArray(
-			DimensionsService.calcStartFromLeft(clonedGroup.left, new Date()),
+			DimensionsService.calcStartFromLeft(clonedGroup.left, dayjs()),
 			clonedGroup.cards
 		);
 		newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);
@@ -496,10 +498,11 @@ export class CardPositionService {
 		});
 	}
 
-	private static getDurationArray(start: Date, cards: Card[]) {
+	private static getDurationArray(start: Dayjs, cards: Card[]) {
+		const end: Dayjs = start.add(UtilsService.sum(cards, Constants.PROPERTY.DURATION), Constants.DAY_JS.m);
 		return UtilsService.createMinutesArray(
-			UtilsService.getTotalMinutes(start),
-			UtilsService.getTotalMinutes(UtilsService.addMinutes(start, UtilsService.sum(cards, 'duration')))
+			start.diff(start.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
+			end.diff(end.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
 		);
 	}
 

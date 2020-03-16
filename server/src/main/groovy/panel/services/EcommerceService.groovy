@@ -52,7 +52,7 @@ class EcommerceService {
 			AppointmentType.Code appointmentTypeCode = findAppointmentTypeCode(mechanicAppointment.appointmentTypeCode)
 			updateEmployeeSchedule(
 					daysEcommerceSchedules,
-					mechanicAppointment.mechanic.day.toLocalDate(),
+					mechanicAppointment.mechanic.day,
 					appointmentTypeCode,
 					[mechanicAppointment.schedule]
 			)
@@ -70,7 +70,7 @@ class EcommerceService {
 		mechanics.each { EmployeeSchedule mechanic ->
 			AppointmentType.Code appointmentTypeCode = AppointmentType.Code.ECO
 			List<ScheduleInterval> intervals = buildScheduleIntervals(mechanic.schedule)
-			updateEmployeeSchedule(daysEcommerceSchedules, mechanic.day.toLocalDate(), appointmentTypeCode, intervals)
+			updateEmployeeSchedule(daysEcommerceSchedules, mechanic.day, appointmentTypeCode, intervals)
 		}
 		return daysEcommerceSchedules
 	}
@@ -161,14 +161,14 @@ class EcommerceService {
 		List<ScheduleInterval> intervals = []
 		if (schedule.morningStart) {
 			intervals << new ScheduleInterval(
-					start: schedule.morningStart.toLocalTime(),
-					end: schedule.morningEnd.toLocalTime()
+					start: schedule.morningStart,
+					end: schedule.morningEnd
 			)
 		}
 		if (schedule.afternoonStart) {
 			intervals << new ScheduleInterval(
-					start: schedule.afternoonStart.toLocalTime(),
-					end: schedule.afternoonEnd.toLocalTime()
+					start: schedule.afternoonStart,
+					end: schedule.afternoonEnd
 			)
 		}
 		return intervals

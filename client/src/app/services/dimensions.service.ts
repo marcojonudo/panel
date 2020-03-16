@@ -6,6 +6,8 @@ import {Mechanic} from "../objects/mechanic";
 import {Constants} from "../objects/constants";
 import {NotificationService} from "./notification.service";
 import {Position} from "../objects/position";
+import * as dayjs from "dayjs";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -141,7 +143,7 @@ export class DimensionsService {
 	// region Init
 
 	static init(daysMechanics: DaysMechanics) {
-		const today = UtilsService.clearTime(new Date());
+		const today = dayjs().startOf(Constants.DAY_JS.d);
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.oneDayMode = true;
 
@@ -166,14 +168,14 @@ export class DimensionsService {
 
 	private static checkDisplayScrollbar(
 		daysMechanics: DaysMechanics,
-		today: Date,
+		today: any,
 		gridContainerHeight: number
 	): boolean {
 		/* Si no hay mecánicos, se muestra el mensaje correspondiente, por lo que la barra no se necesita */
 		if (!Object.keys(daysMechanics).length) {
 			return false;
 		}
-		const mechanics = daysMechanics[today.getTime()];
+		const mechanics = daysMechanics[today.valueOf()];
 		if (mechanics.length) {
 			const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
 			return gridContainerHeight < mechanicsHeight;
@@ -185,20 +187,20 @@ export class DimensionsService {
 	 * Crea los arrays que contienen las horas entre los límtes de horarios; es decir, el comienzo del mecánico que
 	 * empiece antes, y el fin del que termine más tarde
 	 * @param {DaysMechanics} daysMechanics Días y sus mecánicos asociados
-	 * @param {Date} today Hoy
+	 * @param {Dayjs} today Hoy
 	 */
-	private static initSchedulesHours(daysMechanics: DaysMechanics, today: Date): void {
-		let minDaysSchedule = new Date();
-		let maxDaysSchedule = new Date();
+	private static initSchedulesHours(daysMechanics: DaysMechanics, today: Dayjs): void {
+		let minDaysSchedule = dayjs();
+		let maxDaysSchedule = dayjs();
 		for (const day in daysMechanics) {
 			const [minSchedule, maxSchedule] = this.getScheduleLimits(daysMechanics[day]);
 
-			if (parseInt(day) == today.getTime()) {
+			if (+day == today.valueOf()) {
 				this.maxTodayScheduleHours = UtilsService.getScheduleHours(minSchedule, maxSchedule);
 			}
 
-			minDaysSchedule = UtilsService.timeGreaterThan(minDaysSchedule, minSchedule) ? minSchedule : minDaysSchedule;
-			maxDaysSchedule = UtilsService.timeGreaterThan(maxSchedule, maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
+			minDaysSchedule = minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
+			maxDaysSchedule = maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
 		}
 		this.maxDaysSchedulesHours = UtilsService.getScheduleHours(minDaysSchedule, maxDaysSchedule);
 	}
@@ -206,14 +208,14 @@ export class DimensionsService {
 	/**
 	 * Se obtienen los límites de los horarios de mecánicos de un sólo día
 	 * @param {Mechanic[]} mechanics Mecánicos de un día
-	 * @returns {Date[]} Par de fechas (comienzo y fin)
+	 * @returns {Dayjs[]} Par de fechas (comienzo y fin)
 	 */
-	private static getScheduleLimits(mechanics: Mechanic[]) {
-		const minSchedule = new Date(
-			Math.min(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[0].start.getTime()))
+	private static getScheduleLimits(mechanics: Mechanic[]): Dayjs[] {
+		const minSchedule = dayjs(
+			Math.min(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[0].start.valueOf()))
 		);
-		const maxSchedule = new Date(
-			Math.max(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[mechanic.schedules.length-1].end.getTime()))
+		const maxSchedule = dayjs(
+			Math.max(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[mechanic.schedules.length-1].end.valueOf()))
 		);
 		return [minSchedule, maxSchedule];
 	}
@@ -393,7 +395,7 @@ export class DimensionsService {
 		return durationIntervals * intervalWidth;
 	}
 
-	static calcLeftFromStart(start: Date) {
+	static calcLeftFromStart(start: Dayjs) {
 		/* Se obtienen los minutos desde el inicio del horario, hasta start */
 		const relativeMinutes = this.getRelativeMinutesFromStart(start);
 		/* Se obtiene el número de intervalos correspondiente a los minutos */
@@ -424,10 +426,10 @@ export class DimensionsService {
 
 	// region Convert to properties
 
-	static calcStartFromLeft(left: number, day: Date): Date {
+	static calcStartFromLeft(left: number, day: Dayjs): Dayjs {
 		const intervals = this.getIntervalsNumberFromWidth(left);
 		const minutes = this.getRelativeMinutesFromIntervals(intervals);
-		return UtilsService.parseTimeFromMinutes(minutes, day);
+		return day.hour(minutes/60).minute(minutes%60)
 	}
 
 	static calcDurationFromWidth(width: number): number {
@@ -444,8 +446,8 @@ export class DimensionsService {
 
 	// region Auxiliary methods
 
-	private static getRelativeMinutesFromStart(time: Date) {
-		const minutes = time.getHours() * 60 + time.getMinutes();
+	private static getRelativeMinutesFromStart(time: Dayjs) {
+		const minutes = time.hour() * 60 + time.minute();
 		return minutes - this.getStartScheduleMinutes();
 	}
 

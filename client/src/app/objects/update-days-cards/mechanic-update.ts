@@ -1,7 +1,9 @@
+import {Dayjs} from "dayjs";
+
 export interface MechanicUpdate {
 
 	type: string;
-	day: Date;
+	day: Dayjs;
 	mechanicCode: string;
 
 }

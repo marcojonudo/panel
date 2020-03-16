@@ -7,6 +7,7 @@ import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointm
 import {Constants} from "../../objects/constants";
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 import {KeyValue} from "@angular/common";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-appointments-summary',
@@ -16,7 +17,7 @@ import {KeyValue} from "@angular/common";
 })
 export class AppointmentsSummaryComponent {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
 	@Input() width: number;
 
@@ -40,8 +41,8 @@ export class AppointmentsSummaryComponent {
 
 	// endregion
 
-	findDayAppointmentsCounter(day: Date = this.day): DayAppointmentsCounter {
-		return this.appointmentsService.daysAppointmentsCounter[day.getTime()];
+	findDayAppointmentsCounter(day: Dayjs = this.day): DayAppointmentsCounter {
+		return this.appointmentsService.daysAppointmentsCounter[day.valueOf()];
 	}
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
@@ -52,7 +53,7 @@ export class AppointmentsSummaryComponent {
 		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);
 	}
 
-	openAppointmentsDetails(day: Date = this.day): void {
+	openAppointmentsDetails(day: Dayjs = this.day): void {
 		NotificationService.notifyLateralInfo(
 			new DayLateralPanelInfo(
 				day,

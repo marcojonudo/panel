@@ -1,16 +1,17 @@
 import {Constants} from "./constants";
 import {PersonalData} from "./personal-data";
-import {Schedule} from "./schedule";
 import {Skill} from "./skill";
 import {AppointmentSchedule} from "./appointment-schedule";
 import {ScheduleInterval} from "./schedule-interval";
 import {DimensionsService} from "../services/dimensions.service";
 import {AppointmentsService} from "../services/appointments.service";
+import {Dayjs} from "dayjs";
+import {UtilsService} from "../services/utils.service";
 
 export class Mechanic {
 
 	id: number;
-	day: Date;
+	day: Dayjs;
 	code: string;
 	panelPosition: string;
 	personalData: PersonalData;
@@ -25,7 +26,7 @@ export class Mechanic {
 	fixed: boolean;
 
 	constructor(
-		day: Date,
+		day: Dayjs,
 		mechanic: any,
 		skills: any[],
 		highlightedSkills: Skill[]
@@ -52,20 +53,33 @@ export class Mechanic {
 			});
 		}
 		if (mechanic.schedule.morningStart) {
-			this.schedules.push(new ScheduleInterval(mechanic.schedule.morningStart, mechanic.schedule.morningEnd))
+			this.schedules.push(
+				new ScheduleInterval(
+					UtilsService.parseTime(mechanic.schedule.morningStart, this.day),
+					UtilsService.parseTime(mechanic.schedule.morningEnd, this.day)
+				)
+			)
 		}
 		if (mechanic.schedule.afternoonStart) {
-			this.schedules.push(new ScheduleInterval(mechanic.schedule.afternoonStart, mechanic.schedule.afternoonEnd))
+			this.schedules.push(
+				new ScheduleInterval(
+					UtilsService.parseTime(mechanic.schedule.afternoonStart, this.day),
+					UtilsService.parseTime(mechanic.schedule.afternoonEnd, this.day)
+				)
+			)
 		}
 		this.lines = mechanic.lines;
 		this.showInPanel = mechanic.showInPanel;
 		this.height = this.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.appointments = mechanic.appointments.map((appointment: any) =>
 			new AppointmentSchedule(
-				this,
+				this.day,
+				this.code,
 				AppointmentsService.findAppointmentType(appointment.appointmentTypeCode),
-				appointment.schedule.start,
-				appointment.schedule.end
+				new ScheduleInterval(
+					UtilsService.parseTime(appointment.schedule.start, this.day),
+					UtilsService.parseTime(appointment.schedule.end, this.day)
+				)
 			)
 		);
 		this.jobLineType = mechanic.jobLineType;

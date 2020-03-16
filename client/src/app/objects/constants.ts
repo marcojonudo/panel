@@ -1,4 +1,7 @@
+import {Dayjs} from "dayjs";
+
 export class Constants {
+
 	public static PROPERTY: any = {
 		SCROLL_LEFT: 'scrollLeft',
 		SCROLL_TOP: 'scrollTop',
@@ -168,6 +171,13 @@ export class Constants {
 	public static readonly APPOINTMENT_TYPE_CODE: any = {
 		RAP: 'RAP'
 	};
+	public static readonly DATE_FORMAT: any = {
+		yyyy_MM_dd: 'YYYY-MM-DD'
+	};
+	public static readonly DAY_JS: any = {
+		d: 'd',
+		m: 'm'
+	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly DEFAULT_JOB_LINE_TYPE_COLOR: string = "#f1f1f1";
@@ -176,6 +186,7 @@ export class Constants {
 	public static readonly HOUR_MINUTES: number = 60;
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards", "/mechanic/", "/appointment"];
 	public static readonly MORNING_AFTERNOON_THRESHOLD_MINUTES: number = 900;
+	public static readonly MORNING_AFTERNOON_THRESHOLD_TIME: string = "15:00";
 	public static readonly LEFT_CLICK_BUTTON_ID: number = 0;
 
 }

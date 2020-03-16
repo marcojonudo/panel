@@ -44,7 +44,6 @@ import {SkillsDetailsComponent} from './components/skills-details/skills-details
 import {UtilsService} from "./services/utils.service";
 import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
-import {AppointmentSchedulePanelComponent} from './components/appointment-schedule-panel/appointment-schedule-panel.component';
 import {DraggableScheduleDirective} from './directives/draggable-schedule.directive';
 import {CardSectionPipe} from './pipes/card-section.pipe';
 import {CardDetailsComponent} from './components/card-details/card-details.component';
@@ -88,7 +87,6 @@ import { DragScheduleContextMenuComponent } from './components/drag-schedule-con
 		SpinnerComponent,
 		ToolsBarComponent,
 		SkillsDetailsComponent,
-		AppointmentSchedulePanelComponent,
 		DraggableScheduleDirective,
 		CardSectionPipe,
 		CardDetailsComponent,
@@ -130,6 +128,7 @@ export class AppModule {
 	}
 
 	private overrideDateToJSON() {
+		//TODO
 		Date.prototype.toJSON = function () {
 			return UtilsService.isDate(this) ? this.getTime() : this.toLocaleTimeString();
 		};

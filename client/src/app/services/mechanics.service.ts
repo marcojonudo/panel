@@ -6,15 +6,16 @@ import {Skill} from "../objects/skill";
 import {NotificationService} from "./notification.service";
 import {HttpClient} from "@angular/common/http";
 import {Url} from "../objects/url";
-import {DimensionsService} from "./dimensions.service";
 import {Constants} from "../objects/constants";
+import * as dayjs from "dayjs";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class MechanicsService {
 
-	private _days: Date[];
+	private _days: Dayjs[];
 	private _daysMechanics: DaysMechanics;
 	private static _onlyAppointmentsMode: boolean;
 	private static _showAppointmentsName: boolean = true;
@@ -23,11 +24,11 @@ export class MechanicsService {
 
 	// region Getters / setters
 
-	get days(): Date[] {
+	get days(): Dayjs[] {
 		return this._days;
 	}
 
-	set days(value: Date[]) {
+	set days(value: Dayjs[]) {
 		this._days = value;
 	}
 
@@ -59,27 +60,23 @@ export class MechanicsService {
 
 	// region Finders
 
-	findDayMechanics(day: Date): Mechanic[] {
-		return this.daysMechanics[day.getTime()];
+	findDayMechanics(day: Dayjs): Mechanic[] {
+		return this.daysMechanics[day.valueOf()];
 	}
 
-	findMechanic(day: Date, code: string): Mechanic {
-		return this.findDayMechanics(day).find(mechanic => mechanic.code == code);
+	findMechanic(day: Dayjs, code: string): Mechanic {
+		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.code == code);
 	}
 
-	findMechanicByPosition(day: Date, position: string): Mechanic {
-		return this.findDayMechanics(day).find(mechanic => mechanic.panelPosition == position);
+	findMechanicByPosition(day: Dayjs, position: string): Mechanic {
+		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.panelPosition == position);
 	}
 
 	// endregion
 
 	// region Init
 
-	init(
-		daysMechanics: { [key: string]: any[] },
-		skills: any[],
-		highlightedSkills: Skill[]
-	) {
+	init(daysMechanics: { [key: string]: any[] }, skills: any[], highlightedSkills: Skill[]) {
 		this.days = this.initDays(daysMechanics);
 		this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
 
@@ -87,10 +84,10 @@ export class MechanicsService {
 		console.log('Days mechanics', this.daysMechanics);
 	}
 
-	initDays(daysMechanics: { [key: string]: any[] }): Date[] {
+	initDays(daysMechanics: { [key: string]: any[] }): Dayjs[] {
 		return UtilsService.sort(
-			Object.keys(daysMechanics).map(day => UtilsService.parseDateFromString(day)),
-			(elem: Date) => elem.getTime()
+			Object.keys(daysMechanics).map(day => dayjs(day)),
+			(elem: Dayjs) => elem.valueOf()
 		);
 	}
 
@@ -101,11 +98,11 @@ export class MechanicsService {
 	): DaysMechanics {
 		const parsedDaysMechanics = {};
 		for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
-			const day = UtilsService.parseDateFromString(dayString);
+			const day = dayjs(dayString);
 			const parsedMechanics = mechanics.map(mechanic =>
 				new Mechanic(day, mechanic, skills, highlightedSkills)
 			);
-			parsedDaysMechanics[day.getTime()] =
+			parsedDaysMechanics[day.valueOf()] =
 				UtilsService.sort(parsedMechanics, (m) => m.panelPosition);
 		}
 		return parsedDaysMechanics;
@@ -127,7 +124,7 @@ export class MechanicsService {
 	}
 
 	removeMechanic(
-		day: Date,
+		day: Dayjs,
 		mechanic: Mechanic,
 		updateDb: boolean = true,
 		mechanics: Mechanic[] = this.findDayMechanics(day)

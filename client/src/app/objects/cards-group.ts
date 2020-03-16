@@ -2,6 +2,7 @@ import {Card} from "./card";
 import {UtilsService} from "../services/utils.service";
 import {Constants} from "./constants";
 import {DimensionsService} from "../services/dimensions.service";
+import {Dayjs} from "dayjs";
 
 export class CardsGroup {
 
@@ -12,11 +13,11 @@ export class CardsGroup {
 	private _type: string;
 	private _status: string;
 
-	private _lastStart: Date;
-	private _start: Date;
+	private _lastStart: Dayjs;
+	private _start: Dayjs;
 	private _left: number;
-	private _lastEnd: Date;
-	private _end: Date;
+	private _lastEnd: Dayjs;
+	private _end: Dayjs;
 
 	private _lastLine: number;
 	private _line: number;
@@ -72,11 +73,11 @@ export class CardsGroup {
 		this._status = value;
 	}
 
-	get start(): Date {
+	get start(): Dayjs {
 		return this._start;
 	}
 
-	set start(value: Date) {
+	set start(value: Dayjs) {
 		this.lastStart = this.start;
 		this._start = value;
 	}
@@ -98,11 +99,11 @@ export class CardsGroup {
 		this._line = value;
 	}
 
-	get end(): Date {
+	get end(): Dayjs {
 		return this._end;
 	}
 
-	set end(value: Date) {
+	set end(value: Dayjs) {
 		this.lastEnd = this.end;
 		this._end = value;
 	}
@@ -115,19 +116,19 @@ export class CardsGroup {
 		this._lastLine = value;
 	}
 
-	get lastEnd(): Date {
+	get lastEnd(): Dayjs {
 		return this._lastEnd;
 	}
 
-	set lastEnd(value: Date) {
+	set lastEnd(value: Dayjs) {
 		this._lastEnd = value;
 	}
 
-	get lastStart(): Date {
+	get lastStart(): Dayjs {
 		return this._lastStart;
 	}
 
-	set lastStart(value: Date) {
+	set lastStart(value: Dayjs) {
 		this._lastStart = value;
 	}
 
@@ -141,10 +142,10 @@ export class CardsGroup {
 
 	// endregion
 
-	setStart(start: Date): void {
+	setStart(start: Dayjs): void {
 		this.start = start;
 		this.left = this.start ? DimensionsService.calcLeftFromStart(this.start) : undefined;
-		this.end = this.start ? UtilsService.addMinutes(this.start, this.findDuration()) : undefined;
+		this.end = this.start ? this.start.add(this.findDuration(), Constants.DAY_JS.m) : undefined;
 	}
 
 	addCards(cards: Card[]): void {

@@ -5,22 +5,25 @@ import {Client} from "./client";
 import {Vehicle} from "./vehicle";
 import {CardsService} from "../services/cards.service";
 import {DimensionsService} from "../services/dimensions.service";
+import {Dayjs} from "dayjs";
+import * as dayjs from "dayjs";
+import {Constants} from "./constants";
 
 export class Card {
 
 	panelId: string;
-	day: Date;
-	lastDay: Date;
+	day: Dayjs;
+	lastDay: Dayjs;
 	mechanicCode: string;
 	lastMechanicCode: string;
 	status: string;
 	lastStatus: string;
 
-	start: Date;
-	lastStart: Date;
+	start: Dayjs;
+	lastStart: Dayjs;
 	duration: number;
-	end: Date;
-	lastEnd: Date;
+	end: Dayjs;
+	lastEnd: Dayjs;
 	line: number;
 	lastLine: number;
 
@@ -51,12 +54,12 @@ export class Card {
 	constructor(card: any, initialLoad: boolean = true) {
 		this.type = card.type;
 		this.code = card.code;
-		this.day = card.day ? UtilsService.parseDateFromLong(card.day) : undefined;
+		this.day = card.day ? dayjs(card.day) : undefined;
 		this.status = card.status;
 		this.mechanicCode = card.mechanicCode;
-		this.start = card.start ? UtilsService.parseCompleteDate(this.day, card.start) : undefined;
+		this.start = card.start ? dayjs(UtilsService.buildDateTimeString(card.day, card.start)) : undefined;
 		this.duration = card.duration;
-		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : undefined;
+		this.end = this.start ? this.start.add(this.duration, Constants.DAY_JS.m) : undefined;
 		this.line = card.line;
 		this.group = card.group ? new Group(card.group) : undefined;
 		this.order = card.order ? new Order(card.order) : undefined;
@@ -69,28 +72,28 @@ export class Card {
 		this.divisionIndex = card.divisionIndex;
 		this.panelId = this.order ? CardsService.buildPanelId(this) : undefined;
 
-		this.lastDay = card.lastDay ? UtilsService.parseDateFromLong(card.lastDay) : initialLoad ? this.day : undefined;
+		this.lastDay = card.lastDay ? dayjs(card.lastDay) : initialLoad ? this.day : undefined;
 		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : initialLoad ? this.mechanicCode : undefined;
 		this.lastLine = card.lastLine != undefined ? card.lastLine : initialLoad ? this.line : undefined;
 		this.lastStart = card.lastStart != undefined ? card.lastStart : initialLoad ? this.start : undefined;
 		this.lastEnd = card.lastEnd != undefined ? card.lastEnd : initialLoad ? this.end : undefined;
 	}
 
-	setStart(start: Date): void {
+	setStart(start: Dayjs): void {
 		this.lastStart = this.start;
 		this.start = start;
 
 		this.lastEnd = this.end;
-		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : this.start;
+		this.end = this.start ? this.start.add(this.duration, Constants.DAY_JS.m) : this.start;
 	}
 
 	setDuration(duration: number, width: number = undefined) {
 		this.duration = duration;
-		this.end = this.start ? UtilsService.addMinutes(this.start, this.duration) : undefined;
+		this.end = this.start ? this.start.add(this.duration, Constants.DAY_JS.m) : undefined;
 		this.width = width ? width : DimensionsService.calcWidthFromDuration(this.duration);
 	}
 
-	setDay(day: Date): void {
+	setDay(day: Dayjs): void {
 		this.lastDay = this.day;
 		this.day = day;
 	}

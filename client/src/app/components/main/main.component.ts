@@ -33,6 +33,8 @@ import {DomSanitizer} from "@angular/platform-browser";
 import {GroupContextMenuInfo} from "../../objects/context-menu/group-context-menu-info";
 import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
 import {Coordinates} from "../../objects/coordinates";
+import {Dayjs} from "dayjs";
+import * as dayjs from "dayjs";
 
 @Component({
 	selector: 'app-main',
@@ -42,8 +44,8 @@ import {Coordinates} from "../../objects/coordinates";
 })
 export class MainComponent implements OnInit, OnDestroy {
 
-	private _days: Date[];
-	private _today: Date;
+	private _days: Dayjs[];
+	private _today: Dayjs;
 	private itemSize: number;
 	private _showNonexistentScheduleMessage: boolean;
 	private _dayContainerWidth: number;
@@ -104,8 +106,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.days = this.mechanicsService.days;
 		this.initDaysUpdateObjects();
 
-		const today = UtilsService.clearTime(new Date()).getTime();
-		this.today = this.days.find(day => day.getTime() == today);
+		const today = dayjs().startOf(Constants.DAY_JS.d);
+		this.today = this.days.find((day: Dayjs) => day.isSame(today));
 		this.oneDayMode = true;
 		this.maxScheduleHours = DimensionsService.maxScheduleHours;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
@@ -133,7 +135,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.quartersSaturationSubscription = NotificationService.quartersSaturation$
 				.subscribe((dayQuartersSaturation: DayQuartersSaturation) => {
-			this.daysQuartersSaturation[dayQuartersSaturation.day.getTime()] = dayQuartersSaturation;
+			this.daysQuartersSaturation[dayQuartersSaturation.day.valueOf()] = dayQuartersSaturation;
 			this.cdRef.detectChanges();
 		});
 
@@ -187,7 +189,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			if (dayLateralInfo.info && dayLateralInfo.info.type == Constants.LATERAL_PANEL_INFO_TYPE.SKILLS) {
 				dayLateralInfo.info.handle(this.daysMechanicSkills, dayLateralInfo.day);
 			}
-			this.daysLateralInfo[dayLateralInfo.day.getTime()] = dayLateralInfo;
+			this.daysLateralInfo[dayLateralInfo.day.valueOf()] = dayLateralInfo;
 			this.cdRef.detectChanges();
 		});
 
@@ -197,7 +199,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$
 				.subscribe((dayAppointmentsCounters: DayAppointmentsCounterUpdate) => {
-			this.daysAppointmentsCounterUpdate[dayAppointmentsCounters.day.getTime()] = dayAppointmentsCounters;
+			this.daysAppointmentsCounterUpdate[dayAppointmentsCounters.day.valueOf()] = dayAppointmentsCounters;
 			this.cdRef.detectChanges();
 		});
 
@@ -238,19 +240,19 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	// region Getters / setters
 
-	get days(): Date[] {
+	get days(): Dayjs[] {
 		return this._days;
 	}
 
-	set days(value: Date[]) {
+	set days(value: Dayjs[]) {
 		this._days = value;
 	}
 
-	get today(): Date {
+	get today(): Dayjs {
 		return this._today;
 	}
 
-	set today(value: Date) {
+	set today(value: Dayjs) {
 		this._today = value;
 	}
 
@@ -412,39 +414,40 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	// endregion
 
-	private initDaysUpdateObjects(days: Date[] = this.days): void {
+	private initDaysUpdateObjects(days: Dayjs[] = this.days): void {
 		this.daysMechanicSkills = {};
 		this.daysQuartersSaturation = {};
 		this.daysLateralInfo = {};
 		this.daysAppointmentsCounterUpdate = {};
-		days.forEach((day: Date) => {
-			this.daysMechanicSkills[day.getTime()] = new DayMechanicSkills();
-			this.daysQuartersSaturation[day.getTime()] = new DayQuartersSaturation(
+		days.forEach((day: Dayjs) => {
+			this.daysMechanicSkills[day.valueOf()] = new DayMechanicSkills();
+			this.daysQuartersSaturation[day.valueOf()] = new DayQuartersSaturation(
 				day,
 				this.cardsService.checkQuarterSaturation(day)
 			);
-			this.daysLateralInfo[day.getTime()] = new DayLateralPanelInfo();
-			this.daysAppointmentsCounterUpdate[day.getTime()] = new DayAppointmentsCounterUpdate(day)
+			this.daysLateralInfo[day.valueOf()] = new DayLateralPanelInfo();
+			this.daysAppointmentsCounterUpdate[day.valueOf()] = new DayAppointmentsCounterUpdate(day)
 		});
 	}
 
-	findDayMechanics(day: Date): Mechanic[] {
+	findDayMechanics(day: Dayjs): Mechanic[] {
 		return this.mechanicsService.findDayMechanics(day);
 	}
 
-	checkTriggerLineCd(day: Date, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
+	checkTriggerLineCd(day: Dayjs, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
 		let update = undefined;
 		if (mechanicLineUpdate) {
-			update = !mechanicLineUpdate.day || day.getTime() == mechanicLineUpdate.day.getTime() ? mechanicLineUpdate : undefined;
+			update = !mechanicLineUpdate.day || day.isSame(mechanicLineUpdate.day)
+				? mechanicLineUpdate : undefined;
 		}
 		return update;
 	}
 
 	findQuartersSaturation(
-		day: Date,
+		day: Dayjs,
 		daysQuartersSaturation: DaysQuartersSaturation = this.daysQuartersSaturation
 	): QuartersSaturation {
-		return daysQuartersSaturation[day.getTime()].quartersSaturation;
+		return daysQuartersSaturation[day.valueOf()].quartersSaturation;
 	}
 
 	findAssignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
@@ -467,25 +470,25 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	findDayMechanicSkills(
-		day: Date,
+		day: Dayjs,
 		daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills
 	): DayMechanicSkills {
-		return daysMechanicSkills[day.getTime()];
+		return daysMechanicSkills[day.valueOf()];
 	}
 
-	private checkTodayScheduleExists(today: Date = this.today): boolean {
+	private checkTodayScheduleExists(today: Dayjs = this.today): boolean {
 		return this.mechanicsService.findDayMechanics(today) != undefined;
 	}
 
-	findLateralInfo(day: Date, daysLateralInfo: DaysLateralPanelInfo = this.daysLateralInfo): LateralPanelInfo {
-		return daysLateralInfo[day.getTime()].info;
+	findLateralInfo(day: Dayjs, daysLateralInfo: DaysLateralPanelInfo = this.daysLateralInfo): LateralPanelInfo {
+		return daysLateralInfo[day.valueOf()].info;
 	}
 
-	findDayAppointmentsCounterUpdate(day: Date): any {
-		return this.daysAppointmentsCounterUpdate[day.getTime()];
+	findDayAppointmentsCounterUpdate(day: Dayjs): any {
+		return this.daysAppointmentsCounterUpdate[day.valueOf()];
 	}
 
-	calcTimeIndicatorLeft(time: Date = new Date()): number {
+	calcTimeIndicatorLeft(time: Dayjs = dayjs()): number {
 		return DimensionsService.calcLeftFromStart(time) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 

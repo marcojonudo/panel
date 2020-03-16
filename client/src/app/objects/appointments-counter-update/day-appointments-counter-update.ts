@@ -1,8 +1,10 @@
+import {Dayjs} from "dayjs";
+
 export class DayAppointmentsCounterUpdate {
 
-	day: Date;
+	day: Dayjs;
 
-	constructor(day: Date) {
+	constructor(day: Dayjs) {
 		this.day = day;
 	}
 

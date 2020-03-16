@@ -6,6 +6,8 @@ import {UtilsService} from "../../services/utils.service";
 import {AppointmentSchedule} from "../appointment-schedule";
 import {Mechanic} from "../mechanic";
 import {DragSchedulesService} from "../../services/drag-schedules.service";
+import {Dayjs} from "dayjs";
+import {Constants} from "../constants";
 
 export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 
@@ -46,12 +48,11 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	private checkCreateSchedule(quarterRefLeft: number, mechanic: Mechanic): boolean {
 		const quarterRef = DimensionsService.calcStartFromLeft(quarterRefLeft, mechanic.day);
 		const nextAppointment = mechanic.appointments.find((appointment: AppointmentSchedule) => {
-			const startDiff = UtilsService.findDiff(appointment.schedule.start, quarterRef);
+			const startDiff = Math.abs(appointment.schedule.start.diff(quarterRef, Constants.DAY_JS.m));
 			if (startDiff < 15) {
 				return false;
 			}
-			const endDiff = UtilsService.findDiff(appointment.schedule.end, quarterRef);
-			console.log(endDiff);
+			const endDiff = Math.abs(appointment.schedule.end.diff(quarterRef, Constants.DAY_JS.m));
 			return endDiff < 15;
 		});
 		return nextAppointment == undefined;
@@ -60,8 +61,8 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	findMovedQuarterRef(
 		quarterRefLeft: number,
 		movedQuarters: number,
-		day: Date
-	): Date {
+		day: Dayjs
+	): Dayjs {
 		return DimensionsService.calcStartFromLeft(
 			quarterRefLeft + movedQuarters * DimensionsService.intervalWidth * 3,
 			day
@@ -69,11 +70,11 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	}
 
 	updateQuarterRef(
-		quarterEnd: Date,
+		quarterEnd: Dayjs,
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule
 	): void {
-		if (quarterEnd.getTime() >= appointment.schedule.start.getTime()) {
+		if (quarterEnd.isSame(appointment.schedule.start) || quarterEnd.isAfter(appointment.schedule.start)) {
 			AppointmentsService.updateSchedule(
 				mechanic,
 				appointment,

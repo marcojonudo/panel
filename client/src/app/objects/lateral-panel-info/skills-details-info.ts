@@ -3,6 +3,7 @@ import {Constants} from "../constants";
 import {DaysMechanicSkills} from "../skills-update/days-mechanic-skills";
 import {DayMechanicSkills} from "../skills-update/day-mechanic-skills";
 import {MechanicSkills} from "../mechanic-skills";
+import {Dayjs} from "dayjs";
 
 export class SkillsDetailsInfo implements LateralPanelInfo {
 
@@ -16,8 +17,8 @@ export class SkillsDetailsInfo implements LateralPanelInfo {
 		this.show = mechanicSkills && mechanicSkills.skills.length != 0;
 	}
 
-	handle(daysMechanicSkills: DaysMechanicSkills, day: Date): void {
-		daysMechanicSkills[day.getTime()] = new DayMechanicSkills(day, this.params.mechanicCode, this.params.skills)
+	handle(daysMechanicSkills: DaysMechanicSkills, day: Dayjs): void {
+		daysMechanicSkills[day.valueOf()] = new DayMechanicSkills(day, this.params.mechanicCode, this.params.skills)
 	}
 
 }
