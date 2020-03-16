@@ -10,6 +10,7 @@ import {UtilsService} from "../services/utils.service";
 import {NotificationService} from "../services/notification.service";
 import {WarningToast} from "../objects/toasts/warning-toast";
 import {ScheduleInterval} from "../objects/schedule-interval";
+import {Dayjs} from "dayjs";
 
 @Directive({
 	selector: '[appDragSchedule]'
@@ -28,7 +29,7 @@ export class DragScheduleDirective implements OnInit {
 
 	private appointmentSchedule: AppointmentSchedule;
 	private quarterRefLeft: number;
-	private quarterRefStart: Date;
+	private quarterRefStart: Dayjs;
 
 	constructor(
 		private appointmentsService: AppointmentsService,
@@ -50,7 +51,6 @@ export class DragScheduleDirective implements OnInit {
 		if (DragSchedulesService.checkStartDragging(this.mechanic, event)) {
 			this.quarterRefLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointment);
 			this.quarterRefStart = DimensionsService.calcStartFromLeft(this.quarterRefLeft, this.mechanic.day);
-
 			this.appointmentSchedule = this.behaviour.createAppointment(
 				this.appointment,
 				this.quarterRefLeft,
@@ -98,22 +98,22 @@ export class DragScheduleDirective implements OnInit {
 	onPointerUp(): void {
 		this.lastMovedQuarter = 0;
 		/* Si se ha movido el cursor (para evitar fallos al hacer clic sin pointermove) */
-		if (this.appointmentSchedule.schedule.start.getTime() == this.appointmentSchedule.schedule.end.getTime()) {
-			this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
+		if (this.appointmentSchedule.schedule.start.isSame(this.appointmentSchedule.schedule.end)) {
+			// this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
 		} else {
-			this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
+			// this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
 		}
 		this.reset();
 	}
 
-	private validateMovement(quarterRef: Date, draggingRight: boolean): boolean {
-		const quarterRefTime = quarterRef.getTime();
-		const quarterRefStartTime = this.quarterRefStart.getTime();
+	private validateMovement(quarterRef: Dayjs, draggingRight: boolean): boolean {
+		const quarterRefTime = quarterRef.valueOf();
+		const quarterRefStartTime = this.quarterRefStart.valueOf();
 		if (!this.checkMovementInsideSchedule(quarterRefTime, quarterRefStartTime, draggingRight)) {
 			return false;
 		}
 		const tooCloseSchedule = this.mechanic.appointments.find((appointment: AppointmentSchedule) => {
-			const [startTime, endTime] = [appointment.schedule.start.getTime(), appointment.schedule.end.getTime()];
+			const [startTime, endTime] = [appointment.schedule.start.valueOf(), appointment.schedule.end.valueOf()];
 			if (appointment.equals(this.appointmentSchedule)) {
 				return false;
 			}
@@ -132,7 +132,7 @@ export class DragScheduleDirective implements OnInit {
 		draggingRight: boolean
 	): boolean {
 		const outsideSchedule = this.mechanic.schedules.find((schedule: ScheduleInterval) => {
-			const [startTime, endTime] = [schedule.start.getTime(), schedule.end.getTime()];
+			const [startTime, endTime] = [schedule.start.valueOf(), schedule.end.valueOf()];
 			const insideSchedule = startTime <= quarterRefStartTime && quarterRefStartTime <= endTime;
 			if (!insideSchedule) {
 				return false;

@@ -12,6 +12,7 @@ import {JobLineTypeService} from "../../services/job-line-type.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
 import {MechanicSkills} from "../../objects/mechanic-skills";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -21,7 +22,7 @@ import {MechanicSkills} from "../../objects/mechanic-skills";
 })
 export class MechanicInfoComponent {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
 	@Input() position: string;
 	@Input() dayMechanicSkills: DayMechanicSkills;
@@ -118,7 +119,7 @@ export class MechanicInfoComponent {
 
 	showSkills(
 		skills: Skill[],
-		day: Date,
+		day: Dayjs,
 		mechanicCode: string,
 		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
 	) {

@@ -1,11 +1,12 @@
 import {LateralPanelInfo} from "./lateral-panel-info";
+import {Dayjs} from "dayjs";
 
 export class DayLateralPanelInfo {
 
-	day: Date;
+	day: Dayjs;
 	info: LateralPanelInfo;
 
-	constructor(day: Date = undefined, info: LateralPanelInfo = undefined) {
+	constructor(day: Dayjs = undefined, info: LateralPanelInfo = undefined) {
 		this.day = day;
 		this.info = info;
 	}

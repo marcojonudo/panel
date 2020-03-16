@@ -14,6 +14,7 @@ import {DragScheduleBehaviour} from "../../objects/drag-schedule-behaviour/drag-
 import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/update-schedule-behaviour";
 import {CreateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/create-schedule-behaviour";
 import {AppointmentsService} from "../../services/appointments.service";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -23,7 +24,7 @@ import {AppointmentsService} from "../../services/appointments.service";
 })
 export class MechanicLineComponent {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	// @Input() maxScheduleWidth: number;
@@ -58,7 +59,7 @@ export class MechanicLineComponent {
 
 	// endregion
 
-	findGroups(day: Date, mechanicCode: string): CardsGroup[] {
+	findGroups(day: Dayjs, mechanicCode: string): CardsGroup[] {
 		return this.cardsService.findDayMechanicGroups(day, mechanicCode);
 	}
 
@@ -70,7 +71,7 @@ export class MechanicLineComponent {
 		return lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
 	}
 
-	calcScheduleLeft(start: Date): number {
+	calcScheduleLeft(start: Dayjs): number {
 		return start ? DimensionsService.calcLeftFromStart(start) : 0;
 	}
 
@@ -98,15 +99,15 @@ export class MechanicLineComponent {
 			: Constants.SCHEDULE_BORDER_CURSOR.DEFAULT;
 	}
 
-	checkShowAppointmentStartSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentStart: Date): boolean {
+	checkShowAppointmentStartSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentStart: Dayjs): boolean {
 		return scheduleIntervals.find((interval: ScheduleInterval) =>
-			interval.start.getTime() == appointmentStart.getTime()
+			interval.start.isSame(appointmentStart)
 		) == undefined;
 	}
 
-	checkShowAppointmentEndSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentEnd: Date): boolean {
+	checkShowAppointmentEndSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentEnd: Dayjs): boolean {
 		return scheduleIntervals.find((interval: ScheduleInterval) =>
-			interval.end.getTime() == appointmentEnd.getTime()
+			interval.end.isSame(appointmentEnd)
 		) == undefined;
 	}
 

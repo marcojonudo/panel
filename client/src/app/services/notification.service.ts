@@ -14,6 +14,7 @@ import {DayLateralPanelInfo} from "../objects/lateral-panel-info/day-lateral-pan
 import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 import {Constants} from "../objects/constants";
 import {Toast} from "../objects/toasts/toast";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -235,7 +236,7 @@ export class NotificationService {
 		this.bandSubject.next(cardUpdate);
 	}
 
-	static notifyMechanicLine(type: string = undefined, day: Date = undefined, mechanicCode: string = undefined): void {
+	static notifyMechanicLine(type: string = undefined, day: Dayjs = undefined, mechanicCode: string = undefined): void {
 		this.mechanicLineSubject.next(new MechanicLineUpdate(type, day, mechanicCode));
 	}
 

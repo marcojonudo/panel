@@ -6,15 +6,11 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import panel.utils.Constants
-import utils.pogos.panel.AppointmentDay
-import utils.pogos.panel.Card
-import utils.pogos.panel.GroupUnits
-import utils.pogos.panel.JobLineType
-import utils.pogos.panel.Task
-import utils.pogos.panel.AppointmentType
+import utils.pogos.panel.*
 
 import javax.annotation.Nullable
 import javax.inject.Singleton
+import java.time.LocalDate
 
 @Singleton
 @CompileStatic
@@ -27,8 +23,8 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 
 	@Get("/cards")
 	List<Card> getCards(
-			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date from,
-			@QueryValue @Nullable @Format(Constants.DATE_DB_PATTERN) Date to
+			@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
+			@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
 	)
 
 	@Get("/jobLineTypes")
@@ -38,7 +34,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<AppointmentType> getAppointmentTypes()
 
 	@Get("/appointmentDays")
-	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DATE_DB_PATTERN) Date from)
+	List<AppointmentDay> getAppointmentDays(@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from)
 
 	@Post("/durations")
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)

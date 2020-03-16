@@ -13,6 +13,7 @@ import {Url} from "../objects/url";
 import {UpdateAppointmentDayParams} from "../objects/update-appointment-day-params";
 import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 import {ScheduleInterval} from "../objects/schedule-interval";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -106,13 +107,12 @@ export class AppointmentsService {
 		appointmentDays: any[]
 	): void {
 		AppointmentsService.appointmentTypes = appointmentTypes;
-		this.appointmentDays = UtilsService.sort(appointmentDays.map(appointmentDay => {
-			return new AppointmentDay(appointmentDay.appointmentType, appointmentDay.day, appointmentDay)
-		}), (appointmentDay) => appointmentDay.day);
-
+		this.appointmentDays = UtilsService.sort(
+			appointmentDays.map(appointmentDay => new AppointmentDay(appointmentDay)),
+			(appointmentDay) => appointmentDay.day
+		);
 		console.log('Appointment types', AppointmentsService.appointmentTypes);
 		console.log('Appointment days', this.appointmentDays);
-
 		this.daysAppointmentsCounter = this.initDaysAppointmentsCounter(this.appointmentDays);
 		console.log('Days appointments counter', this.daysAppointmentsCounter);
 
@@ -129,7 +129,7 @@ export class AppointmentsService {
 	): DaysAppointmentsCounter {
 		const daysAppointmentsCounter = {};
 		for (let i = 0; i < appointmentDays.length; i = i + 4) {
-			daysAppointmentsCounter[appointmentDays[i].day.getTime()] = this.initAppointmentsCounter(
+			daysAppointmentsCounter[appointmentDays[i].day.valueOf()] = this.initAppointmentsCounter(
 				appointmentDays.slice(i, i + 4)
 			);
 		}
@@ -165,7 +165,7 @@ export class AppointmentsService {
 	// region Update appointment day
 
 	updateAppointment(
-		day: Date,
+		day: Dayjs,
 		cards: Card[],
 		add: boolean,
 		updateParams: UpdateAppointmentDayParams,
@@ -173,7 +173,7 @@ export class AppointmentsService {
 		daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
 	): void {
 		if (cards[0].type == Constants.CARD_TYPE.APPOINTMENT) {
-			const appointmentDayCounters = daysAppointmentsCounter[day.getTime()];
+			const appointmentDayCounters = daysAppointmentsCounter[day.valueOf()];
 			for (const [typeCode, appointmentDay] of Object.entries(appointmentDayCounters)) {
 				const typeCards = cards.filter((card: Card) => card.group.appointmentType.code == typeCode);
 				typeCards.forEach(card => {
@@ -276,9 +276,9 @@ export class AppointmentsService {
 	): void {
 		const insertNewAppointment = appointment.schedule == undefined;
 
-		appointment.schedule = type == Constants.SCHEDULE_TYPE.MORNING
-			? new ScheduleInterval(start, end)
-			: new ScheduleInterval(start, end);
+		// appointment.schedule = type == Constants.SCHEDULE_TYPE.MORNING
+		// 	? new ScheduleInterval(start, end)
+		// 	: new ScheduleInterval(start, end);
 
 		mechanic.appointments = mechanic.appointments.slice();
 		if (insertNewAppointment) {
@@ -302,14 +302,14 @@ export class AppointmentsService {
 	static create(
 		mechanic: Mechanic,
 		type: AppointmentType,
-		start: Date,
-		end: Date
+		start: Dayjs,
+		end: Dayjs
 	): AppointmentSchedule {
 		const newAppointment = new AppointmentSchedule(
-			mechanic,
+			mechanic.day,
+			mechanic.code,
 			type,
-			UtilsService.formatTime(start),
-			UtilsService.formatTime(end)
+			new ScheduleInterval(start, end)
 		);
 		mechanic.appointments.push(newAppointment);
 
@@ -325,8 +325,8 @@ export class AppointmentsService {
 	static updateSchedule(
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule,
-		start: Date,
-		end: Date
+		start: Dayjs,
+		end: Dayjs
 	): void {
 		const appointmentSchedule = mechanic.appointments.find((appointmentSchedule: AppointmentSchedule) =>
 			appointmentSchedule.equals(appointment)
@@ -347,7 +347,7 @@ export class AppointmentsService {
 		updateDb: boolean = true
 	): void {
 		const appointmentIndex = mechanic.appointments.findIndex((appointmentSchedule: AppointmentSchedule) =>
-			appointmentSchedule.id == appointment.id
+			appointmentSchedule.equals(appointment)
 		);
 		mechanic.appointments.splice(appointmentIndex, 1);
 

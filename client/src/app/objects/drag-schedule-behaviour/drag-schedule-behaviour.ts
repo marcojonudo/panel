@@ -1,6 +1,7 @@
 import {AppointmentSchedule} from "../appointment-schedule";
 import {Mechanic} from "../mechanic";
 import {AppointmentsService} from "../../services/appointments.service";
+import {Dayjs} from "dayjs";
 
 export interface DragScheduleBehaviour {
 
@@ -13,10 +14,10 @@ export interface DragScheduleBehaviour {
 		mechanic: Mechanic
 	): AppointmentSchedule;
 
-	findMovedQuarterRef(quarterRefLeft: number, movedQuarters: number, day: Date): Date;
+	findMovedQuarterRef(quarterRefLeft: number, movedQuarters: number, day: Dayjs): Dayjs;
 
 	updateQuarterRef(
-		quarterRef: Date,
+		quarterRef: Dayjs,
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule
 	): void;

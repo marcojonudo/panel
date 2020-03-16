@@ -1,25 +1,26 @@
 import {UtilsService} from "../services/utils.service";
 import {Constants} from "./constants";
 import {HourQuarters} from "./hour-quarters";
+import {Dayjs} from "dayjs";
 
 export class ScheduleInterval {
 
-	start: Date;
-	end: Date;
+	start: Dayjs;
+	end: Dayjs;
 	type: string;
 	duration: number;
 	hourQuarters: HourQuarters[] = [];
 	quarters: number[] = [];
 
-	constructor(start: string, end: string) {
-		this.start = UtilsService.parseTimeFromString(start);
-		this.end = UtilsService.parseTimeFromString(end);
+	constructor(start: Dayjs, end: Dayjs) {
+		this.start = start;
+		this.end = end;
 		this.type = UtilsService.findScheduleType(this.start, this.end);
-		this.duration = UtilsService.getScheduleMinutes(this.start, this.end);
+		this.duration = this.end.diff(this.start, Constants.DAY_JS.m);
 
 		let time = this.start;
 		while (time < this.end) {
-			const [hours, minutes] = [time.getHours(), time.getMinutes()];
+			const [hours, minutes] = [time.hour(), time.minute()];
 			const hourQuarter = this.hourQuarters.find(hourQuarter => hourQuarter.hour == hours);
 			if (hourQuarter) {
 				hourQuarter.quarters.push(minutes);
@@ -27,13 +28,13 @@ export class ScheduleInterval {
 				this.hourQuarters.push(new HourQuarters(hours, [minutes], this.type));
 			}
 			this.quarters.push(minutes);
-			time = UtilsService.addMinutes(time, Constants.QUARTERS.STEP_15);
+			time = time.add(Constants.QUARTERS.STEP_15, Constants.DAY_JS.m);
 		}
 	}
 
-	setEnd(end: Date): void {
+	setEnd(end: Dayjs): void {
 		this.end = end;
-		this.duration = UtilsService.getScheduleMinutes(this.start, this.end);
+		this.duration = this.end.diff(this.start, Constants.DAY_JS.m);
 	}
 
 }

@@ -10,6 +10,7 @@ import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-
 import {CardsService} from "../../services/cards.service";
 import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
 import {MechanicSkills} from "../../objects/mechanic-skills";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-grid',
@@ -19,7 +20,7 @@ import {MechanicSkills} from "../../objects/mechanic-skills";
 })
 export class GridComponent implements OnInit {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;

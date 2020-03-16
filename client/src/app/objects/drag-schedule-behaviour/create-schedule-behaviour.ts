@@ -6,6 +6,8 @@ import {UtilsService} from "../../services/utils.service";
 import {AppointmentSchedule} from "../appointment-schedule";
 import {Mechanic} from "../mechanic";
 import {DragSchedulesService} from "../../services/drag-schedules.service";
+import {Dayjs} from "dayjs";
+import {Constants} from "../constants";
 
 export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 
@@ -46,12 +48,12 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	private checkCreateSchedule(quarterRefLeft: number, mechanic: Mechanic): boolean {
 		const quarterRef = DimensionsService.calcStartFromLeft(quarterRefLeft, mechanic.day);
 		const nextAppointment = mechanic.appointments.find((appointment: AppointmentSchedule) => {
-			const startDiff = UtilsService.findDiff(appointment.schedule.start, quarterRef);
-			if (startDiff < 15) {
-				return false;
-			}
-			const endDiff = UtilsService.findDiff(appointment.schedule.end, quarterRef);
-			return endDiff < 15;
+			const startDiff = appointment.schedule.start.diff(quarterRef, Constants.DAY_JS.m);
+			const endDiff = appointment.schedule.end.diff(quarterRef, Constants.DAY_JS.m);
+			/* Si se cumple esta condición, se está haciendo clic dentro del horario de otra cita, con un margen de 15
+			*  minutos a izquierda y derecha. De esta forma, se evita crear otra nueva a no ser que se dejen, como
+			*  mínimo, esos 15 minutos a ambos lados */
+			return startDiff <= 15 && endDiff >= 0;
 		});
 		return nextAppointment == undefined;
 	}
@@ -59,8 +61,8 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	findMovedQuarterRef(
 		quarterRefLeft: number,
 		movedQuarters: number,
-		day: Date
-	): Date {
+		day: Dayjs
+	): Dayjs {
 		return DimensionsService.calcStartFromLeft(
 			quarterRefLeft + movedQuarters * DimensionsService.intervalWidth * 3,
 			day
@@ -68,11 +70,11 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	}
 
 	updateQuarterRef(
-		quarterEnd: Date,
+		quarterEnd: Dayjs,
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule
 	): void {
-		if (quarterEnd.getTime() >= appointment.schedule.start.getTime()) {
+		if (quarterEnd.isSame(appointment.schedule.start) || quarterEnd.isAfter(appointment.schedule.start)) {
 			AppointmentsService.updateSchedule(
 				mechanic,
 				appointment,

@@ -7,7 +7,6 @@ import {environment} from "../../environments/environment";
 import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
-import {Schedule} from "../objects/schedule";
 import {AppointmentsService} from "./appointments.service";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
 import {UnassignedTypeSection} from "../objects/unassigned-sections/unassigned-type-section";
@@ -37,6 +36,7 @@ import {ReplaceCardModeAction} from "../objects/card-mode-action/replace-card-mo
 import {DropzoneService} from "./dropzone.service";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {WarningToast} from "../objects/toasts/warning-toast";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -266,7 +266,7 @@ export class CardsService {
 		this.handleAddFinishedCardsGroup(group);
 	}
 
-	removeFromAssigned(cardsGroup: CardsGroup, day: Date, mechanicCode: string): any {
+	removeFromAssigned(cardsGroup: CardsGroup, day: Dayjs, mechanicCode: string): any {
 		this.handleAssignedMovementGroupsLinks(
 			day,
 			mechanicCode,
@@ -278,7 +278,7 @@ export class CardsService {
 		this.checkQuarterSaturation(day);
 	}
 
-	addToAssigned(cardsGroup: CardsGroup, day: Date, newMechanicCode: string): void {
+	addToAssigned(cardsGroup: CardsGroup, day: Dayjs, newMechanicCode: string): void {
 		/* Al añadir un grupo a una línea, se comprueba si tiene grupos al lado para activar o desactivar los
 		*  iconos de los enlaces */
 		this.handleAssignedMovementGroupsLinks(
@@ -305,7 +305,7 @@ export class CardsService {
 	updateAssignedCards(
 		clonedGroups: CardsGroup[],
 		helperGroup: CardsGroup,
-		day: Date,
+		day: Dayjs,
 		newMechanicCode: string,
 		line: number,
 		dayMechanicGroups: CardsGroup[],
@@ -317,7 +317,7 @@ export class CardsService {
 			/* Se obtiene el grupo de todos los del día, en lugar de sólo los de la línea, porque la ficha que se está
 			*  moviendo puede provenir de otra línea. Además, se añade cardsGroup porque si se mueve desde otra línea de
 			*  mecánico, no va a estar en dayMechanicsCardsGroups */
-			const group = allOriginalGroups.find(group => group.id == clonedGroup.id);
+			const group = allOriginalGroups.find((group: CardsGroup) => group.id == clonedGroup.id);
 			/* Se actualizan los valores relacionados con la posicion (left y start) */
 			this.updatePosition(group, day, newMechanicCode, line, clonedGroup.left);
 		});
@@ -373,7 +373,7 @@ export class CardsService {
 		card.line = undefined;
 	}
 
-	updatePosition(group: CardsGroup, day: Date, mechanicCode: string, line: number, left: number) {
+	updatePosition(group: CardsGroup, day: Dayjs, mechanicCode: string, line: number, left: number) {
 		/* Sólo se puede mover un grupo a la vez, ya que es lo que se arrastra cuando se desplazan fichas por el
 		*  panel; sin embargo, en caso de haber solapamientos, son varios los que deben ser actualizados. Por ese
 		*  motivo se usa un array en lugar de un sólo grupo */
@@ -392,9 +392,11 @@ export class CardsService {
 
 			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
 			card.setStart(
-				DimensionsService.calcStartFromLeft(group.left + DimensionsService.calcWidthFromDuration(leftCardsDuration),
-				day
-			));
+				DimensionsService.calcStartFromLeft(
+					group.left + DimensionsService.calcWidthFromDuration(leftCardsDuration),
+					day
+				)
+			);
 		});
 
 		group.id = group.cards[0].panelId;
@@ -491,13 +493,13 @@ export class CardsService {
 		card.setDuration(card.duration + durationIncrease, card.width + widthIncrease);
 		group.cards.forEach((c: Card) => {
 			if (c.panelId != card.panelId && c.start > card.start) {
-				c.start = UtilsService.addMinutes(c.start, durationIncrease);
-				c.end = UtilsService.addMinutes(c.start, c.duration);
+				c.start = c.start.add(durationIncrease, Constants.DAY_JS.m);
+				c.end = c.start.add(c.duration, Constants.DAY_JS.m);
 			}
 		});
 
 		if (group.start) {
-			group.end = UtilsService.addMinutes(group.end, durationIncrease);
+			group.end = group.end.add(durationIncrease, Constants.DAY_JS.m);
 			NotificationService.notifyMechanicLine(
 				Constants.MECHANIC_LINE_UPDATE_TYPE.CARD_DURATION,
 				card.day,
@@ -513,9 +515,7 @@ export class CardsService {
 		// const threshold = schedule.thresholds.filter((t, i) => i % 2 == 1).find(threshold => {
 		// 	return threshold.getTime() == group.end.getTime();
 		// });
-		const threshold = schedules.find(interval =>
-			interval.end.getTime() == group.end.getTime()
-		);
+		const threshold = schedules.find((interval: ScheduleInterval) => interval.end.isSame(group.end));
 		return threshold != undefined;
 	}
 
@@ -523,9 +523,8 @@ export class CardsService {
 		const lineGroups = this.findLineGroups(card.day, card.mechanicCode, card.line);
 		let stopSearching = false;
 		return lineGroups.filter((group, i) => {
-			const startTime = group.start.getTime();
-			if (!stopSearching && startTime > card.start.getTime()) {
-				const gapBetweenGroups = lineGroups[i - 1].end.getTime() != group.start.getTime();
+			if (!stopSearching && group.start.isAfter(card.start)) {
+				const gapBetweenGroups = !lineGroups[i - 1].end.isSame(group.start);
 				if (gapBetweenGroups) {
 					stopSearching = true;
 				}
@@ -540,12 +539,12 @@ export class CardsService {
 		groups.forEach(group => {
 			group.left += widthStep;
 			if (group.start) {
-				group.start = UtilsService.addMinutes(group.start, durationStep);
-				group.end = UtilsService.addMinutes(group.end, durationStep);
+				group.start = group.start.add(durationStep, Constants.DAY_JS.m);
+				group.end = group.end.add(durationStep, Constants.DAY_JS.m);
 
 				group.cards.forEach(c => {
-					c.start = UtilsService.addMinutes(c.start, durationStep);
-					c.end = UtilsService.addMinutes(c.start, c.duration);
+					c.start = c.start.add(durationStep, Constants.DAY_JS.m);
+					c.end = c.start.add(c.duration, Constants.DAY_JS.m);
 				});
 			}
 			cards.push(...group.cards);
@@ -563,7 +562,7 @@ export class CardsService {
 		// NotificationService.notifyBand();
 	}
 
-	handleAddAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+	handleAddAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(
 			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
@@ -572,7 +571,7 @@ export class CardsService {
 		);
 	}
 
-	handleRemoveAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+	handleRemoveAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(
 			Constants.MECHANIC_LINE_UPDATE_TYPE.REMOVE_GROUP,
@@ -736,7 +735,7 @@ export class CardsService {
 
 			for (let mechanic of daysMechanics[dayTime]) {
 				const assignedDayCardsGroups = assignedCardsGroups.filter(cardsGroup => {
-					return cardsGroup.cards[0].day.getTime() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.code
+					return cardsGroup.cards[0].day.valueOf() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.code
 				});
 				this.assignedDaysCardsGroups[dayTime][mechanic.code] = UtilsService.sort(
 					assignedDayCardsGroups,
@@ -750,7 +749,13 @@ export class CardsService {
 
 	// region Link handlers checks
 
-	private handleAssignedMovementGroupsLinks(day: Date, mechanicCode: string, line: number, start: Date, end: Date): void {
+	private handleAssignedMovementGroupsLinks(
+		day: Dayjs,
+		mechanicCode: string,
+		line: number,
+		start: Dayjs,
+		end: Dayjs
+	): void {
 		const groups = this.findLineGroups(day, mechanicCode, line);
 		const leftGroup = this.findLeftAssignedGroup(groups, start);
 		const rightGroup = this.findRightAssignedGroup(groups, end);
@@ -788,22 +793,22 @@ export class CardsService {
 		this.finishedCardsGroups.splice(index, 1);
 	}
 
-	private addAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
+	private addAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		/* Se usa concat en lugar de push para que no modifique el array original, y se actualice antes de tiempo en
 		*  mechanic-line.component. Haciendo el push, el array cardsGroups del mechanic-line.component se actualiza aquí
 		*  en lugar de en el propio componente */
-		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
+		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode] =
 			UtilsService.sort(
-				this.assignedDaysCardsGroups[day.getTime()][mechanicCode].concat([group]),
-				(g) => g.start
+				this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].concat([group]),
+				(g: CardsGroup) => g.start
 			);
 		this.assignedCardsGroups = this.assignedCardsGroups.concat(group);
 	}
 
-	private removeAssignedCardsGroup(day: Date, mechanicCode: string, group: CardsGroup): void {
-		this.assignedDaysCardsGroups[day.getTime()][mechanicCode] =
-			this.assignedDaysCardsGroups[day.getTime()][mechanicCode].filter(g => g.id != group.id);
-		this.assignedCardsGroups = this.assignedCardsGroups.filter(g => g.id != group.id);
+	private removeAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
+		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode] =
+			this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].filter((g: CardsGroup) => g.id != group.id);
+		this.assignedCardsGroups = this.assignedCardsGroups.filter((g: CardsGroup) => g.id != group.id);
 	}
 
 	private addUnassignedCardsGroup(group: CardsGroup, index: number): void {
@@ -829,32 +834,44 @@ export class CardsService {
 
 	// region Finders
 
-	findDayGroups(day: Date): CardsGroup[] {
-		return [].concat(...Object.values(this.assignedDaysCardsGroups[day.getTime()]));
+	findDayGroups(day: Dayjs): CardsGroup[] {
+		return [].concat(...Object.values(this.assignedDaysCardsGroups[day.valueOf()]));
 	}
 
-	findDayMechanicGroups(day: Date, mechanicCode: string): CardsGroup[] {
-		return this.assignedDaysCardsGroups[day.getTime()][mechanicCode];
+	findDayMechanicGroups(day: Dayjs, mechanicCode: string): CardsGroup[] {
+		return this.assignedDaysCardsGroups[day.valueOf()][mechanicCode];
 	}
 
-	findLineGroups(day: Date, mechanicCode: string, line: number): CardsGroup[] {
+	findLineGroups(day: Dayjs, mechanicCode: string, line: number): CardsGroup[] {
 		return this.findDayMechanicGroups(day, mechanicCode).filter(group => group.line == line);
 	}
 
-	findLineCards(day: Date, mechanicCode: string, line: number): Card[] {
+	findLineCards(day: Dayjs, mechanicCode: string, line: number): Card[] {
 		const groups = this.findDayMechanicGroups(day, mechanicCode).filter(group => group.cards[0].line == line);
 		return [].concat(...groups.map(group => group.cards));
 	}
 
-	private findLeftAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, start: Date): Card {
-		return this.findLineCards(day, mechanicCode, line).find(card => {
-			return card.order.number == orderNumber && card.end.getTime() == start.getTime()
+	private findLeftAssignedNextCard(
+		day: Dayjs,
+		mechanicCode: string,
+		line: number,
+		orderNumber: number,
+		start: Dayjs
+	): Card {
+		return this.findLineCards(day, mechanicCode, line).find((card: Card) => {
+			return card.order.number == orderNumber && card.end.isSame(start)
 		});
 	}
 
-	private findRightAssignedNextCard(day: Date, mechanicCode: string, line: number, orderNumber: number, end: Date): Card {
-		return this.findLineCards(day, mechanicCode, line).find(card => {
-			return card.order.number == orderNumber && card.start.getTime() == end.getTime()
+	private findRightAssignedNextCard(
+		day: Dayjs,
+		mechanicCode: string,
+		line: number,
+		orderNumber: number,
+		end: Dayjs
+	): Card {
+		return this.findLineCards(day, mechanicCode, line).find((card: Card) => {
+			return card.order.number == orderNumber && card.start.isSame(end)
 		});
 	}
 
@@ -907,12 +924,12 @@ export class CardsService {
 		return groupIndex > -1 && groupIndex < groups.length - 1 ? groups[groupIndex + 1] : undefined;
 	}
 
-	private findLeftAssignedGroup(groups: CardsGroup[], start: Date): CardsGroup {
-		return groups.find(group => group.end.getTime() == start.getTime());
+	private findLeftAssignedGroup(groups: CardsGroup[], start: Dayjs): CardsGroup {
+		return groups.find((group: CardsGroup) => group.end.isSame(start));
 	}
 
-	private findRightAssignedGroup(groups: CardsGroup[], end: Date): CardsGroup {
-		return groups.find(group => group.start.getTime() == end.getTime());
+	private findRightAssignedGroup(groups: CardsGroup[], end: Dayjs): CardsGroup {
+		return groups.find((group: CardsGroup) => group.start.isSame(end));
 	}
 
 	private findOrderGroups(groups: CardsGroup[], orderNumber: number): CardsGroup[] {
@@ -935,18 +952,18 @@ export class CardsService {
 
 	// region Quarter saturation
 
-	checkQuarterSaturation(day: Date): QuartersSaturation {
+	checkQuarterSaturation(day: Dayjs): QuartersSaturation {
 		const dayGroups = this.findDayGroups(day);
 		const dayMechanics = this.mechanicsService.findDayMechanics(day);
 
 		const quartersSaturation = {};
 		dayGroups.forEach((group: CardsGroup) => {
 			const startMinutes = UtilsService.roundFloor(
-				UtilsService.calcMinutesFromDate(group.start),
+				group.start.diff(<Dayjs> group.start.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
 				Constants.QUARTERS.STEP_15
 			);
 			const endMinutes = UtilsService.roundCeil(
-				UtilsService.calcMinutesFromDate(group.end),
+				group.end.diff(<Dayjs> group.end.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
 				Constants.QUARTERS.STEP_15
 			);
 			for (let quarter = startMinutes; quarter < endMinutes; quarter = quarter + Constants.QUARTERS.STEP_15) {
@@ -1057,7 +1074,7 @@ export class CardsService {
 		return newCard;
 	}
 
-	private updateRightCard(card: Card, newStart: Date, duration: number): void {
+	private updateRightCard(card: Card, newStart: Dayjs, duration: number): void {
 		card.setStart(newStart);
 		card.setDuration(duration);
 		card.linkedPrevious = undefined;

@@ -21,6 +21,7 @@ import {DimensionsService} from "./dimensions.service";
 import {MechanicsService} from "./mechanics.service";
 import {UnassignedCardLinkHandler} from "../objects/card-links/unassigned-card-link-handler";
 import {AssignedCardLinkHandler} from "../objects/card-links/assigned-card-link-handler";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -77,7 +78,7 @@ export class RealTimeService {
 		};
 	}
 
-	findGroups(card: Card, day: Date, mechanicCode: string): CardsGroup[] {
+	findGroups(card: Card, day: Dayjs, mechanicCode: string): CardsGroup[] {
 		/* En función de si la ficha estaba asignada antes de moverse en otro terminal o no, se busca en los
 		*  grupos asignados o en los de la cinta */
 		return day ?
@@ -200,9 +201,9 @@ export class RealTimeService {
 	}
 
 	updateAppointmentSchedule(updatedAppointment: AppointmentSchedule): void {
-		const dayMechanics = this.mechanicsService.findDayMechanics(
-			UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
-		);
+		// const dayMechanics = this.mechanicsService.findDayMechanics(
+		// 	UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
+		// );
 		// const [mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
 		// 	dayMechanics,
 		// 	updatedAppointment.mechanicId,

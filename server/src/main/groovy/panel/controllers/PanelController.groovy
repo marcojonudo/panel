@@ -1,6 +1,5 @@
 package panel.controllers
 
-import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.*
 import io.micronaut.http.sse.Event
@@ -117,6 +116,7 @@ class PanelController {
 		return cuboDatabaseClient.createAppointment(sessionId, mechanicAppointment)
 	}
 
+	// TODO REvisar MechanicAppointment de Utils
 	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
 			@Header String sessionId,

@@ -44,7 +44,6 @@ import {SkillsDetailsComponent} from './components/skills-details/skills-details
 import {UtilsService} from "./services/utils.service";
 import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
-import {AppointmentSchedulePanelComponent} from './components/appointment-schedule-panel/appointment-schedule-panel.component';
 import {DraggableScheduleDirective} from './directives/draggable-schedule.directive';
 import {CardSectionPipe} from './pipes/card-section.pipe';
 import {CardDetailsComponent} from './components/card-details/card-details.component';
@@ -57,6 +56,8 @@ import {AppointmentsSummaryComponent} from './components/appointments-summary/ap
 import {ToastsContainerComponent} from './components/toasts-container/toasts-container.component';
 import { DragScheduleDirective } from './directives/drag-schedule.directive';
 import { DragScheduleContextMenuComponent } from './components/drag-schedule-context-menu/drag-schedule-context-menu.component';
+import * as dayjs from "dayjs";
+import {Constants} from "./objects/constants";
 
 @NgModule({
 	declarations: [
@@ -88,7 +89,6 @@ import { DragScheduleContextMenuComponent } from './components/drag-schedule-con
 		SpinnerComponent,
 		ToolsBarComponent,
 		SkillsDetailsComponent,
-		AppointmentSchedulePanelComponent,
 		DraggableScheduleDirective,
 		CardSectionPipe,
 		CardDetailsComponent,
@@ -130,8 +130,10 @@ export class AppModule {
 	}
 
 	private overrideDateToJSON() {
-		Date.prototype.toJSON = function () {
-			return UtilsService.isDate(this) ? this.getTime() : this.toLocaleTimeString();
+		dayjs.prototype.toJSON = function () {
+			return UtilsService.isDate(this)
+				? this.format(Constants.DATE_FORMAT.yyyy_MM_dd)
+				: this.format(Constants.TIME_FORMAT.HH_mm);
 		};
 	}
 

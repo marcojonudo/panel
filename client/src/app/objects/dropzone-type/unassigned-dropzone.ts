@@ -8,9 +8,9 @@ import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
-import {UtilsService} from "../../services/utils.service";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
+import * as dayjs from "dayjs";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -86,7 +86,7 @@ export class UnassignedDropzone implements Dropzone {
 			const originDay = group.cards[0].order.day;
 			/* El día de la orden podría haber pasado. De ser así, no se actualiza nada del contador de citas, ya
 			*  directamente no hay panel para días anteriores a hoy */
-			if (originDay.getTime() >= UtilsService.clearTime(new Date()).getTime()) {
+			if (originDay.valueOf() >= dayjs().startOf(Constants.DAY_JS.d).valueOf()) {
 				this.appointmentsService.updateAppointment(
 					originDay,
 					group.cards,

@@ -4,6 +4,7 @@ import {CardPositionService} from "./card-position.service";
 import {UtilsService} from "./utils.service";
 import {AppointmentsService} from "./appointments.service";
 import {Mechanic} from "../objects/mechanic";
+import {Dayjs} from "dayjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -19,7 +20,7 @@ export class DragSchedulesService {
 		return quarterStartLeft + DimensionsService.intervalWidth * 3;
 	}
 
-	static calcQuarterThresholdsStart(quarterStartLeft: number, quarterEndLeft: number, day: Date): Date[] {
+	static calcQuarterThresholdsStart(quarterStartLeft: number, quarterEndLeft: number, day: Dayjs): Dayjs[] {
 		return [
 			DimensionsService.calcStartFromLeft(quarterStartLeft, day),
 			DimensionsService.calcStartFromLeft(quarterEndLeft, day)

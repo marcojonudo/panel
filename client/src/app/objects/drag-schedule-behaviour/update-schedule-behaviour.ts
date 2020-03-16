@@ -4,6 +4,8 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {UtilsService} from "../../services/utils.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Mechanic} from "../mechanic";
+import {Dayjs} from "dayjs";
+import {Constants} from "../constants";
 
 export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 
@@ -15,7 +17,9 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 
 	calcQuarterRefLeft(clientX: number, appointment: AppointmentSchedule): number {
 		return DimensionsService.calcLeftFromStart(
-			this.left ? appointment.schedule.start : UtilsService.addMinutes(appointment.schedule.end, 15)
+			this.left
+				? appointment.schedule.start
+				: appointment.schedule.end.add(Constants.QUARTERS.STEP_15, Constants.DAY_JS.m)
 		);
 	}
 
@@ -26,8 +30,8 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 	findMovedQuarterRef(
 		quarterRefLeft: number,
 		movedQuarters: number,
-		day: Date
-	): Date {
+		day: Dayjs
+	): Dayjs {
 		movedQuarters = this.left ? movedQuarters : movedQuarters - 1;
 		return DimensionsService.calcStartFromLeft(
 			quarterRefLeft + movedQuarters * DimensionsService.intervalWidth * 3,
@@ -36,12 +40,12 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 	}
 
 	updateQuarterRef(
-		quarterRef: Date,
+		quarterRef: Dayjs,
 		mechanic: Mechanic,
 		appointment: AppointmentSchedule
 	): void {
 		if (this.left) {
-			if (quarterRef.getTime() <= appointment.schedule.end.getTime()) {
+			if (quarterRef.valueOf() <= appointment.schedule.end.valueOf()) {
 				AppointmentsService.updateSchedule(
 					mechanic,
 					appointment,
@@ -50,7 +54,7 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 				);
 			}
 		} else {
-			if (quarterRef.getTime() >= appointment.schedule.start.getTime()) {
+			if (quarterRef.valueOf() >= appointment.schedule.start.valueOf()) {
 				AppointmentsService.updateSchedule(
 					mechanic,
 					appointment,
