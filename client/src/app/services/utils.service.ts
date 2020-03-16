@@ -19,8 +19,8 @@ export class UtilsService {
 		return day.hour(+info[0]).minute(+info[1]);
 	}
 
-	public static isDate(date: Date) {
-		return date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0
+	public static isDate(date: Dayjs) {
+		return date.hour() == 0 && date.minute() == 0 && date.second() == 0
 	}
 
 	public static calcMinutes(hour: number, minutes: number): number {

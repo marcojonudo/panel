@@ -174,6 +174,9 @@ export class Constants {
 	public static readonly DATE_FORMAT: any = {
 		yyyy_MM_dd: 'YYYY-MM-DD'
 	};
+	public static readonly TIME_FORMAT: any = {
+		HH_mm: 'HH:mm'
+	};
 	public static readonly DAY_JS: any = {
 		d: 'd',
 		m: 'm'

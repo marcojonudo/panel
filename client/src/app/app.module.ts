@@ -56,6 +56,8 @@ import {AppointmentsSummaryComponent} from './components/appointments-summary/ap
 import {ToastsContainerComponent} from './components/toasts-container/toasts-container.component';
 import { DragScheduleDirective } from './directives/drag-schedule.directive';
 import { DragScheduleContextMenuComponent } from './components/drag-schedule-context-menu/drag-schedule-context-menu.component';
+import * as dayjs from "dayjs";
+import {Constants} from "./objects/constants";
 
 @NgModule({
 	declarations: [
@@ -128,9 +130,10 @@ export class AppModule {
 	}
 
 	private overrideDateToJSON() {
-		//TODO
-		Date.prototype.toJSON = function () {
-			return UtilsService.isDate(this) ? this.getTime() : this.toLocaleTimeString();
+		dayjs.prototype.toJSON = function () {
+			return UtilsService.isDate(this)
+				? this.format(Constants.DATE_FORMAT.yyyy_MM_dd)
+				: this.format(Constants.TIME_FORMAT.HH_mm);
 		};
 	}
 
