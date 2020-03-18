@@ -20,9 +20,23 @@ class Constants {
 
 	}
 
+	static final Map<String, String> HEADER_ID = [
+	        SESSION_ID: 'session-id',
+	        REAL_TIME_ACTION: 'real-time-action'
+	]
+
+	static final Map<String, String> REAL_TIME_ACTION = [
+	        UPDATE_CARDS_POSITION: 'updateCardsPosition',
+	        UPDATE_CARDS_DURATION: 'updateCardsDuration',
+			UPDATE_CARDS_LINKS: 'updateCardsLinks',
+			UPDATE_MECHANIC_JOB_LINE_TYPE: 'updateMechanicJobLineType',
+			UPDATE_MECHANICS_POSITION: 'updateMechanicsPosition',
+			UPDATE_MECHANIC_LINES: 'updateMechanicLines',
+			CREATE_APPOINTMENT: 'createAppointment',
+			UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule'
+	]
+
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']
-	static final String SESSION_ID = "session-id"
-	static final List<String> REAL_TIME_UPDATE_AVOID_PATHS = ['cards', 'mechanic']
 	static final List<String> ECOMMERCE_APPOINTMENT_TYPE_CODES = ['ECO', 'TP']
 	static final String SPAIN_TIMEZONE = "Europe/Madrid"
 

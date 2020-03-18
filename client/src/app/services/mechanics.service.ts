@@ -15,8 +15,8 @@ import {Dayjs} from "dayjs";
 })
 export class MechanicsService {
 
-	private _days: Dayjs[];
-	private _daysMechanics: DaysMechanics;
+	private static _days: Dayjs[];
+	private static _daysMechanics: DaysMechanics;
 	private static _onlyAppointmentsMode: boolean;
 	private static _showAppointmentsName: boolean = true;
 
@@ -24,19 +24,19 @@ export class MechanicsService {
 
 	// region Getters / setters
 
-	get days(): Dayjs[] {
+	static get days(): Dayjs[] {
 		return this._days;
 	}
 
-	set days(value: Dayjs[]) {
+	static set days(value: Dayjs[]) {
 		this._days = value;
 	}
 
-	get daysMechanics(): DaysMechanics {
+	static get daysMechanics(): DaysMechanics {
 		return this._daysMechanics;
 	}
 
-	set daysMechanics(value: DaysMechanics) {
+	static set daysMechanics(value: DaysMechanics) {
 		this._daysMechanics = value;
 	}
 
@@ -60,15 +60,15 @@ export class MechanicsService {
 
 	// region Finders
 
-	findDayMechanics(day: Dayjs): Mechanic[] {
+	public static findDayMechanics(day: Dayjs): Mechanic[] {
 		return this.daysMechanics[day.valueOf()];
 	}
 
-	findMechanic(day: Dayjs, code: string): Mechanic {
+	public static findMechanic(day: Dayjs, code: string): Mechanic {
 		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.code == code);
 	}
 
-	findMechanicByPosition(day: Dayjs, position: string): Mechanic {
+	public static findMechanicByPosition(day: Dayjs, position: string): Mechanic {
 		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.panelPosition == position);
 	}
 
@@ -76,7 +76,7 @@ export class MechanicsService {
 
 	// region Init
 
-	init(daysMechanics: { [key: string]: any[] }, skills: any[], highlightedSkills: Skill[]) {
+	static init(daysMechanics: { [key: string]: any[] }, skills: any[], highlightedSkills: Skill[]) {
 		this.days = this.initDays(daysMechanics);
 		this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
 
@@ -84,14 +84,14 @@ export class MechanicsService {
 		console.log('Days mechanics', this.daysMechanics);
 	}
 
-	initDays(daysMechanics: { [key: string]: any[] }): Dayjs[] {
+	static initDays(daysMechanics: { [key: string]: any[] }): Dayjs[] {
 		return UtilsService.sort(
 			Object.keys(daysMechanics).map(day => dayjs(day)),
 			(elem: Dayjs) => elem.valueOf()
 		);
 	}
 
-	initDaysMechanics(
+	static initDaysMechanics(
 		daysMechanics: { [key: string]: any[] },
 		skills: any[],
 		highlightedSkills: Skill[]
@@ -100,7 +100,7 @@ export class MechanicsService {
 		for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
 			const day = dayjs(dayString);
 			const parsedMechanics = mechanics.map(mechanic =>
-				new Mechanic(day, mechanic, skills, highlightedSkills)
+				new Mechanic(mechanic, skills, highlightedSkills)
 			);
 			parsedDaysMechanics[day.valueOf()] =
 				UtilsService.sort(parsedMechanics, (m) => m.panelPosition);
@@ -110,7 +110,7 @@ export class MechanicsService {
 
 	// endregion
 
-	updateMechanicLines(mechanic: Mechanic, newLines: number): void {
+	static updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.setLines(newLines);
 		NotificationService.notifyMechanicLine(
 			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
@@ -127,12 +127,12 @@ export class MechanicsService {
 		day: Dayjs,
 		mechanic: Mechanic,
 		updateDb: boolean = true,
-		mechanics: Mechanic[] = this.findDayMechanics(day)
+		mechanics: Mechanic[] = MechanicsService.findDayMechanics(day)
 	) {
 		mechanic.showInPanel = false;
 
 		const index = mechanics.indexOf(mechanic);
-		this.rearrangeMechanics(mechanics, index);
+		MechanicsService.rearrangeMechanics(mechanics, index);
 
 		NotificationService.notifyMechanicLine(
 			Constants.MECHANIC_LINE_UPDATE_TYPE.LINES_NUMBER,
@@ -145,7 +145,7 @@ export class MechanicsService {
 		}
 	}
 
-	private rearrangeMechanics(mechanics: Mechanic[], removedMechanicIndex: number): void {
+	private static rearrangeMechanics(mechanics: Mechanic[], removedMechanicIndex: number): void {
 		let prevPosition = mechanics[removedMechanicIndex].panelPosition;
 		mechanics.splice(removedMechanicIndex, 1);
 

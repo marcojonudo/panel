@@ -62,7 +62,7 @@ export class MechanicInfoComponent {
 	}
 
 	get jobLineTypes(): JobLineType[] {
-		return this.jobLineTypeService.jobLineTypes;
+		return JobLineTypeService.jobLineTypes;
 	}
 
 	get defaultHeight() {
@@ -136,7 +136,7 @@ export class MechanicInfoComponent {
 	}
 
 	findJobLineTypeBackgroundColor(code: string): string {
-		return this.jobLineTypeService.findJobLineTypeColor(code);
+		return JobLineTypeService.findJobLineTypeColor(code);
 	}
 
 	findJobLineTypeColor(code: string): string {
@@ -144,7 +144,7 @@ export class MechanicInfoComponent {
 	}
 
 	updateJobLineType(mechanic: Mechanic = this.mechanic): void {
-		this.jobLineTypeService.updateJobLineType(mechanic);
+		this.jobLineTypeService.updateDbJobLineType(mechanic);
 		NotificationService.notifyMechanicLine(
 			Constants.MECHANIC_LINE_UPDATE_TYPE.JOB_LINE_TYPE,
 			mechanic.day,

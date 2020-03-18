@@ -24,14 +24,27 @@ interface CuboDatabaseApi {
 			@QueryValue boolean fixedSchedules
 	)
 
-	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+	void updateMechanicsPosition(
+			@Header String sessionId,
+			@Header realTimeAction,
+			@Body List<EmployeeSchedule> mechanics
+	)
 
-	void updateMechanicLines(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+	void updateMechanicLines(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body List<EmployeeSchedule> mechanics
+	)
 
-	void updateMechanicJobLineType(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+	void updateMechanicJobLineType(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body EmployeeSchedule mechanic
+	)
 
 	EmployeeScheduleAppointment createAppointment(
 			@Header String sessionId,
+			@Header String realTimeAction,
 			@Body MechanicAppointment mechanicAppointment
 	)
 
@@ -44,7 +57,11 @@ interface CuboDatabaseApi {
 			@QueryValue int index
 	)
 
-	void updateAppointmentSchedule(@Header String sessionId, @Body MechanicAppointment mechanicAppointment)
+	void updateAppointmentSchedule(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body MechanicAppointment mechanicAppointment
+	)
 
 	void deleteAppointmentSchedule(
 			@Header String sessionId,

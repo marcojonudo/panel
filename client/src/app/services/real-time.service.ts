@@ -13,8 +13,6 @@ import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-i
 import {RealTimeAppointmentUpdateSchedule} from "../objects/real-time-update/real-time-appointment-update-schedule";
 import {AppointmentsService} from "./appointments.service";
 import {AppointmentSchedule} from "../objects/appointment-schedule";
-import {UtilsService} from "./utils.service";
-import {RealTimeAppointmentUpdateType} from "../objects/real-time-update/real-time-appointment-update-type";
 import {NotificationService} from "./notification.service";
 import {CardsGroup} from "../objects/cards-group";
 import {DimensionsService} from "./dimensions.service";
@@ -22,6 +20,8 @@ import {MechanicsService} from "./mechanics.service";
 import {UnassignedCardLinkHandler} from "../objects/card-links/unassigned-card-link-handler";
 import {AssignedCardLinkHandler} from "../objects/card-links/assigned-card-link-handler";
 import {Dayjs} from "dayjs";
+import {RealTimeAppointmentCreate} from "../objects/real-time-update/real-time-appointment-create";
+import {RealTimeMechanicUpdateJobLineType} from "../objects/real-time-update/real-time-mechanic-update-job-line-type";
 
 @Injectable({
 	providedIn: 'root'
@@ -29,25 +29,27 @@ import {Dayjs} from "dayjs";
 export class RealTimeService {
 
 	private readonly UPDATE_TYPE = {
-		mechanic: {
-			position: (updateInfo) => new RealTimeMechanicUpdatePosition(updateInfo.mechanics),
-			lines: (updateInfo) => new RealTimeMechanicUpdateLines(updateInfo.mechanics)
-		},
-		cards: {
-			position: (updateInfo) => new RealTimeCardUpdatePosition(this.cardsService, updateInfo.cards),
-			duration: (updateInfo) => new RealTimeCardUpdateDuration(this.cardsService, updateInfo.cards),
-			links: (updateInfo) => new RealTimeCardUpdateLinks(this.cardsService, updateInfo.cards)
-		},
-		appointment: {
-			schedule: (updateInfo) => new RealTimeAppointmentUpdateSchedule(updateInfo.appointment),
-			type: (updateInfo) => new RealTimeAppointmentUpdateType(updateInfo.appointment)
-		}
+		updateCardsPosition: (cards: any[]) =>
+			new RealTimeCardUpdatePosition(this, cards),
+		updateCardsDuration: (cards: any[]) =>
+			new RealTimeCardUpdateDuration(this, cards),
+		updateCardsLinks: (cards: any[]) =>
+			new RealTimeCardUpdateLinks(this, cards),
+		updateMechanicJobLineType: (mechanic: any) =>
+			new RealTimeMechanicUpdateJobLineType(this, mechanic),
+		updateMechanicLines: (mechanics: any[]) =>
+			new RealTimeMechanicUpdateLines(this, mechanics),
+		updateMechanicsPosition: (mechanics: any[]) =>
+			new RealTimeMechanicUpdatePosition(this, mechanics),
+		createAppointment: (appointment: any) =>
+			new RealTimeAppointmentCreate(this, appointment),
+		updateAppointmentSchedule: (appointment: any) =>
+			new RealTimeAppointmentUpdateSchedule(this, appointment)
 	};
 
 	constructor(
 		private cardsService: CardsService,
-		private mechanicsService: MechanicsService,
-		private appointmentsService: AppointmentsService
+		private mechanicsService: MechanicsService
 	) {
 		this.connectUpdatePublisher();
 	}
@@ -70,13 +72,16 @@ export class RealTimeService {
 		const eventSource = new EventSource(`${environment.serverUrl}/panel/publisher`);
 		eventSource.onmessage = event => {
 			if (event.lastEventId != this.sessionId) {
+				console.log(event.data);
 				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);
-				const updateType = this.UPDATE_TYPE[updateInfo.updateObject][updateInfo.updateProperty](updateInfo);
-				updateType.update(this);
+				const updateType = this.UPDATE_TYPE[updateInfo.action](updateInfo.content);
+				updateType.update();
 			}
 		};
 	}
+
+	// region Cards
 
 	findGroups(card: Card, day: Dayjs, mechanicCode: string): CardsGroup[] {
 		/* En función de si la ficha estaba asignada antes de moverse en otro terminal o no, se busca en los
@@ -186,73 +191,88 @@ export class RealTimeService {
 		}
 	}
 
+	// endregion
+
+	// region Mechanics
+
+	updateMechanicJobLineType(mechanic: Mechanic): void {
+		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
+		localMechanic.jobLineType = mechanic.jobLineType;
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.JOB_LINE_TYPE,
+			localMechanic.day,
+			localMechanic.code
+		);
+	}
+
 	updateLines(mechanic: Mechanic): void {
-		const localMechanic = this.mechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
-		this.mechanicsService.updateMechanicLines(localMechanic, mechanic.lines);
+		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
+		MechanicsService.updateMechanicLines(localMechanic, mechanic.lines);
 	}
 
 	updateMechanicPosition(mechanics: Mechanic[]): void {
 		/* El último elemento de la lista es el mecánico eliminado */
-		const removedMechanic = this.mechanicsService.findMechanicByPosition(
+		const removedMechanic = MechanicsService.findMechanicByPosition(
 			mechanics[0].day,
 			mechanics[mechanics.length-1].panelPosition
 		);
 		this.mechanicsService.removeMechanic(removedMechanic.day, removedMechanic, false);
 	}
 
-	updateAppointmentSchedule(updatedAppointment: AppointmentSchedule): void {
-		// const dayMechanics = this.mechanicsService.findDayMechanics(
-		// 	UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
-		// );
-		// const [mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
-		// 	dayMechanics,
-		// 	updatedAppointment.mechanicId,
-		// 	updatedAppointment.index
-		// );
+	// endregion
 
-		/* El id y tipo se actualizan por el caso de creación de nueva cita. En ese caso, la cita del mecánico estará vacía,
-		*  y si se asigna sólo el horario no tendrá información sobre su tipo */
-		// appointment.appointmentType = updatedAppointment.appointmentType;
-		// appointment.schedule = updatedAppointment.schedule;
-		// NotificationService.notifyMechanicLine(
-		// 	Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
-		// 	mechanic.day,
-		// 	mechanic.code
-		// );
+	createAppointment(appointment: AppointmentSchedule): void {
+		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
+		AppointmentsService.create(
+			mechanic,
+			appointment.appointmentType,
+			appointment.schedule.start,
+			appointment.schedule.end
+		)
 	}
 
-	updateAppointmentType(updatedAppointment: AppointmentSchedule): void {
-		let mechanic, appointment;
-		// if (!updatedAppointment.appointmentType) {
-		// 	for (const mechanics of Object.values(this.mechanicsService.daysMechanics)) {
-		// 		if (!mechanic) {
-		// 			let [mec, app] = this.appointmentsService.findMechanicAppointmentByMechanic(
-		// 				<Mechanic[]> mechanics,
-		// 				updatedAppointment.mechanicId,
-		// 				updatedAppointment.index
-		// 			);
-		// 			if (mec) {
-		// 				[mechanic, appointment] = [mec, app]
-		// 			}
-		// 		}
-		// 	}
-		// 	appointment.reset();
-		// } else {
-		// 	const dayMechanics = this.mechanicsService.findDayMechanics(
-		// 		UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
-		// 	);
-		// 	[mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
-		// 		dayMechanics,
-		// 		updatedAppointment.mechanicId,
-		// 		updatedAppointment.index
-		// 	);
-		// 	appointment.appointmentType = updatedAppointment.appointmentType;
-		// }
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_TYPE,
-			mechanic.day,
-			mechanic.code
-		);
+	updateAppointmentSchedule(appointment: AppointmentSchedule): void {
+		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
+		AppointmentsService.updateSchedule(
+			mechanic,
+			appointment,
+			appointment.schedule.start,
+			appointment.schedule.end
+		)
 	}
+
+	// updateAppointmentType(updatedAppointment: AppointmentSchedule): void {
+	// 	let mechanic, appointment;
+	// 	// if (!updatedAppointment.appointmentType) {
+	// 	// 	for (const mechanics of Object.values(MechanicsService.daysMechanics)) {
+	// 	// 		if (!mechanic) {
+	// 	// 			let [mec, app] = this.appointmentsService.findMechanicAppointmentByMechanic(
+	// 	// 				<Mechanic[]> mechanics,
+	// 	// 				updatedAppointment.mechanicId,
+	// 	// 				updatedAppointment.index
+	// 	// 			);
+	// 	// 			if (mec) {
+	// 	// 				[mechanic, appointment] = [mec, app]
+	// 	// 			}
+	// 	// 		}
+	// 	// 	}
+	// 	// 	appointment.reset();
+	// 	// } else {
+	// 	// 	const dayMechanics = MechanicsService.findDayMechanics(
+	// 	// 		UtilsService.clearTime(new Date(updatedAppointment.schedule.start.getTime()))
+	// 	// 	);
+	// 	// 	[mechanic, appointment] = this.appointmentsService.findMechanicAppointmentByMechanic(
+	// 	// 		dayMechanics,
+	// 	// 		updatedAppointment.mechanicId,
+	// 	// 		updatedAppointment.index
+	// 	// 	);
+	// 	// 	appointment.appointmentType = updatedAppointment.appointmentType;
+	// 	// }
+	// 	NotificationService.notifyMechanicLine(
+	// 		Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_TYPE,
+	// 		mechanic.day,
+	// 		mechanic.code
+	// 	);
+	// }
 
 }

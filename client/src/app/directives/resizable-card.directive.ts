@@ -48,7 +48,7 @@ export class ResizableCardDirective {
 				this.cardsService.handleCardDurationUpdate(
 					this.card,
 					DimensionsService.intervalWidth * Math.sign(diff),
-					this.card.day ? this.mechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined
+					this.card.day ? MechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined
 				)
 			).filter((card, i, self) => self.indexOf(card) === i);
 			this.lastX = event.clientX;

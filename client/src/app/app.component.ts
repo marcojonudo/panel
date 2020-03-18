@@ -49,21 +49,21 @@ export class AppComponent implements AfterViewInit {
 					data.appointmentDays
 				);
 
-				this.mechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
+				MechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
 				this.cardsService.init(
 					data.cards.map(card => new Card(card)),
-					this.mechanicsService.daysMechanics
+					MechanicsService.daysMechanics
 				);
 
-				DimensionsService.init(this.mechanicsService.daysMechanics);
+				DimensionsService.init(MechanicsService.daysMechanics);
 
 				CardPositionService.updateDimensions(
 					this.cardsService.unassignedSections,
 					this.cardsService.assignedDaysCardsGroups
 				);
 
-				this.jobLineTypeService.init(data.jobLineTypes);
+				JobLineTypeService.init(data.jobLineTypes);
 
 				this.loading = false;
 				this.cdRef.detectChanges();

@@ -124,9 +124,7 @@ export class AppointmentsService {
 
 	// private init
 
-	private initDaysAppointmentsCounter(
-		appointmentDays: AppointmentDay[]
-	): DaysAppointmentsCounter {
+	private initDaysAppointmentsCounter(appointmentDays: AppointmentDay[]): DaysAppointmentsCounter {
 		const daysAppointmentsCounter = {};
 		for (let i = 0; i < appointmentDays.length; i = i + 4) {
 			daysAppointmentsCounter[appointmentDays[i].day.valueOf()] = this.initAppointmentsCounter(
@@ -239,66 +237,6 @@ export class AppointmentsService {
 
 	// region Appointment schedule
 
-	updateAppointmentType(
-		mechanic: Mechanic,
-		appointment: AppointmentSchedule,
-		newAppointmentTypeCode: string
-	): void {
-		if (newAppointmentTypeCode) {
-			appointment.appointmentType = AppointmentsService.findAppointmentType(newAppointmentTypeCode);
-
-			/* La info se guarda en DB sólo si ya tiene horario. Al definir una nueva cita, y escoger sólo el tipo, no
-			*  se guarda para no tener una cita sin horario (aunque sea temporalmente) en DB */
-			if (appointment.schedule) {
-				this.http.put(Url.appointmentType(), appointment).subscribe();
-			}
-		} else {
-			// this.http.delete(
-			// 	Url.appointmentType(),
-			// 	{params: {id: `${appointment.id}`, mechanicId: `${mechanic.id}`, index: `${appointment.index}`}}
-			// ).subscribe();
-			appointment.reset();
-		}
-		mechanic.appointments = mechanic.appointments.slice();
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_TYPE,
-			mechanic.day,
-			mechanic.code
-		);
-	}
-
-	updateAppointmentSchedule(
-		mechanic: Mechanic,
-		appointment: AppointmentSchedule,
-		type: string,
-		start: string,
-		end: string
-	): void {
-		const insertNewAppointment = appointment.schedule == undefined;
-
-		// appointment.schedule = type == Constants.SCHEDULE_TYPE.MORNING
-		// 	? new ScheduleInterval(start, end)
-		// 	: new ScheduleInterval(start, end);
-
-		mechanic.appointments = mechanic.appointments.slice();
-		if (insertNewAppointment) {
-			this.http.post(
-				Url.appointmentSchedule(),
-				appointment,
-				{params: {mechanicId: `${mechanic.id}`}}
-			).subscribe((createdAppointment: AppointmentSchedule) => {
-				// appointment.id = createdAppointment.id;
-			});
-		} else {
-			this.http.put(Url.appointmentSchedule(), appointment).subscribe()
-		}
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
-			mechanic.day,
-			mechanic.code
-		);
-	}
-
 	static create(
 		mechanic: Mechanic,
 		type: AppointmentType,
@@ -363,7 +301,7 @@ export class AppointmentsService {
 	}
 
 	createDb(appointment: AppointmentSchedule): void {
-		this.http.post(Url.appointmentSchedule(), appointment).subscribe();
+		this.http.post(Url.appointment(), appointment).subscribe();
 	}
 
 	updateDb(appointment: AppointmentSchedule): void {
@@ -371,7 +309,7 @@ export class AppointmentsService {
 	}
 
 	deleteDb(appointment: AppointmentSchedule): void {
-		this.http.put(Url.appointmentSchedule(), appointment).subscribe();
+		this.http.put(Url.appointment(), appointment).subscribe();
 	}
 
 	// endregion

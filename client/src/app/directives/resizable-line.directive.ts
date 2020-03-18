@@ -50,7 +50,7 @@ export class ResizableLineDirective implements OnInit {
 			/* Sólo se actualiza la altura si no hay fichas asignadas para la línea */
 			if (!lineGroups.length) {
 				this.line = this.line + Math.sign(diff);
-				this.mechanicsService.updateMechanicLines(this.mechanic, this.line);
+				MechanicsService.updateMechanicLines(this.mechanic, this.line);
 				this.lastY = event.clientY;
 			}
 		}

@@ -3,7 +3,6 @@ import {Card} from "../objects/card";
 
 import {CardsGroup} from "../objects/cards-group";
 import {HttpClient} from "@angular/common/http";
-import {environment} from "../../environments/environment";
 import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
@@ -359,10 +358,7 @@ export class CardsService {
 		}
 
 		if (updateDb) {
-			this.http.put(
-				`${environment.serverUrl}/panel/cards/position`,
-				group.cards
-			).subscribe();
+			this.http.put(Url.cardsPosition(), group.cards).subscribe();
 		}
 	}
 
@@ -390,7 +386,7 @@ export class CardsService {
 			card.setLine(line);
 			this.updateOrderCode(card, group, index);
 
-			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), 'duration');
+			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), Constants.PROPERTY.DURATION);
 			card.setStart(
 				DimensionsService.calcStartFromLeft(
 					group.left + DimensionsService.calcWidthFromDuration(leftCardsDuration),
@@ -954,7 +950,7 @@ export class CardsService {
 
 	checkQuarterSaturation(day: Dayjs): QuartersSaturation {
 		const dayGroups = this.findDayGroups(day);
-		const dayMechanics = this.mechanicsService.findDayMechanics(day);
+		const dayMechanics = MechanicsService.findDayMechanics(day);
 
 		const quartersSaturation = {};
 		dayGroups.forEach((group: CardsGroup) => {

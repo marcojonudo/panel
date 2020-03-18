@@ -36,13 +36,25 @@ interface PanelDatabaseApi {
 
 	List<Card> updateCards(@Body List<Card> cards)
 
-	void updateCardsLinks(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	void updateCardsLinks(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body List<Card> cards
+	)
 
 	void deleteCards(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
-	HttpResponse<Void> updateCardsPosition(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	HttpResponse<Void> updateCardsPosition(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body List<Card> cards
+	)
 
-	void updateCardsDuration(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	void updateCardsDuration(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body List<Card> cards
+	)
 
 	List<Map> updateCardsDivision(
 			@Header String sessionId,

@@ -57,7 +57,7 @@ export class Card {
 		this.day = card.day ? dayjs(card.day) : undefined;
 		this.status = card.status;
 		this.mechanicCode = card.mechanicCode;
-		this.start = card.start ? dayjs(UtilsService.buildDateTimeString(card.day, card.start)) : undefined;
+		this.start = card.start ? UtilsService.parseTime(card.start, this.day) : undefined;
 		this.duration = card.duration;
 		this.end = this.start ? this.start.add(this.duration, Constants.DAY_JS.m) : undefined;
 		this.line = card.line;

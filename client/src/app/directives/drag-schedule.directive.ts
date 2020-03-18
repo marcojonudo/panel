@@ -99,9 +99,9 @@ export class DragScheduleDirective implements OnInit {
 		this.lastMovedQuarter = 0;
 		/* Si se ha movido el cursor (para evitar fallos al hacer clic sin pointermove) */
 		if (this.appointmentSchedule.schedule.start.isSame(this.appointmentSchedule.schedule.end)) {
-			// this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
+			this.appointmentsService.delete(this.mechanic, this.appointmentSchedule);
 		} else {
-			// this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
+			this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
 		}
 		this.reset();
 	}

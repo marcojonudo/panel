@@ -80,7 +80,7 @@ export class MechanicLineComponent {
 	}
 
 	findJobLineTypeColor(code: string): string {
-		return this.jobLineTypeService.findJobLineTypeColor(code);
+		return JobLineTypeService.findJobLineTypeColor(code);
 	}
 
 	findScheduleLeftBorderBackground(color: string): string {

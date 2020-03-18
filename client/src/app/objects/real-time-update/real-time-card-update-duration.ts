@@ -5,15 +5,17 @@ import {CardsService} from "../../services/cards.service";
 
 export class RealTimeCardUpdateDuration extends RealTimeUpdate {
 
+	private realTimeService: RealTimeService;
 	private readonly cards: Card[];
 
-	constructor(cardsService: CardsService, cards: any[]) {
+	constructor(realTimeService: RealTimeService, cards: any[]) {
 		super();
+		this.realTimeService = realTimeService;
 		this.cards = cards.map(c => new Card(c, false));
 	}
 
-	update(realTimeService: RealTimeService): void {
-		realTimeService.updateDuration(this.cards);
+	update(): void {
+		this.realTimeService.updateDuration(this.cards);
 	}
 
 }

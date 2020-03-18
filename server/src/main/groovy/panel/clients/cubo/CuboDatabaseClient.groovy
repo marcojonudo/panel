@@ -27,23 +27,37 @@ interface CuboDatabaseClient extends CuboDatabaseApi {
 	)
 
 	@Put("/mechanic/position")
-	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+	void updateMechanicsPosition(
+			@Header String sessionId,
+			@Header realTimeAction,
+			@Body List<EmployeeSchedule> mechanics
+	)
 
 	@Put("/mechanic/lines")
-	void updateMechanicLines(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+	void updateMechanicLines(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body List<EmployeeSchedule> mechanics
+	)
 
 	@Put("/mechanic/jobLineType")
-	void updateMechanicJobLineType(@Header String sessionId, @Body List<Map<String, Object>> mechanics)
+	void updateMechanicJobLineType(
+			@Header String sessionId,
+			@Header String realTimeAction,
+			@Body EmployeeSchedule mechanic
+	)
 
-	@Post("/appointment/schedule")
+	@Post("/appointment")
 	EmployeeScheduleAppointment createAppointment(
 			@Header String sessionId,
+			@Header String realTimeAction,
 			@Body MechanicAppointment mechanicAppointment
 	)
 
 	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
 			@Header String sessionId,
+			@Header String realTimeAction,
 			@Body MechanicAppointment mechanicAppointment
 	)
 

@@ -1,4 +1,5 @@
 import {Dayjs} from "dayjs";
+import {HttpHeaders} from "@angular/common/http";
 
 export class Constants {
 
@@ -180,6 +181,9 @@ export class Constants {
 	public static readonly DAY_JS: any = {
 		d: 'd',
 		m: 'm'
+	};
+	public static readonly REAL_TIME_ACTION: any = {
+		UPDATE_CARDS_POSITION: 'updateCardsPosition'
 	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";

@@ -4,23 +4,17 @@ import {AppointmentSchedule} from "../appointment-schedule";
 
 export class RealTimeAppointmentUpdateType extends RealTimeUpdate {
 
+	private realTimeService: RealTimeService;
 	private readonly appointment: AppointmentSchedule;
 
-	constructor(appointment: any) {
+	constructor(realTimeService: RealTimeService, appointment: any) {
 		super();
-		let start, end;
-		if (appointment.schedule.morningStart) {
-			start = appointment.schedule.morningStart;
-			end = appointment.schedule.morningEnd;
-		} else {
-			start = appointment.schedule.afternoonStart;
-			end = appointment.schedule.afternoonEnd;
-		}
+		this.realTimeService = realTimeService
 		// this.appointment = new AppointmentSchedule(undefined, appointment.appointmentType, start, end);
 	}
 
-	update(realTimeService: RealTimeService): void {
-		realTimeService.updateAppointmentType(this.appointment);
+	update(): void {
+		// this.realTimeService.updateAppointmentType(this.appointment);
 	}
 
 }

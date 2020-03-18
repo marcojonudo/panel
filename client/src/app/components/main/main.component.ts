@@ -103,7 +103,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		private element: ElementRef,
 		private renderer: Renderer2
 	) {
-		this.days = this.mechanicsService.days;
+		this.days = MechanicsService.days;
 		this.initDaysUpdateObjects();
 
 		const today = dayjs().startOf(Constants.DAY_JS.d);
@@ -112,7 +112,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.maxScheduleHours = DimensionsService.maxScheduleHours;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-		// this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
+		// this.itemSize = MechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
 
 		this.relativeContainer = true;
 		this.scrollLeft = 0;
@@ -431,7 +431,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	findDayMechanics(day: Dayjs): Mechanic[] {
-		return this.mechanicsService.findDayMechanics(day);
+		return MechanicsService.findDayMechanics(day);
 	}
 
 	checkTriggerLineCd(day: Dayjs, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
@@ -477,7 +477,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	private checkTodayScheduleExists(today: Dayjs = this.today): boolean {
-		return this.mechanicsService.findDayMechanics(today) != undefined;
+		return MechanicsService.findDayMechanics(today) != undefined;
 	}
 
 	findLateralInfo(day: Dayjs, daysLateralInfo: DaysLateralPanelInfo = this.daysLateralInfo): LateralPanelInfo {

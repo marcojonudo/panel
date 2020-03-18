@@ -1,15 +1,14 @@
 import {AppointmentType} from "./appointment-type";
 import {ScheduleInterval} from "./schedule-interval";
-import {Mechanic} from "./mechanic";
 import {UtilsService} from "../services/utils.service";
 import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
+import {AppointmentsService} from "../services/appointments.service";
 
 export class AppointmentSchedule {
 
 	day: Dayjs;
 	mechanicCode: string;
-	// id: string;
 	appointmentType: AppointmentType;
 	schedule: ScheduleInterval;
 
@@ -21,14 +20,22 @@ export class AppointmentSchedule {
 	) {
 		this.day = day;
 		this.mechanicCode = mechanicCode;
-		// this.id = this.buildId(mechanic.day, mechanic.code, start);
 		this.appointmentType = appointmentType;
 		this.schedule = schedule;
 	}
 
-	// buildId(day: Date, mechanicCode: string, start: string): string {
-	// 	return `${UtilsService.formatDay(day)}-${mechanicCode}-${start}`;
-	// }
+	static build(mechanicAppointment: any): AppointmentSchedule {
+		const day = dayjs(mechanicAppointment.mechanic.day);
+		return new AppointmentSchedule(
+			day,
+			mechanicAppointment.mechanic.employee.code,
+			AppointmentsService.findAppointmentType(mechanicAppointment.appointmentTypeCode),
+			new ScheduleInterval(
+				UtilsService.parseTime(mechanicAppointment.schedule.start, day),
+				UtilsService.parseTime(mechanicAppointment.schedule.end, day)
+			)
+		)
+	}
 
 	reset(): void {
 		this.appointmentType = undefined;
@@ -38,7 +45,8 @@ export class AppointmentSchedule {
 	equals(appointmentSchedule: AppointmentSchedule): boolean {
 		return this.day.isSame(appointmentSchedule.day)
 			&& this.mechanicCode == appointmentSchedule.mechanicCode
-			&& this.schedule.start.isSame(appointmentSchedule.schedule.start);
+			&& (this.schedule.start.isSame(appointmentSchedule.schedule.start)
+				|| this.schedule.end.isSame(appointmentSchedule.schedule.end));
 	}
 
 }

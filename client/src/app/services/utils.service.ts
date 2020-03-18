@@ -10,10 +10,6 @@ export class UtilsService {
 
 	// region Date
 
-	public static buildDateTimeString(date: string, time: string): string {
-		return `${date} ${time}`
-	}
-
 	public static parseTime(time: string, day: Dayjs = dayjs()): Dayjs {
 		const info = time.split(":");
 		return day.hour(+info[0]).minute(+info[1]);
