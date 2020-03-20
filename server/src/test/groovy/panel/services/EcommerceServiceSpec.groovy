@@ -11,16 +11,14 @@ import panel.utils.Constants
 import spock.lang.Shared
 import spock.lang.Specification
 import utils.pogos.Schedule
-import utils.pogos.panel.*
+import utils.pogos.panel.AppointmentType
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.MechanicAppointment
 import utils.pogos.schedules.ScheduleInterval
 
 import javax.inject.Inject
-import java.sql.Time
 import java.time.LocalDate
 import java.time.LocalTime
-import java.sql.Date
 
 @MicronautTest
 class EcommerceServiceSpec extends Specification {
@@ -62,7 +60,7 @@ class EcommerceServiceSpec extends Specification {
 		given:
 		List<MechanicAppointment> mechanicsAppointments = [
 		        new MechanicAppointment(
-						mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+						mechanic: new EmployeeSchedule(day: today),
 						appointmentTypeCode: AppointmentType.Code.ECO.toString(),
 						schedule: new ScheduleInterval(start: time8, end: time15)
 				)
@@ -85,17 +83,17 @@ class EcommerceServiceSpec extends Specification {
 		given:
 		List<MechanicAppointment> mechanicsAppointments = [
 				new MechanicAppointment(
-						mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+						mechanic: new EmployeeSchedule(day: today),
 						appointmentTypeCode: AppointmentType.Code.ECO.toString(),
 						schedule: new ScheduleInterval(start: time8, end: time15)
 				),
 				new MechanicAppointment(
-						mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+						mechanic: new EmployeeSchedule(day: today),
 						appointmentTypeCode: AppointmentType.Code.ECO.toString(),
 						schedule: new ScheduleInterval(start: time15, end: time20)
 				),
 				new MechanicAppointment(
-						mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+						mechanic: new EmployeeSchedule(day: today),
 						appointmentTypeCode: AppointmentType.Code.TP.toString(),
 						schedule: new ScheduleInterval(start: time8, end: time15)
 				)
@@ -126,17 +124,17 @@ class EcommerceServiceSpec extends Specification {
 		given:
 		List<MechanicAppointment> mechanicsAppointments = [
 				new MechanicAppointment(
-						mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+						mechanic: new EmployeeSchedule(day: today),
 						appointmentTypeCode: AppointmentType.Code.ECO.toString(),
 						schedule: new ScheduleInterval(start: time8, end: time15)
 				),
 				new MechanicAppointment(
-						mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+						mechanic: new EmployeeSchedule(day: today),
 						appointmentTypeCode: AppointmentType.Code.ECO.toString(),
 						schedule: new ScheduleInterval(start: time15, end: time20)
 				),
 				new MechanicAppointment(
-						mechanic: new EmployeeSchedule(day: Date.valueOf(today.plusDays(1))),
+						mechanic: new EmployeeSchedule(day: today.plusDays(1)),
 						appointmentTypeCode: AppointmentType.Code.TP.toString(),
 						schedule: new ScheduleInterval(start: time8, end: time15)
 				)
@@ -172,8 +170,8 @@ class EcommerceServiceSpec extends Specification {
 	void "test build schedule intervals morning"() {
 		given:
 		Schedule schedule = new Schedule(
-				morningStart: Time.valueOf(time8),
-				morningEnd: Time.valueOf(time15)
+				morningStart: time8,
+				morningEnd: time15
 		)
 
 		when:
@@ -188,8 +186,8 @@ class EcommerceServiceSpec extends Specification {
 	void "test build schedule intervals afternoon"() {
 		given:
 		Schedule schedule = new Schedule(
-				afternoonStart: Time.valueOf(time15),
-				afternoonEnd: Time.valueOf(time20)
+				afternoonStart: time15,
+				afternoonEnd: time20
 		)
 
 		when:
@@ -204,10 +202,10 @@ class EcommerceServiceSpec extends Specification {
 	void "test build schedule intervals morning and afternoon"() {
 		given:
 		Schedule schedule = new Schedule(
-				morningStart: Time.valueOf(time8),
-				morningEnd: Time.valueOf(time15),
-				afternoonStart: Time.valueOf(time15),
-				afternoonEnd: Time.valueOf(time20)
+				morningStart: time8,
+				morningEnd: time15,
+				afternoonStart: time15,
+				afternoonEnd: time20
 		)
 
 		when:
@@ -229,12 +227,12 @@ class EcommerceServiceSpec extends Specification {
 		given:
 		List<EmployeeSchedule> mechanics = [
 				new EmployeeSchedule(
-						day: Date.valueOf(today),
+						day: today,
 						schedule: new Schedule(
-								morningStart: Time.valueOf(time8),
-								morningEnd: Time.valueOf(time15),
-								afternoonStart: Time.valueOf(time15),
-								afternoonEnd: Time.valueOf(time20)
+								morningStart: time8,
+								morningEnd: time15,
+								afternoonStart: time15,
+								afternoonEnd: time20
 						)
 				)
 		]
@@ -258,26 +256,26 @@ class EcommerceServiceSpec extends Specification {
 		given:
 		List<EmployeeSchedule> mechanics = [
 				new EmployeeSchedule(
-						day: Date.valueOf(today),
+						day: today,
 						schedule: new Schedule(
-								morningStart: Time.valueOf(time8),
-								morningEnd: Time.valueOf(time15)
+								morningStart: time8,
+								morningEnd: time15
 						)
 				),
 				new EmployeeSchedule(
-						day: Date.valueOf(today),
+						day: today,
 						schedule: new Schedule(
-								afternoonStart: Time.valueOf(time15),
-								afternoonEnd: Time.valueOf(time20)
+								afternoonStart: time15,
+								afternoonEnd: time20
 						)
 				),
 				new EmployeeSchedule(
-						day: Date.valueOf(today.plusDays(1)),
+						day: today.plusDays(1),
 						schedule: new Schedule(
-								morningStart: Time.valueOf(time8),
-								morningEnd: Time.valueOf(time15),
-								afternoonStart: Time.valueOf(time15),
-								afternoonEnd: Time.valueOf(time20)
+								morningStart: time8,
+								morningEnd: time15,
+								afternoonStart: time15,
+								afternoonEnd: time20
 						)
 				)
 		]
@@ -314,17 +312,17 @@ class EcommerceServiceSpec extends Specification {
 		cuboDatabaseClient.getMechanicAppointments(today, today, Constants.ECOMMERCE_APPOINTMENT_TYPE_CODES) >>
 				[
 						new MechanicAppointment(
-								mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+								mechanic: new EmployeeSchedule(day: today),
 								appointmentTypeCode: AppointmentType.Code.ECO.toString(),
 								schedule: new ScheduleInterval(start: time8, end: time15)
 						),
 						new MechanicAppointment(
-								mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+								mechanic: new EmployeeSchedule(day: today),
 								appointmentTypeCode: AppointmentType.Code.ECO.toString(),
 								schedule: new ScheduleInterval(start: time15, end: time20)
 						),
 						new MechanicAppointment(
-								mechanic: new EmployeeSchedule(day: Date.valueOf(today)),
+								mechanic: new EmployeeSchedule(day: today),
 								appointmentTypeCode: AppointmentType.Code.TP.toString(),
 								schedule: new ScheduleInterval(start: time8, end: time15)
 						)
@@ -355,12 +353,12 @@ class EcommerceServiceSpec extends Specification {
 		cuboDatabaseClient.getMechanicAppointments(today, today, Constants.ECOMMERCE_APPOINTMENT_TYPE_CODES) >> []
 		cuboDatabaseClient.getMechanics(today, today, false) >> [
 				new EmployeeSchedule(
-						day: Date.valueOf(today),
+						day: today,
 						schedule: new Schedule(
-								morningStart: Time.valueOf(time8),
-								morningEnd: Time.valueOf(time15),
-								afternoonStart: Time.valueOf(time15),
-								afternoonEnd: Time.valueOf(time20)
+								morningStart: time8,
+								morningEnd: time15,
+								afternoonStart: time15,
+								afternoonEnd: time20
 						)
 				)
 		]

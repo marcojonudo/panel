@@ -12,18 +12,13 @@ import panel.pogos.UpdateAppointmentDays
 import panel.pogos.UpdateCards
 import spock.lang.Shared
 import spock.lang.Specification
-import utils.DateFormat
-import utils.Utils
 import utils.pogos.fviberi.*
-import utils.pogos.panel.AppointmentDay
-import utils.pogos.panel.AppointmentType
-import utils.pogos.panel.Card
-import utils.pogos.panel.Group
-import utils.pogos.panel.GroupUnits
-import utils.pogos.panel.Task
+import utils.pogos.panel.*
 import utils.pogos.schedules.EmployeeSchedule
 
 import javax.inject.Inject
+import java.time.LocalDate
+import java.time.LocalTime
 
 @MicronautTest
 class PanelServiceSpec extends Specification {
@@ -63,10 +58,10 @@ class PanelServiceSpec extends Specification {
 			number: 1,
 			timeInfo: new OrderTime(shortCode: 'C1'),
 			lines: [
-					new OrderLine(article: new Article(code: 99026)),
-					new OrderLine(article: new Article(code: 99066)),
-					new OrderLine(article: new Article(code: 99129)),
-					new OrderLine(article: new Article(code: 99169)),
+					new OrderLine(article: [code: 99026]),
+					new OrderLine(article: [code: 99066]),
+					new OrderLine(article: [code: 99129]),
+					new OrderLine(article: [code: 99169]),
 			],
 			vehicle: new Vehicle([:]),
 			client: new Client([:])
@@ -77,11 +72,17 @@ class PanelServiceSpec extends Specification {
 			number: 2,
 			timeInfo: new OrderTime(shortCode: 'C2'),
 			lines: [
-					new OrderLine(article: new Article(code: 1))
+					new OrderLine(article: [code: 1])
 			],
 			vehicle: new Vehicle([:]),
 			client: new Client([:])
 	)
+
+	@Shared LocalDate today
+	@Shared LocalDate tomorrow
+	@Shared LocalTime time8
+	@Shared LocalTime time15
+	@Shared LocalTime time20
 
 	// endregion
 
@@ -1450,6 +1451,12 @@ class PanelServiceSpec extends Specification {
 		task329.groups << group315
 		task330.groups << group316
 		task332.groups << group317
+
+		today = LocalDate.now()
+		tomorrow = today.plusDays(1)
+		time8 = LocalTime.of(8, 0)
+		time15 = LocalTime.of(15, 0)
+		time20 = LocalTime.of(20, 0)
 	}
 
 	// endregion
@@ -1458,11 +1465,10 @@ class PanelServiceSpec extends Specification {
 
 	void "test get day mechanics sort not null days"() {
 		given:
-		Date date = new Date()
 		List<EmployeeSchedule> mechanics = [
-				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
-				new EmployeeSchedule(day: new java.sql.Date(1567090800000)),
-				new EmployeeSchedule(day: new java.sql.Date(1566939600000))
+				new EmployeeSchedule(day: today),
+				new EmployeeSchedule(day: today),
+				new EmployeeSchedule(day: tomorrow)
 		]
 
 		when:
@@ -1470,16 +1476,14 @@ class PanelServiceSpec extends Specification {
 
 		then:
 		daysMechanics.size() == 2
-		daysMechanics['2019-08-29']
-		daysMechanics['2019-08-29'].size() == 2
-		daysMechanics['2019-08-27']
-		daysMechanics['2019-08-27'].size() == 1
+		daysMechanics[today.toString()]
+		daysMechanics[today.toString()].size() == 2
+		daysMechanics[tomorrow.toString()]
+		daysMechanics[tomorrow.toString()].size() == 1
 	}
 
 	void "test get day mechanics null days"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
-		java.sql.Date tomorrow = Utils.newDate(Utils.addDays(new Date(), 1))
 		List<EmployeeSchedule> mechanics = [
 				new EmployeeSchedule(day: today),
 				new EmployeeSchedule(day: tomorrow),
@@ -1642,9 +1646,9 @@ class PanelServiceSpec extends Specification {
 				number: 1,
 				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
-						new OrderLine(article: new Article(code: 99108)),
-						new OrderLine(article: new Article(code: 99273)),
-						new OrderLine(article: new Article(code: 99169)),
+						new OrderLine(article: [code: 99108]),
+						new OrderLine(article: [code: 99273]),
+						new OrderLine(article: [code: 99169]),
 				],
 				vehicle: new Vehicle([:])
 		)
@@ -1664,9 +1668,9 @@ class PanelServiceSpec extends Specification {
 				number: 1,
 				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
-						new OrderLine(article: new Article(code: 99108)),
-						new OrderLine(article: new Article(code: 99086)),
-						new OrderLine(article: new Article(code: 99169)),
+						new OrderLine(article: [code: 99108]),
+						new OrderLine(article: [code: 99086]),
+						new OrderLine(article: [code: 99169]),
 				],
 				vehicle: new Vehicle([:])
 		)
@@ -1687,9 +1691,9 @@ class PanelServiceSpec extends Specification {
 				number: 1,
 				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
-						new OrderLine(article: new Article(code: 99086)),
-						new OrderLine(article: new Article(code: 99021)),
-						new OrderLine(article: new Article(code: 99277)),
+						new OrderLine(article: [code: 99086]),
+						new OrderLine(article: [code: 99021]),
+						new OrderLine(article: [code: 99277]),
 				],
 				vehicle: new Vehicle([:])
 		)
@@ -1709,18 +1713,18 @@ class PanelServiceSpec extends Specification {
 				number: 1,
 				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
-						new OrderLine(article: new Article(code: 99001)),//
-						new OrderLine(article: new Article(code: 99004)),//
-						new OrderLine(article: new Article(code: 99021)),//
-						new OrderLine(article: new Article(code: 99022)),
-						new OrderLine(article: new Article(code: 99025)),
-						new OrderLine(article: new Article(code: 99026)),
-						new OrderLine(article: new Article(code: 99066)),
-						new OrderLine(article: new Article(code: 99086)),
-						new OrderLine(article: new Article(code: 99112)),//
-						new OrderLine(article: new Article(code: 99151)),
-						new OrderLine(article: new Article(code: 99200)),
-						new OrderLine(article: new Article(code: 99330))
+						new OrderLine(article: [code: 99001]),
+						new OrderLine(article: [code: 99004]),
+						new OrderLine(article: [code: 99021]),
+						new OrderLine(article: [code: 99022]),
+						new OrderLine(article: [code: 99025]),
+						new OrderLine(article: [code: 99026]),
+						new OrderLine(article: [code: 99066]),
+						new OrderLine(article: [code: 99086]),
+						new OrderLine(article: [code: 99112]),
+						new OrderLine(article: [code: 99151]),
+						new OrderLine(article: [code: 99200]),
+						new OrderLine(article: [code: 99330])
 				],
 				vehicle: new Vehicle([:])
 		)
@@ -1751,13 +1755,13 @@ class PanelServiceSpec extends Specification {
 				number: 1,
 				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
-						new OrderLine(article: new Article(code: 99013)),
-						new OrderLine(article: new Article(code: 99015)),
-						new OrderLine(article: new Article(code: 99021)),
-						new OrderLine(article: new Article(code: 99073)),
-						new OrderLine(article: new Article(code: 99212)),
-						new OrderLine(article: new Article(code: 99277)),
-						new OrderLine(article: new Article(code: 99339))
+						new OrderLine(article: [code: 99013]),
+						new OrderLine(article: [code: 99015]),
+						new OrderLine(article: [code: 99021]),
+						new OrderLine(article: [code: 99073]),
+						new OrderLine(article: [code: 99212]),
+						new OrderLine(article: [code: 99277]),
+						new OrderLine(article: [code: 99339])
 				],
 				vehicle: new Vehicle([:])
 		)
@@ -1784,18 +1788,18 @@ class PanelServiceSpec extends Specification {
 				number: 1,
 				timeInfo: new OrderTime(shortCode: 'C1'),
 				lines: [
-						new OrderLine(article: new Article(code: 99001)),//
-						new OrderLine(article: new Article(code: 99004)),//
-						new OrderLine(article: new Article(code: 99021)),//
-						new OrderLine(article: new Article(code: 99022)),
-						new OrderLine(article: new Article(code: 99025)),
-						new OrderLine(article: new Article(code: 99026)),
-						new OrderLine(article: new Article(code: 99066)),
-						new OrderLine(article: new Article(code: 99086)),
-						new OrderLine(article: new Article(code: 99112)),//
-						new OrderLine(article: new Article(code: 99151)),
-						new OrderLine(article: new Article(code: 99200)),
-						new OrderLine(article: new Article(code: 99330))
+						new OrderLine(article: [code: 99001]),
+						new OrderLine(article: [code: 99004]),
+						new OrderLine(article: [code: 99021]),
+						new OrderLine(article: [code: 99022]),
+						new OrderLine(article: [code: 99025]),
+						new OrderLine(article: [code: 99026]),
+						new OrderLine(article: [code: 99066]),
+						new OrderLine(article: [code: 99086]),
+						new OrderLine(article: [code: 99112]),
+						new OrderLine(article: [code: 99151]),
+						new OrderLine(article: [code: 99200]),
+						new OrderLine(article: [code: 99330])
 				],
 				vehicle: new Vehicle([:])
 		)
@@ -1866,9 +1870,8 @@ class PanelServiceSpec extends Specification {
 		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits]
 		]
-		panelDatabaseClient.getDurations(
-				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-		) >> [(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 30])]]
+		panelDatabaseClient.getDurations(_) >>
+				[(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 30])]]
 
 		when:
 		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
@@ -1892,9 +1895,7 @@ class PanelServiceSpec extends Specification {
 				(order1Article): [groupUnits1],
 				(order4Articles): [groupUnits1, groupUnits2, groupUnits3]
 		]
-		panelDatabaseClient.getDurations(
-				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-		) >> [
+		panelDatabaseClient.getDurations(_) >> [
 				(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 10])],
 				(order4Articles.number): [
 						new GroupUnits([group: group1, units: [1], duration: 10]),
@@ -1928,9 +1929,7 @@ class PanelServiceSpec extends Specification {
 		Map<Order, List<GroupUnits>> ordersGroupsUnits = [
 				(order1Article): [groupUnits1]
 		]
-		panelDatabaseClient.getDurations(
-				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-		) >> [(order1Article.number): []]
+		panelDatabaseClient.getDurations(_) >> [(order1Article.number): []]
 
 		when:
 		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
@@ -2613,18 +2612,18 @@ class PanelServiceSpec extends Specification {
 	void "test update appointment days different card appointment type"() {
 		given:
 		List<AppointmentDay> appointmentDayTypes = [
-		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
-		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP'), total: 1),
+		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'), total: 1),
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'TP')]
@@ -2644,18 +2643,18 @@ class PanelServiceSpec extends Specification {
 	void "test update appointment days same card appointment type"() {
 		given:
 		List<AppointmentDay> appointmentDayTypes = [
-		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'RAP')),
-		        new AppointmentDay(day: Utils.newDate(new Date()), appointmentType: new AppointmentType(code: 'TP')),
+		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
+		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP')),
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
@@ -2677,7 +2676,6 @@ class PanelServiceSpec extends Specification {
 
 	void "test create appointment days no cards"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
 		List<AppointmentType> appointmentTypes = [
 				new AppointmentType(code: 'RAP'),
 				new AppointmentType(code: 'TP')
@@ -2695,20 +2693,19 @@ class PanelServiceSpec extends Specification {
 
 	void "test create appointment days different card appointment type"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
 		List<AppointmentType> appointmentTypes = [
 				new AppointmentType(code: 'RAP'),
 				new AppointmentType(code: 'TP')
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'TP')]
@@ -2733,8 +2730,8 @@ class PanelServiceSpec extends Specification {
 	void "test sync schedule appointments no existent appointment days"() {
 		given:
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
-						new EmployeeSchedule(day: Utils.newDate(new Date()))
+				(today.toString()): [
+						new EmployeeSchedule(day: today)
 				]
 		]
 		List<AppointmentType> appointmentTypes = [
@@ -2761,9 +2758,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync schedule appointments existent appointment days without new cards"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -2791,9 +2787,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync schedule appointments existent appointment days new cards different appointment types"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -2807,13 +2802,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'TP')]
@@ -2839,9 +2834,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync schedule appointments existent appointment days new cards same appointment types"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -2855,13 +2849,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
@@ -2884,13 +2878,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync schedule appointments existent appointment days future new cards"() {
 		given:
-		Calendar nowCal = Utils.newCalendar(new Date())
-		java.sql.Date futureDay = Utils.newDate(
-				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-		)
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -2904,13 +2893,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
@@ -2932,9 +2921,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync schedule appointments no appointment days new cards same appointment types"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -2944,13 +2932,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
@@ -2978,9 +2966,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync cards appointments no future cards"() {
 		given:
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -2994,13 +2981,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: Utils.newDate(new Date()).time],
+						order: [number: 1, code: 'C1', day: today],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
@@ -3022,19 +3009,14 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync cards appointments different future cards existent appointment days"() {
 		given:
-		Calendar nowCal = Utils.newCalendar(new Date())
-		java.sql.Date futureDay = Utils.newDate(
-				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-		)
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
 		List<AppointmentDay> appointmentDayTypes = [
-				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
-				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
+				new AppointmentDay(day: tomorrow, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: tomorrow, appointmentType: new AppointmentType(code: 'TP'))
 		]
 		List<AppointmentType> appointmentTypes = [
 				new AppointmentType(code: 'RAP'),
@@ -3042,13 +3024,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'TP')]
@@ -3073,19 +3055,14 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync cards appointments same type future cards existent appointment days"() {
 		given:
-		Calendar nowCal = Utils.newCalendar(new Date())
-		java.sql.Date futureDay = Utils.newDate(
-				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-		)
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
 		List<AppointmentDay> appointmentDayTypes = [
-				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'RAP')),
-				new AppointmentDay(day: futureDay, appointmentType: new AppointmentType(code: 'TP'))
+				new AppointmentDay(day: tomorrow, appointmentType: new AppointmentType(code: 'RAP')),
+				new AppointmentDay(day: tomorrow, appointmentType: new AppointmentType(code: 'TP'))
 		]
 		List<AppointmentType> appointmentTypes = [
 				new AppointmentType(code: 'RAP'),
@@ -3093,13 +3070,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
@@ -3123,13 +3100,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync cards appointments different type future cards no appointment days"() {
 		given:
-		Calendar nowCal = Utils.newCalendar(new Date())
-		java.sql.Date futureDay = Utils.newDate(
-				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-		)
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -3139,13 +3111,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'TP')]
@@ -3170,13 +3142,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test sync cards appointments same type future cards no appointment days"() {
 		given:
-		Calendar nowCal = Utils.newCalendar(new Date())
-		java.sql.Date futureDay = Utils.newDate(
-				Utils.newDate(nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH)+1, nowCal.get(Calendar.DAY_OF_MONTH)+1)
-		)
-		java.sql.Date today = Utils.newDate(new Date())
 		Map<String, List<EmployeeSchedule>> daysMechanics = [
-				(Utils.format(new Date(), DateFormat.MYSQL)): [
+				(today.toString()): [
 						new EmployeeSchedule(day: today)
 				]
 		]
@@ -3186,13 +3153,13 @@ class PanelServiceSpec extends Specification {
 		]
 		List<Card> cards = [
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
 				),
 				new Card(
-						order: [number: 1, code: 'C1', day: futureDay.time],
+						order: [number: 1, code: 'C1', day: tomorrow],
 						duration: 20,
 						vehicle: [brand: 'FV'],
 						group: [appointmentType: new AppointmentType(code: 'RAP')]
