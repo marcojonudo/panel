@@ -48,7 +48,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	@Put("/cards/links")
 	void updateCardsLinks(
 			@Header @Nullable String sessionId,
-			@Header String realTimeAction,
+			@Header @Nullable String realTimeAction,
 			@Body List<Card> cards
 	)
 

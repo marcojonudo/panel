@@ -4,17 +4,15 @@ import {Mechanic} from "../mechanic";
 
 export class RealTimeMechanicUpdateLines extends RealTimeUpdate {
 
-	private realTimeService: RealTimeService;
 	private readonly mechanic: Mechanic;
 
-	constructor(realTimeService: RealTimeService, mechanics: any) {
+	constructor(mechanics: any) {
 		super();
-		this.realTimeService = realTimeService;
 		this.mechanic = new Mechanic(mechanics[0]);
 	}
 
 	update(): void {
-		this.realTimeService.updateLines(this.mechanic);
+		RealTimeService.updateLines(this.mechanic);
 	}
 
 }

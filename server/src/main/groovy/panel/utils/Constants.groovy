@@ -20,6 +20,12 @@ class Constants {
 
 	}
 
+	class TimeFormat {
+
+		static final String HH_mm = "HH:mm"
+
+	}
+
 	static final Map<String, String> HEADER_ID = [
 	        SESSION_ID: 'session-id',
 	        REAL_TIME_ACTION: 'real-time-action'
@@ -33,7 +39,8 @@ class Constants {
 			UPDATE_MECHANICS_POSITION: 'updateMechanicsPosition',
 			UPDATE_MECHANIC_LINES: 'updateMechanicLines',
 			CREATE_APPOINTMENT: 'createAppointment',
-			UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule'
+			UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule',
+			DELETE_APPOINTMENT: 'deleteAppointment'
 	]
 
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']

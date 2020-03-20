@@ -1,6 +1,7 @@
 package panel.controllers
 
 import groovy.transform.CompileStatic
+import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*
 import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
@@ -15,6 +16,9 @@ import panel.utils.Constants
 import utils.pogos.panel.Card
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.EmployeeScheduleAppointment
+
+import java.time.LocalDate
+import java.time.LocalTime
 
 @CompileStatic
 @Controller("/panel")
@@ -109,16 +113,6 @@ class PanelController {
 		cuboDatabaseClient.updateAppointmentType(sessionId, appointment)
 	}
 
-	@Delete("/appointment/type")
-	void updateAppointmentType(
-			@Header String sessionId,
-			@QueryValue long id,
-			@QueryValue long mechanicId,
-			@QueryValue int index
-	) {
-		cuboDatabaseClient.deleteAppointment(sessionId, id, mechanicId, index)
-	}
-
 	@Post("/appointment")
 	EmployeeScheduleAppointment createAppointment(
 			@Header String sessionId,
@@ -143,14 +137,21 @@ class PanelController {
 		)
 	}
 
-	@Put("/appointment/schedule")
+	@Delete("/appointment")
 	void deleteAppointmentSchedule(
 			@Header String sessionId,
-			@Body MechanicAppointment mechanicAppointment
+			@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate day,
+			@QueryValue String mechanicCode,
+			@QueryValue String typeCode,
+			@QueryValue String start
 	) {
-		cuboDatabaseClient.deleteAppointmentSchedule(
+		cuboDatabaseClient.deleteAppointment(
 				sessionId,
-				mechanicAppointment
+				Constants.REAL_TIME_ACTION.DELETE_APPOINTMENT,
+				day,
+				mechanicCode,
+				typeCode,
+				LocalTime.parse(start)
 		)
 	}
 

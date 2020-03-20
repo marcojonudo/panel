@@ -279,10 +279,9 @@ export class AppointmentsService {
 		);
 	}
 
-	delete(
+	static delete(
 		mechanic: Mechanic,
-		appointment: AppointmentSchedule,
-		updateDb: boolean = true
+		appointment: AppointmentSchedule
 	): void {
 		const appointmentIndex = mechanic.appointments.findIndex((appointmentSchedule: AppointmentSchedule) =>
 			appointmentSchedule.equals(appointment)
@@ -294,10 +293,6 @@ export class AppointmentsService {
 			mechanic.day,
 			mechanic.code
 		);
-
-		if (updateDb) {
-			this.deleteDb(appointment)
-		}
 	}
 
 	createDb(appointment: AppointmentSchedule): void {
@@ -309,7 +304,14 @@ export class AppointmentsService {
 	}
 
 	deleteDb(appointment: AppointmentSchedule): void {
-		this.http.put(Url.appointment(), appointment).subscribe();
+		const [mechanicCode, day, typeCode, start] = [
+			appointment.mechanicCode,
+			appointment.day.format(Constants.DATE_FORMAT.yyyy_MM_dd),
+			appointment.appointmentType.code,
+			appointment.schedule.start.format(Constants.TIME_FORMAT.HH_mm)
+		];
+		const params = `?start=${start}&day=${day}&mechanicCode=${mechanicCode}&typeCode=${typeCode}`;
+		this.http.delete(`${Url.appointment()}${params}`).subscribe();
 	}
 
 	// endregion

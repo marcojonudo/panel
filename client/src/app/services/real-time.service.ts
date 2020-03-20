@@ -22,6 +22,7 @@ import {AssignedCardLinkHandler} from "../objects/card-links/assigned-card-link-
 import {Dayjs} from "dayjs";
 import {RealTimeAppointmentCreate} from "../objects/real-time-update/real-time-appointment-create";
 import {RealTimeMechanicUpdateJobLineType} from "../objects/real-time-update/real-time-mechanic-update-job-line-type";
+import {RealTimeAppointmentDelete} from "../objects/real-time-update/real-time-appointment-delete";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,15 +37,17 @@ export class RealTimeService {
 		updateCardsLinks: (cards: any[]) =>
 			new RealTimeCardUpdateLinks(this, cards),
 		updateMechanicJobLineType: (mechanic: any) =>
-			new RealTimeMechanicUpdateJobLineType(this, mechanic),
+			new RealTimeMechanicUpdateJobLineType(mechanic),
 		updateMechanicLines: (mechanics: any[]) =>
-			new RealTimeMechanicUpdateLines(this, mechanics),
+			new RealTimeMechanicUpdateLines(mechanics),
 		updateMechanicsPosition: (mechanics: any[]) =>
 			new RealTimeMechanicUpdatePosition(this, mechanics),
 		createAppointment: (appointment: any) =>
-			new RealTimeAppointmentCreate(this, appointment),
+			new RealTimeAppointmentCreate(appointment),
 		updateAppointmentSchedule: (appointment: any) =>
-			new RealTimeAppointmentUpdateSchedule(this, appointment)
+			new RealTimeAppointmentUpdateSchedule(appointment),
+		deleteAppointment: (appointment: any) =>
+			new RealTimeAppointmentDelete(appointment)
 	};
 
 	constructor(
@@ -72,7 +75,6 @@ export class RealTimeService {
 		const eventSource = new EventSource(`${environment.serverUrl}/panel/publisher`);
 		eventSource.onmessage = event => {
 			if (event.lastEventId != this.sessionId) {
-				console.log(event.data);
 				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);
 				const updateType = this.UPDATE_TYPE[updateInfo.action](updateInfo.content);
@@ -195,7 +197,7 @@ export class RealTimeService {
 
 	// region Mechanics
 
-	updateMechanicJobLineType(mechanic: Mechanic): void {
+	static updateMechanicJobLineType(mechanic: Mechanic): void {
 		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
 		localMechanic.jobLineType = mechanic.jobLineType;
 		NotificationService.notifyMechanicLine(
@@ -205,7 +207,7 @@ export class RealTimeService {
 		);
 	}
 
-	updateLines(mechanic: Mechanic): void {
+	static updateLines(mechanic: Mechanic): void {
 		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
 		MechanicsService.updateMechanicLines(localMechanic, mechanic.lines);
 	}
@@ -221,7 +223,7 @@ export class RealTimeService {
 
 	// endregion
 
-	createAppointment(appointment: AppointmentSchedule): void {
+	static createAppointment(appointment: AppointmentSchedule): void {
 		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
 		AppointmentsService.create(
 			mechanic,
@@ -231,7 +233,7 @@ export class RealTimeService {
 		)
 	}
 
-	updateAppointmentSchedule(appointment: AppointmentSchedule): void {
+	static updateAppointmentSchedule(appointment: AppointmentSchedule): void {
 		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
 		AppointmentsService.updateSchedule(
 			mechanic,
@@ -239,6 +241,11 @@ export class RealTimeService {
 			appointment.schedule.start,
 			appointment.schedule.end
 		)
+	}
+
+	static deleteAppointment(appointment: AppointmentSchedule): void {
+		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
+		AppointmentsService.delete(mechanic, appointment)
 	}
 
 	// updateAppointmentType(updatedAppointment: AppointmentSchedule): void {

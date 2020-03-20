@@ -163,7 +163,6 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 			 * de su posición de origen */
 			CardPositionService.setDragging(false);
 
-			// TODO Revisar hiddenGroup y comprobar si hace falta emitter
 			CardPositionService.hiddenGroup = undefined;
 			CardPositionService.originDropzone = undefined;
 		}
