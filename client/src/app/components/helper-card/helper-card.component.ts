@@ -32,11 +32,11 @@ export class HelperCardComponent {
 	}
 
 	checkShowLeftLinkHandler(card: Card): boolean {
-		return this.cardsService.findLeftNextCard(card) != undefined;
+		return CardsService.findLeftNextCard(card) != undefined;
 	}
 
 	checkShowRightLinkHandler(card: Card): boolean {
-		return this.cardsService.findRightNextCard(card) != undefined;
+		return CardsService.findRightNextCard(card) != undefined;
 	}
 
 	findLinkImage(linkedCard: Card): string {

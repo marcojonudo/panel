@@ -60,7 +60,7 @@ export class CardContextMenuComponent implements OnInit {
 	}
 
 	cutCard(): void {
-		this.cardsService.updateCardMode([this.contextMenuInfo.group], Constants.GROUP_MODE.CUT);
+		CardsService.updateCardMode([this.contextMenuInfo.group], Constants.GROUP_MODE.CUT);
 	}
 
 	cutCardByHalf(contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset): void {

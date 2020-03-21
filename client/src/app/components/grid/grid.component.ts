@@ -66,7 +66,7 @@ export class GridComponent implements OnInit {
 				)
 			);
 			if (CardsService.auxiliaryGroupToReplace) {
-				this.cardsService.updateCardMode(this.cardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
+				CardsService.updateCardMode(CardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
 			}
 		}
 	}

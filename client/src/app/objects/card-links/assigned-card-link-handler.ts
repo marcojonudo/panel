@@ -6,14 +6,8 @@ import {DimensionsService} from "../../services/dimensions.service";
 
 export class AssignedCardLinkHandler implements CardLinkHandler {
 
-	cardsService: CardsService;
-
-	constructor(cardsService: CardsService) {
-		this.cardsService = cardsService;
-	}
-
 	findGroups(card: Card): CardsGroup[] {
-		return this.cardsService.findLineGroups(card.day, card.mechanicCode, card.line);
+		return CardsService.findLineGroups(card.day, card.mechanicCode, card.line);
 	}
 
 	createGroup(cards: Card[], group: CardsGroup, cardIndex: number, offset: number): CardsGroup {
@@ -21,11 +15,11 @@ export class AssignedCardLinkHandler implements CardLinkHandler {
 	}
 
 	updateGroupsAdd(newGroup: CardsGroup): void {
-		this.cardsService.handleAddAssignedCardsGroup(newGroup.cards[0].day, newGroup.cards[0].mechanicCode, newGroup);
+		CardsService.handleAddAssignedCardsGroup(newGroup.cards[0].day, newGroup.cards[0].mechanicCode, newGroup);
 	}
 
 	updateGroupsRemove(newGroup: CardsGroup): void {
-		this.cardsService.handleRemoveAssignedCardsGroup(newGroup.cards[0].day, newGroup.cards[0].mechanicCode, newGroup);
+		CardsService.handleRemoveAssignedCardsGroup(newGroup.cards[0].day, newGroup.cards[0].mechanicCode, newGroup);
 	}
 
 }

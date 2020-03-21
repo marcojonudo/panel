@@ -42,11 +42,11 @@ export class CardComponent {
 	// region Link handlers
 
 	checkShowLeftLinkHandler(card: Card): boolean {
-		return this.cardsService.findLeftNextCard(card) != undefined;
+		return CardsService.findLeftNextCard(card) != undefined;
 	}
 
 	checkShowRightLinkHandler(card: Card): boolean {
-		return this.cardsService.findRightNextCard(card) != undefined;
+		return CardsService.findRightNextCard(card) != undefined;
 	}
 
 	findLinkImage(linkedCard: Card): string {
@@ -55,18 +55,20 @@ export class CardComponent {
 
 	handlePreviousLink(card: Card): void {
 		const linkHandler = card.day
-			? new AssignedCardLinkHandler(this.cardsService) : new UnassignedCardLinkHandler(this.cardsService);
-		card.linkedPrevious
-			? this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.LEFT, linkHandler)
-			: this.cardsService.linkPrevious(card, linkHandler);
+			? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
+		const cardsToUpdate = card.linkedPrevious
+			? CardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.LEFT, linkHandler)
+			: CardsService.linkPrevious(card, linkHandler);
+		this.cardsService.updateDbCardsLinks(cardsToUpdate);
 	}
 
 	handleNextLink(card: Card): void {
 		const linkHandler = card.day
-			? new AssignedCardLinkHandler(this.cardsService) : new UnassignedCardLinkHandler(this.cardsService);
-		card.linkedNext
-			? this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, linkHandler)
-			: this.cardsService.linkNext(card, linkHandler);
+			? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
+		const cardsToUpdate = card.linkedNext
+			? CardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, linkHandler)
+			: CardsService.linkNext(card, linkHandler);
+		this.cardsService.updateDbCardsLinks(cardsToUpdate)
 	}
 
 	// endregion

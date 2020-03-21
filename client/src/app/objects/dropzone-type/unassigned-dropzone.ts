@@ -44,14 +44,14 @@ export class UnassignedDropzone implements Dropzone {
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
 		/* Si el movimiento se ha validado, es necesario ejectuar el CD para que se actualice la posición de los grupos
 		*  no asignados. En caso contrario no, ya que la el grupo retornará a su posición original */
-		this.cardsService.removeFromUnassigned(group, validated);
+		CardsService.removeFromUnassigned(group, validated);
 		if (validated) {
 			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
 		}
 	}
 
 	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
-		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, group.status);
+		const sectionGroups = CardsService.findUnassignedGroups(group.type, group.status);
 		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
 	}
 
@@ -59,8 +59,9 @@ export class UnassignedDropzone implements Dropzone {
 		groups: CardsGroup[],
 		group: CardsGroup
 	): void {
-		this.cardsService.resetCardsGroup(group);
-		this.cardsService.addToUnassigned(group);
+		CardsService.resetCardsGroup(group);
+		this.cardsService.updateDbCardsPosition(group.cards);
+		CardsService.addToUnassigned(group);
 
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
 		setTimeout(
@@ -71,7 +72,7 @@ export class UnassignedDropzone implements Dropzone {
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
-			() => this.cardsService.addToUnassigned(group),
+			() => CardsService.addToUnassigned(group),
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}

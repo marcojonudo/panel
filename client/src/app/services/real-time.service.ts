@@ -89,8 +89,8 @@ export class RealTimeService {
 		/* En función de si la ficha estaba asignada antes de moverse en otro terminal o no, se busca en los
 		*  grupos asignados o en los de la cinta */
 		return day ?
-			this.cardsService.findDayMechanicGroups(day, mechanicCode) :
-			this.cardsService.findUnassignedGroups(card.type, card.status);
+			CardsService.findDayMechanicGroups(day, mechanicCode) :
+			CardsService.findUnassignedGroups(card.type, card.status);
 	}
 
 	updatePosition(cards: Card[]): void {
@@ -101,13 +101,13 @@ export class RealTimeService {
 		*  evitarlo, se almacenan los grupos ya procesados para no volver a hacerlo */
 		const processedGroups = [];
 		cards.forEach((card: Card) => {
-			const group = this.cardsService.findCardGroup(allGroups, card.panelId);
+			const group = CardsService.findCardGroup(allGroups, card.panelId);
 			if (group && processedGroups.indexOf(group) == -1) {
 				/* Se elimina el grupo del origen */
 				if (lastAssigned) {
-					this.cardsService.removeFromAssigned(group, card.lastDay, card.lastMechanicCode);
+					CardsService.removeFromAssigned(group, card.lastDay, card.lastMechanicCode);
 				} else {
-					this.cardsService.removeFromUnassigned(group, false);
+					CardsService.removeFromUnassigned(group, false);
 				}
 
 				/* Se actualizan propiedades y se añade el grupo al destino */
@@ -116,19 +116,18 @@ export class RealTimeService {
 					*  terminal) */
 					group.left = DimensionsService.calcLeftFromStart(card.start);
 					// this.cardsService.updatePosition(group, card.day, card.line, left);
-					this.cardsService.updateAssignedCards(
+					CardsService.updateAssignedCards(
 						[group],
 						group,
 						card.day,
 						card.mechanicCode,
 						card.line,
-						this.cardsService.findDayMechanicGroups(card.day, card.mechanicCode),
-						false
+						CardsService.findDayMechanicGroups(card.day, card.mechanicCode)
 					);
-					this.cardsService.addToAssigned(group, card.day, card.mechanicCode);
+					CardsService.addToAssigned(group, card.day, card.mechanicCode);
 				} else {
-					this.cardsService.resetCardsGroup(group);
-					this.cardsService.addToUnassigned(group);
+					CardsService.resetCardsGroup(group);
+					CardsService.addToUnassigned(group);
 				}
 
 				processedGroups.push(group);
@@ -146,7 +145,7 @@ export class RealTimeService {
 		let updatedDurationGroup = undefined;
 		const translatedCards = [];
 		cards.forEach((card: Card) => {
-			const group = this.cardsService.findCardGroup(allGroups, card.panelId);
+			const group = CardsService.findCardGroup(allGroups, card.panelId);
 			const updatedDurationGroupCard = group.cards.find((c: Card) => {
 				const receivedCard = cards.find((receivedCard: Card) => receivedCard.panelId == c.panelId);
 				return receivedCard.duration != c.duration;
@@ -164,7 +163,7 @@ export class RealTimeService {
 		const receivedUpdatedDurationCard = cards.find((c: Card) => c.panelId == updatedDurationCard.panelId);
 		const durationDiff = receivedUpdatedDurationCard.duration - updatedDurationCard.duration;
 		const widthDiff = DimensionsService.calcWidthFromDuration(durationDiff);
-		this.cardsService.updateDurationProperties(updatedDurationCard, updatedDurationGroup, widthDiff, durationDiff);
+		CardsService.updateDurationProperties(updatedDurationCard, updatedDurationGroup, widthDiff, durationDiff);
 		if (translatedCards.length) {
 			this.updatePosition(translatedCards);
 		}
@@ -172,24 +171,23 @@ export class RealTimeService {
 
 	updateLinks(cards: Card[]): void {
 		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
-
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 
 		/* Si la ficha de la izquierda tiene linkedNextId, significa que ambas se están enlazando */
 		if (cards[0].linkedNext) {
-			const card = this.cardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
+			const card = CardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
 				return c.panelId == cards[0].panelId
 			});
 			const linkHandler = card.day
-				? new AssignedCardLinkHandler(this.cardsService) : new UnassignedCardLinkHandler(this.cardsService);
-			this.cardsService.linkNext(card, linkHandler, false);
+				? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
+			CardsService.linkNext(card, linkHandler);
 		} else {
-			const card = this.cardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
+			const card = CardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
 				return c.panelId == cards[0].panelId
 			});
 			const linkHandler = card.day
-				? new AssignedCardLinkHandler(this.cardsService) : new UnassignedCardLinkHandler(this.cardsService);
-			this.cardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, linkHandler,false);
+				? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
+			CardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, linkHandler);
 		}
 	}
 

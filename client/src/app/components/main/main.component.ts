@@ -126,7 +126,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
+		this.assignedDaysCardsGroups = CardsService.assignedDaysCardsGroups;
 		this.mechanicLineSubscription = NotificationService.mechanicLine$
 				.subscribe((mechanicLineUpdate: MechanicUpdate) => {
 			this.mechanicLineUpdate = mechanicLineUpdate;
@@ -152,8 +152,8 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
 			CardPositionService.updateDimensions(
-				this.cardsService.unassignedSections,
-				this.cardsService.assignedDaysCardsGroups
+				CardsService.unassignedSections,
+				CardsService.assignedDaysCardsGroups
 			);
 			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
 			this.mechanicLineUpdate = new MechanicLineUpdate(Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH);
@@ -165,8 +165,8 @@ export class MainComponent implements OnInit, OnDestroy {
 			*  del slider */
 			this.maxScheduleWidth = maxScheduleWidth;
 			CardPositionService.updateDimensions(
-				this.cardsService.unassignedSections,
-				this.cardsService.assignedDaysCardsGroups
+				CardsService.unassignedSections,
+				CardsService.assignedDaysCardsGroups
 			);
 			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
 			NotificationService.notifyAll();
@@ -423,7 +423,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.daysMechanicSkills[day.valueOf()] = new DayMechanicSkills();
 			this.daysQuartersSaturation[day.valueOf()] = new DayQuartersSaturation(
 				day,
-				this.cardsService.checkQuarterSaturation(day)
+				CardsService.checkQuarterSaturation(day)
 			);
 			this.daysLateralInfo[day.valueOf()] = new DayLateralPanelInfo();
 			this.daysAppointmentsCounterUpdate[day.valueOf()] = new DayAppointmentsCounterUpdate(day)

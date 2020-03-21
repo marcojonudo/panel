@@ -89,14 +89,15 @@ export class MechanicInfoComponent {
 	}
 
 	checkRemoveMechanic(content): void {
-		const assignedCardsGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		const assignedCardsGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
 		if (assignedCardsGroups.length) {
 			this.modalService.open(content, {centered: true}).result.then(
 				() => {
 					assignedCardsGroups.forEach(group => {
-						this.cardsService.removeFromAssigned(group, this.day, this.mechanic.code);
-						this.cardsService.resetCardsGroup(group);
-						this.cardsService.addToUnassigned(group);
+						CardsService.removeFromAssigned(group, this.day, this.mechanic.code);
+						CardsService.resetCardsGroup(group);
+						this.cardsService.updateDbCardsPosition(group.cards);
+						CardsService.addToUnassigned(group);
 					});
 					this.mechanicsService.removeMechanic(this.day, this.mechanic);
 				},

@@ -45,7 +45,7 @@ export class ResizableCardDirective {
 		if (Math.abs(diff) >= DimensionsService.intervalWidth &&
 			!(diff < 0 && this.card.width == DimensionsService.intervalWidth)) {
 			this.updatedCards = this.updatedCards.concat(
-				this.cardsService.handleCardDurationUpdate(
+				CardsService.handleCardDurationUpdate(
 					this.card,
 					DimensionsService.intervalWidth * Math.sign(diff),
 					this.card.day ? MechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined

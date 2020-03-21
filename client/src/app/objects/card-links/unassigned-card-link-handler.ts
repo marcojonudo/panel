@@ -5,14 +5,8 @@ import {Card} from "../card";
 
 export class UnassignedCardLinkHandler implements CardLinkHandler {
 
-	cardsService: CardsService;
-
-	constructor(cardsService: CardsService) {
-		this.cardsService = cardsService;
-	}
-
 	findGroups(card: Card): CardsGroup[] {
-		return this.cardsService.findUnassignedGroups(card.type, card.status);
+		return CardsService.findUnassignedGroups(card.type, card.status);
 	}
 
 	createGroup(cards: Card[]): CardsGroup {
@@ -20,11 +14,11 @@ export class UnassignedCardLinkHandler implements CardLinkHandler {
 	}
 
 	updateGroupsAdd(newGroup: CardsGroup, index: number): void {
-		this.cardsService.handleAddUnassignedCardsGroup(newGroup, index);
+		CardsService.handleAddUnassignedCardsGroup(newGroup, index);
 	}
 
 	updateGroupsRemove(newGroup: CardsGroup): void {
-		this.cardsService.handleRemoveUnassignedCardsGroup(newGroup);
+		CardsService.handleRemoveUnassignedCardsGroup(newGroup);
 	}
 
 }

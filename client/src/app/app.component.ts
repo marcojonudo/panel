@@ -51,7 +51,7 @@ export class AppComponent implements AfterViewInit {
 
 				MechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
-				this.cardsService.init(
+				CardsService.init(
 					data.cards.map(card => new Card(card)),
 					MechanicsService.daysMechanics
 				);
@@ -59,8 +59,8 @@ export class AppComponent implements AfterViewInit {
 				DimensionsService.init(MechanicsService.daysMechanics);
 
 				CardPositionService.updateDimensions(
-					this.cardsService.unassignedSections,
-					this.cardsService.assignedDaysCardsGroups
+					CardsService.unassignedSections,
+					CardsService.assignedDaysCardsGroups
 				);
 
 				JobLineTypeService.init(data.jobLineTypes);

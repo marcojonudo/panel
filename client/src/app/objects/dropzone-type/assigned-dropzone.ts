@@ -9,6 +9,7 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
+import {Card} from "../card";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -36,12 +37,12 @@ export class AssignedDropzone implements Dropzone {
 	}
 
 	validateCoordinates(coordinates: Coordinates): Coordinates {
-		this.dayMechanicGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		this.dayMechanicGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
 		return CardPositionService.validateCoordinates(coordinates, this.dayMechanicGroups);
 	}
 
 	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
-		const dayMechanicGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		const dayMechanicGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
 		return CardPositionService.findGroupsToUpdate(group, dayMechanicGroups, line, this);
 	}
 
@@ -49,7 +50,7 @@ export class AssignedDropzone implements Dropzone {
 		if (destinyDropzone) {
 			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
 		}
-		this.cardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
+		CardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
 	findLastCoordinates(groups: CardsGroup[], group: CardsGroup, coordinates: Coordinates): Coordinates {
@@ -69,8 +70,8 @@ export class AssignedDropzone implements Dropzone {
 	): void {
 		const dayMechanicGroups = this.dayMechanicGroups
 			? this.dayMechanicGroups
-			: this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		this.cardsService.updateAssignedCards(
+			: CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		CardsService.updateAssignedCards(
 			groups,
 			group,
 			this.mechanic.day,
@@ -78,22 +79,30 @@ export class AssignedDropzone implements Dropzone {
 			line,
 			dayMechanicGroups
 		);
+		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
+		this.checkNewAuxiliaryCard(cardsToUpdate[0])
+			? this.cardsService.createDbCards(cardsToUpdate)
+			: this.cardsService.updateDbCardsPosition(cardsToUpdate);
 		this.updateAppointmentsCounterAdd(group, originDropzone);
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
 		*  desplazamiento */
 		setTimeout(
-			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
+			() => CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
 			CardPositionService.getAddGroupDelay(group)
 		);
+	}
+
+	checkNewAuxiliaryCard(card: Card): boolean {
+		return card.type == Constants.CARD_TYPE.AUXILIARY && card.lastStatus == Constants.CARD_STATUS.DEFAULT;
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		/* Si el movimiento no valida, lo único que hay que hacer es añadir el grupo a su dropzone original (no hay que
 		*  actualizar propiedades, ni el panel de citas) */
 		setTimeout(
-			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
+			() => CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}

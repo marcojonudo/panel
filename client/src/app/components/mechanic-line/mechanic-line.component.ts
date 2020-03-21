@@ -60,7 +60,7 @@ export class MechanicLineComponent {
 	// endregion
 
 	findGroups(day: Dayjs, mechanicCode: string): CardsGroup[] {
-		return this.cardsService.findDayMechanicGroups(day, mechanicCode);
+		return CardsService.findDayMechanicGroups(day, mechanicCode);
 	}
 
 	calcScheduleWidth(duration: number): number {

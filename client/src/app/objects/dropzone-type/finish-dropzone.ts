@@ -42,7 +42,7 @@ export class FinishDropzone implements Dropzone {
 
 	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
 		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */
-		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, Constants.CARD_STATUS.FINISHED);
+		const sectionGroups = CardsService.findUnassignedGroups(group.type, Constants.CARD_STATUS.FINISHED);
 		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
 	}
 
@@ -51,9 +51,10 @@ export class FinishDropzone implements Dropzone {
 		group: CardsGroup,
 		originDropzone: Dropzone
 	): void {
-		this.cardsService.updateFinishedGroup(group);
+		CardsService.updateFinishedGroup(group);
+		this.cardsService.updateDbCardsPosition(group.cards);
 		this.updateAppointmentsCounterAdd(group, originDropzone);
-		this.cardsService.addToFinished(group);
+		CardsService.addToFinished(group);
 		setTimeout(
 			() => NotificationService.notifyBand(),
 			CardPositionService.getAddGroupDelay(group)
@@ -61,7 +62,7 @@ export class FinishDropzone implements Dropzone {
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {
-		this.cardsService.addToFinished(group);
+		CardsService.addToFinished(group);
 	}
 
 	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {}

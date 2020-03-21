@@ -53,15 +53,15 @@ export class BandComponent implements OnInit, OnDestroy {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
-		this.section = this.cardsService.unassignedSections[1];
+		this.section = CardsService.unassignedSections[1];
 	}
 
 	ngOnInit(): void {
-		this.unassignedTypesCardsGroups = this.cardsService.unassignedTypesCardsGroups;
+		this.unassignedTypesCardsGroups = CardsService.unassignedTypesCardsGroups;
 		this.bandSubscription = NotificationService.band$
 			.subscribe((cardUpdate: UnassignedCardUpdate) => {
 				if (cardUpdate.type) {
-					this.section = this.cardsService.unassignedSections.find(section => section.name == cardUpdate.type);
+					this.section = CardsService.unassignedSections.find(section => section.name == cardUpdate.type);
 				}
 				this.cdRef.detectChanges();
 			});
@@ -82,7 +82,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	get cardSections(): UnassignedSection[] {
-		return this.cardsService.unassignedSections;
+		return CardsService.unassignedSections;
 	}
 
 	get section(): UnassignedSection {

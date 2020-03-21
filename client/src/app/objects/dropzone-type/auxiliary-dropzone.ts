@@ -42,7 +42,7 @@ export class AuxiliaryDropzone implements Dropzone {
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {}
 
 	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
-		const sectionGroups = this.cardsService.findUnassignedGroups(group.type, group.status);
+		const sectionGroups = CardsService.findUnassignedGroups(group.type, group.status);
 		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
 	}
 
@@ -50,8 +50,9 @@ export class AuxiliaryDropzone implements Dropzone {
 		groups: CardsGroup[],
 		group: CardsGroup
 	): void {
-		this.cardsService.resetCardsGroup(group);
-		this.cardsService.addToUnassigned(group);
+		CardsService.resetCardsGroup(group);
+		this.cardsService.updateDbCardsPosition(group.cards);
+		CardsService.addToUnassigned(group);
 
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
 		setTimeout(
@@ -62,7 +63,7 @@ export class AuxiliaryDropzone implements Dropzone {
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
-			() => this.cardsService.addToUnassigned(group),
+			() => CardsService.addToUnassigned(group),
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}

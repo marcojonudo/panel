@@ -106,7 +106,7 @@ export class ToolsBarComponent {
 	showFinishedCardsBar(): void {
 		const unassignedCardUpdate = new UnassignedCardUpdateTrigger(
 			undefined,
-			this.showingFinished ? this.cardsService.unassignedSections[0].name : Constants.CARD_STATUS.FINISHED
+			this.showingFinished ? CardsService.unassignedSections[0].name : Constants.CARD_STATUS.FINISHED
 		);
 		NotificationService.notifyBand(unassignedCardUpdate);
 		this.showingFinished = !this.showingFinished;

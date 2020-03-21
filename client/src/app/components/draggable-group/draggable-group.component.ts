@@ -27,7 +27,7 @@ export class DraggableGroupComponent {
 	}
 
 	findCardBehaviour(group: CardsGroup): CardTypeBehaviour {
-		return this.cardsService.findCardTypeBehaviour(group.cards[0].type);
+		return CardsService.findCardTypeBehaviour(group.cards[0].type);
 	}
 
 	findCursor(mode: string): string {

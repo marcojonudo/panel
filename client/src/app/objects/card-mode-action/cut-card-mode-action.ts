@@ -6,20 +6,22 @@ import {CardPositionService} from "../../services/card-position.service";
 
 export class CutCardModeAction implements CardModeAction {
 
-	execute: (group: CardsGroup, x: number) => void;
+	private cardsService: CardsService;
 
 	constructor(cardsService: CardsService) {
-		this.execute = (group: CardsGroup, x: number) => {
-			let groupX = undefined;
-			if (group.start) {
-				x = CardPositionService.absolutePositionToLeft(x);
-				groupX = group.left;
-			} else {
-				groupX = CardPositionService.barLeftToAbsolutePosition(group.left);
-			}
-			cardsService.cutCard(group, groupX, x);
-			cardsService.updateCardMode([group], Constants.GROUP_MODE.DRAG);
+		this.cardsService = cardsService;
+	}
+
+	execute(group: CardsGroup, x: number): void {
+		let groupX = undefined;
+		if (group.start) {
+			x = CardPositionService.absolutePositionToLeft(x);
+			groupX = group.left;
+		} else {
+			groupX = CardPositionService.barLeftToAbsolutePosition(group.left);
 		}
+		this.cardsService.cutCard(group, groupX, x);
+		CardsService.updateCardMode([group], Constants.GROUP_MODE.DRAG);
 	}
 
 }
