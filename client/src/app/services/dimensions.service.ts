@@ -18,11 +18,8 @@ export class DimensionsService {
 	private static readonly MINUTES_PER_HOUR: number = 60;
 	private static readonly FIT_HOURS_IN_SCREEN: number = 4;
 
-	private static _maxTodayScheduleHours: number[];
 	private static _maxTodayScheduleHoursQuarter: HourQuarter[];
-	private static _maxDaysSchedulesHours: number[];
 	private static _maxDaysSchedulesHoursQuarter: HourQuarter[];
-	private static _maxScheduleHours: number[];
 	private static _maxScheduleHoursQuarter: HourQuarter[];
 
 	private static _gridWidth: number;
@@ -55,14 +52,6 @@ export class DimensionsService {
 		this._gridContainerHeight = value;
 	}
 
-	static get maxTodayScheduleHours(): number[] {
-		return this._maxTodayScheduleHours;
-	}
-
-	static set maxTodayScheduleHours(value: number[]) {
-		this._maxTodayScheduleHours = value;
-	}
-
 	static get maxTodayScheduleHoursQuarter(): HourQuarter[] {
 		return this._maxTodayScheduleHoursQuarter;
 	}
@@ -71,28 +60,12 @@ export class DimensionsService {
 		this._maxTodayScheduleHoursQuarter = value;
 	}
 
-	static get maxDaysSchedulesHours(): number[] {
-		return this._maxDaysSchedulesHours;
-	}
-
-	static set maxDaysSchedulesHours(value: number[]) {
-		this._maxDaysSchedulesHours = value;
-	}
-
 	static get maxDaysSchedulesHoursQuarter(): HourQuarter[] {
 		return this._maxDaysSchedulesHoursQuarter;
 	}
 
 	static set maxDaysSchedulesHoursQuarter(value: HourQuarter[]) {
 		this._maxDaysSchedulesHoursQuarter = value;
-	}
-
-	static get maxScheduleHours(): number[] {
-		return this._maxScheduleHours;
-	}
-
-	static set maxScheduleHours(value: number[]) {
-		this._maxScheduleHours = value;
 	}
 
 	static get maxScheduleHoursQuarter(): HourQuarter[] {
@@ -184,7 +157,6 @@ export class DimensionsService {
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.oneDayMode = true;
 
-		// TODO Estudiar si quitarlo, al usar otra barra en caso de varios días
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
 		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
@@ -198,9 +170,7 @@ export class DimensionsService {
 		this.initSchedulesHours(daysMechanics, today);
 		this.initMaxSchedule();
 
-		console.log('Max. today schedules hours', this.maxTodayScheduleHours);
 		console.log('Max. today schedules quarters', this.maxTodayScheduleHoursQuarter);
-		console.log('Max. days schedules hours', this.maxDaysSchedulesHours);
 		console.log('Max. days schedules quarters', this.maxDaysSchedulesHoursQuarter);
 		console.log('Max. schedule width:', this.maxScheduleWidth);
 	}
@@ -234,14 +204,12 @@ export class DimensionsService {
 		for (const day in daysMechanics) {
 			const [minSchedule, maxSchedule] = this.getScheduleLimits(daysMechanics[day]);
 			if (+day == today.valueOf()) {
-				this.maxTodayScheduleHours = UtilsService.getScheduleHours(minSchedule, maxSchedule);
 				this.maxTodayScheduleHoursQuarter = this.buildHoursQuarter(minSchedule, maxSchedule);
 			}
 
 			minDaysSchedule = minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
 			maxDaysSchedule = maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
 		}
-		this.maxDaysSchedulesHours = UtilsService.getScheduleHours(minDaysSchedule, maxDaysSchedule);
 		this.maxDaysSchedulesHoursQuarter = this.buildHoursQuarter(minDaysSchedule, maxDaysSchedule);
 	}
 
@@ -408,7 +376,6 @@ export class DimensionsService {
 		const maxQuarterWidth = this.calcQuarterWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		/* Se actualiza el número de horas. Un horario de otro día puede tener más horas y, por tanto, necesitasr un
 		*  mayor ancho del contenedor para albergarlo */
-		this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
 		this.maxScheduleHoursQuarter = oneDayMode ? this.maxTodayScheduleHoursQuarter : this.maxDaysSchedulesHoursQuarter;
 		/* Sabiendo el número de horas, se calcula el mayor ancho posible que puede adquirir: cuando el ancho de la
 		*  hora es el mayor posible; es decir, el default */

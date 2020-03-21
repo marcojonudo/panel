@@ -16,7 +16,6 @@ export class TimelineComponent {
 
 	@Input() day: Date;
 	@Input() quartersSaturation: QuartersSaturation;
-	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 
@@ -45,7 +44,7 @@ export class TimelineComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking timeline', this.maxScheduleHours);
+			console.log('checking timeline', this.maxScheduleHoursQuarter);
 		}
 	}
 

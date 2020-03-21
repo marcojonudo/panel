@@ -60,7 +60,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _daysAppointmentsCounterUpdate: DaysAppointmentsCounterUpdate;
 
 	private _oneDayMode: boolean;
-	private _maxScheduleHours: number[];
 	private _maxScheduleHoursQuarter: HourQuarter[];
 	private _maxScheduleWidth: number;
 	private _maxScheduleMaxWidth: number;
@@ -112,7 +111,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 		this.today = this.days.find((day: Dayjs) => day.isSame(today));
 		this.oneDayMode = true;
-		this.maxScheduleHours = DimensionsService.maxScheduleHours;
 		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
@@ -152,7 +150,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.oneDayModeSubscription = NotificationService.oneDayMode$.subscribe((oneDayMode: boolean) => {
 			this.oneDayMode = oneDayMode;
 			DimensionsService.updateMaxSchedule(this.oneDayMode);
-			this.maxScheduleHours = DimensionsService.maxScheduleHours;
 			this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
@@ -177,17 +174,6 @@ export class MainComponent implements OnInit, OnDestroy {
 			NotificationService.notifyAll();
 			this.cdRef.detectChanges();
 		});
-
-		// /* Observer utilizado para determinar si es necesario mostrar o no la scrollbar */
-		// this.daysService.lineHeight$.subscribe((lineHeight: number) => {
-		// 	this.displayVerticalScrollbar = this.daysService.checkDisplayScrollbar(
-		// 		//TODO Modificar comparación de maxScheduleWidth
-		// 		this.timeService.gridContainerHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
-		// 		this.timeService.today,
-		// 		lineHeight
-		// 	);
-		// 	this.cdRef.detectChanges();
-		// });
 
 		this.lateralInfoSubscription = NotificationService.lateralInfo$
 				.subscribe((dayLateralInfo: DayLateralPanelInfo) => {
@@ -303,14 +289,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set maxScheduleMaxWidth(value: number) {
 		this._maxScheduleMaxWidth = value;
-	}
-
-	get maxScheduleHours(): number[] {
-		return this._maxScheduleHours;
-	}
-
-	set maxScheduleHours(value: number[]) {
-		this._maxScheduleHours = value;
 	}
 
 	get maxScheduleHoursQuarter(): HourQuarter[] {

@@ -2,7 +2,6 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {Dayjs} from "dayjs";
-import {HourQuarters} from "../../objects/hour-quarters";
 import {HourQuarter} from "../../objects/hour-quarter";
 
 @Component({
@@ -15,7 +14,6 @@ export class TimelineContainerComponent {
 
 	@Input() day: Dayjs;
 	@Input() quartersSaturation: QuartersSaturation;
-	@Input() maxScheduleHours: number[];
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 
@@ -25,7 +23,7 @@ export class TimelineContainerComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking timeline container', this.day, this.maxScheduleHours)
+			console.log('checking timeline container', this.day)
 		}
 	}
 

@@ -439,8 +439,8 @@ export class CardsService {
 
 		let updatedGroups = [];
 		if (mechanic) {
-			/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que está
-            *  asignada*/
+			/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que
+            *  está asignada */
 			const groupOutsideSchedule = this.groupOutsideSchedule(group, mechanic.schedules);
 			/* Si ya está en el límite, no se actualiza la información */
 			if (groupOutsideSchedule) {
@@ -496,10 +496,6 @@ export class CardsService {
 	}
 
 	static groupOutsideSchedule(group: CardsGroup, schedules: ScheduleInterval[]): boolean {
-		// TODO Revisar sin threshold
-		// const threshold = schedule.thresholds.filter((t, i) => i % 2 == 1).find(threshold => {
-		// 	return threshold.getTime() == group.end.getTime();
-		// });
 		const threshold = schedules.find((interval: ScheduleInterval) => interval.end.isSame(group.end));
 		return threshold != undefined;
 	}

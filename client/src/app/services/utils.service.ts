@@ -59,13 +59,6 @@ export class UtilsService {
 		return array.filter(item => property(item) == value);
 	}
 
-	public static getScheduleHours(start: Dayjs, end: Dayjs): number[] {
-		//TODO Reivsar aquí para añadir 15 minutos al inicio de un horario
-		const startHour = start.hour();
-		const endHour = end.hour() + (Math.ceil(end.minute()/60) > 0 ? 1 : 0);
-		return Array(endHour - startHour).fill(0).map((x, i) => startHour + i);
-	}
-
 	public static findScheduleType(start: Dayjs, end: Dayjs) {
 		const threshold = UtilsService.parseTime(Constants.MORNING_AFTERNOON_THRESHOLD_TIME);
 
