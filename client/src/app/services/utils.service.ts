@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
+import {HourQuarters} from "../objects/hour-quarters";
 
 @Injectable({
 	providedIn: 'root'

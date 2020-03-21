@@ -27,12 +27,10 @@ export class MechanicLineComponent {
 	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
 	@Input() mechanicLineUpdate: MechanicUpdate;
-	// @Input() maxScheduleWidth: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() showAppointmentsName: boolean;
 
 	constructor(
-		private cardsService: CardsService,
 		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,
 		private jobLineTypeService: JobLineTypeService,

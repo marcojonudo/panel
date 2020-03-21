@@ -1,8 +1,10 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {DimensionsService} from "../../services/dimensions.service";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {UtilsService} from "../../services/utils.service";
+import {HourQuarters} from "../../objects/hour-quarters";
+import {HourQuarter} from "../../objects/hour-quarter";
 
 @Component({
 	selector: 'app-timeline',
@@ -15,22 +17,10 @@ export class TimelineComponent {
 	@Input() day: Date;
 	@Input() quartersSaturation: QuartersSaturation;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 
 	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 3500;
-	private readonly QUARTERS: string[] = ['00', '15', '30', '45'];
-
-	// region Getters / setters
-
-	get quarters(): string[] {
-		return this.QUARTERS;
-	}
-
-	get quarterWidth(): number {
-		return parseFloat((DimensionsService.intervalWidth * 3).toFixed(2));
-	}
-
-	// endregion
 
 	findQuarterBackground(
 		hour: number,
@@ -43,6 +33,10 @@ export class TimelineComponent {
 			return false;
 		}
 		return quarterSaturation.cards > quarterSaturation.mechanics * mechanicsSaturationPercentage/100;
+	}
+
+	checkDisplayHours(quarter: number): boolean {
+		return quarter == 0;
 	}
 
 	checkDisplayMinutes(): boolean {

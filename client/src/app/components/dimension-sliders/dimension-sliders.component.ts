@@ -22,7 +22,7 @@ export class DimensionSlidersComponent implements OnInit {
 	ngOnInit(): void {
 		this.width = this.maxScheduleWidth;
 		this.min = DimensionsService.gridWidth;
-		this.max = this.maxScheduleMaxWidth;
+		this.max = parseFloat(this.maxScheduleMaxWidth.toFixed(3));
 	}
 
 	// region Getters / setters

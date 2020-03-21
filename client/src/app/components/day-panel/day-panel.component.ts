@@ -6,6 +6,7 @@ import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {DimensionsService} from "../../services/dimensions.service";
+import {HourQuarter} from "../../objects/hour-quarter";
 
 @Component({
 	selector: 'app-day-panel',
@@ -23,6 +24,7 @@ export class DayPanelComponent implements OnInit {
 	@Input() contextMenuInfo: ContextMenuInfo;
 	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleHours: number[];
+	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 	@Input() timeIndicatorLeft: number;
 

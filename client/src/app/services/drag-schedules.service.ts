@@ -16,8 +16,8 @@ export class DragSchedulesService {
 	}
 
 	static calcQuarterEndLeft(left: number): number {
-		const quarterStartLeft = UtilsService.roundFloor(left, DimensionsService.intervalWidth * 3);
-		return quarterStartLeft + DimensionsService.intervalWidth * 3;
+		const quarterStartLeft = UtilsService.roundFloor(left, DimensionsService.quarterWidth);
+		return quarterStartLeft + DimensionsService.quarterWidth;
 	}
 
 	static calcQuarterThresholdsStart(quarterStartLeft: number, quarterEndLeft: number, day: Dayjs): Dayjs[] {
@@ -29,7 +29,7 @@ export class DragSchedulesService {
 
 	static calcMovedQuarters(clientX: number, quarterEndLeft: number): number {
 		const left = CardPositionService.absolutePositionToLeft(clientX);
-		return Math.ceil((left - quarterEndLeft) / (DimensionsService.intervalWidth * 3));
+		return Math.ceil((left - quarterEndLeft) / (DimensionsService.quarterWidth));
 	}
 
 }

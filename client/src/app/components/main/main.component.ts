@@ -35,6 +35,8 @@ import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-sched
 import {Coordinates} from "../../objects/coordinates";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
+import {HourQuarters} from "../../objects/hour-quarters";
+import {HourQuarter} from "../../objects/hour-quarter";
 
 @Component({
 	selector: 'app-main',
@@ -59,6 +61,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _oneDayMode: boolean;
 	private _maxScheduleHours: number[];
+	private _maxScheduleHoursQuarter: HourQuarter[];
 	private _maxScheduleWidth: number;
 	private _maxScheduleMaxWidth: number;
 
@@ -110,6 +113,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.today = this.days.find((day: Dayjs) => day.isSame(today));
 		this.oneDayMode = true;
 		this.maxScheduleHours = DimensionsService.maxScheduleHours;
+		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
 		// this.itemSize = MechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
@@ -149,6 +153,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.oneDayMode = oneDayMode;
 			DimensionsService.updateMaxSchedule(this.oneDayMode);
 			this.maxScheduleHours = DimensionsService.maxScheduleHours;
+			this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
 			CardPositionService.updateDimensions(
@@ -306,6 +311,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	set maxScheduleHours(value: number[]) {
 		this._maxScheduleHours = value;
+	}
+
+	get maxScheduleHoursQuarter(): HourQuarter[] {
+		return this._maxScheduleHoursQuarter;
+	}
+
+	set maxScheduleHoursQuarter(value: HourQuarter[]) {
+		this._maxScheduleHoursQuarter = value;
 	}
 
 	get dayContainerWidth(): number {

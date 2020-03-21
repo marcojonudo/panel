@@ -34,7 +34,7 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 	): Dayjs {
 		movedQuarters = this.left ? movedQuarters : movedQuarters - 1;
 		return DimensionsService.calcStartFromLeft(
-			quarterRefLeft + movedQuarters * DimensionsService.intervalWidth * 3,
+			quarterRefLeft + movedQuarters * DimensionsService.quarterWidth,
 			day
 		);
 	}

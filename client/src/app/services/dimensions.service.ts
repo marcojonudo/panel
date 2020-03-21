@@ -8,6 +8,7 @@ import {NotificationService} from "./notification.service";
 import {Position} from "../objects/position";
 import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
+import {HourQuarter} from "../objects/hour-quarter";
 
 @Injectable({
 	providedIn: 'root'
@@ -18,8 +19,11 @@ export class DimensionsService {
 	private static readonly FIT_HOURS_IN_SCREEN: number = 4;
 
 	private static _maxTodayScheduleHours: number[];
+	private static _maxTodayScheduleHoursQuarter: HourQuarter[];
 	private static _maxDaysSchedulesHours: number[];
+	private static _maxDaysSchedulesHoursQuarter: HourQuarter[];
 	private static _maxScheduleHours: number[];
+	private static _maxScheduleHoursQuarter: HourQuarter[];
 
 	private static _gridWidth: number;
 	private static _gridContainerHeight: number;
@@ -29,6 +33,7 @@ export class DimensionsService {
 	private static _maxScheduleWidth: number;
 	private static _maxScheduleMaxWidth: number;
 	private static _intervalWidth: number;
+	private static _quarterWidth: number;
 	private static _lineHeight: number;
 	private static _oneDayMode: boolean;
 
@@ -58,6 +63,14 @@ export class DimensionsService {
 		this._maxTodayScheduleHours = value;
 	}
 
+	static get maxTodayScheduleHoursQuarter(): HourQuarter[] {
+		return this._maxTodayScheduleHoursQuarter;
+	}
+
+	static set maxTodayScheduleHoursQuarter(value: HourQuarter[]) {
+		this._maxTodayScheduleHoursQuarter = value;
+	}
+
 	static get maxDaysSchedulesHours(): number[] {
 		return this._maxDaysSchedulesHours;
 	}
@@ -66,12 +79,28 @@ export class DimensionsService {
 		this._maxDaysSchedulesHours = value;
 	}
 
+	static get maxDaysSchedulesHoursQuarter(): HourQuarter[] {
+		return this._maxDaysSchedulesHoursQuarter;
+	}
+
+	static set maxDaysSchedulesHoursQuarter(value: HourQuarter[]) {
+		this._maxDaysSchedulesHoursQuarter = value;
+	}
+
 	static get maxScheduleHours(): number[] {
 		return this._maxScheduleHours;
 	}
 
 	static set maxScheduleHours(value: number[]) {
 		this._maxScheduleHours = value;
+	}
+
+	static get maxScheduleHoursQuarter(): HourQuarter[] {
+		return this._maxScheduleHoursQuarter;
+	}
+
+	static set maxScheduleHoursQuarter(value: HourQuarter[]) {
+		this._maxScheduleHoursQuarter = value;
 	}
 
 	static get maxScheduleWidth(): number {
@@ -96,6 +125,14 @@ export class DimensionsService {
 
 	static set intervalWidth(value: number) {
 		this._intervalWidth = value;
+	}
+
+	static get quarterWidth(): number {
+		return this._quarterWidth;
+	}
+
+	static set quarterWidth(value: number) {
+		this._quarterWidth = value;
 	}
 
 	static get maxScheduleMaxWidth(): number {
@@ -162,7 +199,9 @@ export class DimensionsService {
 		this.initMaxSchedule();
 
 		console.log('Max. today schedules hours', this.maxTodayScheduleHours);
+		console.log('Max. today schedules quarters', this.maxTodayScheduleHoursQuarter);
 		console.log('Max. days schedules hours', this.maxDaysSchedulesHours);
+		console.log('Max. days schedules quarters', this.maxDaysSchedulesHoursQuarter);
 		console.log('Max. schedule width:', this.maxScheduleWidth);
 	}
 
@@ -194,15 +233,16 @@ export class DimensionsService {
 		let maxDaysSchedule = dayjs();
 		for (const day in daysMechanics) {
 			const [minSchedule, maxSchedule] = this.getScheduleLimits(daysMechanics[day]);
-
 			if (+day == today.valueOf()) {
 				this.maxTodayScheduleHours = UtilsService.getScheduleHours(minSchedule, maxSchedule);
+				this.maxTodayScheduleHoursQuarter = this.buildHoursQuarter(minSchedule, maxSchedule);
 			}
 
 			minDaysSchedule = minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
 			maxDaysSchedule = maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
 		}
 		this.maxDaysSchedulesHours = UtilsService.getScheduleHours(minDaysSchedule, maxDaysSchedule);
+		this.maxDaysSchedulesHoursQuarter = this.buildHoursQuarter(minDaysSchedule, maxDaysSchedule);
 	}
 
 	/**
@@ -218,6 +258,17 @@ export class DimensionsService {
 			Math.max(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[mechanic.schedules.length-1].end.valueOf()))
 		);
 		return [minSchedule, maxSchedule];
+	}
+
+	public static buildHoursQuarter(start: Dayjs, end: Dayjs): HourQuarter[] {
+		const hoursQuarter = [];
+		let time = <Dayjs> start.subtract(Constants.QUARTERS.STEP_15, Constants.DAY_JS.m);
+		const newEnd = end.add(Constants.QUARTERS.STEP_15, Constants.DAY_JS.m);
+		while (time < newEnd) {
+			hoursQuarter.push(new HourQuarter(time.hour(), time.minute()));
+			time = time.add(Constants.QUARTERS.STEP_15, Constants.DAY_JS.m);
+		}
+		return hoursQuarter;
 	}
 
 	/**
@@ -274,11 +325,12 @@ export class DimensionsService {
 	 * @param {number} hoursInGrid Número de horas que caben en pantalla
 	 */
 	private static calcWidthValuesFromHoursInGrid(hoursInGrid: number): void {
-		/* Se calculan los anchos a partir del número de hora que encajna en pantalla; sabiendo que a zoom máximo,
+		/* Se calculan los anchos a partir del número de horas que encajan en pantalla; sabiendo que a zoom máximo,
 		*  en todoo el ancho de la pantalla caben 4 horas, se hacen las cuentas correspondientes */
-		this.hourWidth = this.calcHourWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
+		this.quarterWidth = this.calcQuarterWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
+		this.hourWidth = this.calcHourWidthFromQuarterWidth(this.quarterWidth);
 		/* Se calcula el ancho de un bloque de 5 minutos (unidad mínima de ancho en panel) */
-		this.intervalWidth = this.calcIntervalWidth(this.hourWidth);
+		this.intervalWidth = this.calcIntervalWidthFromQuarterWidth(this.quarterWidth);
 	}
 
 	/**
@@ -286,53 +338,60 @@ export class DimensionsService {
 	 * @param {number} maxScheduleWidth Ancho total del horario
 	 */
 	private static calcWidthValuesFromMaxScheduleWidth(maxScheduleWidth: number): void {
-		this.hourWidth = this.calcHourWidthFromMaxScheduleWidth(maxScheduleWidth);
-		this.intervalWidth = this.calcIntervalWidth(this.hourWidth);
+		this.quarterWidth = this.calcQuarterWidthFromMaxScheduleWidth(maxScheduleWidth);
+		this.hourWidth = this.calcHourWidthFromQuarterWidth(this.quarterWidth);
+		this.intervalWidth = this.calcIntervalWidthFromQuarterWidth(this.quarterWidth);
+	}
+
+	private static calcQuarterWidthFromMaxScheduleWidth(
+		maxScheduleWidth: number,
+		maxScheduleHoursQuarter: HourQuarter[] = this.maxScheduleHoursQuarter,
+		leftOffset: number = Constants.VALUE.MECHANIC_INFO_WIDTH
+	): number {
+		return (maxScheduleWidth - leftOffset) / maxScheduleHoursQuarter.length;
 	}
 
 	/**
-	 * Se calcula el ancho de una hora a partir del número de ellas que encajan en pantalla
+	 * Se calcula el ancho de un cuarto a partir del número de horas que encajan en pantalla
 	 * @param {number} hoursInGrid Número de horas que aparecen en pantalla (por defecto 4)
 	 * @param {number} gridWidth Ancho de la cuadrícula
 	 * @param {number} leftOffset Desplazamiento producido por el ancho de la info del mecánico
+	 * @param {number} quartersPerHour Número de cuartos en una hora
 	 * @returns {number} Ancho de una hora
 	 */
-	private static calcHourWidthFromHoursInGrid(
+	private static calcQuarterWidthFromHoursInGrid(
 		hoursInGrid: number,
 		gridWidth: number = this.gridWidth,
-		leftOffset: number = Constants.VALUE.MECHANIC_INFO_WIDTH
+		leftOffset: number = Constants.VALUE.MECHANIC_INFO_WIDTH,
+		quartersPerHour: number = Constants.VALUE.QUARTERS_PER_HOUR,
 	): number {
-		return (gridWidth - leftOffset) / hoursInGrid;
+		return (gridWidth - leftOffset) / (hoursInGrid * quartersPerHour);
 	}
 
 	/**
-	 * Se calcula el ancho de una hora a partir del ancho total del horario
-	 * @param {number} maxScheduleWidth Ancho total del horario
-	 * @param {number[]} maxScheduleHours Número de horas a representar en el horario
-	 * @param {number} leftOffset Desplazamiento producido por el ancho de la info del mecánico
-	 * @returns {number} Ancho de una hora
+	 * Se calcula el ancho de una hora a partir del de un cuarto
+	 * @param {number} quarterWidth Ancho de un cuarto
+	 * @param {number} quartersPerHour Cuartos (15 min) en una hora
+	 * @returns {number} Ancho de un intervalo
 	 */
-	private static calcHourWidthFromMaxScheduleWidth(
-		maxScheduleWidth: number,
-		maxScheduleHours: number[] = this.maxScheduleHours,
-		leftOffset: number = Constants.VALUE.MECHANIC_INFO_WIDTH
-	): number {
-		return (maxScheduleWidth - leftOffset) / maxScheduleHours.length;
+	private static calcHourWidthFromQuarterWidth(
+		quarterWidth: number,
+		quartersPerHour: number = Constants.VALUE.QUARTERS_PER_HOUR,
+	) {
+		return quarterWidth * quartersPerHour;
 	}
 
 	/**
 	 * Se calcula el ancho de un intervalo (5 min) a partir del ancho de una hora
-	 * @param {number} hourWidth Ancho de una hora
-	 * @param {number} quartersPerHour Cuartos (15 min) en una hora (evidentemente es constante)
+	 * @param {number} quarterWidth Ancho de un cuarto
 	 * @param {number} intervalsPerQuarter Intervalos (5 min) en un cuarto (15 min)
 	 * @returns {number} Ancho de un intervalo
 	 */
-	private static calcIntervalWidth(
-		hourWidth: number,
-		quartersPerHour: number = Constants.VALUE.QUARTERS_PER_HOUR,
+	private static calcIntervalWidthFromQuarterWidth(
+		quarterWidth: number,
 		intervalsPerQuarter: number = Constants.VALUE.INTERVALS_PER_QUARTER,
 	) {
-		return hourWidth / (quartersPerHour * intervalsPerQuarter);
+		return quarterWidth / intervalsPerQuarter;
 	}
 
 	// endregion
@@ -346,32 +405,34 @@ export class DimensionsService {
 	 */
 	static updateMaxSchedule(oneDayMode: boolean): void {
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, oneDayMode);
-		this.hourWidth = this.calcHourWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
+		const maxQuarterWidth = this.calcQuarterWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		/* Se actualiza el número de horas. Un horario de otro día puede tener más horas y, por tanto, necesitasr un
 		*  mayor ancho del contenedor para albergarlo */
 		this.maxScheduleHours = oneDayMode ? this.maxTodayScheduleHours : this.maxDaysSchedulesHours;
+		this.maxScheduleHoursQuarter = oneDayMode ? this.maxTodayScheduleHoursQuarter : this.maxDaysSchedulesHoursQuarter;
 		/* Sabiendo el número de horas, se calcula el mayor ancho posible que puede adquirir: cuando el ancho de la
 		*  hora es el mayor posible; es decir, el default */
-		this.maxScheduleMaxWidth = this.calcScheduleWidth(this.maxScheduleHours, this.hourWidth);
+		this.maxScheduleMaxWidth = this.calcScheduleWidth(this.maxScheduleHoursQuarter, maxQuarterWidth);
 		/* Si se está activando el modo de un sólo día, el ancho de los horarios coincide con el máximo. Si no, es el
 		*  ancho del grid, ya que al activar la vista de varios días, automáticamente se ajusta a la pantalla */
 		this.maxScheduleWidth = oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth;
 		this.calcWidthValuesFromMaxScheduleWidth(this.maxScheduleWidth);
+		console.log(1, this.maxScheduleWidth, this.quarterWidth, this.hourWidth);
 	}
 
 	/**
 	 * Calcula el nacho del horario a partir del número de horas y del ancho de cada una
-	 * @param {number[]} hours Array con las horas del horario
-	 * @param {number} hourWidth Ancho de la hora
+	 * @param {number[]} hoursQuarter Array con las horas y cuartos del horario
+	 * @param {number} quarterWidth Ancho de un cuarto
 	 * @param {number} leftOffset Desplazamiento producido por el ancho de la info del mecánico
 	 * @returns {number} Ancho del horario
 	 */
 	private static calcScheduleWidth(
-		hours: number[],
-		hourWidth: number,
+		hoursQuarter: HourQuarter[],
+		quarterWidth: number,
 		leftOffset: number = Constants.VALUE.MECHANIC_INFO_WIDTH
 	): number {
-		return leftOffset + hours.length * hourWidth;
+		return leftOffset + hoursQuarter.length * quarterWidth;
 	}
 
 	/**
@@ -380,8 +441,9 @@ export class DimensionsService {
 	 */
 	static updateMaxScheduleWidth(maxScheduleWidth: number) {
 		this.maxScheduleWidth = maxScheduleWidth;
-		this.hourWidth = this.calcHourWidthFromMaxScheduleWidth(this.maxScheduleWidth);
-		this.intervalWidth = this.calcIntervalWidth(this.hourWidth);
+		this.quarterWidth = this.calcQuarterWidthFromMaxScheduleWidth(this.maxScheduleWidth);
+		this.hourWidth = this.calcHourWidthFromQuarterWidth(this.quarterWidth);
+		this.intervalWidth = this.calcIntervalWidthFromQuarterWidth(this.quarterWidth);
 	}
 
 	// endregion
@@ -456,7 +518,8 @@ export class DimensionsService {
 	}
 
 	private static getStartScheduleMinutes() {
-		return this.maxScheduleHours[0] * this.MINUTES_PER_HOUR;
+		const firstHourQuarter = this.maxScheduleHoursQuarter[0];
+		return firstHourQuarter.hour * this.MINUTES_PER_HOUR + firstHourQuarter.quarter ;
 	}
 
 	private static getIntervalsNumberFromDuration(duration: number): number {

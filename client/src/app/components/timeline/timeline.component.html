@@ -1,12 +1,13 @@
 <div
 	class="d-flex h-100 timeline">
-	<div *ngFor="let hour of maxScheduleHours" class="flex-grow-1 flex-basis-0 d-flex">
-		<div *ngFor="let quarter of quarters; let first = first; let last = last"
-			class="flex-grow-1 flex-basis-0 d-flex align-items-center justify-content-start pl-1 quarter-border border-semi-dark"
-			[ngClass]="{'quarter hour-border border-semi-dark': first, 'background-color-red': findQuarterBackground(hour, +quarter)}">
-			<span *ngIf="first">{{hour}}<span *ngIf="checkDisplayMinutes()">:</span></span>
-			<span *ngIf="checkDisplayMinutes()">{{quarter}}</span>
-		</div>
+	<div *ngFor="let hourQuarter of maxScheduleHoursQuarter"
+		class="flex-grow-1 flex-basis-0 d-flex align-items-center justify-content-start pl-1 quarter-border border-semi-dark"
+		[ngClass]="{
+			'quarter hour-border border-semi-dark': checkDisplayHours(hourQuarter.quarter),
+			'background-color-red': findQuarterBackground(hourQuarter.hour, hourQuarter.quarter)
+		}">
+		<span *ngIf="checkDisplayHours(hourQuarter.quarter)">{{hourQuarter.hour}}<span *ngIf="checkDisplayMinutes()">:</span></span>
+		<span *ngIf="checkDisplayMinutes()">{{hourQuarter.quarter}}</span>
 	</div>
 </div>
 <div>{{check()}}</div>
