@@ -71,14 +71,8 @@ export class AssignedDropzone implements Dropzone {
 		const dayMechanicGroups = this.dayMechanicGroups
 			? this.dayMechanicGroups
 			: CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		CardsService.updateAssignedCards(
-			groups,
-			group,
-			this.mechanic.day,
-			this.mechanic.code,
-			line,
-			dayMechanicGroups
-		);
+		CardsService.updateAssignedCards(groups, group, this.mechanic.day, this.mechanic.code, line, dayMechanicGroups);
+
 		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
 		this.checkNewAuxiliaryCard(cardsToUpdate[0])
 			? this.cardsService.createDbCards(cardsToUpdate)

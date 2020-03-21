@@ -269,7 +269,6 @@ export class CardsService {
 			cardsGroup.end
 		);
 		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
-		this.checkQuarterSaturation(day);
 	}
 
 	static addToAssigned(cardsGroup: CardsGroup, day: Dayjs, newMechanicCode: string): void {
@@ -926,7 +925,7 @@ export class CardsService {
 
 	static checkQuarterSaturation(day: Dayjs): QuartersSaturation {
 		const dayGroups = this.findDayGroups(day);
-		const dayMechanics = MechanicsService.findDayMechanics(day);
+		const dayMechanics = MechanicsService.findDayMechanics(day).filter((mechanic: Mechanic) => !mechanic.fixed);
 
 		const quartersSaturation = {};
 		dayGroups.forEach((group: CardsGroup) => {

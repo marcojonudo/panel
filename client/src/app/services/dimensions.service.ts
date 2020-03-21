@@ -384,7 +384,6 @@ export class DimensionsService {
 		*  ancho del grid, ya que al activar la vista de varios días, automáticamente se ajusta a la pantalla */
 		this.maxScheduleWidth = oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth;
 		this.calcWidthValuesFromMaxScheduleWidth(this.maxScheduleWidth);
-		console.log(1, this.maxScheduleWidth, this.quarterWidth, this.hourWidth);
 	}
 
 	/**
