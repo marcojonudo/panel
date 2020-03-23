@@ -2469,6 +2469,100 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
+	// region Fix same cards deleted info
+
+	void "test fix same cards deleted info no deleted cards"() {
+		given:
+		List<Card> cards = [
+				new Card(
+						order: [number: 1],
+						vehicle: [brand: 'BMW'],
+						group: [code: 1],
+						linkedPrevious: new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]),
+						linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				)
+		]
+
+		when:
+		panelService.fixSameCardsDeletedInfo(cards, [])
+
+		then:
+		cards[0].linkedPrevious
+		cards[0].linkedNext
+	}
+
+	void "test fix same cards deleted info deleted linked previous"() {
+		given:
+		List<Card> cards = [
+				new Card(
+						order: [number: 1],
+						vehicle: [brand: 'BMW'],
+						group: [code: 1],
+						linkedPrevious: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
+						linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				)
+		]
+		List<Card> deletedCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2])
+		]
+
+		when:
+		panelService.fixSameCardsDeletedInfo(cards, deletedCards)
+
+		then:
+		!cards[0].linkedPrevious
+		cards[0].linkedNext
+	}
+
+	void "test fix same cards deleted info deleted linked next"() {
+		given:
+		List<Card> cards = [
+				new Card(
+						order: [number: 1],
+						vehicle: [brand: 'BMW'],
+						group: [code: 1],
+						linkedPrevious: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
+						linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				)
+		]
+		List<Card> deletedCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3])
+		]
+
+		when:
+		panelService.fixSameCardsDeletedInfo(cards, deletedCards)
+
+		then:
+		cards[0].linkedPrevious
+		!cards[0].linkedNext
+	}
+
+	void "test fix same cards deleted info deleted all linked"() {
+		given:
+		List<Card> cards = [
+				new Card(
+						order: [number: 1],
+						vehicle: [brand: 'BMW'],
+						group: [code: 1],
+						linkedPrevious: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
+						linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				)
+		]
+		List<Card> deletedCards = [
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]),
+				new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3])
+		]
+
+		when:
+		panelService.fixSameCardsDeletedInfo(cards, deletedCards)
+
+		then:
+		!cards[0].linkedPrevious
+		!cards[0].linkedNext
+	}
+
+	// endregion
+
 	// region getCardsToUpdate
 
 	void "test handle cards no actions needed"() {

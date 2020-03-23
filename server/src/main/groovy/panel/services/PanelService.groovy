@@ -298,6 +298,7 @@ class PanelService {
 		/* Se obtienen las órdenes cuyas fichas deben ser creadas (número de orden no existe en las fichas actuales) */
 		UpdateCards updateCards = getNewOrUpdatedCards(dbCards, builtCards)
 		updateCards.deletedCards = getDeletedCards(orders, dbCards, builtCards)
+		fixSameCardsDeletedInfo(updateCards.sameCards, updateCards.deletedCards)
 
 		return updateCards
 	}
@@ -482,6 +483,19 @@ class PanelService {
 	static Card deleteCard(Card card) {
 		card.dateDeleted = LocalDateTime.now()
 		return card
+	}
+
+	static void fixSameCardsDeletedInfo(List<Card> sameCards, List<Card> deletedCards) {
+		sameCards.each { Card card ->
+			Card linkedPreviousDeletedCard = card.linkedPrevious ? deletedCards.find { it == card.linkedPrevious } : null
+			Card linkedNextDeletedCard = card.linkedNext ? deletedCards.find { it == card.linkedNext } : null
+			if (linkedPreviousDeletedCard) {
+				card.linkedPrevious = null
+			}
+			if (linkedNextDeletedCard) {
+				card.linkedNext = null
+			}
+		}
 	}
 
 	// endregion
