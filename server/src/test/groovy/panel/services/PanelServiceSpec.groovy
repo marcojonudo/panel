@@ -228,7 +228,7 @@ class PanelServiceSpec extends Specification {
 	@Shared Task task222 = new Task(articleCode: 99222, groups: [])
 	@Shared Task task223 = new Task(articleCode: 99223, groups: [])
 	@Shared Task task224 = new Task(articleCode: 99224, groups: [])
-	@Shared Task task225 = new Task(articleCode: 99225, groups: [])
+	@Shared Task task225 = new Task(articleCode: 99225, groups: [], absorbable: true)
 	@Shared Task task226 = new Task(articleCode: 99226, groups: [])
 	@Shared Task task227 = new Task(articleCode: 99227, groups: [])
 	@Shared Task task228 = new Task(articleCode: 99228, groups: [])
@@ -338,7 +338,7 @@ class PanelServiceSpec extends Specification {
 	@Shared Task task336 = new Task(articleCode: 99336, groups: [])
 	@Shared Task task337 = new Task(articleCode: 99337, groups: [])
 	@Shared Task task338 = new Task(articleCode: 99338, groups: [])
-	@Shared Task task339 = new Task(articleCode: 99339, groups: [])
+	@Shared Task task339 = new Task(articleCode: 99339, groups: [], absorbable: true)
 	@Shared Task task349 = new Task(articleCode: 99349, groups: [])
 	@Shared Task task350 = new Task(articleCode: 99350, groups: [])
 	@Shared Task task356 = new Task(articleCode: 99356, groups: [])
@@ -1626,6 +1626,45 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
+	// region Filter absorbable tasks
+
+	void "test filter absorbable tasks existent main and absorbable tasks"() {
+		given:
+		List<Task> tasks = [task001, task004, task151, task200, task225, task339]
+
+		when:
+		List<Task> filteredTasks = panelService.filterAbsorbableTasks(tasks)
+
+		then:
+		filteredTasks.size() == 4
+		!filteredTasks.find { it == task225 }
+		!filteredTasks.find { it == task339 }
+	}
+
+	void "test filter absorbable tasks only main tasks"() {
+		given:
+		List<Task> tasks = [task001, task004, task151, task200]
+
+		when:
+		List<Task> filteredTasks = panelService.filterAbsorbableTasks(tasks)
+
+		then:
+		filteredTasks.size() == 4
+	}
+
+	void "test filter absorbable tasks only absorbable tasks"() {
+		given:
+		List<Task> tasks = [task225]
+
+		when:
+		List<Task> filteredTasks = panelService.filterAbsorbableTasks(tasks)
+
+		then:
+		filteredTasks.size() == 1
+	}
+
+	// endregion
+
 	// region getOrderGroups
 
 	void "test get order groups 1"() {
@@ -1773,16 +1812,15 @@ class PanelServiceSpec extends Specification {
 		)
 
 		then:
-		groupUnits.size() == 6
+		groupUnits.size() == 5
 		groupUnits[0].group.code == 30
 		groupUnits[1].group.code == 45
 		groupUnits[2].group.code == 122
 		groupUnits[3].group.code == 54
 		groupUnits[4].group.code == 53
-		groupUnits[5].group.code == 73
 	}
 
-	void "test get order groups one article one absorbable task"() {
+	void "test get order groups 7"() {
 		given:
 		Order order = new Order(
 				number: 1,
@@ -1824,41 +1862,34 @@ class PanelServiceSpec extends Specification {
 		groupUnits[9].group.code == 316
 	}
 
-//	void "test get order groups one article one absorbable task"() {
-//		given:
-//		group1.tasks = [task1]
-//		task1.absorbable = true
-//		task1.groups = [group1]
-////		List<Task> tasks = [
-////				new Task(articleCode: 1, absorbable: true, groups: [new Group(code: 1)])
-////		]
-//
-//		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order1Article, [task1])
-//
-//		then:
-//		groupUnits.size() == 1
-//		groupUnits[0].group.code == 1
-//	}
-//
-//	void "test get order groups several articles several absorbable tasks"() {
-//		given:
-//		group1.tasks = [task1, task2, task3, task4]
-//		task2.absorbable = true
-//		task3.absorbable = true
-//		task4.absorbable = true
-//		task1.groups = [group1]
-//		task2.groups = [group1]
-//		task3.groups = [group1]
-//		task4.groups = [group1]
-//
-//		when:
-//		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task1, task2, task3, task4])
-//
-//		then:
-//		groupUnits.size() == 1
-//		groupUnits[0].group.code == 1
-//	}
+	void "test get order groups absorbable tasks"() {
+		given:
+		Order order = new Order(
+				number: 1,
+				timeInfo: new OrderTime(shortCode: 'C1'),
+				lines: [
+						new OrderLine(article: [code: 99001]),
+						new OrderLine(article: [code: 99004]),
+						new OrderLine(article: [code: 99151]),
+						new OrderLine(article: [code: 99200]),
+						new OrderLine(article: [code: 99225]),
+						new OrderLine(article: [code: 99339])
+				],
+				vehicle: new Vehicle([:])
+		)
+
+		when:
+		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+				order,
+				[task001, task004, task151, task200, task225, task339]
+		)
+
+		then:
+		groupUnits.size() == 3
+		groupUnits[0].group.code == 1
+		groupUnits[1].group.code == 31
+		groupUnits[2].group.code == 87
+	}
 
 	// endregion
 

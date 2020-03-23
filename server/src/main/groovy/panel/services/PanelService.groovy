@@ -18,6 +18,7 @@ import utils.pogos.panel.*
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.skills.Skill
 
+import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -29,22 +30,10 @@ class PanelService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PanelService)
 
-	PanelDatabaseClient panelDatabaseClient
-	FviberiDatabaseClient fviberiDatabaseClient
-	SkillsDatabaseClient skillsDatabaseClient
-	CuboDatabaseClient cuboDatabaseClient
-
-	PanelService(
-			PanelDatabaseClient panelDatabaseClient,
-			FviberiDatabaseClient fviberiDatabaseClient,
-	        SkillsDatabaseClient skillsDatabaseClient,
-			CuboDatabaseClient cuboDatabaseClient
-	) {
-		this.panelDatabaseClient = panelDatabaseClient
-		this.fviberiDatabaseClient = fviberiDatabaseClient
-		this.skillsDatabaseClient = skillsDatabaseClient
-		this.cuboDatabaseClient = cuboDatabaseClient
-	}
+	@Inject private PanelDatabaseClient panelDatabaseClient
+	@Inject private FviberiDatabaseClient fviberiDatabaseClient
+	@Inject private SkillsDatabaseClient skillsDatabaseClient
+	@Inject private CuboDatabaseClient cuboDatabaseClient
 
 	CompleteInfo getPanelInfo(LocalDate day = LocalDate.now()) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
@@ -175,7 +164,7 @@ class PanelService {
 	 */
 	static List<GroupUnits> getOrderGroups(Order order, List<Task> tasks) {
 		/* Se obtienen las task correspondientes a los artículos de la orden */
-		List<Task> orderTasks = tasks.findAll { it.articleCode in order.lines.article.code }
+		List<Task> orderTasks = filterAbsorbableTasks(tasks.findAll { it.articleCode in order.lines.article.code })
 
 		List<Task> processedTasks = []
 		List<GroupUnits> selectedGroupsInfo = []
@@ -195,6 +184,16 @@ class PanelService {
 			}
 		}
 		return selectedGroupsInfo
+	}
+
+	/**
+	 * Remove absorbable tasks if main tasks exist
+	 * @param orderTasks List of order tasks
+	 * @return List of filtered task
+	 */
+	static List<Task> filterAbsorbableTasks(List<Task> orderTasks) {
+		List<Task> mainTasks = orderTasks.findAll { !it.absorbable }
+		return mainTasks ?: orderTasks
 	}
 
 	static Group findSelectedGroup(List<Task> orderTasks, List<Group> groups, List<Task> processedTasks) {
@@ -374,7 +373,6 @@ class PanelService {
 			updateCards.newCards << builtCard
 		}
 	}
-
 
 	/**
 	 * Find the replaced existent card based on its group tasks. If groups are not the same, it is necessary to check
