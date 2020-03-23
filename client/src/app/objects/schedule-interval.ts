@@ -23,6 +23,7 @@ export class ScheduleInterval {
 			const [hours, minutes] = [time.hour(), time.minute()];
 			const hourQuarter = this.hourQuarters.find(hourQuarter => hourQuarter.hour == hours);
 			if (hourQuarter) {
+				hourQuarter.quarters.push(minutes);
 			} else {
 				this.hourQuarters.push(new HourQuarters(hours, [minutes], this.type));
 			}

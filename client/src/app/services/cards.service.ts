@@ -924,8 +924,10 @@ export class CardsService {
 	// region Quarter saturation
 
 	static checkQuarterSaturation(day: Dayjs): QuartersSaturation {
-		const dayGroups = this.findDayGroups(day);
 		const dayMechanics = MechanicsService.findDayMechanics(day).filter((mechanic: Mechanic) => !mechanic.fixed);
+		const dayGroups = this.findDayGroups(day).filter((group: CardsGroup) =>
+			dayMechanics.find((mechanic: Mechanic) => group.cards[0].mechanicCode == mechanic.code) != undefined
+		);
 
 		const quartersSaturation = {};
 		dayGroups.forEach((group: CardsGroup) => {
