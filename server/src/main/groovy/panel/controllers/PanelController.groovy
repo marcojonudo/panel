@@ -17,6 +17,7 @@ import utils.pogos.panel.Card
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.EmployeeScheduleAppointment
 
+import javax.inject.Inject
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -24,19 +25,9 @@ import java.time.LocalTime
 @Controller("/panel")
 class PanelController {
 
-	private final PanelService panelService
-	private final PanelDatabaseClient panelDatabaseClient
-	private final CuboDatabaseClient cuboDatabaseClient
-
-	PanelController(
-			PanelService panelService,
-			PanelDatabaseClient panelDatabaseClient,
-			CuboDatabaseClient cuboDatabaseClient
-	) {
-		this.panelService = panelService
-		this.panelDatabaseClient = panelDatabaseClient
-		this.cuboDatabaseClient = cuboDatabaseClient
-	}
+	@Inject PanelService panelService
+	@Inject PanelDatabaseClient panelDatabaseClient
+	@Inject CuboDatabaseClient cuboDatabaseClient
 
 	@Get("/get")
 	CompleteInfo get() {

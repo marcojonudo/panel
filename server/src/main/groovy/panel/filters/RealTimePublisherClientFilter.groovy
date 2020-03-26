@@ -1,7 +1,6 @@
 package panel.filters
 
 import groovy.transform.CompileStatic
-import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpRequest
@@ -17,8 +16,6 @@ import panel.utils.Constants
 @CompileStatic
 @Filter(["/panel/cards/**", "/cubo/mechanic/**", "/cubo/appointment/**"])
 class RealTimePublisherClientFilter implements HttpClientFilter {
-
-	private static final List<HttpMethod> GET_BODY_METHODS = [HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH]
 
 	@Override
 	Publisher<? extends HttpResponse<?>> doFilter(MutableHttpRequest<?> request, ClientFilterChain chain) {

@@ -40,7 +40,8 @@ class Constants {
 			UPDATE_MECHANIC_LINES: 'updateMechanicLines',
 			CREATE_APPOINTMENT: 'createAppointment',
 			UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule',
-			DELETE_APPOINTMENT: 'deleteAppointment'
+			DELETE_APPOINTMENT: 'deleteAppointment',
+			SYNC_JPDV: 'syncJpdv'
 	]
 
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']

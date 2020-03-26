@@ -11,6 +11,7 @@ class UpdateCards {
 	List<Card> deletedCards
 
 	List<Card> sameCards
+	List<Card> auxiliaryCards
 
 	UpdateCards() {
 		newCards = []
@@ -20,7 +21,19 @@ class UpdateCards {
 	}
 
 	List<Card> getAll() {
-		return newCards + updatedCards + deletedCards + sameCards
+		return newCards + updatedCards + sameCards
+	}
+
+	boolean updated() {
+		return newCards || updatedCards || deletedCards
+	}
+
+	LinkedHashMap<String, List<Card>> getSyncInfo() {
+		return [
+				newCards: newCards,
+				updatedCards: updatedCards,
+				deletedCards: deletedCards
+		]
 	}
 
 }

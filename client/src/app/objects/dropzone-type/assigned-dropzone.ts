@@ -56,10 +56,7 @@ export class AssignedDropzone implements Dropzone {
 	findLastCoordinates(groups: CardsGroup[], group: CardsGroup, coordinates: Coordinates): Coordinates {
 		/* Se actualiza el left, start y end de los grupos y se retorna la posición final a la que se tendrá que
 		*  desplazar la ficha, una vez tenidos en cuenta los solapamientos */
-		return CardPositionService.updateAssignedGroupsPosition(
-			coordinates,
-			groups
-		);
+		return CardPositionService.updateAssignedGroupsPosition(coordinates, groups);
 	}
 
 	addGroup(

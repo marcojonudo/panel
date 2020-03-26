@@ -164,7 +164,14 @@ export class CardsGroup {
 		return newCardsGroup;
 	}
 
-	removeCards(fromIndex, toIndex): void {
+	removeCard(cardId: string): void {
+		this.cards = this.cards.filter((card: Card) => card.panelId != cardId);
+		this.id = this.cards[0].panelId;
+		this.setStart(this.cards[0].start);
+		this.end = this.cards[this.cards.length-1].end;
+	}
+
+	removeCards(fromIndex: number, toIndex: number): void {
 		this.cards = this.cards.slice(fromIndex, toIndex);
 		this.id = this.cards[0].panelId;
 		this.setStart(this.cards[0].start);

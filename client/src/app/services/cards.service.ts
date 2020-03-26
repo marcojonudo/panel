@@ -260,7 +260,7 @@ export class CardsService {
 		this.handleAddFinishedCardsGroup(group);
 	}
 
-	static removeFromAssigned(cardsGroup: CardsGroup, day: Dayjs, mechanicCode: string): any {
+	static removeFromAssigned(cardsGroup: CardsGroup, day: Dayjs, mechanicCode: string, notify: boolean = true): any {
 		this.handleAssignedMovementGroupsLinks(
 			day,
 			mechanicCode,
@@ -268,7 +268,7 @@ export class CardsService {
 			cardsGroup.start,
 			cardsGroup.end
 		);
-		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
+		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup, notify);
 	}
 
 	static addToAssigned(cardsGroup: CardsGroup, day: Dayjs, newMechanicCode: string): void {
@@ -290,9 +290,9 @@ export class CardsService {
 		this.handleRemoveUnassignedCardsGroup(group, notify);
 	}
 
-	static addToUnassigned(group: CardsGroup): void {
+	static addToUnassigned(group: CardsGroup, notify: boolean = true): void {
 		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type, group.status);
-		this.handleAddUnassignedCardsGroup(group);
+		this.handleAddUnassignedCardsGroup(group, undefined, notify);
 	}
 
 	static updateAssignedCards(
@@ -546,18 +546,27 @@ export class CardsService {
 		);
 	}
 
-	static handleRemoveAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
+	static handleRemoveAssignedCardsGroup(
+		day: Dayjs,
+		mechanicCode: string,
+		group: CardsGroup,
+		notify: boolean = true
+	): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.REMOVE_GROUP,
-			day,
-			mechanicCode
-		);
+		if (notify) {
+			NotificationService.notifyMechanicLine(
+				Constants.MECHANIC_LINE_UPDATE_TYPE.REMOVE_GROUP,
+				day,
+				mechanicCode
+			);
+		}
 	}
 
-	static handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined): void {
+	static handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined, notify: boolean = true): void {
 		this.addUnassignedCardsGroup(group, index);
-		NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
+		if (notify) {
+			NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
+		}
 	}
 
 	static handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {
@@ -656,48 +665,6 @@ export class CardsService {
 
 	// region Global cards map
 
-	static findOrderCards(
-		orderNumber: number,
-		assignedGroups: CardsGroup[] = this.assignedCardsGroups,
-		unassignedGroups: CardsGroup[] = this.unassignedCardsGroups
-	): Card[] {
-		const assignedCards = [].concat(
-			...this.findOrderGroups(assignedGroups, orderNumber).map((g: CardsGroup) => g.cards)
-		);
-		const unassignedCards = [].concat(
-			...this.findOrderGroups(unassignedGroups, orderNumber).map((g: CardsGroup) => g.cards)
-		);
-		return assignedCards.concat(unassignedCards);
-	}
-
-	static findUnassignedGroups(type: string, status: string): CardsGroup[] {
-		let section = this.unassignedSections.find(section => section.name == status);
-		section = section ? section : this.unassignedSections.find(section => section.name == type);
-		return section.findGroups();
-	}
-
-	static findCardGroup(groups: CardsGroup[], cardPanelId: string): CardsGroup {
-		return groups.find(group => group.cards.find(card => card.panelId == cardPanelId) != undefined);
-	}
-
-	private static findPreviousCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
-		if (card.linkedPrevious) {
-			const previousCard = cards.find((c: Card) => c.panelId == card.linkedPrevious.panelId);
-			linkedCards.push(previousCard);
-			this.findPreviousCards(cards, previousCard, linkedCards);
-		}
-		return linkedCards;
-	}
-
-	private static findNextCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
-		if (card.linkedNext) {
-			const nextCard = cards.find((c: Card) => c.panelId == card.linkedNext.panelId);
-			linkedCards.push(nextCard);
-			this.findNextCards(cards, nextCard, linkedCards);
-		}
-		return linkedCards;
-	}
-
 	private static initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: DaysMechanics): any {
 		this.assignedDaysCardsGroups = {};
 
@@ -790,7 +757,12 @@ export class CardsService {
 			groups.push(group);
 			CardPositionService.sortUnassignedGroups(groups);
 		}
+		this.unassignedCardsGroups.push(group);
+		CardPositionService.sortUnassignedGroups(groups);
+		console.log(1, groups);
+		console.log(2, groups.map(g => g.left));
 		CardPositionService.updateUnassignedGroupsLeft(groups);
+		console.log(2, groups.map(g => g.left));
 	}
 
 	private static removeUnassignedCardsGroup(group: CardsGroup): void {
@@ -917,6 +889,49 @@ export class CardsService {
 			return 0;
 		});
 		return cards;
+	}
+
+
+	static findOrderCards(
+		orderNumber: number,
+		assignedGroups: CardsGroup[] = this.assignedCardsGroups,
+		unassignedGroups: CardsGroup[] = this.unassignedCardsGroups
+	): Card[] {
+		const assignedCards = [].concat(
+			...this.findOrderGroups(assignedGroups, orderNumber).map((g: CardsGroup) => g.cards)
+		);
+		const unassignedCards = [].concat(
+			...this.findOrderGroups(unassignedGroups, orderNumber).map((g: CardsGroup) => g.cards)
+		);
+		return assignedCards.concat(unassignedCards);
+	}
+
+	static findUnassignedGroups(type: string, status: string): CardsGroup[] {
+		let section = this.unassignedSections.find(section => section.name == status);
+		section = section ? section : this.unassignedSections.find(section => section.name == type);
+		return section.findGroups();
+	}
+
+	static findCardGroup(groups: CardsGroup[], cardPanelId: string): CardsGroup {
+		return groups.find(group => group.cards.find(card => card.panelId == cardPanelId) != undefined);
+	}
+
+	private static findPreviousCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
+		if (card.linkedPrevious) {
+			const previousCard = cards.find((c: Card) => c.panelId == card.linkedPrevious.panelId);
+			linkedCards.push(previousCard);
+			this.findPreviousCards(cards, previousCard, linkedCards);
+		}
+		return linkedCards;
+	}
+
+	private static findNextCards(cards: Card[], card: Card, linkedCards: Card[] = []) {
+		if (card.linkedNext) {
+			const nextCard = cards.find((c: Card) => c.panelId == card.linkedNext.panelId);
+			linkedCards.push(nextCard);
+			this.findNextCards(cards, nextCard, linkedCards);
+		}
+		return linkedCards;
 	}
 
 	// endregion

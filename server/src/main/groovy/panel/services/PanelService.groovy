@@ -44,15 +44,7 @@ class PanelService {
 
 		deletePendingCards(day)
 
-		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
-		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-		List<Card> dbCards = panelDatabaseClient.getCards(day, null)
-		List<Card> temporalCards = dbCards.findAll { checkAuxiliaryCard(it) }
-		List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
-
-		UpdateCards updateCards = syncOrders(orders, notAuxiliaryCards)
-		List<Card> cards = saveCards(updateCards)
+		UpdateCards updateCards = syncJpdvOrders(day)
 
 		/* Una vez cargados los horarios definidos y las nuevas fichas para crear, se sincroniza la información de
 		*  citas. Para cada día, se crean los registros de contador de cita asociadaso, inicializándolos con el número
@@ -69,7 +61,7 @@ class PanelService {
 				jobLineTypes,
 				appointmentTypes,
 				appointmentDays,
-				cards + updateCards.sameCards + temporalCards
+				updateCards.getAll() + updateCards.auxiliaryCards
 		)
 	}
 
@@ -271,6 +263,21 @@ class PanelService {
 	// endregion
 
 	// region Sync orders with cards
+
+	UpdateCards syncJpdvOrders(LocalDate day) {
+		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
+		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
+		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
+		List<Card> dbCards = panelDatabaseClient.getCards(day, null)
+		List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
+		List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
+
+		UpdateCards updateCards = syncOrders(orders, notAuxiliaryCards)
+		updateCards.auxiliaryCards = auxiliaryCards
+
+		saveCards(updateCards)
+		return updateCards
+	}
 
 	/**
 	 * Sync orders with created cards and update them
@@ -506,23 +513,20 @@ class PanelService {
 	 * Save cards in database, wether creating new rows or updating existing ones
 	 * @param updateCards Object with cars to create, update or delete (update dateDeleted)
 	 */
-	List<Card> saveCards(UpdateCards updateCards) {
-		List<Card> cards = []
+	void saveCards(UpdateCards updateCards) {
 		if (updateCards.newCards) {
 			panelDatabaseClient.createCards("", updateCards.newCards.collect { it.properties })
 			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
 			* para poder relacionar los IDS enlazados */
 			relateCards(updateCards.newCards)
 			panelDatabaseClient.updateCardsLinks(null, null, updateCards.newCards)
-			cards += updateCards.newCards
 		}
 		if (updateCards.updatedCards) {
-			cards += panelDatabaseClient.updateCards(updateCards.updatedCards)
+			panelDatabaseClient.updateCards(updateCards.updatedCards)
 		}
 		if (updateCards.deletedCards) {
 			panelDatabaseClient.deleteCards("", updateCards.deletedCards.collect { it.properties })
 		}
-		return cards
 	}
 
 	/**

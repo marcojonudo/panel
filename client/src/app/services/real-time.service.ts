@@ -23,6 +23,9 @@ import {Dayjs} from "dayjs";
 import {RealTimeAppointmentCreate} from "../objects/real-time-update/real-time-appointment-create";
 import {RealTimeMechanicUpdateJobLineType} from "../objects/real-time-update/real-time-mechanic-update-job-line-type";
 import {RealTimeAppointmentDelete} from "../objects/real-time-update/real-time-appointment-delete";
+import {SyncCardsInfo} from "../objects/sync-cards-info";
+import {RealTimeSyncJpdv} from "../objects/real-time-update/real-time-sync-jpdv";
+import {CardPositionService} from "./card-position.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -47,7 +50,9 @@ export class RealTimeService {
 		updateAppointmentSchedule: (appointment: any) =>
 			new RealTimeAppointmentUpdateSchedule(appointment),
 		deleteAppointment: (appointment: any) =>
-			new RealTimeAppointmentDelete(appointment)
+			new RealTimeAppointmentDelete(appointment),
+		syncJpdv: (updateInfo: any) =>
+			new RealTimeSyncJpdv(this, updateInfo),
 	};
 
 	constructor(
@@ -74,6 +79,7 @@ export class RealTimeService {
 	connectUpdatePublisher(): void {
 		const eventSource = new EventSource(`${environment.serverUrl}/panel/publisher`);
 		eventSource.onmessage = event => {
+			console.log('---', event);
 			if (event.lastEventId != this.sessionId) {
 				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);
@@ -221,6 +227,8 @@ export class RealTimeService {
 
 	// endregion
 
+	// region Appointment
+
 	static createAppointment(appointment: AppointmentSchedule): void {
 		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
 		AppointmentsService.create(
@@ -279,5 +287,79 @@ export class RealTimeService {
 	// 		mechanic.code
 	// 	);
 	// }
+
+	// endregion
+
+	// region Sync JPDV
+
+	syncJpdvCards(syncInfo: SyncCardsInfo): void {
+		if (syncInfo.newCards.length) {
+			console.log('Adding JPDV cards', syncInfo.newCards);
+			syncInfo.newCards.forEach((card: Card) => {
+				const group = new CardsGroup([card]);
+				CardsService.addToUnassigned(group, false);
+			});
+		}
+		if (syncInfo.updatedCards.length) {
+			console.log('Updating JPDV cards', syncInfo.updatedCards);
+			syncInfo.updatedCards.forEach((card: Card) => {
+				const group = CardsService.findCardGroup(
+					this.findGroups(card, card.day, card.mechanicCode),
+					card.panelId
+				);
+				const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
+				localCard.group = card.group;
+				localCard.vehicle = card.vehicle;
+				localCard.order = card.order;
+				if (localCard.day) {
+					NotificationService.notifyMechanicLine(
+						Constants.MECHANIC_LINE_UPDATE_TYPE.SYNC_JPDV,
+						localCard.day,
+						localCard.mechanicCode
+					);
+				}
+			});
+		}
+		if (syncInfo.deletedCards.length) {
+			console.log('Deleting JPDV cards', syncInfo.deletedCards);
+			syncInfo.deletedCards.forEach((card: Card) => {
+				if (card.day) {
+					const group = CardsService.findCardGroup(
+						CardsService.findDayMechanicGroups(card.day, card.mechanicCode),
+						card.panelId
+					);
+					/* Si el grupo tiene una sóla ficha, se borra el grupo completo */
+					if (group.cards.length == 1) {
+						CardsService.removeFromAssigned(group, card.day, card.mechanicCode);
+					} else {
+						/* Si el grupo tiene más de una ficha, no sé borra el grupo, sino que se borra la ficha de la
+                        *  lista */
+						group.removeCard(card.panelId);
+						NotificationService.notifyMechanicLine(
+							Constants.MECHANIC_LINE_UPDATE_TYPE.REMOVE_GROUP,
+							card.day,
+							card.mechanicCode
+						);
+					}
+				} else {
+					const unassignedGroups = CardsService.findUnassignedGroups(card.type, card.status);
+					const group = CardsService.findCardGroup(unassignedGroups, card.panelId);
+					if (group.cards.length == 1) {
+						CardsService.removeFromUnassigned(group, false)
+					} else {
+						/* Si el grupo tiene más de una ficha, no sé borra el grupo, sino que se borra la ficha de la
+                        *  lista */
+						group.removeCard(card.panelId);
+						CardPositionService.updateUnassignedGroupsLeft(unassignedGroups);
+					}
+				}
+			});
+		}
+		if (syncInfo.triggerCd) {
+			NotificationService.notifyBand();
+		}
+	}
+
+	// endregion
 
 }

@@ -34,6 +34,9 @@ endpoints:
         enabled: true
         sensitive: false
 
+cron:
+    sync-jpdv-orders: '0/30 * * * * ?'
+
 #endpoints:
 #    server-database-resolver:
 #        host: http://localhost

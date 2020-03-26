@@ -36,6 +36,10 @@ endpoints:
 
 host.ip: ${HOST_IP:localhost}
 
+cron:
+    sync-jpdv-orders: '0 0 5 31 2 ?'
+
+
 #endpoints:
 #    server-database-resolver:
 #        host: http://localhost

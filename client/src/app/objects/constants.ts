@@ -142,6 +142,7 @@ export class Constants {
 		JOB_LINE_TYPE: 'JOB_LINE_TYPE',
 		LINES_NUMBER: 'LINES_NUMBER',
 		MAX_SCHEDULE_WIDTH: 'MAX_SCHEDULE_WIDTH',
+		SYNC_JPDV: 'SYNC_JPDV',
 	};
 	public static readonly TOAST_CLASSNAME: any = {
 		WARNING: 'bg-warning'

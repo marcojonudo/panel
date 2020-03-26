@@ -59,6 +59,7 @@ export class Card {
 		this.mechanicCode = card.mechanicCode;
 		this.start = card.start ? UtilsService.parseTime(card.start, this.day) : undefined;
 		this.duration = card.duration;
+		this.width = DimensionsService.calcWidthFromDuration(card.duration);
 		this.end = this.start ? this.start.add(this.duration, Constants.DAY_JS.m) : undefined;
 		this.line = card.line;
 		this.group = card.group ? new Group(card.group) : undefined;
