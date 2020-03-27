@@ -39,6 +39,18 @@ stages:
             - version
         expire_in: 1 hour
 
+.deploy_template: &deploy_template
+    tags:
+        - sidesman2
+    before_script:
+        - *fetch_ci_scripts
+        - apk upgrade --update && apk add openssh sshpass bash
+    script:
+        - $SCRIPTS_DIR/shell/deploy.sh
+    when: manual
+    only:
+        - branches
+
 build:backend:
     stage: build
     image: gradle:alpine
@@ -129,32 +141,14 @@ build:docker:
     only:
         - branches
 
-#deploy:sta:
-#    stage: deploy
-#    tags:
-#        - sidesman2
-#    variables:
-#        ENVIRONMENT: sta
-#    before_script:
-#        - apk upgrade --update && apk add openssh sshpass
-#        - chmod +x ./gitlab-ci-scripts/deploy.sh
-#    script:
-#        - ./gitlab-ci-scripts/deploy.sh
-#    when: manual
-#    only:
-#        - branches
-#
-#deploy:prod:
-#    stage: deploy
-#    tags:
-#        - sidesman2
-#    variables:
-#        ENVIRONMENT: prod
-#    before_script:
-#        - apk upgrade --update && apk add openssh sshpass
-#        - chmod +x ./gitlab-ci-scripts/deploy.sh
-#    script:
-#        - ./gitlab-ci-scripts/deploy.sh
-#    when: manual
-#    only:
-#        - branches
+deploy:sta:
+    stage: deploy
+    <<: *deploy_template
+    variables:
+        ENVIRONMENT: sta
+
+deploy:prod:
+    stage: deploy
+    <<: *deploy_template
+    variables:
+        ENVIRONMENT: prod
