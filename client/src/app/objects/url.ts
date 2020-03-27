@@ -62,4 +62,8 @@ export class Url {
 		return `${environment.serverUrl}/panel/appointment/schedule`;
 	}
 
+	public static syncJpdv(): string {
+		return `${environment.serverUrl}/panel/syncJpdv`;
+	}
+
 }

@@ -79,7 +79,6 @@ export class RealTimeService {
 	connectUpdatePublisher(): void {
 		const eventSource = new EventSource(`${environment.serverUrl}/panel/publisher`);
 		eventSource.onmessage = event => {
-			console.log('---', event);
 			if (event.lastEventId != this.sessionId) {
 				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);

@@ -22,13 +22,14 @@ export class ToolsBarComponent {
 	@Input() maxScheduleMaxWidth: number;
 
 	private _showingFinished: boolean;
+	private _syncing: boolean;
 
 	constructor(
 		private cardsService: CardsService,
-		private mechanicsService: MechanicsService,
 		private cdRef: ChangeDetectorRef
 	) {
 		this.showingFinished = false;
+		this.syncing = false;
 	}
 
 	// region Getters / setters
@@ -47,6 +48,14 @@ export class ToolsBarComponent {
 
 	set showingFinished(value: boolean) {
 		this._showingFinished = value;
+	}
+
+	get syncing(): boolean {
+		return this._syncing;
+	}
+
+	set syncing(value: boolean) {
+		this._syncing = value;
 	}
 
 	get morningAppointmentSaturation(): number {
@@ -84,6 +93,17 @@ export class ToolsBarComponent {
 	// endregion
 
 	// region Button actions
+
+	syncJpdv(): void {
+		if (!this.syncing) {
+			this.syncing = true;
+			this.cdRef.detectChanges();
+			this.cardsService.syncJpdv().subscribe(() => {
+				this.syncing = false;
+				this.cdRef.detectChanges();
+			});
+		}
+	}
 
 	toggleDayMode(): void {
 		DimensionsService.toggleDayMode();

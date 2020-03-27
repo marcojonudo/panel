@@ -2,6 +2,7 @@ package panel.controllers
 
 import groovy.transform.CompileStatic
 import io.micronaut.core.convert.format.Format
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
@@ -9,6 +10,7 @@ import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.pogos.CompleteInfo
 import panel.pogos.MechanicAppointment
+import panel.pogos.UpdateCards
 import panel.pogos.realTime.RealTimeRequestInfo
 import panel.publisher.PanelPublisher
 import panel.services.PanelService
@@ -160,6 +162,19 @@ class PanelController {
 			@Body Map<String, Object> appointmentDay
 	) {
 		panelDatabaseClient.updateAppointmentDayMax(sessionId, appointmentDay)
+	}
+
+	@Post("/syncJpdv")
+	HttpResponse<Void> syncJpdv() {
+		UpdateCards updateCards = panelService.syncJpdvOrders()
+		if (updateCards.updated()) {
+			RealTimeRequestInfo realTimeRequestInfo = new RealTimeRequestInfo(
+					Constants.REAL_TIME_ACTION.SYNC_JPDV,
+					updateCards.getSyncInfo()
+			)
+			PanelPublisher.send("", realTimeRequestInfo)
+		}
+		return HttpResponse.ok()
 	}
 
 }

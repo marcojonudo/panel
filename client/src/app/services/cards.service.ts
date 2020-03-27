@@ -35,6 +35,7 @@ import {DropzoneService} from "./dropzone.service";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {WarningToast} from "../objects/toasts/warning-toast";
 import {Dayjs} from "dayjs";
+import {Observable} from "rxjs/internal/Observable";
 
 @Injectable({
 	providedIn: 'root'
@@ -759,10 +760,7 @@ export class CardsService {
 		}
 		this.unassignedCardsGroups.push(group);
 		CardPositionService.sortUnassignedGroups(groups);
-		console.log(1, groups);
-		console.log(2, groups.map(g => g.left));
 		CardPositionService.updateUnassignedGroupsLeft(groups);
-		console.log(2, groups.map(g => g.left));
 	}
 
 	private static removeUnassignedCardsGroup(group: CardsGroup): void {
@@ -1170,5 +1168,9 @@ export class CardsService {
 	}
 
 	// endregion
+
+	syncJpdv(): Observable<any> {
+		return this.http.post(Url.syncJpdv(), undefined);
+	}
 
 }

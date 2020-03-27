@@ -264,7 +264,7 @@ class PanelService {
 
 	// region Sync orders with cards
 
-	UpdateCards syncJpdvOrders(LocalDate day) {
+	UpdateCards syncJpdvOrders(LocalDate day = LocalDate.now()) {
 		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
 		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
 		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */

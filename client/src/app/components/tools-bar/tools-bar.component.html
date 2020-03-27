@@ -9,6 +9,14 @@
 	<div class="d-flex flex-column text-white">
 		<div
 			class="align-center tools-bar-button pt-2 pb-1 border-bottom"
+			(click)="syncJpdv()">
+			<i
+				class="fas fa-sync-alt"
+				[ngClass]="{'fa-spin': syncing}"
+			></i>
+		</div>
+		<div
+			class="align-center tools-bar-button pt-2 pb-1 border-bottom"
 			[ngClass]="{'tools-bar-button-pressed': !oneDayMode}"
 			(click)="toggleDayMode()">
 			<i class="fas fa-binoculars fa-lg"></i>
