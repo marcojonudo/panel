@@ -4,7 +4,8 @@
 	<app-appointments-summary
 		*ngIf="checkShowAppointmentsSummary()"
 		[day]="day"
-		[dayAppointmentsCounterUpdate]="dayAppointmentsCounterUpdate">
+		[dayAppointmentsCounterUpdate]="dayAppointmentsCounterUpdate"
+		[enabled]="enabled">
 	</app-appointments-summary>
 	<div class="d-flex flex-column text-white">
 		<div
@@ -12,30 +13,30 @@
 			(click)="syncJpdv()">
 			<i
 				class="fas fa-sync-alt"
-				[ngClass]="{'fa-spin': syncing}"
-			></i>
+				[ngClass]="{'fa-spin': syncing}">
+			</i>
 		</div>
 		<div
 			class="align-center tools-bar-button pt-2 pb-1 border-bottom"
-			[ngClass]="{'tools-bar-button-pressed': !oneDayMode}"
+			[ngClass]="{'disabled': !enabled, 'tools-bar-button-pressed': !oneDayMode}"
 			(click)="toggleDayMode()">
 			<i class="fas fa-binoculars fa-lg"></i>
 		</div>
 		<div
 			class="align-center tools-bar-button pt-1 pb-1 border-bottom"
-			[ngClass]="{'tools-bar-button-pressed': onlyAppointmentsMode}"
+			[ngClass]="{'disabled': !enabled, 'tools-bar-button-pressed': onlyAppointmentsMode}"
 			(click)="toggleShowMechanicsWithoutAppointments()">
 			<i class="fas fa-user-friends"></i>
 		</div>
 		<div
 			class="align-center tools-bar-button pt-1 pb-1 border-bottom"
-			[ngClass]="{'tools-bar-button-pressed': !showAppointmentsName}"
+			[ngClass]="{'disabled': !enabled, 'tools-bar-button-pressed': !showAppointmentsName}"
 			(click)="toggleShowAppointmentsName()">
 			<i class="fas fa-tag"></i>
 		</div>
 		<div
 			class="align-center tools-bar-button pt-1 pb-1 border-bottom"
-			[ngClass]="{'tools-bar-button-pressed': dragScheduleMode}"
+			[ngClass]="{'disabled': !enabled, 'tools-bar-button-pressed': dragScheduleMode}"
 			(click)="toggleDragSchedulesMode()">
 			<i class="fas fa-paint-brush"></i>
 		</div>

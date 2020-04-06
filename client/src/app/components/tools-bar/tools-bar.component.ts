@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
@@ -8,6 +8,7 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 import {AppointmentsService} from "../../services/appointments.service";
 import {WarningToast} from "../../objects/toasts/warning-toast";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -15,13 +16,14 @@ import {WarningToast} from "../../objects/toasts/warning-toast";
 	styleUrls: ['./tools-bar.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToolsBarComponent {
+export class ToolsBarComponent implements OnInit {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
+	private _enabled: boolean;
 	private _showingFinished: boolean;
 	private _syncing: boolean;
 
@@ -33,7 +35,19 @@ export class ToolsBarComponent {
 		this.syncing = false;
 	}
 
+	ngOnInit(): void {
+		this.enabled = this.maxScheduleWidth != undefined && this.maxScheduleMaxWidth != undefined;
+	}
+
 	// region Getters / setters
+
+	get enabled(): boolean {
+		return this._enabled;
+	}
+
+	set enabled(value: boolean) {
+		this._enabled = value;
+	}
 
 	get toolsBarWidth(): number {
 		return Constants.VALUE.TOOLS_BAR_WIDTH;
@@ -87,7 +101,7 @@ export class ToolsBarComponent {
 
 	// region Checks
 
-	checkShowAppointmentsSummary(day: Date = this.day): boolean {
+	checkShowAppointmentsSummary(day: Dayjs = this.day): boolean {
 		return day != undefined;
 	}
 
@@ -107,10 +121,7 @@ export class ToolsBarComponent {
 	}
 
 	toggleDayMode(): void {
-		const toggled = DimensionsService.toggleDayMode();
-		if (!toggled) {
-			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_DAYS_SCHEDULES));
-		}
+		NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_DAYS_SCHEDULES));
 	}
 
 	toggleShowMechanicsWithoutAppointments(): void {

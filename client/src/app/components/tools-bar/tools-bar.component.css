@@ -3,12 +3,17 @@
 	background-color: #00494e;
 }
 
+.disabled {
+	pointer-events: none;
+	color: grey;
+}
+
 .tools-bar-button {
 	border-color: #257e88 !important;
 	height: 40px;
 }
 
-.tools-bar-button i{
+.tools-bar-button i {
 	transition: transform .2s, color .2s;
 }
 

@@ -15,14 +15,18 @@ export class DimensionSlidersComponent implements OnInit {
 
 	private readonly ZOOM_LEVELS: number = 4;
 
+	private _enabled: boolean;
 	private _min: number;
 	private _max: number;
 	private _width: number;
 
 	ngOnInit(): void {
-		this.width = this.maxScheduleWidth;
-		this.min = DimensionsService.gridWidth;
-		this.max = parseFloat(this.maxScheduleMaxWidth.toFixed(3));
+		this.enabled = this.maxScheduleWidth != undefined && this.maxScheduleMaxWidth != undefined;
+		if (this.enabled) {
+			this.width = this.maxScheduleWidth;
+			this.min = DimensionsService.gridWidth;
+			this.max = parseFloat(this.maxScheduleMaxWidth.toFixed(3));
+		}
 	}
 
 	// region Getters / setters
@@ -49,6 +53,14 @@ export class DimensionSlidersComponent implements OnInit {
 
 	set width(value: number) {
 		this._width = value;
+	}
+
+	get enabled(): boolean {
+		return this._enabled;
+	}
+
+	set enabled(value: boolean) {
+		this._enabled = value;
 	}
 
 	// endregion

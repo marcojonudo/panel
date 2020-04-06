@@ -1,5 +1,6 @@
 <div
 	class="d-flex flex-column appointments-summary-container"
+	[ngClass]="{'disabled': !enabled}"
 	[style.width.px]="width-1"
 	(click)="openAppointmentsDetails()">
 	<span

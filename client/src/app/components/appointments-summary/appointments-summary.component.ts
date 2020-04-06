@@ -20,6 +20,7 @@ export class AppointmentsSummaryComponent {
 	@Input() day: Dayjs;
 	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
 	@Input() width: number;
+	@Input() enabled: boolean;
 
 	private showingLateralPanel: boolean;
 

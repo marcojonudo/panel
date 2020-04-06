@@ -10,6 +10,7 @@ import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
 import {HourQuarter} from "../objects/hour-quarter";
 import {MechanicsService} from "./mechanics.service";
+import {Card} from "../objects/card";
 
 @Injectable({
 	providedIn: 'root'
@@ -154,6 +155,8 @@ export class DimensionsService {
 	// region Init
 
 	static init(daysMechanics: DaysMechanics) {
+		const existentSchedules = Object.keys(daysMechanics).length > 0;
+
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.oneDayMode = true;
@@ -162,14 +165,16 @@ export class DimensionsService {
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
 		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
-			daysMechanics, today, this.gridContainerHeight
+			daysMechanics, today, this.gridContainerHeight, existentSchedules
 		);
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;
 
 		this.initSchedulesHours(daysMechanics, today);
-		this.initMaxSchedule();
+		if (existentSchedules) {
+			this.initMaxSchedule();
+		}
 
 		console.log('Max. today schedules quarters', this.maxTodayScheduleHoursQuarter);
 		console.log('Max. days schedules quarters', this.maxDaysSchedulesHoursQuarter);
@@ -179,9 +184,10 @@ export class DimensionsService {
 	private static checkDisplayScrollbar(
 		daysMechanics: DaysMechanics,
 		today: any,
-		gridContainerHeight: number
+		gridContainerHeight: number,
+		existentSchedules: boolean
 	): boolean {
-		if (Object.keys(daysMechanics).length) {
+		if (existentSchedules) {
 			const mechanics = daysMechanics[today.valueOf()].filter((mechanic: Mechanic) => mechanic.fixed);
 			if (mechanics.length) {
 				const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
@@ -212,7 +218,8 @@ export class DimensionsService {
 				maxDaysSchedule = maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
 			}
 		}
-		this.maxDaysSchedulesHoursQuarter = minDaysSchedule == maxDaysSchedule
+		/* Si principio y fin del horario son iguales, significa que no existen horarios de mecánicos */
+		this.maxDaysSchedulesHoursQuarter = minDaysSchedule != maxDaysSchedule
 			? this.buildHoursQuarter(minDaysSchedule, maxDaysSchedule) : [];
 	}
 
@@ -449,8 +456,8 @@ export class DimensionsService {
 
 	private static findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
 		let cards = [];
-		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
-		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
+		cardsGroups.forEach((group: CardsGroup) => cards.push(...group.cards));
+		return cards.map((card: Card) => card.width).reduce((a: number, b: number) => a + b, 0);
 	}
 
 	// endregion
