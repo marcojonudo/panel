@@ -20,7 +20,10 @@ export class MechanicsService {
 	private static _onlyAppointmentsMode: boolean;
 	private static _showAppointmentsName: boolean = true;
 
-	constructor(private http: HttpClient) {}
+	constructor(private http: HttpClient) {
+		MechanicsService.days = [];
+		MechanicsService.daysMechanics = {};
+	}
 
 	// region Getters / setters
 
@@ -60,8 +63,16 @@ export class MechanicsService {
 
 	// region Finders
 
-	public static findDayMechanics(day: Dayjs): Mechanic[] {
-		return this.daysMechanics[day.valueOf()];
+	public static findDayMechanics(day: Dayjs, fixed: boolean = undefined): Mechanic[] {
+		const dayMechanics = this.daysMechanics[day.valueOf()];
+		if (dayMechanics) {
+			if (fixed) {
+				return dayMechanics.filter((mechanic: Mechanic) => mechanic.fixed);
+			} else if (fixed == false) {
+				return dayMechanics.filter((mechanic: Mechanic) => !mechanic.fixed);
+			}
+		}
+		return dayMechanics;
 	}
 
 	public static findMechanic(day: Dayjs, code: string): Mechanic {
@@ -77,8 +88,10 @@ export class MechanicsService {
 	// region Init
 
 	static init(daysMechanics: { [key: string]: any[] }, skills: any[], highlightedSkills: Skill[]) {
-		this.days = this.initDays(daysMechanics);
-		this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
+		if (daysMechanics) {
+			this.days = this.initDays(daysMechanics);
+			this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
+		}
 
 		console.log('Days', this.days);
 		console.log('Days mechanics', this.daysMechanics);
@@ -167,6 +180,10 @@ export class MechanicsService {
 		/* Se notifica el Observer de onlyAppointmentsMode ya que una vez actualizada la variable (en este caso,
 		*  showAppointmentsMode), sólo interesa lanzar el CD */
 		NotificationService.notifyOnlyAppointmentsMode();
+	}
+
+	static checkExistentDaysMechanics(daysMechanics: DaysMechanics = this.daysMechanics): boolean {
+		return Object.keys(daysMechanics).length > 0;
 	}
 
 }

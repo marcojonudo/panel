@@ -82,17 +82,23 @@ class PanelService {
 	}
 
 	static Map<String, List<EmployeeSchedule>> integrateFixedMechanics(List<EmployeeSchedule> mechanics) {
+		boolean existentMechanics = mechanics.find { it.day }
 		Map<String, List<EmployeeSchedule>> daysMechanics = [:]
-		LocalDate today = LocalDate.now()
-		mechanics.each {
-			if (!it.day) {
-				it.schedule = findThresholdSchedule(mechanics)
-				it.day = today
+
+		/* Sólo se integran las líneas de taller y tienda si existen otros mecánicos. Si no, no tiene sentido hacerlo,
+		*  ya que el horario de las primeras se basa en el de los segundos */
+		if (existentMechanics) {
+			LocalDate today = LocalDate.now()
+			mechanics.each {
+				if (!it.day) {
+					it.schedule = findThresholdSchedule(mechanics)
+					it.day = today
+				}
+				if (!daysMechanics[it.day.toString()]) {
+					daysMechanics[it.day.toString()] = []
+				}
+				daysMechanics[it.day.toString()] << it
 			}
-			if (!daysMechanics[it.day.toString()]) {
-				daysMechanics[it.day.toString()] = []
-			}
-			daysMechanics[it.day.toString()] << it
 		}
 		return daysMechanics
 	}

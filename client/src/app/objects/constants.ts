@@ -150,7 +150,8 @@ export class Constants {
 	public static readonly MESSAGE: any = {
 		NO_UNASSIGNED_GROUPS_TO_REPLACE: 'No quedan fichas sin asignar para sustituir la auxiliar',
 		NO_REPLACEMENT_SPACE: 'No hay espacio suficiente para reemplazar la ficha auxiliar con la agrupación seleccionada',
-		CREATE_SCHEDULE_TOO_CLOSE: 'Hay otros horarios de citas demasiado próximos. Por favor, escoge otro intervalo de horas'
+		CREATE_SCHEDULE_TOO_CLOSE: 'Hay otros horarios de citas demasiado próximos. Por favor, escoge otro intervalo de horas',
+		NO_DAYS_SCHEDULES: 'No hay horarios definidos para días posteriores'
 	};
 	public static readonly SCHEDULE_BORDER_COLOR: any = {
 		'#c5e0b4': '#38a83d',
@@ -193,7 +194,6 @@ export class Constants {
 	public static readonly APPOINTMENT_COUNTER_TOTAL: string = "total";
 	public static readonly HOUR_MINUTES: number = 60;
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards", "/mechanic/", "/appointment"];
-	public static readonly MORNING_AFTERNOON_THRESHOLD_MINUTES: number = 900;
 	public static readonly MORNING_AFTERNOON_THRESHOLD_TIME: string = "15:00";
 	public static readonly LEFT_CLICK_BUTTON_ID: number = 0;
 

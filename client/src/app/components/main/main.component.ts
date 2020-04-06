@@ -49,7 +49,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _days: Dayjs[];
 	private _today: Dayjs;
 	private itemSize: number;
-	private _showNonexistentScheduleMessage: boolean;
+	private _existentTodaySchedules: boolean;
 	private _dayContainerWidth: number;
 
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
@@ -109,7 +109,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.initDaysUpdateObjects();
 
 		const today = dayjs().startOf(Constants.DAY_JS.d);
-		this.today = this.days.find((day: Dayjs) => day.isSame(today));
+		// TODO Revisar para qué recorrer el array de days
+		this.today = this.days.length ? this.days.find((day: Dayjs) => day.isSame(today)) : today;
 		this.oneDayMode = true;
 		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
@@ -120,10 +121,10 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
 
-		this.showNonexistentScheduleMessage = !this.checkTodayScheduleExists();
+		this.existentTodaySchedules = this.checkTodayScheduleExists();
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 
-		this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+		this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
 		this.cursor = Constants.MAIN_CURSOR.DEFAULT;
 	}
 
@@ -157,7 +158,7 @@ export class MainComponent implements OnInit, OnDestroy {
 				CardsService.unassignedSections,
 				CardsService.assignedDaysCardsGroups
 			);
-			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
+			this.existentTodaySchedules = this.oneDayMode && this.checkTodayScheduleExists();
 			this.mechanicLineUpdate = new MechanicLineUpdate(Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH);
 			this.cdRef.detectChanges();
 		});
@@ -170,7 +171,7 @@ export class MainComponent implements OnInit, OnDestroy {
 				CardsService.unassignedSections,
 				CardsService.assignedDaysCardsGroups
 			);
-			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
 			NotificationService.notifyAll();
 			this.cdRef.detectChanges();
 		});
@@ -211,11 +212,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		});
 
 		interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
-			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
 			this.cdRef.detectChanges();
 		});
 
-		this.initialScrollLeft = this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2;
+		this.initialScrollLeft = this.existentTodaySchedules
+			? this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2 : 0;
 	}
 
 	ngOnDestroy(): void {
@@ -259,12 +261,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		return DimensionsService.displayVerticalScrollbar;
 	}
 
-	get showNonexistentScheduleMessage(): boolean {
-		return this._showNonexistentScheduleMessage;
+	get existentTodaySchedules(): boolean {
+		return this._existentTodaySchedules;
 	}
 
-	set showNonexistentScheduleMessage(value: boolean) {
-		this._showNonexistentScheduleMessage = value;
+	set existentTodaySchedules(value: boolean) {
+		this._existentTodaySchedules = value;
 	}
 
 	get oneDayMode(): boolean {
@@ -406,19 +408,21 @@ export class MainComponent implements OnInit, OnDestroy {
 	// endregion
 
 	private initDaysUpdateObjects(days: Dayjs[] = this.days): void {
-		this.daysMechanicSkills = {};
-		this.daysQuartersSaturation = {};
-		this.daysLateralInfo = {};
-		this.daysAppointmentsCounterUpdate = {};
-		days.forEach((day: Dayjs) => {
-			this.daysMechanicSkills[day.valueOf()] = new DayMechanicSkills();
-			this.daysQuartersSaturation[day.valueOf()] = new DayQuartersSaturation(
-				day,
-				CardsService.checkQuarterSaturation(day)
-			);
-			this.daysLateralInfo[day.valueOf()] = new DayLateralPanelInfo();
-			this.daysAppointmentsCounterUpdate[day.valueOf()] = new DayAppointmentsCounterUpdate(day)
-		});
+		if (days.length) {
+			this.daysMechanicSkills = {};
+			this.daysQuartersSaturation = {};
+			this.daysLateralInfo = {};
+			this.daysAppointmentsCounterUpdate = {};
+			days.forEach((day: Dayjs) => {
+				this.daysMechanicSkills[day.valueOf()] = new DayMechanicSkills();
+				this.daysQuartersSaturation[day.valueOf()] = new DayQuartersSaturation(
+					day,
+					CardsService.checkQuarterSaturation(day)
+				);
+				this.daysLateralInfo[day.valueOf()] = new DayLateralPanelInfo();
+				this.daysAppointmentsCounterUpdate[day.valueOf()] = new DayAppointmentsCounterUpdate(day)
+			});
+		}
 	}
 
 	findDayMechanics(day: Dayjs): Mechanic[] {
@@ -438,7 +442,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		day: Dayjs,
 		daysQuartersSaturation: DaysQuartersSaturation = this.daysQuartersSaturation
 	): QuartersSaturation {
-		return daysQuartersSaturation[day.valueOf()].quartersSaturation;
+		return daysQuartersSaturation ? daysQuartersSaturation[day.valueOf()].quartersSaturation : undefined;
 	}
 
 	findAssignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
@@ -464,19 +468,22 @@ export class MainComponent implements OnInit, OnDestroy {
 		day: Dayjs,
 		daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills
 	): DayMechanicSkills {
-		return daysMechanicSkills[day.valueOf()];
+		return daysMechanicSkills ? daysMechanicSkills[day.valueOf()] : undefined;
 	}
 
 	private checkTodayScheduleExists(today: Dayjs = this.today): boolean {
-		return MechanicsService.findDayMechanics(today) != undefined;
+		return MechanicsService.findDayMechanics(today, false) != undefined;
 	}
 
 	findLateralInfo(day: Dayjs, daysLateralInfo: DaysLateralPanelInfo = this.daysLateralInfo): LateralPanelInfo {
-		return daysLateralInfo[day.valueOf()].info;
+		return daysLateralInfo ? daysLateralInfo[day.valueOf()].info : undefined;
 	}
 
-	findDayAppointmentsCounterUpdate(day: Dayjs): any {
-		return this.daysAppointmentsCounterUpdate[day.valueOf()];
+	findDayAppointmentsCounterUpdate(
+		day: Dayjs,
+		daysAppointmentsCounterUpdate: DaysAppointmentsCounterUpdate = this.daysAppointmentsCounterUpdate
+	): any {
+		return daysAppointmentsCounterUpdate ? daysAppointmentsCounterUpdate[day.valueOf()] : undefined;
 	}
 
 	calcTimeIndicatorLeft(time: Dayjs = dayjs()): number {

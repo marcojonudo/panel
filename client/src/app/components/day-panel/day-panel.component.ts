@@ -30,7 +30,7 @@ export class DayPanelComponent implements OnInit {
 	private timeIndicatorHeight: number;
 
 	ngOnInit() {
-		this.timeIndicatorHeight = DimensionsService.calcGridCompleteHeight(this.mechanics);
+		this.timeIndicatorHeight = this.mechanics ? DimensionsService.calcGridCompleteHeight(this.mechanics) : 0;
 	}
 
 	checkShowTimeIndicator(): boolean {

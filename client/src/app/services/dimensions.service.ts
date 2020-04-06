@@ -9,6 +9,7 @@ import {Position} from "../objects/position";
 import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
 import {HourQuarter} from "../objects/hour-quarter";
+import {MechanicsService} from "./mechanics.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -156,6 +157,7 @@ export class DimensionsService {
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.oneDayMode = true;
+		this.maxTodayScheduleHoursQuarter = [];
 
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
@@ -163,7 +165,6 @@ export class DimensionsService {
 			daysMechanics, today, this.gridContainerHeight
 		);
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
-
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;
 
@@ -180,14 +181,12 @@ export class DimensionsService {
 		today: any,
 		gridContainerHeight: number
 	): boolean {
-		/* Si no hay mecánicos, se muestra el mensaje correspondiente, por lo que la barra no se necesita */
-		if (!Object.keys(daysMechanics).length) {
-			return false;
-		}
-		const mechanics = daysMechanics[today.valueOf()];
-		if (mechanics.length) {
-			const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
-			return gridContainerHeight < mechanicsHeight;
+		if (Object.keys(daysMechanics).length) {
+			const mechanics = daysMechanics[today.valueOf()].filter((mechanic: Mechanic) => mechanic.fixed);
+			if (mechanics.length) {
+				const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
+				return gridContainerHeight < mechanicsHeight;
+			}
 		}
 		return false;
 	}
@@ -199,18 +198,22 @@ export class DimensionsService {
 	 * @param {Dayjs} today Hoy
 	 */
 	private static initSchedulesHours(daysMechanics: DaysMechanics, today: Dayjs): void {
-		let minDaysSchedule = dayjs();
-		let maxDaysSchedule = dayjs();
+		const now = dayjs();
+		let [minDaysSchedule, maxDaysSchedule] = [now, now];
 		for (const day in daysMechanics) {
-			const [minSchedule, maxSchedule] = this.getScheduleLimits(daysMechanics[day]);
-			if (+day == today.valueOf()) {
-				this.maxTodayScheduleHoursQuarter = this.buildHoursQuarter(minSchedule, maxSchedule);
-			}
+			const dayMechanics = daysMechanics[day].filter((mechanic: Mechanic) => !mechanic.fixed);
+			if (dayMechanics.length) {
+				const [minSchedule, maxSchedule] = this.getScheduleLimits(dayMechanics);
+				if (+day == today.valueOf()) {
+					this.maxTodayScheduleHoursQuarter = this.buildHoursQuarter(minSchedule, maxSchedule);
+				}
 
-			minDaysSchedule = minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
-			maxDaysSchedule = maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
+				minDaysSchedule = minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
+				maxDaysSchedule = maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
+			}
 		}
-		this.maxDaysSchedulesHoursQuarter = this.buildHoursQuarter(minDaysSchedule, maxDaysSchedule);
+		this.maxDaysSchedulesHoursQuarter = minDaysSchedule == maxDaysSchedule
+			? this.buildHoursQuarter(minDaysSchedule, maxDaysSchedule) : [];
 	}
 
 	/**
@@ -511,9 +514,14 @@ export class DimensionsService {
 
 	// endregion
 
-	static toggleDayMode(): void {
-		this.oneDayMode = !this.oneDayMode;
-		NotificationService.notifyOneDayMode(this.oneDayMode);
+	static toggleDayMode(): boolean {
+		const toggled = false;
+		if (MechanicsService.checkExistentDaysMechanics()) {
+			this.oneDayMode = !this.oneDayMode;
+			NotificationService.notifyOneDayMode(this.oneDayMode);
+			return !toggled;
+		}
+		return toggled;
 	}
 
 }

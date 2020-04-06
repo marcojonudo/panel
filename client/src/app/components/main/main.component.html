@@ -10,8 +10,8 @@
 				class="flex-grow-1 h-100 panel-container padding-0"
 				[ngClass]="{
 					'width-0-scrollbar': !displayVerticalScrollbar,
-					'overflow-scroll': !showNonexistentScheduleMessage,
-					'overflow-hidden': showNonexistentScheduleMessage
+					'overflow-scroll': existentTodaySchedules,
+					'overflow-hidden': !existentTodaySchedules
 				}">
 				<div
 					class="h-100"
@@ -31,7 +31,7 @@
 					</app-day-panel>
 				</div>
 				<div
-					*ngIf="showNonexistentScheduleMessage"
+					*ngIf="!existentTodaySchedules"
 					class="w-100 h-100 align-center nonexistent-today-schedules-container">
 					No hay horarios definidos para hoy. ¡Puedes tomarte el día libre!
 				</div>

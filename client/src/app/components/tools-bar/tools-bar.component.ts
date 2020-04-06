@@ -7,6 +7,7 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 import {AppointmentsService} from "../../services/appointments.service";
+import {WarningToast} from "../../objects/toasts/warning-toast";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -106,7 +107,10 @@ export class ToolsBarComponent {
 	}
 
 	toggleDayMode(): void {
-		DimensionsService.toggleDayMode();
+		const toggled = DimensionsService.toggleDayMode();
+		if (!toggled) {
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_DAYS_SCHEDULES));
+		}
 	}
 
 	toggleShowMechanicsWithoutAppointments(): void {
