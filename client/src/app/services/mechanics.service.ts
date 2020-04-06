@@ -112,11 +112,15 @@ export class MechanicsService {
 		const parsedDaysMechanics = {};
 		for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
 			const day = dayjs(dayString);
-			const parsedMechanics = mechanics.map(mechanic =>
-				new Mechanic(mechanic, skills, highlightedSkills)
-			);
+			const parsedMechanics = mechanics.map(mechanic => new Mechanic(mechanic, skills, highlightedSkills));
 			parsedDaysMechanics[day.valueOf()] =
 				UtilsService.sort(parsedMechanics, (m) => m.panelPosition);
+		}
+		/* Si no hay hay mecánicos para el día actual, se añade una lista vacía. Así se facilitan operaciones
+		*  relacionadas con arrays, evitando tener que comprobar si la entrada del objeto es undefined */
+		const today = dayjs().startOf(Constants.DAY_JS.d);
+		if (!parsedDaysMechanics[today.valueOf()]) {
+			parsedDaysMechanics[today.valueOf()] = [];
 		}
 		return parsedDaysMechanics;
 	}

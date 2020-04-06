@@ -155,9 +155,11 @@ export class DimensionsService {
 	// region Init
 
 	static init(daysMechanics: DaysMechanics) {
-		const existentSchedules = Object.keys(daysMechanics).length > 0;
-
 		const today = dayjs().startOf(Constants.DAY_JS.d);
+
+		const todaySchedules = Object.entries(daysMechanics).find((day: Dayjs, mechanics: Mechanic[]) =>
+			day == today && mechanics.length > 0
+		);
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.oneDayMode = true;
 		this.maxTodayScheduleHoursQuarter = [];
@@ -165,14 +167,14 @@ export class DimensionsService {
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
 		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
-			daysMechanics, today, this.gridContainerHeight, existentSchedules
+			daysMechanics, today, this.gridContainerHeight, todaySchedules
 		);
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;
 
 		this.initSchedulesHours(daysMechanics, today);
-		if (existentSchedules) {
+		if (todaySchedules) {
 			this.initMaxSchedule();
 		}
 
@@ -185,9 +187,9 @@ export class DimensionsService {
 		daysMechanics: DaysMechanics,
 		today: any,
 		gridContainerHeight: number,
-		existentSchedules: boolean
+		todaySchedules: boolean
 	): boolean {
-		if (existentSchedules) {
+		if (todaySchedules) {
 			const mechanics = daysMechanics[today.valueOf()].filter((mechanic: Mechanic) => mechanic.fixed);
 			if (mechanics.length) {
 				const mechanicsHeight = this.calcGridCompleteHeight(mechanics);

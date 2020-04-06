@@ -110,7 +110,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 		// TODO Revisar para qué recorrer el array de days
-		this.today = this.days.length ? this.days.find((day: Dayjs) => day.isSame(today)) : today;
+		this.today = dayjs().startOf(Constants.DAY_JS.d);//this.days.length ? this.days.find((day: Dayjs) => day.isSame(today)) : today;
 		this.oneDayMode = true;
 		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
@@ -121,7 +121,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
 
-		this.existentTodaySchedules = this.checkTodayScheduleExists();
+		this.existentTodaySchedules = this.checkDaySchedulesExist();
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 
 		this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
@@ -158,7 +158,7 @@ export class MainComponent implements OnInit, OnDestroy {
 				CardsService.unassignedSections,
 				CardsService.assignedDaysCardsGroups
 			);
-			this.existentTodaySchedules = this.oneDayMode && this.checkTodayScheduleExists();
+			this.existentTodaySchedules = this.oneDayMode && this.checkDaySchedulesExist();
 			this.mechanicLineUpdate = new MechanicLineUpdate(Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH);
 			this.cdRef.detectChanges();
 		});
@@ -442,7 +442,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		day: Dayjs,
 		daysQuartersSaturation: DaysQuartersSaturation = this.daysQuartersSaturation
 	): QuartersSaturation {
-		return daysQuartersSaturation ? daysQuartersSaturation[day.valueOf()].quartersSaturation : undefined;
+		return daysQuartersSaturation && daysQuartersSaturation[day.valueOf()]
+			? daysQuartersSaturation[day.valueOf()].quartersSaturation : undefined;
 	}
 
 	findAssignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
@@ -471,12 +472,13 @@ export class MainComponent implements OnInit, OnDestroy {
 		return daysMechanicSkills ? daysMechanicSkills[day.valueOf()] : undefined;
 	}
 
-	private checkTodayScheduleExists(today: Dayjs = this.today): boolean {
-		return MechanicsService.findDayMechanics(today, false) != undefined;
+	private checkDaySchedulesExist(day: Dayjs = this.today): boolean {
+		const mechanics = MechanicsService.findDayMechanics(day, false);
+		return mechanics != undefined && mechanics.length != 0;
 	}
 
 	findLateralInfo(day: Dayjs, daysLateralInfo: DaysLateralPanelInfo = this.daysLateralInfo): LateralPanelInfo {
-		return daysLateralInfo ? daysLateralInfo[day.valueOf()].info : undefined;
+		return daysLateralInfo && daysLateralInfo[day.valueOf()] ? daysLateralInfo[day.valueOf()].info : undefined;
 	}
 
 	findDayAppointmentsCounterUpdate(

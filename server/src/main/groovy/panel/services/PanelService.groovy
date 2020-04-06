@@ -89,6 +89,10 @@ class PanelService {
 		*  ya que el horario de las primeras se basa en el de los segundos */
 		if (existentMechanics) {
 			LocalDate today = LocalDate.now()
+            boolean todayMechanics = mechanics.findAll { it.day == today }
+            if (!todayMechanics) {
+                mechanics = mechanics.findAll { it.day }
+            }
 			mechanics.each {
 				if (!it.day) {
 					it.schedule = findThresholdSchedule(mechanics)
