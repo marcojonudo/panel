@@ -61,12 +61,7 @@ export class AuxiliaryDropzone implements Dropzone {
 		);
 	}
 
-	handleNotValidatedMovement(group: CardsGroup): void {
-		setTimeout(
-			() => CardsService.addToUnassigned(group),
-			CardPositionService.getAddGroupDelay(group)
-		);
-	}
+	handleNotValidatedMovement(group: CardsGroup): void {}
 
 	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {}
 

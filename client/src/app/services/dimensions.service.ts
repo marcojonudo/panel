@@ -157,9 +157,9 @@ export class DimensionsService {
 	static init(daysMechanics: DaysMechanics) {
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 
-		const todaySchedules = Object.entries(daysMechanics).find((day: Dayjs, mechanics: Mechanic[]) =>
-			day == today && mechanics.length > 0
-		);
+		const todaySchedules = Object.entries(daysMechanics).find(([day, mechanics]) =>
+			+day == today.valueOf() && mechanics.length > 0
+		) != undefined;
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.oneDayMode = true;
 		this.maxTodayScheduleHoursQuarter = [];
