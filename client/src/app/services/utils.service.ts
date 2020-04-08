@@ -24,6 +24,10 @@ export class UtilsService {
 		return hour * Constants.HOUR_MINUTES + minutes;
 	}
 
+	public static calcMinutesFromDate(day: Dayjs): number {
+		return day.hour() * Constants.HOUR_MINUTES + day.minute();
+	}
+
 	// endregion
 
 	public static createMinutesArray(from: number, to: number): number[] {

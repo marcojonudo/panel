@@ -105,6 +105,14 @@ export class ToolsBarComponent implements OnInit {
 		return day != undefined;
 	}
 
+	checkToggleDayMode(): boolean {
+		return MechanicsService.futureSchedules;
+	}
+
+	checkEnableSchedulesButtons(): boolean {
+		return DimensionsService.oneDayMode ? MechanicsService.todaySchedules : MechanicsService.futureSchedules
+	}
+
 	// endregion
 
 	// region Button actions
@@ -121,7 +129,7 @@ export class ToolsBarComponent implements OnInit {
 	}
 
 	toggleDayMode(): void {
-		NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_DAYS_SCHEDULES));
+		DimensionsService.toggleDayMode()
 	}
 
 	toggleShowMechanicsWithoutAppointments(): void {

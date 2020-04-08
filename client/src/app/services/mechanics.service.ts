@@ -17,12 +17,16 @@ export class MechanicsService {
 
 	private static _days: Dayjs[];
 	private static _daysMechanics: DaysMechanics;
+	private static _todaySchedules: boolean;
+	private static _futureSchedules: boolean;
 	private static _onlyAppointmentsMode: boolean;
 	private static _showAppointmentsName: boolean = true;
 
 	constructor(private http: HttpClient) {
 		MechanicsService.days = [];
 		MechanicsService.daysMechanics = {};
+		MechanicsService.todaySchedules = false;
+		MechanicsService.futureSchedules = false;
 	}
 
 	// region Getters / setters
@@ -59,6 +63,22 @@ export class MechanicsService {
 		this._showAppointmentsName = value;
 	}
 
+	static get futureSchedules(): boolean {
+		return this._futureSchedules;
+	}
+
+	static set futureSchedules(value: boolean) {
+		this._futureSchedules = value;
+	}
+
+	static get todaySchedules(): boolean {
+		return this._todaySchedules;
+	}
+
+	static set todaySchedules(value: boolean) {
+		this._todaySchedules = value;
+	}
+
 	// endregion
 
 	// region Finders
@@ -91,6 +111,12 @@ export class MechanicsService {
 		if (daysMechanics) {
 			this.days = this.initDays(daysMechanics);
 			this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
+
+			const today = dayjs().startOf(Constants.DAY_JS.d);
+			this.todaySchedules = Object.entries(this.daysMechanics).find(([day, mechanics]) => {
+				return +day == today.valueOf() && mechanics.length > 0
+			}) != undefined;
+			this.futureSchedules = this.todaySchedules ? this.todaySchedules : Object.keys(this.daysMechanics).length > 0;
 		}
 
 		console.log('Days', this.days);

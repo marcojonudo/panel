@@ -154,21 +154,18 @@ export class DimensionsService {
 
 	// region Init
 
-	static init(daysMechanics: DaysMechanics) {
+	static init(daysMechanics: DaysMechanics, todaySchedules: boolean) {
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 
-		const todaySchedules = Object.entries(daysMechanics).find(([day, mechanics]) =>
-			+day == today.valueOf() && mechanics.length > 0
-		) != undefined;
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.oneDayMode = true;
 		this.maxTodayScheduleHoursQuarter = [];
 
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
-		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
-			daysMechanics, today, this.gridContainerHeight, todaySchedules
-		);
+		this.displayVerticalScrollbar = todaySchedules ? this.checkDisplayScrollbar(
+			daysMechanics, today, this.gridContainerHeight
+		) : false;
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;
@@ -186,15 +183,12 @@ export class DimensionsService {
 	private static checkDisplayScrollbar(
 		daysMechanics: DaysMechanics,
 		today: any,
-		gridContainerHeight: number,
-		todaySchedules: boolean
+		gridContainerHeight: number
 	): boolean {
-		if (todaySchedules) {
-			const mechanics = daysMechanics[today.valueOf()].filter((mechanic: Mechanic) => mechanic.fixed);
-			if (mechanics.length) {
-				const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
-				return gridContainerHeight < mechanicsHeight;
-			}
+		const mechanics = daysMechanics[today.valueOf()].filter((mechanic: Mechanic) => mechanic.fixed);
+		if (mechanics.length) {
+			const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
+			return gridContainerHeight < mechanicsHeight;
 		}
 		return false;
 	}
@@ -211,7 +205,7 @@ export class DimensionsService {
 		for (const day in daysMechanics) {
 			const dayMechanics = daysMechanics[day].filter((mechanic: Mechanic) => !mechanic.fixed);
 			if (dayMechanics.length) {
-				const [minSchedule, maxSchedule] = this.getScheduleLimits(dayMechanics);
+				const [minSchedule, maxSchedule] = this.getScheduleLimits(dayMechanics, today);
 				if (+day == today.valueOf()) {
 					this.maxTodayScheduleHoursQuarter = this.buildHoursQuarter(minSchedule, maxSchedule);
 				}
@@ -228,16 +222,21 @@ export class DimensionsService {
 	/**
 	 * Se obtienen los límites de los horarios de mecánicos de un sólo día
 	 * @param {Mechanic[]} mechanics Mecánicos de un día
+	 * @param {Dayjs} refDay Día para tomar fecha como referencia
 	 * @returns {Dayjs[]} Par de fechas (comienzo y fin)
 	 */
-	private static getScheduleLimits(mechanics: Mechanic[]): Dayjs[] {
+	private static getScheduleLimits(mechanics: Mechanic[], refDay: Dayjs): Dayjs[] {
 		const minSchedule = dayjs(
 			Math.min(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[0].start.valueOf()))
 		);
 		const maxSchedule = dayjs(
 			Math.max(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[mechanic.schedules.length-1].end.valueOf()))
 		);
-		return [minSchedule, maxSchedule];
+		/* Se define siempre la misma fecha para que se puedan comparar horas con éxito */
+		return [
+			minSchedule.year(refDay.year()).month(refDay.month()).date(refDay.date()),
+			maxSchedule.year(refDay.year()).month(refDay.month()).date(refDay.date()),
+		];
 	}
 
 	public static buildHoursQuarter(start: Dayjs, end: Dayjs): HourQuarter[] {
@@ -391,7 +390,8 @@ export class DimensionsService {
 		this.maxScheduleHoursQuarter = oneDayMode ? this.maxTodayScheduleHoursQuarter : this.maxDaysSchedulesHoursQuarter;
 		/* Sabiendo el número de horas, se calcula el mayor ancho posible que puede adquirir: cuando el ancho de la
 		*  hora es el mayor posible; es decir, el default */
-		this.maxScheduleMaxWidth = this.calcScheduleWidth(this.maxScheduleHoursQuarter, maxQuarterWidth);
+		this.maxScheduleMaxWidth = this.maxScheduleHoursQuarter.length
+			? this.calcScheduleWidth(this.maxScheduleHoursQuarter, maxQuarterWidth) : this.maxScheduleWidth;
 		/* Si se está activando el modo de un sólo día, el ancho de los horarios coincide con el máximo. Si no, es el
 		*  ancho del grid, ya que al activar la vista de varios días, automáticamente se ajusta a la pantalla */
 		this.maxScheduleWidth = oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth;
@@ -487,7 +487,7 @@ export class DimensionsService {
 	// region Auxiliary methods
 
 	private static getRelativeMinutesFromStart(time: Dayjs) {
-		const minutes = time.hour() * 60 + time.minute();
+		const minutes = UtilsService.calcMinutesFromDate(time);
 		return minutes - this.getStartScheduleMinutes();
 	}
 
@@ -523,14 +523,9 @@ export class DimensionsService {
 
 	// endregion
 
-	static toggleDayMode(): boolean {
-		const toggled = false;
-		if (MechanicsService.checkExistentDaysMechanics()) {
-			this.oneDayMode = !this.oneDayMode;
-			NotificationService.notifyOneDayMode(this.oneDayMode);
-			return !toggled;
-		}
-		return toggled;
+	static toggleDayMode(): void {
+		this.oneDayMode = !this.oneDayMode;
+		NotificationService.notifyOneDayMode(this.oneDayMode);
 	}
 
 }
