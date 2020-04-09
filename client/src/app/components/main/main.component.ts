@@ -108,7 +108,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.days = MechanicsService.days;
 		this.initDaysUpdateObjects();
 
-		const today = dayjs().startOf(Constants.DAY_JS.d);
 		// TODO Revisar para qué recorrer el array de days
 		this.today = dayjs().startOf(Constants.DAY_JS.d);//this.days.length ? this.days.find((day: Dayjs) => day.isSame(today)) : today;
 		this.oneDayMode = true;
@@ -150,7 +149,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.oneDayModeSubscription = NotificationService.oneDayMode$.subscribe((oneDayMode: boolean) => {
 			this.oneDayMode = oneDayMode;
-			DimensionsService.updateMaxSchedule(this.oneDayMode);
+			DimensionsService.updateMaxSchedule(this.oneDayMode, this.today);
 			this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;

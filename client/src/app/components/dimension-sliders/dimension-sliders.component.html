@@ -6,7 +6,7 @@
 	</div>
 	<input id="percentage-slider"
 		   type="range"
-		   [disabled]="!enabled"
+		   [disabled]="!checkEnableSlider()"
 		   [min]="min"
 		   [max]="max"
 		   [step]="findStep()"

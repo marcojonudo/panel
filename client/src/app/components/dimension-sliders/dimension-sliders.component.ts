@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DimensionsService} from "../../services/dimensions.service";
 import {NotificationService} from "../../services/notification.service";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-dimension-sliders',
@@ -15,17 +16,15 @@ export class DimensionSlidersComponent implements OnInit {
 
 	private readonly ZOOM_LEVELS: number = 4;
 
-	private _enabled: boolean;
 	private _min: number;
 	private _max: number;
 	private _width: number;
 
 	ngOnInit(): void {
-		this.enabled = this.maxScheduleWidth != undefined && this.maxScheduleMaxWidth != undefined;
-		if (this.enabled) {
+		if (this.checkEnableSlider()) {
 			this.width = this.maxScheduleWidth;
 			this.min = DimensionsService.gridWidth;
-			this.max = parseFloat(this.maxScheduleMaxWidth.toFixed(3));
+			this.max = parseFloat(this.maxScheduleMaxWidth.toFixed(2));
 		}
 	}
 
@@ -55,15 +54,11 @@ export class DimensionSlidersComponent implements OnInit {
 		this._width = value;
 	}
 
-	get enabled(): boolean {
-		return this._enabled;
-	}
-
-	set enabled(value: boolean) {
-		this._enabled = value;
-	}
-
 	// endregion
+
+	checkEnableSlider(): boolean {
+		return DimensionsService.oneDayMode ? MechanicsService.todaySchedules : MechanicsService.futureSchedules
+	}
 
 	findStep(): number {
 		return parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));

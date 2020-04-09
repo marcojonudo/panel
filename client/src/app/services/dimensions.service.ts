@@ -164,7 +164,7 @@ export class DimensionsService {
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
 		this.displayVerticalScrollbar = todaySchedules ? this.checkDisplayScrollbar(
-			daysMechanics, today, this.gridContainerHeight
+			this.oneDayMode, daysMechanics, today, this.gridContainerHeight
 		) : false;
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
@@ -172,7 +172,7 @@ export class DimensionsService {
 
 		this.initSchedulesHours(daysMechanics, today);
 		if (todaySchedules) {
-			this.initMaxSchedule();
+			this.initMaxSchedule(today);
 		}
 
 		console.log('Max. today schedules quarters', this.maxTodayScheduleHoursQuarter);
@@ -181,11 +181,16 @@ export class DimensionsService {
 	}
 
 	private static checkDisplayScrollbar(
+		oneDayMode: boolean,
 		daysMechanics: DaysMechanics,
 		today: any,
 		gridContainerHeight: number
 	): boolean {
-		const mechanics = daysMechanics[today.valueOf()].filter((mechanic: Mechanic) => mechanic.fixed);
+		if (!oneDayMode) {
+			/* Si está habilitada la vista de varios días, siempre se muestra la barra de scroll */
+			return true;
+		}
+		const mechanics = daysMechanics[today.valueOf()];
 		if (mechanics.length) {
 			const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
 			return gridContainerHeight < mechanicsHeight;
@@ -253,8 +258,8 @@ export class DimensionsService {
 	/**
 	 * Se definen los valores por defecto para las horas del horario y los anchos de horario, máximo y horas
 	 */
-	private static initMaxSchedule(): void {
-		this.updateMaxSchedule(true);
+	private static initMaxSchedule(today: Dayjs): void {
+		this.updateMaxSchedule(true, today);
 		this.defaultHourWidth = this.hourWidth;
 	}
 
@@ -380,9 +385,13 @@ export class DimensionsService {
 	/**
 	 * Actualiza el número de horas y ancho del horario, en función de si la vista es de uno o varios días
 	 * @param {boolean} oneDayMode Vista de uno o varios días
+	 * @param {today} today Día actual
 	 * @returns {number[]} Array de horas del horario
 	 */
-	static updateMaxSchedule(oneDayMode: boolean): void {
+	static updateMaxSchedule(oneDayMode: boolean, today: Dayjs): void {
+		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
+			oneDayMode, MechanicsService.daysMechanics, today, this.gridContainerHeight
+		);
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, oneDayMode);
 		const maxQuarterWidth = this.calcQuarterWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		/* Se actualiza el número de horas. Un horario de otro día puede tener más horas y, por tanto, necesitasr un

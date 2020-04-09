@@ -16,14 +16,13 @@ import {Dayjs} from "dayjs";
 	styleUrls: ['./tools-bar.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToolsBarComponent implements OnInit {
+export class ToolsBarComponent {
 
 	@Input() day: Dayjs;
 	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
-	private _enabled: boolean;
 	private _showingFinished: boolean;
 	private _syncing: boolean;
 
@@ -35,19 +34,7 @@ export class ToolsBarComponent implements OnInit {
 		this.syncing = false;
 	}
 
-	ngOnInit(): void {
-		this.enabled = this.maxScheduleWidth != undefined && this.maxScheduleMaxWidth != undefined;
-	}
-
 	// region Getters / setters
-
-	get enabled(): boolean {
-		return this._enabled;
-	}
-
-	set enabled(value: boolean) {
-		this._enabled = value;
-	}
 
 	get toolsBarWidth(): number {
 		return Constants.VALUE.TOOLS_BAR_WIDTH;
