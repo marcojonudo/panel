@@ -2,6 +2,7 @@
 	position: absolute;
 	background-color: #ffffff;
 	z-index: 1;
+	box-shadow: 0 0 5px 1px #909090;
 }
 
 .context-menu-option {
