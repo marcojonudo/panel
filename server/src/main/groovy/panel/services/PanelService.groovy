@@ -181,7 +181,7 @@ class PanelService {
 					)
 					processedTasks += selectedGroup.tasks
 				} else {
-					LOG.warn("[$task.articleCode]$orderTasks.articleCode Group not found for task")
+					LOG.warn("[$order.number][$task.articleCode]$orderTasks.articleCode Group not found for task")
 				}
 			}
 		}
