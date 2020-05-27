@@ -112,11 +112,11 @@ export class Constants {
 	};
 	public static readonly GROUP_MODE_CURSOR: any = {
 		DRAG: 'move',
-		CUT: 'crosshair',
+		CUT: 'scissors.svg',
 		REPLACE: 'exchange.png'
 	};
 	public static readonly MAIN_CURSOR: any = {
-		DRAGGING_SCHEDULES: 'brush.png',
+		DRAGGING_SCHEDULES: 'brush.svg',
 		DEFAULT: 'default'
 	};
 	public static readonly SCHEDULE_BORDER_CURSOR: any = {

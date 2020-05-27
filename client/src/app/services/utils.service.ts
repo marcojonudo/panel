@@ -86,7 +86,7 @@ export class UtilsService {
 	}
 
 	public static isImage(fileName: string): boolean {
-		return fileName.indexOf('.png') > -1;
+		return fileName.indexOf('.png') > -1 || fileName.indexOf('.svg') > 1;
 	}
 
 	public static checkLeftClick(event: PointerEvent): boolean {
