@@ -18,7 +18,6 @@ export class DimensionSlidersComponent implements OnInit {
 
 	private _min: number;
 	private _max: number;
-	private _width: number;
 
 	ngOnInit(): void {
 		if (this.checkEnableSlider()) {
@@ -45,14 +44,6 @@ export class DimensionSlidersComponent implements OnInit {
 		this._max = value;
 	}
 
-	get width(): number {
-		return this._width;
-	}
-
-	set width(value: number) {
-		this._width = value;
-	}
-
 	// endregion
 
 	checkEnableSlider(): boolean {
@@ -64,8 +55,8 @@ export class DimensionSlidersComponent implements OnInit {
 	}
 
 	updateWidth() {
-		DimensionsService.updateMaxScheduleWidth(this.width);
-		NotificationService.notifyMaxScheduleWidth(this.width);
+		DimensionsService.updateMaxScheduleWidth(this.maxScheduleWidth);
+		NotificationService.notifyMaxScheduleWidth(this.maxScheduleWidth);
 	}
 
 }

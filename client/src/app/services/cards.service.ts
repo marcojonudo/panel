@@ -942,26 +942,58 @@ export class CardsService {
 			dayMechanics.find((mechanic: Mechanic) => group.cards[0].mechanicCode == mechanic.code) != undefined
 		);
 
-		const quartersSaturation = {};
-		dayGroups.forEach((group: CardsGroup) => {
-			const startMinutes = UtilsService.roundFloor(
-				group.start.diff(<Dayjs> group.start.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
-				Constants.QUARTERS.STEP_15
-			);
-			const endMinutes = UtilsService.roundCeil(
-				group.end.diff(<Dayjs> group.end.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
-				Constants.QUARTERS.STEP_15
-			);
-			for (let quarter = startMinutes; quarter < endMinutes; quarter = quarter + Constants.QUARTERS.STEP_15) {
-				if (!quartersSaturation[quarter]) {
-					const mechanics = CardsService.findQuarterMechanics(dayMechanics, quarter);
-					quartersSaturation[quarter] = new QuarterSaturation(0, mechanics.length);
-				}
-				quartersSaturation[quarter].cards++;
-			}
-		});
+		const quartersSaturation = this.handleDayGroupsQuartersSaturation(dayGroups, dayMechanics);
 		NotificationService.notifyQuartersSaturation(new DayQuartersSaturation(day, quartersSaturation));
 		return quartersSaturation;
+	}
+
+	static handleDayGroupsQuartersSaturation(dayGroups: CardsGroup[], dayMechanics: Mechanic[]): any {
+		const quartersSaturation = {};
+		const processedGroupsIds = [];
+		dayGroups.forEach((group: CardsGroup) => {
+			if (!processedGroupsIds.includes(group.id)) {
+				const lineGroups = dayGroups.filter((g: CardsGroup) =>
+					g.cards[0].mechanicCode == group.cards[0].mechanicCode && g.line == group.line
+				);
+				const nextPositionGroups = this.findNextPositionGroups(lineGroups, group);
+				const startMinutes = this.roundLowerQuarter(nextPositionGroups[0].start);
+				const endMinutes = this.roundUpperQuarter(nextPositionGroups[nextPositionGroups.length-1].end);
+
+				for (let quarter = startMinutes; quarter < endMinutes; quarter = quarter + Constants.QUARTERS.STEP_15) {
+					if (!quartersSaturation[quarter]) {
+						const mechanics = CardsService.findQuarterMechanics(dayMechanics, quarter);
+						quartersSaturation[quarter] = new QuarterSaturation(0, mechanics.length);
+					}
+					quartersSaturation[quarter].cards++;
+				}
+				processedGroupsIds.push(...nextPositionGroups.map((g: CardsGroup) => g.id));
+			}
+		});
+		return quartersSaturation;
+	}
+
+	static findNextPositionGroups(lineGroups: CardsGroup[], group: CardsGroup): CardsGroup[] {
+		lineGroups = lineGroups.filter((g: CardsGroup) => g.id != group.id);
+		const [startMinutes, endMinutes] = [
+			this.roundLowerQuarter(group.start), this.roundUpperQuarter(group.end) - 15
+		];
+		let nextQuarterGroups = lineGroups.filter((g: CardsGroup) =>
+			this.roundLowerQuarter(g.start) == endMinutes || (this.roundUpperQuarter(g.end) - 15) == startMinutes
+		);
+		if (nextQuarterGroups.length) {
+			nextQuarterGroups = [].concat(...nextQuarterGroups.map((g: CardsGroup) =>
+				this.findNextPositionGroups(lineGroups, g)
+			));
+		}
+		return [group].concat(nextQuarterGroups);
+	}
+
+	static roundLowerQuarter(time: Dayjs): number {
+		return UtilsService.roundFloor(UtilsService.calcMinutesFromDate(time), Constants.QUARTERS.STEP_15);
+	}
+
+	static roundUpperQuarter(time: Dayjs): number {
+		return UtilsService.roundCeil(UtilsService.calcMinutesFromDate(time), Constants.QUARTERS.STEP_15);
 	}
 
 	static findQuarterMechanics(dayMechanics: Mechanic[], quarter: number): Mechanic[] {

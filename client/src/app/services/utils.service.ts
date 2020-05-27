@@ -26,6 +26,7 @@ export class UtilsService {
 
 	public static calcMinutesFromDate(day: Dayjs): number {
 		return day.hour() * Constants.HOUR_MINUTES + day.minute();
+		// return day.diff(<Dayjs> day.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m);
 	}
 
 	// endregion
