@@ -24,10 +24,6 @@ stages:
         paths:
             - build
             - .gradle
-    artifacts:
-        paths:
-            - build/libs/*.jar
-        expire_in: 1 hour
 
 .get_version_template: &get_version_template
     tags:
@@ -86,6 +82,10 @@ assemble:jar:
         - build:frontend
     script:
         - gradle --build-cache :server:shadowJar
+    artifacts:
+        paths:
+            - server/build/libs/*.jar
+        expire_in: 1 day
     only:
         - branches
 
