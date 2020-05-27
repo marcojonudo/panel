@@ -26,7 +26,7 @@ stages:
             - .gradle
     artifacts:
         paths:
-            - server/build/libs/*.jar
+            - build/libs/*.jar
         expire_in: 1 hour
 
 .get_version_template: &get_version_template
@@ -37,11 +37,14 @@ stages:
     artifacts:
         paths:
             - version
-        expire_in: 1 hour
+        expire_in: 1 year
 
 .deploy_template: &deploy_template
     tags:
         - sidesman2
+    dependencies:
+        - get-version:dev
+        - get-version:merge-request
     before_script:
         - *fetch_ci_scripts
         - apk upgrade --update && apk add openssh sshpass bash
