@@ -2,7 +2,12 @@
 	class="h-100 d-flex flex-column card-details-container">
 	<div
 		class="d-flex flex-column border-bottom">
-		<div class="detail-section-title p-1">Cliente</div>
+		<div class="detail-section-title d-flex p-1">
+			<div>Cliente</div>
+			<div class="ml-auto" (click)="closePanel()">
+				<i class="fas fa-times close-lateral-panel-icon"></i>
+			</div>
+		</div>
 		<div class="pl-2 pt-1">{{card.client.name}} {{card.client.surnames}}</div>
 		<div class="pl-2 pb-1">{{card.client.phoneNumber}}</div>
 	</div>

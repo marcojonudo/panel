@@ -53,17 +53,7 @@ export class GridComponent implements OnInit {
 
 	onPointerDown(event: PointerEvent): void {
 		if ((<HTMLElement> event.target).id == Constants.ID.MECHANIC_LINE) {
-			NotificationService.notifyLateralInfo(
-				new DayLateralPanelInfo(
-					this.day,
-					new SkillsDetailsInfo(
-						new MechanicSkills(
-							this.dayMechanicSkills.mechanicCode,
-							[]
-						)
-					)
-				)
-			);
+			NotificationService.notifyLateralInfo(new DayLateralPanelInfo(this.day, undefined));
 		}
 	}
 
