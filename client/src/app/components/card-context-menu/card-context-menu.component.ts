@@ -28,31 +28,22 @@ export class CardContextMenuComponent implements OnInit {
 			? Constants.VALUE.MECHANIC_INFO_WIDTH : 0;
 	}
 
-	findLeft(
-		x: number,
-		contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo
-	): number {
-		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedLeft(x) : this.findUnassignedLeft(x);
+	get cardContextMenuId(): string {
+		return Constants.ID.CARD_CONTEXT_MENU;
 	}
 
-	findAssignedLeft(x: number, leftOffset: number = this.leftOffset): number {
-		return CardPositionService.absolutePositionToLeft(x) + leftOffset;
-	}
-
-	findUnassignedLeft(x: number): number {
+	findLeft(x: number): number {
 		return x;
 	}
 
 	findTop(y: number, contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo): number {
-		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedTop(y) : this.findUnassignedTop();
+		return contextMenuInfo.group.start ? y : undefined;
 	}
 
-	findAssignedTop(y: number): number {
-		return CardPositionService.absolutePositionToTop(y);
-	}
-
-	findUnassignedTop(): number {
-		return -((Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2 + Constants.VALUE.LINE_HEIGHT_DEFAULT / 2)
+	findBottom(y: number, contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo): number {
+		/* Si se abre el menú contextual en una ficha no asinada, el popup debe aparecer hacia arriba, para no salirse
+		*  de la pantalla */
+		return contextMenuInfo.group.start ? undefined : window.innerHeight - y;
 	}
 
 	checkCutCardSelected(): boolean {
@@ -80,10 +71,7 @@ export class CardContextMenuComponent implements OnInit {
 			DimensionsService.calcLeftFromStart(card.end) > xLeft
 		);
 		NotificationService.notifyLateralInfo(
-			new DayLateralPanelInfo(
-				clickedCard.day,
-				new CardDetailsInfo(clickedCard)
-			)
+			new DayLateralPanelInfo(clickedCard.day, new CardDetailsInfo(clickedCard))
 		);
 		NotificationService.notifyContextMenu(undefined);
 	}

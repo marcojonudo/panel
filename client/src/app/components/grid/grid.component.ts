@@ -53,7 +53,6 @@ export class GridComponent implements OnInit {
 
 	onPointerDown(event: PointerEvent): void {
 		if ((<HTMLElement> event.target).id == Constants.ID.MECHANIC_LINE) {
-			NotificationService.notifyContextMenu(undefined);
 			NotificationService.notifyLateralInfo(
 				new DayLateralPanelInfo(
 					this.day,
@@ -65,9 +64,6 @@ export class GridComponent implements OnInit {
 					)
 				)
 			);
-			if (CardsService.auxiliaryGroupToReplace) {
-				CardsService.updateCardMode(CardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
-			}
 		}
 	}
 

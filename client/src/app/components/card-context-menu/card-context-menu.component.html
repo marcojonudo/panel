@@ -1,8 +1,10 @@
 <div
+	[id]="cardContextMenuId"
 	class="d-flex flex-column p-1 rounded border context-menu-container"
 	[ngStyle]="{
 		'left.px': findLeft(contextMenuInfo.clickCoordinates.x),
-		'top.px': findTop(contextMenuInfo.clickCoordinates.y)
+		'top.px': findTop(contextMenuInfo.clickCoordinates.y),
+		'bottom.px': findBottom(contextMenuInfo.clickCoordinates.y)
 	}">
 	<div
 		class="d-flex align-center justify-content-start context-menu-option"

@@ -35,7 +35,6 @@ import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-sched
 import {Coordinates} from "../../objects/coordinates";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
-import {HourQuarters} from "../../objects/hour-quarters";
 import {HourQuarter} from "../../objects/hour-quarter";
 
 @Component({
@@ -94,6 +93,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private dragSchedulesSubscription: Subscription;
 
 	private appointmentsTypesContextMenuListener: () => void;
+	private pointerDownListener: () => void;
 
 	constructor(
 		private cardsService: CardsService,
@@ -217,6 +217,12 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.initialScrollLeft = this.existentTodaySchedules
 			? this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2 : 0;
+
+		this.pointerDownListener = this.renderer.listen(
+			this.element.nativeElement,
+			Constants.EVENT.POINTER_DOWN,
+			this.onPointerDown.bind(this)
+		);
 	}
 
 	ngOnDestroy(): void {
@@ -445,14 +451,8 @@ export class MainComponent implements OnInit, OnDestroy {
 			? daysQuartersSaturation[day.valueOf()].quartersSaturation : undefined;
 	}
 
-	findAssignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
-		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.GROUP &&
-			(<GroupContextMenuInfo> contextMenuInfo).group.start ? contextMenuInfo : undefined;
-	}
-
-	findUnassignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
-		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.GROUP &&
-			!(<GroupContextMenuInfo> contextMenuInfo).group.start ? contextMenuInfo : undefined;
+	checkShowCardContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
+		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.GROUP;
 	}
 
 	checkShowDragScheduleContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
@@ -502,6 +502,27 @@ export class MainComponent implements OnInit, OnDestroy {
 		NotificationService.notifyContextMenu(
 			new DragScheduleContextMenuInfo(new Coordinates(event.clientX, event.clientY))
 		);
+	}
+
+	onPointerDown(event: PointerEvent): void {
+		if (UtilsService.checkLeftClick(event)) {
+			if (this.contextMenuInfo && !this.checkElementId(<HTMLElement> event.target, Constants.CONTEXT_MENU)) {
+				this.contextMenuInfo.handleRemoval();
+			}
+			if (CardsService.auxiliaryGroupToReplace) {
+				CardsService.updateCardMode(CardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
+			}
+		}
+	}
+
+	checkElementId(element: HTMLElement, idSubstring: string, level: number = 0): boolean {
+		if (element.id.includes(idSubstring)) {
+			return true;
+		}
+		if (level < 3) {
+			return this.checkElementId(<HTMLElement> element.parentNode, idSubstring, ++level);
+		}
+		return false;
 	}
 
 	trackByDay(index, item) {

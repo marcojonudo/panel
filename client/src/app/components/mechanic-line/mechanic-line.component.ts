@@ -55,6 +55,10 @@ export class MechanicLineComponent {
 		return 'red';
 	}
 
+	get mechanicLineId(): string {
+		return Constants.ID.MECHANIC_LINE;
+	}
+
 	// endregion
 
 	findGroups(day: Dayjs, mechanicCode: string): CardsGroup[] {

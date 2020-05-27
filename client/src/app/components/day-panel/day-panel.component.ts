@@ -21,7 +21,6 @@ export class DayPanelComponent implements OnInit {
 	@Input() quartersSaturation: QuartersSaturation;
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;
-	@Input() contextMenuInfo: ContextMenuInfo;
 	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;
@@ -35,10 +34,6 @@ export class DayPanelComponent implements OnInit {
 
 	checkShowTimeIndicator(): boolean {
 		return this.timeIndicatorLeft < this.maxScheduleWidth;
-	}
-
-	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
-		return contextMenuInfo != undefined;
 	}
 
 	checkDayPanel() {

@@ -5,4 +5,6 @@ export interface ContextMenuInfo {
 	type: string;
 	clickCoordinates: Coordinates;
 
+	handleRemoval(): void;
+
 }

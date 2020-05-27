@@ -38,8 +38,6 @@ import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 })
 export class BandComponent implements OnInit, OnDestroy {
 
-	@Input() contextMenuInfo: ContextMenuInfo;
-
 	private _unassignedCardRelativeTop: number;
 	private _unassignedTypesCardsGroups: GroupedTypeCards;
 
@@ -138,10 +136,6 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	checkSelectedSection(type: string, selectedSection: UnassignedSection = this.section): boolean {
 		return selectedSection.name == type;
-	}
-
-	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
-		return contextMenuInfo != undefined;
 	}
 
 	setHiddenCardsGroup(group: CardsGroup): void {

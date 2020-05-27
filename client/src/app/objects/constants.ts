@@ -48,7 +48,8 @@ export class Constants {
 		DEFAULT_TOAST_DELAY: 10000
 	};
 	public static ID: any = {
-		MECHANIC_LINE: 'mechanic-line'
+		MECHANIC_LINE: 'mechanic-line',
+		CARD_CONTEXT_MENU: 'card-context-menu'
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {
@@ -196,5 +197,6 @@ export class Constants {
 	public static readonly REAL_TIME_UPDATE_PATHS: string[] = ["/cards", "/mechanic/", "/appointment"];
 	public static readonly MORNING_AFTERNOON_THRESHOLD_TIME: string = "15:00";
 	public static readonly LEFT_CLICK_BUTTON_ID: number = 0;
+	public static readonly CONTEXT_MENU: string = 'context-menu';
 
 }

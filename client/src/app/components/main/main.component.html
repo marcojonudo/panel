@@ -23,7 +23,6 @@
 						[quartersSaturation]="findQuartersSaturation(today)"
 						[mechanicLineUpdate]="checkTriggerLineCd(today)"
 						[dayMechanicSkills]="findDayMechanicSkills(today)"
-						[contextMenuInfo]="findAssignedContextMenuInfo()"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth"
@@ -63,7 +62,6 @@
 						[quartersSaturation]="findQuartersSaturation(day)"
 						[mechanicLineUpdate]="checkTriggerLineCd(day)"
 						[dayMechanicSkills]="findDayMechanicSkills(day)"
-						[contextMenuInfo]="findAssignedContextMenuInfo()"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth">
@@ -91,13 +89,14 @@
 	</div>
 	<div class="row unassigned-orders-container">
 		<div class="col padding-0">
-			<app-band
-				class="w-100"
-				[contextMenuInfo]="findUnassignedContextMenuInfo()">
-			</app-band>
+			<app-band class="w-100"></app-band>
 		</div>
 	</div>
 </div>
+<app-card-context-menu
+	*ngIf="checkShowCardContextMenu()"
+	[contextMenuInfo]="contextMenuInfo">
+</app-card-context-menu>
 <app-drag-schedule-context-menu
 	*ngIf="checkShowDragScheduleContextMenu()"
 	[contextMenuInfo]="findDragScheduleContextMenuInfo()">
