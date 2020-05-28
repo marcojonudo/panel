@@ -43,6 +43,10 @@ export class HelperCardComponent {
 		return linkedCard ? Constants.LINK_HANDLER_IMAGE.JOINED : Constants.LINK_HANDLER_IMAGE.SPLITTED;
 	}
 
+	findBottomSectionBackground(divisionIndex: number, color: string) {
+		return divisionIndex == 0 ? color : `repeating-linear-gradient(45deg, ${color}, ${color} 4px, #fff 4px, #fff 8px)`
+	}
+
 	check(): void {
 		if (Constants.CHECK) {
 			console.log('checking helper card', this.card);

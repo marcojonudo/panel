@@ -174,10 +174,6 @@ export class DimensionsService {
 		if (todaySchedules) {
 			this.initMaxSchedule(today);
 		}
-
-		console.log('Max. today schedules quarters', this.maxTodayScheduleHoursQuarter);
-		console.log('Max. days schedules quarters', this.maxDaysSchedulesHoursQuarter);
-		console.log('Max. schedule width:', this.maxScheduleWidth);
 	}
 
 	private static checkDisplayScrollbar(

@@ -22,7 +22,9 @@
 			<div class="flex-grow-1 flex-basis-0 align-center">
 			</div>
 		</div>
-		<div class="flex-grow-1 flex-basis-0 d-flex card-bottom-section" [style.background]="card.group.color.code">
+		<div
+			class="flex-grow-1 flex-basis-0 d-flex card-bottom-section"
+			[style.background]="findBottomSectionBackground(card.divisionIndex, card.group.color.code)">
 			<div class="flex-grow-1 flex-basis-0 align-center">
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
