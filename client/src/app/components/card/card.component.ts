@@ -39,6 +39,10 @@ export class CardComponent {
 		return Constants.CARD_TYPE_BACKGROUND[type] || Constants.CARD_TYPE_BACKGROUND['DEFAULT'];
 	}
 
+	findBottomSectionBackground(divisionIndex: number, color: string) {
+		return divisionIndex == 0 ? color : `repeating-linear-gradient(45deg, ${color}, ${color} 4px, #fff 4px, #fff 8px)`
+	}
+
 	// region Link handlers
 
 	checkShowLeftLinkHandler(card: Card): boolean {

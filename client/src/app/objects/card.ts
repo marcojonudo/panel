@@ -43,9 +43,6 @@ export class Card {
 	linkedNext: Card;
 	linkedPrevious: Card;
 
-	dividedPrevious: Card;
-	dividedNext: Card;
-
 	divisionIndex: number;
 
 	possibleLinkedNext: boolean;
@@ -68,8 +65,6 @@ export class Card {
 		this.vehicle = card.vehicle ? new Vehicle(card.vehicle) : undefined;
 		this.linkedPrevious = card.linkedPrevious ? new Card(card.linkedPrevious) : undefined;
 		this.linkedNext = card.linkedNext ? new Card(card.linkedNext) : undefined;
-		this.dividedPrevious = card.dividedPrevious ? new Card(card.dividedPrevious) : undefined;
-		this.dividedNext = card.dividedNext ? new Card(card.dividedNext) : undefined;
 		this.divisionIndex = card.divisionIndex;
 		this.panelId = this.order ? CardsService.buildPanelId(this) : undefined;
 
