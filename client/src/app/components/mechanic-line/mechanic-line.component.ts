@@ -146,7 +146,7 @@ export class MechanicLineComponent {
 	}
 
 	checkUpdateDropzone(mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
-		return mechanicLineUpdate && mechanicLineUpdate.type == Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH
+		return mechanicLineUpdate && Constants.UPDATE_DROPZONE_TYPES.includes(mechanicLineUpdate.type)
 			? mechanicLineUpdate : undefined;
 	}
 

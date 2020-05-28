@@ -1,4 +1,12 @@
-import {ChangeDetectionStrategy, Component, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	ElementRef,
+	Input,
+	OnInit,
+	Renderer2
+} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Mechanic} from "../../objects/mechanic";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
@@ -8,9 +16,8 @@ import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills
 import {NotificationService} from "../../services/notification.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {CardsService} from "../../services/cards.service";
-import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
-import {MechanicSkills} from "../../objects/mechanic-skills";
 import {Dayjs} from "dayjs";
+import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 
 @Component({
 	selector: 'app-grid',
@@ -32,7 +39,8 @@ export class GridComponent implements OnInit {
 		private mechanicsService: MechanicsService,
 		private cardsService: CardsService,
 		private element: ElementRef,
-		private renderer: Renderer2
+		private renderer: Renderer2,
+		private cdRef: ChangeDetectorRef
 	) {}
 
 	ngOnInit(): void {
@@ -63,7 +71,7 @@ export class GridComponent implements OnInit {
 	): MechanicUpdate {
 		return mechanicLineUpdate
 			&& (mechanicLineUpdate.mechanicCode == mechanicCode
-				|| mechanicLineUpdate.type == Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH)
+				|| Constants.UPDATE_DROPZONE_TYPES.includes(mechanicLineUpdate.type))
 			? mechanicLineUpdate : undefined;
 	}
 
@@ -72,6 +80,11 @@ export class GridComponent implements OnInit {
 		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
 	): DayMechanicSkills {
 		return dayMechanicSkills && mechanicCode == dayMechanicSkills.mechanicCode ? dayMechanicSkills : undefined;
+	}
+
+	triggerMechanicLineCd(): void {
+		this.mechanicLineUpdate = new MechanicLineUpdate(Constants.MECHANIC_LINE_UPDATE_TYPE.RESIZE_LINE);
+		this.cdRef.detectChanges();
 	}
 
 	drop(event: CdkDragDrop<string[]>) {

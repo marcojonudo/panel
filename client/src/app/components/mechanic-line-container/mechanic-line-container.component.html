@@ -16,6 +16,10 @@
 		[showAppointmentsName]="showAppointmentsName"
 		class="h-100 flex-grow-1">
 	</app-mechanic-line>
-	<div appResizableLine [mechanic]="mechanic" class="w-100 resizable cursor-resize"></div>
+	<div
+		class="w-100 resizable cursor-resize"
+		appResizableLine
+		[mechanic]="mechanic"
+		(resized)="emitResizedLine($event)"></div>
 </div>
 <div>{{check()}}</div>

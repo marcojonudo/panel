@@ -57,7 +57,11 @@ export class DropzoneDirective implements OnInit, OnChanges {
 			/* Se define el timeout para dar tiempo a que actualice la interfaz y se genere un rect real */
 			setTimeout(() => {
 				this.dropzone.position =
-					DimensionsService.createPosition(this.element.nativeElement.getBoundingClientRect());
+					DimensionsService.createPosition(
+						this.element.nativeElement.getBoundingClientRect(),
+						CardPositionService.scrollLeft,
+						CardPositionService.scrollTop
+					);
 			}, 1)
 
 		}

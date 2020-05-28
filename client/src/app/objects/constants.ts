@@ -1,6 +1,3 @@
-import {Dayjs} from "dayjs";
-import {HttpHeaders} from "@angular/common/http";
-
 export class Constants {
 
 	public static PROPERTY: any = {
@@ -144,7 +141,12 @@ export class Constants {
 		LINES_NUMBER: 'LINES_NUMBER',
 		MAX_SCHEDULE_WIDTH: 'MAX_SCHEDULE_WIDTH',
 		SYNC_JPDV: 'SYNC_JPDV',
+		RESIZE_LINE: 'RESIZE_LINE'
 	};
+	public static readonly UPDATE_DROPZONE_TYPES: string[] = [
+		Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH,
+		Constants.MECHANIC_LINE_UPDATE_TYPE.RESIZE_LINE
+	]
 	public static readonly TOAST_CLASSNAME: any = {
 		WARNING: 'bg-warning'
 	};

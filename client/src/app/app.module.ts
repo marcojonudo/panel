@@ -44,7 +44,6 @@ import {SkillsDetailsComponent} from './components/skills-details/skills-details
 import {UtilsService} from "./services/utils.service";
 import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
-import {DraggableScheduleDirective} from './directives/draggable-schedule.directive';
 import {CardSectionPipe} from './pipes/card-section.pipe';
 import {CardDetailsComponent} from './components/card-details/card-details.component';
 import {CardContextMenuComponent} from './components/card-context-menu/card-context-menu.component';
@@ -89,7 +88,6 @@ import {Constants} from "./objects/constants";
 		SpinnerComponent,
 		ToolsBarComponent,
 		SkillsDetailsComponent,
-		DraggableScheduleDirective,
 		CardSectionPipe,
 		CardDetailsComponent,
 		CardContextMenuComponent,

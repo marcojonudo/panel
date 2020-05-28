@@ -11,7 +11,8 @@
 		[dayMechanicSkills]="checkTriggerMechanicInfoCd(mechanic.code)"
 		[showAppointmentsName]="showAppointmentsName"
 		[appointments]="mechanic.appointments"
-		[position]="mechanic.panelPosition">
+		[position]="mechanic.panelPosition"
+		(resizedLine)="triggerMechanicLineCd()">
 	</app-mechanic-line-container>
 </div>
 <div>{{check()}}</div>
