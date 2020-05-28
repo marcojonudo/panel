@@ -6,7 +6,6 @@ import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {DragSchedulesService} from "../services/drag-schedules.service";
 import {DragScheduleBehaviour} from "../objects/drag-schedule-behaviour/drag-schedule-behaviour";
 import {DimensionsService} from "../services/dimensions.service";
-import {UtilsService} from "../services/utils.service";
 import {NotificationService} from "../services/notification.service";
 import {WarningToast} from "../objects/toasts/warning-toast";
 import {ScheduleInterval} from "../objects/schedule-interval";

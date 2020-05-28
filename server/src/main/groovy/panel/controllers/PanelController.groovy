@@ -78,9 +78,9 @@ class PanelController {
 	@Put("/mechanic/position")
 	void updateMechanicsPosition(@Header String sessionId, @Body List<EmployeeSchedule> mechanics) {
 		cuboDatabaseClient.updateMechanicsPosition(
-				sessionId,
-				Constants.REAL_TIME_ACTION.UPDATE_MECHANICS_POSITION,
-				mechanics
+			sessionId,
+			Constants.REAL_TIME_ACTION.UPDATE_MECHANICS_POSITION,
+			mechanics
 		)
 	}
 
@@ -92,74 +92,74 @@ class PanelController {
 	@Put("/mechanic/jobLineType")
 	void updateMechanicJobLineType(@Header String sessionId, @Body EmployeeSchedule mechanic) {
 		cuboDatabaseClient.updateMechanicJobLineType(
-				sessionId,
-				Constants.REAL_TIME_ACTION.UPDATE_MECHANIC_JOB_LINE_TYPE,
-				mechanic
+			sessionId,
+			Constants.REAL_TIME_ACTION.UPDATE_MECHANIC_JOB_LINE_TYPE,
+			mechanic
 		)
 	}
 
 	@Put("/appointment/type")
 	void updateAppointmentType(
-			@Header String sessionId,
-			@Body Map<String, Object> appointment
+		@Header String sessionId,
+		@Body Map<String, Object> appointment
 	) {
 		cuboDatabaseClient.updateAppointmentType(sessionId, appointment)
 	}
 
 	@Post("/appointment")
 	EmployeeScheduleAppointment createAppointment(
-			@Header String sessionId,
-			@Body MechanicAppointment mechanicAppointment
+		@Header String sessionId,
+		@Body MechanicAppointment mechanicAppointment
 	) {
 		cuboDatabaseClient.createAppointment(
-				sessionId,
-				Constants.REAL_TIME_ACTION.CREATE_APPOINTMENT,
-				mechanicAppointment
+			sessionId,
+			Constants.REAL_TIME_ACTION.CREATE_APPOINTMENT,
+			mechanicAppointment
 		)
 	}
 
 	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
-			@Header String sessionId,
-			@Body MechanicAppointment mechanicAppointment
+		@Header String sessionId,
+		@Body MechanicAppointment mechanicAppointment
 	) {
 		cuboDatabaseClient.updateAppointmentSchedule(
-				sessionId,
-				Constants.REAL_TIME_ACTION.UPDATE_APPOINTMENT_SCHEDULE,
-				mechanicAppointment
+			sessionId,
+			Constants.REAL_TIME_ACTION.UPDATE_APPOINTMENT_SCHEDULE,
+			mechanicAppointment
 		)
 	}
 
 	@Delete("/appointment")
 	void deleteAppointmentSchedule(
-			@Header String sessionId,
-			@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate day,
-			@QueryValue String mechanicCode,
-			@QueryValue String typeCode,
-			@QueryValue String start
+		@Header String sessionId,
+		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate day,
+		@QueryValue String mechanicCode,
+		@QueryValue String typeCode,
+		@QueryValue String start
 	) {
 		cuboDatabaseClient.deleteAppointment(
-				sessionId,
-				Constants.REAL_TIME_ACTION.DELETE_APPOINTMENT,
-				day,
-				mechanicCode,
-				typeCode,
-				LocalTime.parse(start)
+			sessionId,
+			Constants.REAL_TIME_ACTION.DELETE_APPOINTMENT,
+			day,
+			mechanicCode,
+			typeCode,
+			LocalTime.parse(start)
 		)
 	}
 
 	@Put("/appointmentDay/counters")
 	void updateAppointmentDays(
-			@Header String sessionId,
-			@Body List<Map<String, Object>> appointmentDays
+		@Header String sessionId,
+		@Body List<Map<String, Object>> appointmentDays
 	) {
 		panelDatabaseClient.updateAppointmentDays(sessionId, appointmentDays)
 	}
 
 	@Put("/appointmentDay/max")
 	void updateAppointmentDayMax(
-			@Header String sessionId,
-			@Body Map<String, Object> appointmentDay
+		@Header String sessionId,
+		@Body Map<String, Object> appointmentDay
 	) {
 		panelDatabaseClient.updateAppointmentDayMax(sessionId, appointmentDay)
 	}
@@ -169,8 +169,8 @@ class PanelController {
 		UpdateCards updateCards = panelService.syncJpdvOrders()
 		if (updateCards.updated()) {
 			RealTimeRequestInfo realTimeRequestInfo = new RealTimeRequestInfo(
-					Constants.REAL_TIME_ACTION.SYNC_JPDV,
-					updateCards.getSyncInfo()
+				Constants.REAL_TIME_ACTION.SYNC_JPDV,
+				updateCards.getSyncInfo()
 			)
 			PanelPublisher.send("", realTimeRequestInfo)
 		}

@@ -17,9 +17,7 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 
 	calcQuarterRefLeft(clientX: number, appointment: AppointmentSchedule): number {
 		return DimensionsService.calcLeftFromStart(
-			this.left
-				? appointment.schedule.start
-				: appointment.schedule.end.add(Constants.QUARTERS.STEP_15, Constants.DAY_JS.m)
+			this.left ? appointment.schedule.start : appointment.schedule.end
 		);
 	}
 

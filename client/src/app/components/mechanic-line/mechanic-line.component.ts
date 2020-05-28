@@ -101,16 +101,39 @@ export class MechanicLineComponent {
 			: Constants.SCHEDULE_BORDER_CURSOR.DEFAULT;
 	}
 
-	checkShowAppointmentStartSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentStart: Dayjs): boolean {
-		return scheduleIntervals.find((interval: ScheduleInterval) =>
-			interval.start.isSame(appointmentStart)
-		) == undefined;
+	buildAppointmentBorderStyle(
+		scheduleIntervals: ScheduleInterval[],
+		appointmentThreshold: Dayjs,
+		appointmentColor: string,
+		leftBorder: boolean = true
+	): any {
+		const overlapped = leftBorder ?
+			this.checkOverlappedStartSquareBracket(scheduleIntervals, appointmentThreshold) :
+			this.checkOverlappedEndSquareBracket(scheduleIntervals, appointmentThreshold);
+		let style = {};
+		let borderColor = appointmentColor;
+		if (overlapped) {
+			borderColor = this.redColor;
+			style['z-index'] = 2;
+			style['height'] = `calc(100% + ${this.jobLineTypeHeight}px)`;
+		}
+		style['background'] = leftBorder ?
+			this.findScheduleLeftBorderBackground(borderColor) :
+			this.findScheduleRightBorderBackground(borderColor);
+		style['cursor'] = this.findCursor();
+		return style;
 	}
 
-	checkShowAppointmentEndSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentEnd: Dayjs): boolean {
+	checkOverlappedStartSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentStart: Dayjs): boolean {
+		return scheduleIntervals.find((interval: ScheduleInterval) =>
+			interval.start.isSame(appointmentStart)
+		) != undefined;
+	}
+
+	checkOverlappedEndSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentEnd: Dayjs): boolean {
 		return scheduleIntervals.find((interval: ScheduleInterval) =>
 			interval.end.isSame(appointmentEnd)
-		) == undefined;
+		) != undefined;
 	}
 
 	setHiddenCardsGroup(cardsGroup: CardsGroup): void {

@@ -9,32 +9,32 @@
 			'height.px': calcScheduleHeight(mechanic.lines),
 			'left.px': calcScheduleLeft(appointment.schedule.start)
 		}">
-		<div
-			class="w-100 appointment-schedule d-flex">
+		<div class="w-100 appointment-schedule d-flex">
 			<div
 				class="w-100 align-center"
 				[style.background-color]="appointment.appointmentType.color">
 				<span *ngIf="showAppointmentsName" class="appointment-schedule-text">{{appointment.appointmentType.name}}</span>
 			</div>
 			<div
-				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedules, appointment.schedule.start)"
 				class="schedule-border schedule-left-border"
-				[ngStyle]="{
-					background: findScheduleLeftBorderBackground(appointment.appointmentType.color),
-					cursor: findCursor()
-				}"
+				[ngStyle]="buildAppointmentBorderStyle(
+					mechanic.schedules,
+					appointment.schedule.start,
+					appointment.appointmentType.color
+				)"
 				appDragSchedule
 				[mechanic]="mechanic"
 				[appointment]="appointment"
 				[behaviour]="createUpdateScheduleBehaviour(true)">
 			</div>
 			<div
-				*ngIf="checkShowAppointmentEndSquareBracket(mechanic.schedules, appointment.schedule.end)"
 				class="schedule-border schedule-right-border"
-				[ngStyle]="{
-					background: findScheduleRightBorderBackground(appointment.appointmentType.color),
-					cursor: findCursor()
-				}"
+				[ngStyle]="buildAppointmentBorderStyle(
+					mechanic.schedules,
+					appointment.schedule.end,
+					appointment.appointmentType.color,
+					false
+				)"
 				appDragSchedule
 				[mechanic]="mechanic"
 				[appointment]="appointment"
