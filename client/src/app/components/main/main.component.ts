@@ -202,11 +202,15 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.dragSchedulesSubscription = NotificationService.mainCursor$.subscribe((cursor: string) => {
 			this.cursor = cursor;
 
-			this.appointmentsTypesContextMenuListener = this.renderer.listen(
-				this.element.nativeElement,
-				Constants.EVENT.CONTEXT_MENU,
-				this.openContextMenu.bind(this)
-			);
+			if (this.cursor == Constants.MAIN_CURSOR.DRAGGING_SCHEDULES) {
+				this.appointmentsTypesContextMenuListener = this.renderer.listen(
+					this.element.nativeElement,
+					Constants.EVENT.CONTEXT_MENU,
+					this.openContextMenu.bind(this)
+				);
+			} else {
+				this.appointmentsTypesContextMenuListener();
+			}
 			this.cdRef.detectChanges();
 		});
 

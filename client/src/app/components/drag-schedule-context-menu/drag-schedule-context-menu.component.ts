@@ -16,11 +16,11 @@ export class DragScheduleContextMenuComponent {
 	@Input() contextMenuInfo: DragScheduleContextMenuInfo;
 
 	findLeft(x: number): number {
-		return x + 32;
+		return x;
 	}
 
 	findTop(y: number): number {
-		return y + 32;
+		return y;
 	}
 
 	findAppointmentTypes(): AppointmentType[] {

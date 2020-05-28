@@ -19,13 +19,13 @@ class MechanicAppointment {
 	@JsonCreator
     MechanicAppointment(Map<String, Object> info) {
 		mechanic = new EmployeeSchedule(
-				day: LocalDate.parse((String) info.day),
-				employee: new Employee(code: (String) info.mechanicCode)
+			day: LocalDate.parse((String) info.day),
+			employee: new Employee(code: (String) info.mechanicCode)
 		)
 		appointmentTypeCode = ((Map<String, Object>) info.appointmentType).code
 		schedule = new ScheduleInterval(
-				start: LocalTime.parse((String)((Map<String, Object>) info.schedule).start),
-				end: LocalTime.parse((String)((Map<String, Object>) info.schedule).end),
+			start: LocalTime.parse((String)((Map<String, Object>) info.schedule).start),
+			end: LocalTime.parse((String)((Map<String, Object>) info.schedule).end),
 		)
 	}
 
