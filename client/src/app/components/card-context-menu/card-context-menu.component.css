@@ -6,15 +6,12 @@
 }
 
 .context-menu-option {
-	margin: 2px 0;
+	cursor: pointer;
+	transition: background-color .3s;
 }
 
-.context-menu-option:first-child {
-	margin-top: 0;
-}
-
-.context-menu-option:last-child {
-	margin-bottom: 0;
+.context-menu-option:hover {
+	background-color: #e0e0e0;
 }
 
 .context-menu-icon {

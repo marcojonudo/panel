@@ -144,6 +144,15 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.contextMenuSubscription = NotificationService.contextMenu$
 				.subscribe((contextMenuInfo: ContextMenuInfo) => {
 			this.contextMenuInfo = contextMenuInfo;
+			if (this.contextMenuInfo) {
+				this.pointerDownListener = this.renderer.listen(
+					this.element.nativeElement,
+					Constants.EVENT.POINTER_DOWN,
+					this.onPointerDown.bind(this)
+				);
+			} else {
+				this.pointerDownListener();
+			}
 			this.cdRef.detectChanges();
 		});
 
@@ -221,12 +230,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.initialScrollLeft = this.existentTodaySchedules
 			? this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2 : 0;
-
-		this.pointerDownListener = this.renderer.listen(
-			this.element.nativeElement,
-			Constants.EVENT.POINTER_DOWN,
-			this.onPointerDown.bind(this)
-		);
 	}
 
 	ngOnDestroy(): void {
@@ -510,6 +513,9 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	onPointerDown(event: PointerEvent): void {
 		if (UtilsService.checkLeftClick(event)) {
+			/* Si se hace clic en el menú contextual, este no se cierra (al menos desde aquí). Puede ser necesario que
+			*  no lo haga directamente, y requerir alguna interacción del usuario, por lo que se gestiona qué hacer con
+			*  él desde el click handler de la opción correspondiente */
 			if (this.contextMenuInfo && !this.checkElementId(<HTMLElement> event.target, Constants.CONTEXT_MENU)) {
 				this.contextMenuInfo.handleRemoval();
 			}

@@ -86,7 +86,7 @@ export class AppointmentsService {
 	// region Finders
 
 	static findAppointmentType(code: string): AppointmentType {
-		return this.appointmentTypes.find(appointmentType => appointmentType.code == code);
+		return this.appointmentTypes.find((appointmentType: AppointmentType) => appointmentType.code == code);
 	}
 
 	findMechanicAppointmentByMechanic(

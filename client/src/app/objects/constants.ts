@@ -46,7 +46,8 @@ export class Constants {
 	};
 	public static ID: any = {
 		MECHANIC_LINE: 'mechanic-line',
-		CARD_CONTEXT_MENU: 'card-context-menu'
+		CARD_CONTEXT_MENU: 'card-context-menu',
+		DRAG_SCHEDULE_CONTEXT_MENU: 'drag-schedule-context-menu'
 	};
 	public static readonly CHECK: boolean = false;
 	public static readonly SKILL_EXPERTISE_LEVEL: any = {

@@ -2,8 +2,8 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
 import {AppointmentType} from "../../objects/appointment-type";
 import {AppointmentsService} from "../../services/appointments.service";
-import {Coordinates} from "../../objects/coordinates";
 import {NotificationService} from "../../services/notification.service";
+import {Constants} from "../../objects/constants";
 
 @Component({
 	selector: 'app-drag-schedule-context-menu',
@@ -14,6 +14,10 @@ import {NotificationService} from "../../services/notification.service";
 export class DragScheduleContextMenuComponent {
 
 	@Input() contextMenuInfo: DragScheduleContextMenuInfo;
+
+	get dragScheduleContextMenuId(): string {
+		return Constants.ID.DRAG_SCHEDULE_CONTEXT_MENU;
+	}
 
 	findLeft(x: number): number {
 		return x;
