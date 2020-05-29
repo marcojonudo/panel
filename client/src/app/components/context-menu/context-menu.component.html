@@ -1,0 +1,16 @@
+<div
+	id="context-menu-container"
+	class="d-flex flex-column rounded border"
+	[ngStyle]="{
+		'left.px': findLeft(contextMenuInfo.clickCoordinates.x),
+		'top.px': contextMenuInfo.findTop(),
+		'bottom.px': contextMenuInfo.findBottom()
+	}">
+	<app-card-context-menu
+		*ngIf="checkShowContextMenu(groupType)"
+		[contextMenuInfo]="contextMenuInfo">
+	</app-card-context-menu>
+	<app-drag-schedule-context-menu
+		*ngIf="checkShowContextMenu(dragScheduleType)">
+	</app-drag-schedule-context-menu>
+</div>

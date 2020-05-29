@@ -104,3 +104,13 @@ html, body {
 	font-size: 1.4em;
 	cursor: pointer;
 }
+
+.context-menu-item {
+	cursor: pointer;
+	padding: .25rem;
+	transition: background-color .3s;
+}
+
+.context-menu-item:hover {
+	background-color: #e0e0e0;
+}

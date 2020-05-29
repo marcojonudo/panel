@@ -28,24 +28,6 @@ export class CardContextMenuComponent implements OnInit {
 			? Constants.VALUE.MECHANIC_INFO_WIDTH : 0;
 	}
 
-	get cardContextMenuId(): string {
-		return Constants.ID.CARD_CONTEXT_MENU;
-	}
-
-	findLeft(x: number): number {
-		return x;
-	}
-
-	findTop(y: number, contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo): number {
-		return contextMenuInfo.group.start ? y : undefined;
-	}
-
-	findBottom(y: number, contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo): number {
-		/* Si se abre el menú contextual en una ficha no asinada, el popup debe aparecer hacia arriba, para no salirse
-		*  de la pantalla */
-		return contextMenuInfo.group.start ? undefined : window.innerHeight - y;
-	}
-
 	checkCutCardSelected(): boolean {
 		return this.contextMenuInfo.group.mode == Constants.GROUP_MODE.CUT;
 	}

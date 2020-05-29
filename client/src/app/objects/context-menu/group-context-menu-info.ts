@@ -17,6 +17,14 @@ export class GroupContextMenuInfo implements ContextMenuInfo {
 		this.clickCoordinates = coordinates;
 	}
 
+	findTop(y: number = this.clickCoordinates.y): number {
+		return this.group.start ? y : undefined;
+	}
+
+	findBottom(y: number = this.clickCoordinates.y): number {
+		return this.group.start ? undefined : window.innerHeight - y;
+	}
+
 	handleRemoval(): void {
 		NotificationService.notifyContextMenu(undefined);
 		CardsService.updateCardMode([this.group], Constants.GROUP_MODE.DRAG);

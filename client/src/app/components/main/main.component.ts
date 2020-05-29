@@ -458,17 +458,8 @@ export class MainComponent implements OnInit, OnDestroy {
 			? daysQuartersSaturation[day.valueOf()].quartersSaturation : undefined;
 	}
 
-	checkShowCardContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
-		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.GROUP;
-	}
-
-	checkShowDragScheduleContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
-		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.DRAG_SCHEDULE;
-	}
-
-	findDragScheduleContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
-		return contextMenuInfo && contextMenuInfo.type == Constants.CONTEXT_MENU_TYPE.DRAG_SCHEDULE
-			? contextMenuInfo : undefined;
+	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
+		return contextMenuInfo != undefined;
 	}
 
 	findDayMechanicSkills(

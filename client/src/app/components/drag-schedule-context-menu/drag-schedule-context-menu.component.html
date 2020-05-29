@@ -1,14 +1,6 @@
 <div
-	[id]="dragScheduleContextMenuId"
-	class="d-flex flex-column drag-schedule-context-menu-container"
-	[ngStyle]="{
-		'left.px': findLeft(contextMenuInfo.clickCoordinates.x),
-		'top.px': findTop(contextMenuInfo.clickCoordinates.y)
-	}">
-	<div
-		*ngFor="let type of findAppointmentTypes()"
-		class="drag-schedule-context-menu-item p-1"
-		(click)="selectAppointmentType(type)">
-		{{type.code}}
-	</div>
+	*ngFor="let type of findAppointmentTypes()"
+	class="context-menu-item align-center"
+	(click)="selectAppointmentType(type)">
+	{{type.code}}
 </div>

@@ -93,14 +93,10 @@
 		</div>
 	</div>
 </div>
-<app-card-context-menu
-	*ngIf="checkShowCardContextMenu()"
+<app-context-menu
+	*ngIf="checkShowContextMenu()"
 	[contextMenuInfo]="contextMenuInfo">
-</app-card-context-menu>
-<app-drag-schedule-context-menu
-	*ngIf="checkShowDragScheduleContextMenu()"
-	[contextMenuInfo]="findDragScheduleContextMenuInfo()">
-</app-drag-schedule-context-menu>
+</app-context-menu>
 <app-toasts-container
 	class="toast-position"
 	[toast]="toast">

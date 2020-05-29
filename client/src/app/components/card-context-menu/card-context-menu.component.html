@@ -1,28 +1,19 @@
 <div
-	[id]="cardContextMenuId"
-	class="d-flex flex-column rounded border context-menu-container"
-	[ngStyle]="{
-		'left.px': findLeft(contextMenuInfo.clickCoordinates.x),
-		'top.px': findTop(contextMenuInfo.clickCoordinates.y),
-		'bottom.px': findBottom(contextMenuInfo.clickCoordinates.y)
-	}">
-	<div
-		class="d-flex align-center justify-content-start context-menu-option p-1"
-		[ngClass]="{'rounded selected-option': checkCutCardSelected()}"
-		(click)="cutCard()">
-		<i class="fas fa-cut context-menu-icon"></i>
-		<span>Cortar</span>
-	</div>
-	<div
-		class="d-flex align-center justify-content-start context-menu-option p-1"
-		(click)="cutCardByHalf()">
-		<i class="fas fa-divide context-menu-icon"></i>
-		<span>Dividir</span>
-	</div>
-	<div
-		class="d-flex align-center justify-content-start context-menu-option p-1"
-		(click)="showCardDetails()">
-		<i class="fas fa-clipboard context-menu-icon"></i>
-		<span>Detalles</span>
-	</div>
+	class="d-flex align-center justify-content-start context-menu-item"
+	[ngClass]="{'rounded selected-option': checkCutCardSelected()}"
+	(click)="cutCard()">
+	<i class="fas fa-cut context-menu-icon"></i>
+	<span>Cortar</span>
+</div>
+<div
+	class="d-flex align-center justify-content-start context-menu-item"
+	(click)="cutCardByHalf()">
+	<i class="fas fa-divide context-menu-icon"></i>
+	<span>Dividir</span>
+</div>
+<div
+	class="d-flex align-center justify-content-start context-menu-item"
+	(click)="showCardDetails()">
+	<i class="fas fa-clipboard context-menu-icon"></i>
+	<span>Detalles</span>
 </div>
