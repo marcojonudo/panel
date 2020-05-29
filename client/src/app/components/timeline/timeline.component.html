@@ -6,8 +6,12 @@
 			'quarter hour-border border-semi-dark': checkDisplayHours(hourQuarter.quarter),
 			'background-color-red': findQuarterBackground(hourQuarter.hour, hourQuarter.quarter)
 		}">
-		<span *ngIf="checkDisplayHours(hourQuarter.quarter)">{{hourQuarter.hour}}<span *ngIf="checkDisplayMinutes()">:</span></span>
-		<span *ngIf="checkDisplayMinutes()">{{hourQuarter.quarter}}</span>
+		<span *ngIf="checkDisplayHours(hourQuarter.quarter); else minutesBlock">
+			{{hourQuarter.hour}}<span *ngIf="checkDisplayMinutes()">:00</span>
+		</span>
+		<ng-template #minutesBlock>
+			<span *ngIf="checkDisplayMinutes()">{{hourQuarter.quarter}}</span>
+		</ng-template>
 	</div>
 </div>
 <div>{{check()}}</div>
