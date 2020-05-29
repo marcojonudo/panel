@@ -1059,12 +1059,9 @@ export class CardsService {
 
 	cutCardByHalf(group: CardsGroup, groupX: number, x: number): void {
 		const clickedCard = CardsService.findClickedCard(group.cards, groupX, x);
-		if (clickedCard.duration >= Constants.VALUE.CARD_MIN_DURATION * 2) {
-			const [leftCardDuration, rightCardDuration] = [
-				UtilsService.roundCeil(clickedCard.duration / 2, 5),
-				UtilsService.roundFloor(clickedCard.duration / 2, 5)
-			];
-			this.divideCard(clickedCard, group, leftCardDuration, rightCardDuration);
+		if (clickedCard.duration >= Constants.VALUE.CARD_MIN_DURATION * 1.5) {
+			const newDuration = UtilsService.roundCeil(clickedCard.duration / 2, 5);
+			this.divideCard(clickedCard, group, newDuration, newDuration);
 		}
 	}
 
