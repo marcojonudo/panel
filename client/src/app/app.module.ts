@@ -57,6 +57,7 @@ import { DragScheduleDirective } from './directives/drag-schedule.directive';
 import { DragScheduleContextMenuComponent } from './components/drag-schedule-context-menu/drag-schedule-context-menu.component';
 import * as dayjs from "dayjs";
 import {Constants} from "./objects/constants";
+import { ContextMenuComponent } from './components/context-menu/context-menu.component';
 
 @NgModule({
 	declarations: [
@@ -98,7 +99,8 @@ import {Constants} from "./objects/constants";
 		AppointmentsSummaryComponent,
 		ToastsContainerComponent,
 		DragScheduleDirective,
-		DragScheduleContextMenuComponent
+		DragScheduleContextMenuComponent,
+		ContextMenuComponent
 	],
 	imports: [
 		BrowserModule,

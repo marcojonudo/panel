@@ -3,17 +3,26 @@
 	[ngClass]="{'rounded selected-option': checkCutCardSelected()}"
 	(click)="cutCard()">
 	<i class="fas fa-cut context-menu-icon"></i>
-	<span>Cortar</span>
+	<span class="pl-1">Cortar</span>
 </div>
 <div
 	class="d-flex align-center justify-content-start context-menu-item"
 	(click)="cutCardByHalf()">
 	<i class="fas fa-divide context-menu-icon"></i>
-	<span>Dividir</span>
+	<span class="pl-1">Dividir</span>
 </div>
 <div
+	*ngIf="checkShowDetails(); else replaceTemplate"
 	class="d-flex align-center justify-content-start context-menu-item"
 	(click)="showCardDetails()">
 	<i class="fas fa-clipboard context-menu-icon"></i>
-	<span>Detalles</span>
+	<span class="pl-1">Detalles</span>
 </div>
+<ng-template #replaceTemplate>
+	<div
+		class="d-flex align-center justify-content-start context-menu-item"
+		(click)="replaceCard()">
+		<i class="fas fa-exchange-alt context-menu-icon"></i>
+		<span class="pl-1">Reemplazar</span>
+	</div>
+</ng-template>

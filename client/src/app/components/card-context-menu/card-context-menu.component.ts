@@ -8,6 +8,8 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {CardDetailsInfo} from "../../objects/lateral-panel-info/card-details-info";
 import {GroupContextMenuInfo} from "../../objects/context-menu/group-context-menu-info";
+import {CardsGroup} from "../../objects/cards-group";
+import {WarningToast} from "../../objects/toasts/warning-toast";
 
 @Component({
 	selector: 'app-card-context-menu',
@@ -26,6 +28,10 @@ export class CardContextMenuComponent implements OnInit {
 	ngOnInit(): void {
 		this.leftOffset = this.contextMenuInfo && this.contextMenuInfo.group.start
 			? Constants.VALUE.MECHANIC_INFO_WIDTH : 0;
+	}
+
+	checkShowDetails(group: CardsGroup = this.contextMenuInfo.group): boolean {
+		return group.cards[0].type != Constants.CARD_TYPE.AUXILIARY;
 	}
 
 	checkCutCardSelected(): boolean {
@@ -55,6 +61,17 @@ export class CardContextMenuComponent implements OnInit {
 		NotificationService.notifyLateralInfo(
 			new DayLateralPanelInfo(clickedCard.day, new CardDetailsInfo(clickedCard))
 		);
+		NotificationService.notifyContextMenu(undefined);
+	}
+
+	replaceCard(group: CardsGroup = this.contextMenuInfo.group): void {
+		/* Obligatoriamente tiene que haber grupos no asignados para poder reemplazar una ficha temporal */
+		if (CardsService.unassignedCardsGroups.length) {
+			CardsService.auxiliaryGroupToReplace = group;
+			CardsService.updateCardMode(CardsService.unassignedCardsGroups, Constants.GROUP_MODE.REPLACE);
+		} else {
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_UNASSIGNED_GROUPS_TO_REPLACE));
+		}
 		NotificationService.notifyContextMenu(undefined);
 	}
 

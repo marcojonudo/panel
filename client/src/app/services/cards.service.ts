@@ -1174,7 +1174,14 @@ export class CardsService {
 		const groupsToUpdate = destinyDropzone.findGroupsToUpdate(clonedGroup, groupToReplace.line);
 		if (groupsToUpdate) {
 			this.deleteReplacedGroup(groupToReplace, destinyDropzone);
-			CardsService.updateReplacementGroup(group, groupsToUpdate, groupToReplace.line, originDropzone, destinyDropzone);
+			CardsService.updateReplacementGroup(
+				group,
+				groupsToUpdate,
+				groupToReplace,
+				groupToReplace.line,
+				originDropzone,
+				destinyDropzone
+			);
 		} else {
 			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_REPLACEMENT_SPACE));
 		}
@@ -1183,12 +1190,21 @@ export class CardsService {
 	static updateReplacementGroup(
 		group: CardsGroup,
 		groupsToUpdate: CardsGroup[],
+		auxiliaryGroup: CardsGroup,
 		line: number,
 		originDropzone: Dropzone,
 		destinyDropzone: Dropzone
 	): void {
 		originDropzone.removeGroup(group, false, destinyDropzone);
-		destinyDropzone.addGroup(groupsToUpdate, group, originDropzone, line);
+		/* Al validar un movimiento dentro de la dropzone (al mover una ficha de forma normal), se obtiene
+		*  dayMechanicGroups. Al no validarse en este caso, ese valor no está actualizado y puede producir errores.
+		*  Por tanto, se obtiene y se pasa como parámetro */
+		destinyDropzone.addGroup(
+			groupsToUpdate,
+			group,
+			originDropzone,
+			line
+		);
 	}
 
 	deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {

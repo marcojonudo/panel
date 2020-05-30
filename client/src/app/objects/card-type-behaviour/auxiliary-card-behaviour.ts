@@ -2,9 +2,8 @@ import {CardsGroup} from "../cards-group";
 import {CardTypeBehaviour} from "./card-type-behaviour";
 import {CardsService} from "../../services/cards.service";
 import {NotificationService} from "../../services/notification.service";
-import {WarningToast} from "../toasts/warning-toast";
-import {Constants} from "../constants";
 import {Coordinates} from "../coordinates";
+import {GroupContextMenuInfo} from "../context-menu/group-context-menu-info";
 
 export class AuxiliaryCardBehaviour implements CardTypeBehaviour {
 
@@ -17,13 +16,7 @@ export class AuxiliaryCardBehaviour implements CardTypeBehaviour {
 	}
 
 	handleRightClick(group: CardsGroup, coordinates: Coordinates): void {
-		/* Obligatoriamente tiene que haber grupos no asignados para poder reemplazar una ficha temporal */
-		if (CardsService.unassignedCardsGroups.length) {
-			CardsService.auxiliaryGroupToReplace = group;
-			CardsService.updateCardMode(CardsService.unassignedCardsGroups, Constants.GROUP_MODE.REPLACE);
-		} else {
-			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_UNASSIGNED_GROUPS_TO_REPLACE));
-		}
+		NotificationService.notifyContextMenu(new GroupContextMenuInfo(group, coordinates));
 	}
 
 }

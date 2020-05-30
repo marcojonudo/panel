@@ -13,7 +13,7 @@ export class CutCardModeAction implements CardModeAction {
 	}
 
 	execute(group: CardsGroup, x: number): void {
-		let groupX = undefined;
+		let groupX;
 		if (group.start) {
 			x = CardPositionService.absolutePositionToLeft(x);
 			groupX = group.left;
