@@ -1,6 +1,12 @@
 <div
 	class="h-100 panel-card resizable"
-	[ngStyle]="{'width.px': card.width, 'background-color': findBackground(card.type)}">
+	(mouseenter)="highlightOrderCards(card.day, card.order.number, true)"
+	(mouseleave)="highlightOrderCards(card.day, card.order.number, false)"
+	[ngStyle]="{
+		'width.px': card.width,
+		'background-color': findBackground(card.type),
+		'border': findBorder(card.highlight)
+	}">
 	<div class="h-100 d-flex flex-column">
 		<div class="flex-grow-1 flex-basis-0 d-flex">
 			<div class="flex-grow-1 flex-basis-0 align-center">

@@ -850,11 +850,6 @@ export class CardsService {
 		return group && group.cards[0].order.number == orderNumber ? group : undefined;
 	}
 
-	private static findNextGroup(groups: CardsGroup[], groupId: string, offset: number): CardsGroup {
-		const groupIndex = groups.findIndex(g => g.id == groupId);
-		return groups[groupIndex + offset];
-	}
-
 	private static findLeftGroup(groups: CardsGroup[], groupId: string): CardsGroup {
 		const groupIndex = groups.findIndex(g => g.id == groupId);
 		return groupIndex > -1 && groupIndex > 0 ? groups[groupIndex - 1] : undefined;
@@ -873,7 +868,7 @@ export class CardsService {
 		return groups.find((group: CardsGroup) => group.start.isSame(end));
 	}
 
-	private static findOrderGroups(groups: CardsGroup[], orderNumber: number): CardsGroup[] {
+	static findOrderGroups(groups: CardsGroup[], orderNumber: number): CardsGroup[] {
 		return groups.filter(group => group.cards[0].order.number == orderNumber);
 	}
 
@@ -888,7 +883,6 @@ export class CardsService {
 		});
 		return cards;
 	}
-
 
 	static findOrderCards(
 		orderNumber: number,

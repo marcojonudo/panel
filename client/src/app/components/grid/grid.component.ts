@@ -71,7 +71,7 @@ export class GridComponent implements OnInit {
 	): MechanicUpdate {
 		return mechanicLineUpdate
 			&& (mechanicLineUpdate.mechanicCode == mechanicCode
-				|| Constants.UPDATE_DROPZONE_TYPES.includes(mechanicLineUpdate.type))
+				|| Constants.UPDATE_ALL_MECHANIC_LINES_TYPES.includes(mechanicLineUpdate.type))
 			? mechanicLineUpdate : undefined;
 	}
 

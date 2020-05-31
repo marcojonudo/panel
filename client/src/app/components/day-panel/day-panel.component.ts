@@ -3,10 +3,10 @@ import {Constants} from "../../objects/constants";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
-import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {DimensionsService} from "../../services/dimensions.service";
 import {HourQuarter} from "../../objects/hour-quarter";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-day-panel',
@@ -16,7 +16,7 @@ import {HourQuarter} from "../../objects/hour-quarter";
 })
 export class DayPanelComponent implements OnInit {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
 	@Input() quartersSaturation: QuartersSaturation;
 	@Input() mechanicLineUpdate: MechanicUpdate;
@@ -26,7 +26,7 @@ export class DayPanelComponent implements OnInit {
 	@Input() maxScheduleWidth: number;
 	@Input() timeIndicatorLeft: number;
 
-	private timeIndicatorHeight: number;
+	timeIndicatorHeight: number;
 
 	ngOnInit() {
 		this.timeIndicatorHeight = this.mechanics ? DimensionsService.calcGridCompleteHeight(this.mechanics) : 0;

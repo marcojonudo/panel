@@ -48,6 +48,8 @@ export class Card {
 	possibleLinkedNext: boolean;
 	possibleLinkedPrevious: boolean;
 
+	highlight: boolean;
+
 	constructor(card: any, initialLoad: boolean = true) {
 		this.type = card.type;
 		this.code = card.code;
@@ -73,6 +75,7 @@ export class Card {
 		this.lastLine = card.lastLine != undefined ? card.lastLine : initialLoad ? this.line : undefined;
 		this.lastStart = card.lastStart != undefined ? card.lastStart : initialLoad ? this.start : undefined;
 		this.lastEnd = card.lastEnd != undefined ? card.lastEnd : initialLoad ? this.end : undefined;
+		this.highlight = false;
 	}
 
 	setStart(start: Dayjs): void {
