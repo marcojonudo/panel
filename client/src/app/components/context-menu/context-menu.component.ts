@@ -25,7 +25,6 @@ export class ContextMenuComponent {
 	}
 
 	checkShowContextMenu(type: string, contextMenuInfoType: string = this.contextMenuInfo.type) {
-		console.log(1, type, contextMenuInfoType);
 		return type == contextMenuInfoType;
 	}
 

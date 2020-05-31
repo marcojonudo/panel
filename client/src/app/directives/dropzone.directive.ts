@@ -54,7 +54,8 @@ export class DropzoneDirective implements OnInit, OnChanges {
 		/* Si la línea de mecánico está siendo actualizada por un cambio de zoom, se deben actualizar las posiciones y
 		*  de la dropzone */
 		if (changes.update && changes.update.currentValue) {
-			/* Se define el timeout para dar tiempo a que actualice la interfaz y se genere un rect real */
+			/* Se define el timeout para dar tiempo a que actualice la interfaz y se generen tanto un rect real,
+			*  como un valor final de scroll */
 			setTimeout(() => {
 				this.dropzone.position =
 					DimensionsService.createPosition(
@@ -62,8 +63,7 @@ export class DropzoneDirective implements OnInit, OnChanges {
 						CardPositionService.scrollLeft,
 						CardPositionService.scrollTop
 					);
-			}, 1)
-
+			}, 150)
 		}
 	}
 
