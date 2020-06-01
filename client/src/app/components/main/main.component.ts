@@ -108,8 +108,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.days = MechanicsService.days;
 		this.initDaysUpdateObjects();
 
-		// TODO Revisar para qué recorrer el array de days
-		this.today = dayjs().startOf(Constants.DAY_JS.d);//this.days.length ? this.days.find((day: Dayjs) => day.isSame(today)) : today;
+		this.today = dayjs().startOf(Constants.DAY_JS.d);
 		this.oneDayMode = true;
 		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
