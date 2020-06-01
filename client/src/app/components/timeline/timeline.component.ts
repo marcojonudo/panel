@@ -1,10 +1,9 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
-import {DimensionsService} from "../../services/dimensions.service";
 import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {UtilsService} from "../../services/utils.service";
-import {HourQuarters} from "../../objects/hour-quarters";
 import {HourQuarter} from "../../objects/hour-quarter";
+import { Dayjs } from 'dayjs';
 
 @Component({
 	selector: 'app-timeline',
@@ -14,7 +13,7 @@ import {HourQuarter} from "../../objects/hour-quarter";
 })
 export class TimelineComponent {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() quartersSaturation: QuartersSaturation;
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;

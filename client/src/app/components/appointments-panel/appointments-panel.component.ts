@@ -7,6 +7,7 @@ import {AppointmentDay} from "../../objects/appointment-day";
 import {NotificationService} from "../../services/notification.service";
 import {DayAppointmentsCounter} from "../../objects/day-appointments-counter";
 import {KeyValue} from "@angular/common";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -16,11 +17,8 @@ import {KeyValue} from "@angular/common";
 })
 export class AppointmentsPanelComponent implements OnInit, OnDestroy {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() dayAppointmentsCounter: DayAppointmentsCounter;
-
-	private readonly TOTAL: string = 'TOTAL';
-	private readonly MAX: string = 'MAX';
 
 	private appointmentsCounterSubscription: Subscription;
 

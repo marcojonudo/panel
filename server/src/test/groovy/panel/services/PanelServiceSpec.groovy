@@ -12,6 +12,7 @@ import panel.pogos.UpdateAppointmentDays
 import panel.pogos.UpdateCards
 import spock.lang.Shared
 import spock.lang.Specification
+import utils.pogos.Schedule
 import utils.pogos.fviberi.*
 import utils.pogos.panel.*
 import utils.pogos.schedules.EmployeeSchedule
@@ -1501,7 +1502,75 @@ class PanelServiceSpec extends Specification {
 		daysMechanics[tomorrow.toString()].size() == 1
 	}
 
-//	// endregion
+	void "test integrate fixed mechanics max today schedule"() {
+		given:
+		List<EmployeeSchedule> mechanics = [
+			new EmployeeSchedule(
+				day: today,
+				schedule: new Schedule(
+					morningStart: LocalTime.of(8, 0),
+					morningEnd: LocalTime.of(13, 0),
+					afternoonStart: LocalTime.of(15, 0),
+					afternoonEnd: LocalTime.of(20, 0)
+				)
+			),
+			new EmployeeSchedule(
+				day: tomorrow,
+				schedule: new Schedule(
+					morningStart: LocalTime.of(9, 0),
+					morningEnd: LocalTime.of(13, 0),
+					afternoonStart: LocalTime.of(15, 0),
+					afternoonEnd: LocalTime.of(19, 0)
+				)),
+			new EmployeeSchedule(day: null),
+		]
+
+		when:
+		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
+
+		then:
+		daysMechanics.size() == 2
+		daysMechanics[today.toString()].size() == 2
+		daysMechanics[today.toString()].findAll {
+			it.schedule.morningEnd == LocalTime.of(20, 0)
+		}.size() == 1
+	}
+
+	void "test integrate fixed mechanics max tomorrow schedule"() {
+		given:
+		List<EmployeeSchedule> mechanics = [
+			new EmployeeSchedule(
+				day: today,
+				schedule: new Schedule(
+					morningStart: LocalTime.of(8, 0),
+					morningEnd: LocalTime.of(13, 0),
+					afternoonStart: LocalTime.of(15, 0),
+					afternoonEnd: LocalTime.of(20, 0)
+				)
+			),
+			new EmployeeSchedule(
+				day: tomorrow,
+				schedule: new Schedule(
+					morningStart: LocalTime.of(9, 0),
+					morningEnd: LocalTime.of(13, 0),
+					afternoonStart: LocalTime.of(15, 0),
+					afternoonEnd: LocalTime.of(22, 0)
+				)),
+			new EmployeeSchedule(day: null),
+		]
+
+		when:
+		Map<String, List<EmployeeSchedule>> daysMechanics = panelService.integrateFixedMechanics(mechanics)
+
+		then:
+		daysMechanics.size() == 2
+		daysMechanics[today.toString()].size() == 2
+		daysMechanics[today.toString()].findAll {
+			it.schedule.morningEnd == LocalTime.of(20, 0)
+		}.size() == 1
+	}
+
+	// endregion
 
 	// region Sort possible groups
 

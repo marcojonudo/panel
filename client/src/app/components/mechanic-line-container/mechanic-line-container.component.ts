@@ -12,6 +12,7 @@ import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -21,7 +22,7 @@ import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills
 })
 export class MechanicLineContainerComponent {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() mechanicLineUpdate: MechanicUpdate;
 	@Input() dayMechanicSkills: DayMechanicSkills;
 	@Input() mechanic: Mechanic;

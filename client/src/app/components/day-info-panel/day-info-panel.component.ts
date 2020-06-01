@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-day-info-panel',
@@ -9,7 +10,7 @@ import {Constants} from "../../objects/constants";
 })
 export class DayInfoPanelComponent {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 
 	checkDayInfoPanel() {
 		if (Constants.CHECK) {
