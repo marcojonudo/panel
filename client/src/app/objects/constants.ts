@@ -193,6 +193,10 @@ export class Constants {
 	public static readonly REAL_TIME_ACTION: any = {
 		UPDATE_CARDS_POSITION: 'updateCardsPosition'
 	};
+	public static readonly VEHICLE_POSITION: any = {
+		PARKING: 'PARKING',
+		GARAGE: 'GARAGE'
+	};
 	public static readonly FIXED_MECHANIC_CODES: string[] = ['9999995', '9999996'];
 	public static readonly DEFAULT: string = "DEFAULT";
 	public static readonly DEFAULT_JOB_LINE_TYPE_COLOR: string = "#f1f1f1";

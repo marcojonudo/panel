@@ -1,8 +1,10 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
 import {Card} from "../../objects/card";
 import {Constants} from "../../objects/constants";
 import {NotificationService} from "../../services/notification.service";
 import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
+import {HttpClient} from "@angular/common/http";
+import {CardsService} from "../../services/cards.service";
 
 @Component({
 	selector: 'app-card-details',
@@ -14,12 +16,55 @@ export class CardDetailsComponent {
 
 	@Input() card: Card;
 
+	constructor(
+		private cardsService: CardsService,
+		private cdRef: ChangeDetectorRef
+	) {}
+
+	// region Getters / setters
+
+	get garagePosition(): string {
+		return Constants.VEHICLE_POSITION.GARAGE;
+	}
+
+	get parkingPosition(): string {
+		return Constants.VEHICLE_POSITION.PARKING;
+	}
+
+	// endregion
+
 	findStateName(state: string): string {
 		return Constants.ORDER_STATE_NAME[state];
 	}
 
 	closePanel(): void {
 		NotificationService.notifyLateralInfo(new DayLateralPanelInfo(this.card.day, undefined));
+	}
+
+	checkVehiclePosition(vehiclePosition: string): boolean {
+		return this.card.vehiclePosition == vehiclePosition;
+	}
+
+	findVehiclePositionValue(vehiclePosition: string): string {
+		return this.card.vehiclePosition == vehiclePosition ? undefined : vehiclePosition;
+	}
+
+	updateVehiclePosition(vehiclePosition: string): void {
+		this.card.vehiclePosition = this.findVehiclePositionValue(vehiclePosition);
+		this.cardsService.updateVehiclePosition(this.card);
+		this.cdRef.detectChanges();
+	}
+
+	updatePendingMaterial(pendingMaterial: boolean): void {
+		this.card.pendingMaterial = pendingMaterial;
+		this.cardsService.updatePendingMaterial(this.card);
+		this.cdRef.detectChanges();
+	}
+
+	updatePendingBudget(pendingBudget: boolean): void {
+		this.card.pendingBudget = pendingBudget;
+		this.cardsService.updatePendingBudget(this.card);
+		this.cdRef.detectChanges();
 	}
 
 	check(): void {

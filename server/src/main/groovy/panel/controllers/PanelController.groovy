@@ -75,6 +75,21 @@ class PanelController {
 		panelDatabaseClient.deleteCards(sessionId, cards)
 	}
 
+	@Patch("/cards/vehiclePosition")
+	void updateVehiclePosition(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updateVehiclePosition(sessionId, Constants.REAL_TIME_ACTION.UPDATE_VEHICLE_POSITION, cards)
+	}
+
+	@Patch("/cards/pendingMaterial")
+	void updatePendingMaterial(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updatePendingMaterial(sessionId, Constants.REAL_TIME_ACTION.PENDING_MATERIAL, cards)
+	}
+
+	@Patch("/cards/pendingBudget")
+	void updatePendingBudget(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updatePendingBudget(sessionId, Constants.REAL_TIME_ACTION.PENDING_BUDGET, cards)
+	}
+
 	@Put("/mechanic/position")
 	void updateMechanicsPosition(@Header String sessionId, @Body List<EmployeeSchedule> mechanics) {
 		cuboDatabaseClient.updateMechanicsPosition(

@@ -46,6 +46,18 @@ export class Url {
 		return `${environment.serverUrl}/panel/cards/delete`;
 	}
 
+	public static cardsVehiclePosition(): string {
+		return `${environment.serverUrl}/panel/cards/vehiclePosition`;
+	}
+
+	public static cardsPendingMaterial(): string {
+		return `${environment.serverUrl}/panel/cards/pendingMaterial`;
+	}
+
+	public static cardsPendingBudget(): string {
+		return `${environment.serverUrl}/panel/cards/pendingBudget`;
+	}
+
 	public static appointmentDayMax(): string {
 		return `${environment.serverUrl}/panel/appointmentDay/max`;
 	}

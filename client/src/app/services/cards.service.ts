@@ -1208,6 +1208,22 @@ export class CardsService {
 
 	// endregion
 
+	// region Vehicle
+
+	updateVehiclePosition(card: Card): void {
+		this.http.patch(Url.cardsVehiclePosition(), [card]).subscribe();
+	}
+
+	updatePendingMaterial(card: Card): void {
+		this.http.patch(Url.cardsPendingMaterial(), [card]).subscribe();
+	}
+
+	updatePendingBudget(card: Card): void {
+		this.http.patch(Url.cardsPendingBudget(), [card]).subscribe();
+	}
+
+	// endregion
+
 	syncJpdv(): Observable<any> {
 		return this.http.post(Url.syncJpdv(), undefined);
 	}

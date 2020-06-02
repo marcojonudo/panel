@@ -1,6 +1,11 @@
-.card-details-container {
+#card-details-container {
 	overflow-y: auto;
 	background-color: #ffffff;
+}
+
+#card-details-container label {
+	cursor: pointer;
+	margin: 0;
 }
 
 .detail-section-title {
@@ -14,4 +19,42 @@
 
 .w-15 {
 	width: 15%;
+}
+
+#vehicle-position-container {
+	flex-grow: 2;
+	flex-basis: 0;
+}
+
+input[type=checkbox] {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.card-details-icon {
+	color: #e3e3e3;
+	transform: scale(.8);
+	transition: transform .2s, color .2s;
+}
+
+.card-selected-icon {
+	transform: scale(1.3);
+}
+
+.card-selected-parking {
+	color: #204a87;
+}
+
+.card-selected-garage {
+	color: #b03648;
+}
+
+.card-selected-material {
+	color: #262626;
+}
+
+.card-selected-budget {
+	color: #ffe684;
 }

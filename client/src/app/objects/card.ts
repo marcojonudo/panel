@@ -44,6 +44,9 @@ export class Card {
 	linkedPrevious: Card;
 
 	divisionIndex: number;
+	vehiclePosition: string;
+	pendingMaterial: boolean;
+	pendingBudget: boolean;
 
 	possibleLinkedNext: boolean;
 	possibleLinkedPrevious: boolean;
@@ -68,6 +71,9 @@ export class Card {
 		this.linkedPrevious = card.linkedPrevious ? new Card(card.linkedPrevious) : undefined;
 		this.linkedNext = card.linkedNext ? new Card(card.linkedNext) : undefined;
 		this.divisionIndex = card.divisionIndex;
+		this.vehiclePosition = card.vehiclePosition;
+		this.pendingMaterial = card.pendingMaterial;
+		this.pendingBudget = card.pendingBudget;
 		this.panelId = this.order ? CardsService.buildPanelId(this) : undefined;
 
 		this.lastDay = card.lastDay ? dayjs(card.lastDay) : initialLoad ? this.day : undefined;
@@ -127,7 +133,10 @@ export class Card {
 			mechanicCode: this.mechanicCode,
 			lastMechanicCode: this.lastMechanicCode,
 			duration: this.duration,
-			divisionIndex: this.divisionIndex
+			divisionIndex: this.divisionIndex,
+			vehiclePosition: this.vehiclePosition,
+			pendingMaterial: this.pendingMaterial,
+			pendingBudget: this.pendingBudget
 		});
 		card.day = this.day;
 		card.start = this.start;

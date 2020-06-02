@@ -62,6 +62,12 @@ interface PanelDatabaseApi {
 			@Body List<Map<String, Object>> cards
 	)
 
+	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+
+	void updatePendingMaterial(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+
+	void updatePendingBudget(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+
 	void createAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
 
 	void createAppointmentDaysTotal(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)

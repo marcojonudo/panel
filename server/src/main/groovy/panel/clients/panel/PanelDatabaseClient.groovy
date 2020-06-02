@@ -76,6 +76,15 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 			@Body List<Map<String, Object>> cards
 	)
 
+	@Patch("/cards/vehiclePosition")
+	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+
+	@Patch("/cards/pendingMaterial")
+	void updatePendingMaterial(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+
+	@Patch("/cards/pendingBudget")
+	void updatePendingBudget(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+
 	@Post("/appointmentDay")
 	void createAppointmentDays(@Header String sessionId, @Body List<Map<String, Object>> appointmentDays)
 
