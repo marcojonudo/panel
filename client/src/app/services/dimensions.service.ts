@@ -11,6 +11,7 @@ import {Dayjs} from "dayjs";
 import {HourQuarter} from "../objects/hour-quarter";
 import {MechanicsService} from "./mechanics.service";
 import {Card} from "../objects/card";
+import {CardPositionService} from "./card-position.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -401,6 +402,10 @@ export class DimensionsService {
 		*  ancho del grid, ya que al activar la vista de varios días, automáticamente se ajusta a la pantalla */
 		this.maxScheduleWidth = oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth;
 		this.calcWidthValuesFromMaxScheduleWidth(this.maxScheduleWidth);
+
+		if (!oneDayMode) {
+			CardPositionService.scrollLeft = 0;
+		}
 	}
 
 	/**
