@@ -1214,8 +1214,8 @@ export class CardsService {
 		this.http.patch(Url.cardsVehiclePosition(), [card]).subscribe();
 	}
 
-	updatePendingMaterial(card: Card): void {
-		this.http.patch(Url.cardsPendingMaterial(), [card]).subscribe();
+	updatePendingCall(card: Card): void {
+		this.http.patch(Url.cardsPendingCall(), [card]).subscribe();
 	}
 
 	updatePendingBudget(card: Card): void {

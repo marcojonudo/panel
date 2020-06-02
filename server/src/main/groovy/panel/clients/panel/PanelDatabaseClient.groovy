@@ -79,8 +79,8 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	@Patch("/cards/vehiclePosition")
 	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
 
-	@Patch("/cards/pendingMaterial")
-	void updatePendingMaterial(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+	@Patch("/cards/pendingCall")
+	void updatePendingCall(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
 
 	@Patch("/cards/pendingBudget")
 	void updatePendingBudget(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)

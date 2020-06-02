@@ -64,7 +64,7 @@ interface PanelDatabaseApi {
 
 	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
 
-	void updatePendingMaterial(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+	void updatePendingCall(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
 
 	void updatePendingBudget(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
 

@@ -1,6 +1,6 @@
 <div id="card-details-container" class="h-100 d-flex flex-column">
 	<div class="d-flex border-bottom">
-		<div id="vehicle-position-container" class="d-flex flex-column">
+		<div class="flex-grow-1 flex-basis-0 d-flex flex-column">
 			<div class="align-center detail-section-title">Ubicación</div>
 			<div class="d-flex justify-content-around align-center p-2">
 				<label>
@@ -19,27 +19,22 @@
 				</label>
 			</div>
 		</div>
-		<div class="flex-grow-1 flex-basis-0">
-			<div class="align-center detail-section-title">Material</div>
-			<div class="align-center p-2">
+		<div class="flex-grow-1 flex-basis-0 d-flex flex-column">
+			<div class="align-center detail-section-title">Pendiente</div>
+			<div class="d-flex justify-content-around align-center p-2">
 				<label>
-					<input type="checkbox" (change)="updatePendingMaterial(!card.pendingMaterial)">
+					<input type="checkbox" (change)="updatePendingCall(!card.pending.call)">
 					<i
-						class="fas fa-cogs fa-2x card-details-icon"
-						[ngClass]="{'card-selected-icon card-selected-material': card.pendingMaterial}"
-					></i>
+						class="fas fa-phone fa-2x card-details-icon"
+						[ngClass]="{'card-selected-icon card-selected-material': card.pending.call}">
+					</i>
 				</label>
-			</div>
-		</div>
-		<div class="flex-grow-1 flex-basis-0">
-			<div class="align-center detail-section-title">Pto</div>
-			<div class="align-center p-2">
 				<label>
-					<input type="checkbox" (change)="updatePendingBudget(!card.pendingBudget)">
+					<input type="checkbox" (change)="updatePendingBudget(!card.pending.budget)">
 					<i
-						class="fas fa-scroll fa-2x card-details-icon"
-						[ngClass]="{'card-selected-icon card-selected-budget': card.pendingBudget}"
-					></i>
+						class="fas fa-file-contract fa-2x card-details-icon"
+						[ngClass]="{'card-selected-icon card-selected-budget': card.pending.budget}">
+					</i>
 				</label>
 			</div>
 		</div>

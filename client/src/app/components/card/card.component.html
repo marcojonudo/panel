@@ -8,12 +8,14 @@
 		'border': findBorder(card.highlight)
 	}">
 	<div class="h-100 d-flex flex-column">
-		<div class="flex-grow-1 flex-basis-0 d-flex">
+		<div class="d-flex">
 			<div class="flex-grow-1 flex-basis-0 align-center">
 				{{card.order.code}}
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
-				<div class="card-state-indicator" [style.background-color]="getOrderStateColor(this.card.order.state)"></div>
+				<div class="align-center card-state-indicator" [style.background-color]="getOrderStateColor(card.order.state)">
+					<strong>{{findVehiclePosition(card.vehiclePosition)}}</strong>
+				</div>
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
 				{{card.order.deadline | date: 'HH:mm'}}
@@ -25,11 +27,16 @@
 			<div class="flex-grow-1 flex-basis-0 align-center">
 				{{card.group.shortName}}
 			</div>
-			<div class="flex-grow-1 flex-basis-0 align-center">
+			<div class="flex-grow-1 flex-basis-0 align-center custom-icon">
+				<i
+					*ngIf="checkShowCustomIcon()"
+					class="fas fa-{{findCustomIcon()}}"
+					[ngStyle]="{'color': findCustomIconColor()}">
+				</i>
 			</div>
 		</div>
 		<div
-			class="flex-grow-1 flex-basis-0 d-flex card-bottom-section"
+			class="d-flex card-bottom-section"
 			[style.background]="findBottomSectionBackground(card.divisionIndex, card.group.color.code)">
 			<div class="flex-grow-1 flex-basis-0 align-center"></div>
 			<div class="flex-grow-1 flex-basis-0 align-center"></div>

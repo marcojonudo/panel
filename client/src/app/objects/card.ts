@@ -8,6 +8,7 @@ import {DimensionsService} from "../services/dimensions.service";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
 import {Constants} from "./constants";
+import {Pending} from "./pending";
 
 export class Card {
 
@@ -34,6 +35,8 @@ export class Card {
 	type: string;
 	code: string;
 
+	pending: Pending;
+
 	order: Order;
 
 	client: Client;
@@ -45,8 +48,6 @@ export class Card {
 
 	divisionIndex: number;
 	vehiclePosition: string;
-	pendingMaterial: boolean;
-	pendingBudget: boolean;
 
 	possibleLinkedNext: boolean;
 	possibleLinkedPrevious: boolean;
@@ -65,6 +66,7 @@ export class Card {
 		this.end = this.start ? this.start.add(this.duration, Constants.DAY_JS.m) : undefined;
 		this.line = card.line;
 		this.group = card.group ? new Group(card.group) : undefined;
+		this.pending = card.pending ? new Pending(card.pending) : undefined;
 		this.order = card.order ? new Order(card.order) : undefined;
 		this.client = card.client ? new Client(card.client) : undefined;
 		this.vehicle = card.vehicle ? new Vehicle(card.vehicle) : undefined;
@@ -72,8 +74,7 @@ export class Card {
 		this.linkedNext = card.linkedNext ? new Card(card.linkedNext) : undefined;
 		this.divisionIndex = card.divisionIndex;
 		this.vehiclePosition = card.vehiclePosition;
-		this.pendingMaterial = card.pendingMaterial;
-		this.pendingBudget = card.pendingBudget;
+
 		this.panelId = this.order ? CardsService.buildPanelId(this) : undefined;
 
 		this.lastDay = card.lastDay ? dayjs(card.lastDay) : initialLoad ? this.day : undefined;
@@ -134,14 +135,13 @@ export class Card {
 			lastMechanicCode: this.lastMechanicCode,
 			duration: this.duration,
 			divisionIndex: this.divisionIndex,
-			vehiclePosition: this.vehiclePosition,
-			pendingMaterial: this.pendingMaterial,
-			pendingBudget: this.pendingBudget
+			vehiclePosition: this.vehiclePosition
 		});
 		card.day = this.day;
 		card.start = this.start;
 		card.end = this.end;
 		card.group = this.group.clone();
+		card.pending = this.pending.clone();
 		card.order = this.order.clone();
 		card.client = this.client ? this.client.clone() : undefined;
 		card.vehicle = this.vehicle ? this.vehicle.clone() : undefined;

@@ -52,18 +52,33 @@ export class CardDetailsComponent {
 	updateVehiclePosition(vehiclePosition: string): void {
 		this.card.vehiclePosition = this.findVehiclePositionValue(vehiclePosition);
 		this.cardsService.updateVehiclePosition(this.card);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
+			this.card.day,
+			this.card.mechanicCode
+		);
 		this.cdRef.detectChanges();
 	}
 
-	updatePendingMaterial(pendingMaterial: boolean): void {
-		this.card.pendingMaterial = pendingMaterial;
-		this.cardsService.updatePendingMaterial(this.card);
+	updatePendingCall(pendingCall: boolean): void {
+		this.card.pending.call = pendingCall;
+		this.cardsService.updatePendingCall(this.card);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
+			this.card.day,
+			this.card.mechanicCode
+		);
 		this.cdRef.detectChanges();
 	}
 
 	updatePendingBudget(pendingBudget: boolean): void {
-		this.card.pendingBudget = pendingBudget;
+		this.card.pending.budget = pendingBudget;
 		this.cardsService.updatePendingBudget(this.card);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
+			this.card.day,
+			this.card.mechanicCode
+		);
 		this.cdRef.detectChanges();
 	}
 

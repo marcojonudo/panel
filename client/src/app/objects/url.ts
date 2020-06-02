@@ -50,8 +50,8 @@ export class Url {
 		return `${environment.serverUrl}/panel/cards/vehiclePosition`;
 	}
 
-	public static cardsPendingMaterial(): string {
-		return `${environment.serverUrl}/panel/cards/pendingMaterial`;
+	public static cardsPendingCall(): string {
+		return `${environment.serverUrl}/panel/cards/pendingCall`;
 	}
 
 	public static cardsPendingBudget(): string {
