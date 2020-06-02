@@ -155,7 +155,8 @@ export class AppointmentsService {
 	}
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
-		return appointments && max ? Math.round((appointments / this.findMax(max, appointmentSaturation)) * 100) : 0;
+		const maxAppointments = this.findMax(max, appointmentSaturation);
+		return appointments && max ? Math.round((appointments / (maxAppointments ? maxAppointments : 1)) * 100) : 0;
 	}
 
 	// endregion
