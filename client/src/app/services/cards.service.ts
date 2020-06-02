@@ -1210,16 +1210,48 @@ export class CardsService {
 
 	// region Vehicle
 
-	updateVehiclePosition(card: Card): void {
-		this.http.patch(Url.cardsVehiclePosition(), [card]).subscribe();
+	findVehiclePositionValue(cardVehiclePosition: string, vehiclePosition: string): string {
+		return cardVehiclePosition == vehiclePosition ? undefined : vehiclePosition;
 	}
 
-	updatePendingCall(card: Card): void {
-		this.http.patch(Url.cardsPendingCall(), [card]).subscribe();
+	updateVehiclePosition(card: Card, vehiclePosition: string, updateDb: boolean = true): void {
+		card.vehiclePosition = this.findVehiclePositionValue(card.vehiclePosition, vehiclePosition);
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
+			card.day,
+			card.mechanicCode
+		);
+		if (updateDb) {
+			this.http.patch(Url.cardsVehiclePosition(), [card]).subscribe();
+		}
 	}
 
-	updatePendingBudget(card: Card): void {
-		this.http.patch(Url.cardsPendingBudget(), [card]).subscribe();
+	// endregion
+
+	// region Pending
+
+	updatePendingCall(card: Card, pendingCall: boolean, updateDb: boolean = true): void {
+		card.pending.call = pendingCall;
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
+			card.day,
+			card.mechanicCode
+		);
+		if (updateDb) {
+			this.http.patch(Url.cardsPendingCall(), [card]).subscribe();
+		}
+	}
+
+	updatePendingBudget(card: Card, pendingBudget: boolean, updateDb: boolean = true): void {
+		card.pending.budget = pendingBudget;
+		NotificationService.notifyMechanicLine(
+			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
+			card.day,
+			card.mechanicCode
+		);
+		if (updateDb) {
+			this.http.patch(Url.cardsPendingBudget(), [card]).subscribe();
+		}
 	}
 
 	// endregion

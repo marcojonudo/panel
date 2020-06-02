@@ -45,40 +45,18 @@ export class CardDetailsComponent {
 		return this.card.vehiclePosition == vehiclePosition;
 	}
 
-	findVehiclePositionValue(vehiclePosition: string): string {
-		return this.card.vehiclePosition == vehiclePosition ? undefined : vehiclePosition;
-	}
-
-	updateVehiclePosition(vehiclePosition: string): void {
-		this.card.vehiclePosition = this.findVehiclePositionValue(vehiclePosition);
-		this.cardsService.updateVehiclePosition(this.card);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-			this.card.day,
-			this.card.mechanicCode
-		);
+	updateVehiclePosition(vehiclePosition: string, card: Card = this.card): void {
+		this.cardsService.updateVehiclePosition(card, vehiclePosition);
 		this.cdRef.detectChanges();
 	}
 
-	updatePendingCall(pendingCall: boolean): void {
-		this.card.pending.call = pendingCall;
-		this.cardsService.updatePendingCall(this.card);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-			this.card.day,
-			this.card.mechanicCode
-		);
+	updatePendingCall(pendingCall: boolean, card: Card = this.card): void {
+		this.cardsService.updatePendingCall(card, pendingCall);
 		this.cdRef.detectChanges();
 	}
 
-	updatePendingBudget(pendingBudget: boolean): void {
-		this.card.pending.budget = pendingBudget;
-		this.cardsService.updatePendingBudget(this.card);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-			this.card.day,
-			this.card.mechanicCode
-		);
+	updatePendingBudget(pendingBudget: boolean, card: Card = this.card): void {
+		this.cardsService.updatePendingBudget(card, pendingBudget, true);
 		this.cdRef.detectChanges();
 	}
 

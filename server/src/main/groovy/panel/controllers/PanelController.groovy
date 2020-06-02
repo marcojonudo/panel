@@ -82,12 +82,12 @@ class PanelController {
 
 	@Patch("/cards/pendingCall")
 	void updatePendingMaterial(@Header String sessionId, @Body List<Card> cards) {
-		panelDatabaseClient.updatePendingCall(sessionId, Constants.REAL_TIME_ACTION.PENDING_MATERIAL, cards)
+		panelDatabaseClient.updatePendingCall(sessionId, Constants.REAL_TIME_ACTION.UPDATE_PENDING_CALL, cards)
 	}
 
 	@Patch("/cards/pendingBudget")
 	void updatePendingBudget(@Header String sessionId, @Body List<Card> cards) {
-		panelDatabaseClient.updatePendingBudget(sessionId, Constants.REAL_TIME_ACTION.PENDING_BUDGET, cards)
+		panelDatabaseClient.updatePendingBudget(sessionId, Constants.REAL_TIME_ACTION.UPDATE_PENDING_BUDGET, cards)
 	}
 
 	@Put("/mechanic/position")

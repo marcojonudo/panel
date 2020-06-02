@@ -42,9 +42,9 @@ class Constants {
 			UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule',
 			DELETE_APPOINTMENT: 'deleteAppointment',
 			SYNC_JPDV: 'syncJpdv',
-			UPDATE_VEHICLE_POSITION: 'UPDATE_VEHICLE_POSITION',
-			PENDING_MATERIAL: 'PENDING_MATERIAL',
-			PENDING_BUDGET: 'PENDING_BUDGET'
+			UPDATE_VEHICLE_POSITION: 'updateVehiclePosition',
+			UPDATE_PENDING_CALL: 'updatePendingCall',
+			UPDATE_PENDING_BUDGET: 'updatePendingBudget'
 	]
 
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']

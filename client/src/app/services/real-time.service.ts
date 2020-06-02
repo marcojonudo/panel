@@ -26,6 +26,9 @@ import {RealTimeAppointmentDelete} from "../objects/real-time-update/real-time-a
 import {SyncCardsInfo} from "../objects/sync-cards-info";
 import {RealTimeSyncJpdv} from "../objects/real-time-update/real-time-sync-jpdv";
 import {CardPositionService} from "./card-position.service";
+import {RealTimeCardUpdateVehiclePosition} from "../objects/real-time-update/real-time-card-update-vehicle-position";
+import {RealTimeCardUpdatePendingCall} from "../objects/real-time-update/real-time-card-update-pending-call";
+import {RealTimeCardUpdatePendingBudget} from "../objects/real-time-update/real-time-card-update-pending-budget";
 
 @Injectable({
 	providedIn: 'root'
@@ -53,6 +56,12 @@ export class RealTimeService {
 			new RealTimeAppointmentDelete(appointment),
 		syncJpdv: (updateInfo: any) =>
 			new RealTimeSyncJpdv(this, updateInfo),
+		updateVehiclePosition: (cards: any[]) =>
+			new RealTimeCardUpdateVehiclePosition(this, cards),
+		updatePendingCall: (cards: any[]) =>
+			new RealTimeCardUpdatePendingCall(this, cards),
+		updatePendingBudget: (cards: any[]) =>
+			new RealTimeCardUpdatePendingBudget(this, cards),
 	};
 
 	constructor(
@@ -99,12 +108,14 @@ export class RealTimeService {
 	}
 
 	updatePosition(cards: Card[]): void {
+		// TODO Revisar
 		const [lastAssigned, assigned] = [cards[0].lastDay != undefined, cards[0].day != undefined];
 		const allGroups = this.findGroups(cards[0], cards[0].lastDay, cards[0].lastMechanicCode);
 
 		/* Si se mueve un grupo con varias fichas, para cada una de ellas se actualizaría la posición del grupo. Para
 		*  evitarlo, se almacenan los grupos ya procesados para no volver a hacerlo */
 		const processedGroups = [];
+		console.log(0, allGroups, cards);
 		cards.forEach((card: Card) => {
 			const group = CardsService.findCardGroup(allGroups, card.panelId);
 			if (group && processedGroups.indexOf(group) == -1) {
@@ -129,6 +140,7 @@ export class RealTimeService {
 						card.line,
 						CardsService.findDayMechanicGroups(card.day, card.mechanicCode)
 					);
+					console.log(1);
 					CardsService.addToAssigned(group, card.day, card.mechanicCode);
 				} else {
 					CardsService.resetCardsGroup(group);
@@ -194,6 +206,30 @@ export class RealTimeService {
 				? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
 			CardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, linkHandler);
 		}
+	}
+
+	updateVehiclePosition(card: Card): void {
+		const allGroups = this.findGroups(card, card.day, card.mechanicCode);
+		const group = allGroups.find((group: CardsGroup) => group.id == card.panelId);
+		const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
+
+		this.cardsService.updateVehiclePosition(localCard, card.vehiclePosition, false);
+	}
+
+	updatePendingCall(card: Card): void {
+		const allGroups = this.findGroups(card, card.day, card.mechanicCode);
+		const group = allGroups.find((group: CardsGroup) => group.id == card.panelId);
+		const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
+
+		this.cardsService.updatePendingCall(localCard, card.pending.call, false);
+	}
+
+	updatePendingBudget(card: Card): void {
+		const allGroups = this.findGroups(card, card.day, card.mechanicCode);
+		const group = allGroups.find((group: CardsGroup) => group.id == card.panelId);
+		const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
+
+		this.cardsService.updatePendingBudget(localCard, card.pending.budget, false);
 	}
 
 	// endregion
