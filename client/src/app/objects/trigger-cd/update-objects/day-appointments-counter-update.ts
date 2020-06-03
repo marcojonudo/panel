@@ -24,8 +24,11 @@ export class DayAppointmentsCounterUpdate implements UpdateObject {
 		type: string = this.type
 	): void {
 		daysUpdateObjects[day.valueOf()][type] = new AppointmentsCounterUpdate(appointmentsCounter);
-		daysUpdateObjects[day.valueOf()][Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL] =
-			new AppointmentsDetailsInfo(appointmentsCounter);
+		/* Se actualiza el panel lateral sólo si este está abierto */
+		if (daysUpdateObjects[day.valueOf()][Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL]) {
+			daysUpdateObjects[day.valueOf()][Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL] =
+				new AppointmentsDetailsInfo(appointmentsCounter);
+		}
 	}
 
 }
