@@ -13,29 +13,27 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
 import {CardPositionService} from "../../services/card-position.service";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
-import {DaysMechanicSkills} from "../../objects/skills-update/days-mechanic-skills";
-import {QuartersSaturation} from "../../objects/quarters-saturation";
-import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/days-quarters-saturation";
-import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
 import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {interval} from "rxjs/internal/observable/interval";
-import {DaysLateralPanelInfo} from "../../objects/days-lateral-panel-info";
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
-import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {AppointmentsService} from "../../services/appointments.service";
-import {DaysAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/days-appointments-counter-update";
-import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 import {Toast} from "../../objects/toasts/toast";
 import {DomSanitizer} from "@angular/platform-browser";
-import {GroupContextMenuInfo} from "../../objects/context-menu/group-context-menu-info";
 import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
 import {Coordinates} from "../../objects/coordinates";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
 import {HourQuarter} from "../../objects/hour-quarter";
+import {DaysUpdateObjects} from "../../objects/trigger-cd/days-update-objects";
+import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills-update";
+import {MechanicSkills} from "../../objects/mechanic-skills";
+import {DayLateralPanelUpdate} from "../../objects/trigger-cd/update-objects/day-lateral-panel-update";
+import {DayMechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/day-mechanic-skills-update";
+import {DaySaturatedQuartersUpdate} from "../../objects/trigger-cd/update-objects/day-saturated-quarters-update";
+import {DayAppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/day-appointments-counter-update";
+import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
 
 @Component({
 	selector: 'app-main',
@@ -53,10 +51,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
 
-	private _daysMechanicSkills: DaysMechanicSkills;
-	private _daysLateralInfo: DaysLateralPanelInfo;
-	private _daysQuartersSaturation: DaysQuartersSaturation;
-	private _daysAppointmentsCounterUpdate: DaysAppointmentsCounterUpdate;
+	private daysUpdateObjects: DaysUpdateObjects;
 
 	private _oneDayMode: boolean;
 	private _maxScheduleHoursQuarter: HourQuarter[];
@@ -91,6 +86,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private appointmentsCounterSubscription: Subscription;
 	private toastSubscription: Subscription;
 	private dragSchedulesSubscription: Subscription;
+	private dayMechanicSkillsSubscription: Subscription;
 
 	private appointmentsTypesContextMenuListener: () => void;
 	private pointerDownListener: () => void;
@@ -134,9 +130,10 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		this.quartersSaturationSubscription = NotificationService.quartersSaturation$
-				.subscribe((dayQuartersSaturation: DayQuartersSaturation) => {
-			this.daysQuartersSaturation[dayQuartersSaturation.day.valueOf()] = dayQuartersSaturation;
+		this.quartersSaturationSubscription = NotificationService.saturatedQuarters$
+				.subscribe((daySaturatedQuartersUpdate: DaySaturatedQuartersUpdate) => {
+			daySaturatedQuartersUpdate.updateObjects(this.daysUpdateObjects);
+			console.log(1);
 			this.cdRef.detectChanges();
 		});
 
@@ -184,11 +181,16 @@ export class MainComponent implements OnInit, OnDestroy {
 		});
 
 		this.lateralInfoSubscription = NotificationService.lateralInfo$
-				.subscribe((dayLateralInfo: DayLateralPanelInfo) => {
-			if (dayLateralInfo.info && dayLateralInfo.info.type == Constants.LATERAL_PANEL_INFO_TYPE.SKILLS) {
-				dayLateralInfo.info.handle(this.daysMechanicSkills, dayLateralInfo.day);
-			}
-			this.daysLateralInfo[dayLateralInfo.day.valueOf()] = dayLateralInfo;
+				.subscribe((dayLateralPanelUpdate: DayLateralPanelUpdate) => {
+			dayLateralPanelUpdate.updateObjects(this.daysUpdateObjects);
+			console.log(5);
+			this.cdRef.detectChanges();
+		});
+
+		this.dayMechanicSkillsSubscription = NotificationService.dayMechanicSkills$
+				.subscribe((dayMechanicSkillsUpdate: DayMechanicSkillsUpdate) => {
+			dayMechanicSkillsUpdate.updateObjects(this.daysUpdateObjects);
+			console.log(6);
 			this.cdRef.detectChanges();
 		});
 
@@ -197,8 +199,10 @@ export class MainComponent implements OnInit, OnDestroy {
 		});
 
 		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$
-				.subscribe((dayAppointmentsCounters: DayAppointmentsCounterUpdate) => {
-			this.daysAppointmentsCounterUpdate[dayAppointmentsCounters.day.valueOf()] = dayAppointmentsCounters;
+				.subscribe((dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate) => {
+			dayAppointmentsCounterUpdate.updateObjects(this.daysUpdateObjects);
+			console.log(8);
+			// TODO Se debe ejecutar al modificar el total de citas. No al mover fichas
 			this.cdRef.detectChanges();
 		});
 
@@ -332,22 +336,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._mechanicLineUpdate = value;
 	}
 
-	get daysMechanicSkills(): DaysMechanicSkills {
-		return this._daysMechanicSkills;
-	}
-
-	set daysMechanicSkills(value: DaysMechanicSkills) {
-		this._daysMechanicSkills = value;
-	}
-
-	get daysQuartersSaturation(): DaysQuartersSaturation {
-		return this._daysQuartersSaturation;
-	}
-
-	set daysQuartersSaturation(value: DaysQuartersSaturation) {
-		this._daysQuartersSaturation = value;
-	}
-
 	get contextMenuInfo(): ContextMenuInfo {
 		return this._contextMenuInfo;
 	}
@@ -380,22 +368,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._initialScrollLeft = value;
 	}
 
-	get daysLateralInfo(): DaysLateralPanelInfo {
-		return this._daysLateralInfo;
-	}
-
-	set daysLateralInfo(value: DaysLateralPanelInfo) {
-		this._daysLateralInfo = value;
-	}
-
-	get daysAppointmentsCounterUpdate(): DaysAppointmentsCounterUpdate {
-		return this._daysAppointmentsCounterUpdate;
-	}
-
-	set daysAppointmentsCounterUpdate(value: DaysAppointmentsCounterUpdate) {
-		this._daysAppointmentsCounterUpdate = value;
-	}
-
 	get toolsBarWidth(): number {
 		return Constants.VALUE.TOOLS_BAR_WIDTH;
 	}
@@ -419,19 +391,19 @@ export class MainComponent implements OnInit, OnDestroy {
 	// endregion
 
 	private initDaysUpdateObjects(days: Dayjs[] = this.days): void {
+		this.daysUpdateObjects = {};
 		if (days.length) {
-			this.daysMechanicSkills = {};
-			this.daysQuartersSaturation = {};
-			this.daysLateralInfo = {};
-			this.daysAppointmentsCounterUpdate = {};
 			days.forEach((day: Dayjs) => {
-				this.daysMechanicSkills[day.valueOf()] = new DayMechanicSkills();
-				this.daysQuartersSaturation[day.valueOf()] = new DayQuartersSaturation(
-					day,
-					CardsService.checkQuarterSaturation(day)
-				);
-				this.daysLateralInfo[day.valueOf()] = new DayLateralPanelInfo();
-				this.daysAppointmentsCounterUpdate[day.valueOf()] = new DayAppointmentsCounterUpdate(day)
+				const dayUpdateObjects = {}
+				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.SATURATED_QUARTERS] =
+					CardsService.buildDaySaturation(day);
+				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS] =
+					new MechanicSkillsUpdate(new MechanicSkills());
+				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL] = undefined;
+				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.APPOINTMENTS_COUNTER] =
+					new AppointmentsCounterUpdate(this.appointmentsService.findDayAppointmentsCounter(day));
+
+				this.daysUpdateObjects[day.valueOf()] = dayUpdateObjects;
 			});
 		}
 	}
@@ -449,23 +421,24 @@ export class MainComponent implements OnInit, OnDestroy {
 		return update;
 	}
 
-	findQuartersSaturation(
+	findSaturatedQuarters(
 		day: Dayjs,
-		daysQuartersSaturation: DaysQuartersSaturation = this.daysQuartersSaturation
-	): QuartersSaturation {
-		return daysQuartersSaturation && daysQuartersSaturation[day.valueOf()]
-			? daysQuartersSaturation[day.valueOf()].quartersSaturation : undefined;
+		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
+		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.SATURATED_QUARTERS
+	): HourQuarter[] {
+		return daysUpdateObjects[day.valueOf()][type];
 	}
 
 	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
 		return contextMenuInfo != undefined;
 	}
 
-	findDayMechanicSkills(
+	findMechanicSkills(
 		day: Dayjs,
-		daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills
-	): DayMechanicSkills {
-		return daysMechanicSkills ? daysMechanicSkills[day.valueOf()] : undefined;
+		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
+		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS
+	): MechanicSkillsUpdate {
+		return daysUpdateObjects[day.valueOf()][type];
 	}
 
 	private checkDaySchedulesExist(day: Dayjs = this.today): boolean {
@@ -473,15 +446,20 @@ export class MainComponent implements OnInit, OnDestroy {
 		return mechanics != undefined && mechanics.length != 0;
 	}
 
-	findLateralInfo(day: Dayjs, daysLateralInfo: DaysLateralPanelInfo = this.daysLateralInfo): LateralPanelInfo {
-		return daysLateralInfo && daysLateralInfo[day.valueOf()] ? daysLateralInfo[day.valueOf()].info : undefined;
+	findLateralInfo(
+		day: Dayjs,
+		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
+		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL
+	): LateralPanelInfo {
+		return daysUpdateObjects[day.valueOf()][type];
 	}
 
-	findDayAppointmentsCounterUpdate(
+	findAppointmentsCounter(
 		day: Dayjs,
-		daysAppointmentsCounterUpdate: DaysAppointmentsCounterUpdate = this.daysAppointmentsCounterUpdate
-	): any {
-		return daysAppointmentsCounterUpdate ? daysAppointmentsCounterUpdate[day.valueOf()] : undefined;
+		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
+		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.APPOINTMENTS_COUNTER
+	): AppointmentsCounterUpdate {
+		return daysUpdateObjects[day.valueOf()][type];
 	}
 
 	calcTimeIndicatorLeft(time: Dayjs = dayjs()): number {

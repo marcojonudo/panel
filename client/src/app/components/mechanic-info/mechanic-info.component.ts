@@ -25,10 +25,9 @@ export class MechanicInfoComponent {
 	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
 	@Input() position: string;
-	@Input() dayMechanicSkills: DayMechanicSkills;
+	@Input() highlight: boolean;
 
 	private _oneDayMode: boolean;
-	private _highlightMechanic: boolean;
 	private _showAppointmentSchedulesDialog: boolean;
 
 	constructor(
@@ -39,7 +38,6 @@ export class MechanicInfoComponent {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.oneDayMode = true;
-		this.highlightMechanic = false;
 		this.showAppointmentSchedulesDialog = false;
 	}
 
@@ -51,14 +49,6 @@ export class MechanicInfoComponent {
 
 	set oneDayMode(value: boolean) {
 		this._oneDayMode = value;
-	}
-
-	get highlightMechanic(): boolean {
-		return this._highlightMechanic;
-	}
-
-	set highlightMechanic(value: boolean) {
-		this._highlightMechanic = value;
 	}
 
 	get jobLineTypes(): JobLineType[] {
@@ -112,28 +102,13 @@ export class MechanicInfoComponent {
 		this.cdRef.detectChanges();
 	}
 
-	checkHighlightMechanic(
-		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
-	): boolean {
-		return dayMechanicSkills && dayMechanicSkills.skills.length != 0;
-	}
-
 	showSkills(
 		skills: Skill[],
 		day: Dayjs,
 		mechanicCode: string,
-		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
+		highlight: boolean = this.highlight
 	) {
-		NotificationService.notifyLateralInfo(
-			new DayLateralPanelInfo(
-				day,
-				new SkillsDetailsInfo(
-					new MechanicSkills(
-						mechanicCode, dayMechanicSkills && dayMechanicSkills.skills.length ? [] : skills
-					)
-				)
-			)
-		);
+		NotificationService.notifyDayMechanicSkills(day, mechanicCode, highlight ? undefined : skills);
 	}
 
 	findJobLineTypeBackgroundColor(code: string): string {

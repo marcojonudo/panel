@@ -5,10 +5,11 @@ import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned
 import {NotificationService} from "../../services/notification.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
-import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
+import {DayAppointmentsCounter} from "../../objects/appointments-counter-update/day-appointments-counter";
 import {AppointmentsService} from "../../services/appointments.service";
-import {WarningToast} from "../../objects/toasts/warning-toast";
 import {Dayjs} from "dayjs";
+import {AppointmentsCounter} from "../../objects/appointments-counter";
+import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -19,7 +20,7 @@ import {Dayjs} from "dayjs";
 export class ToolsBarComponent {
 
 	@Input() day: Dayjs;
-	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
+	@Input() appointmentsCounterUpdate: AppointmentsCounterUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
@@ -58,14 +59,6 @@ export class ToolsBarComponent {
 
 	set syncing(value: boolean) {
 		this._syncing = value;
-	}
-
-	get morningAppointmentSaturation(): number {
-		return Constants.APPOINTMENT_SATURATION.MORNING;
-	}
-
-	get afternoonAppointmentSaturation(): number {
-		return Constants.APPOINTMENT_SATURATION.AFTERNOON;
 	}
 
 	get oneDayMode(): boolean {
@@ -146,7 +139,7 @@ export class ToolsBarComponent {
 
 	check(): void {
 		if (Constants.CHECK) {
-			console.log('checking tools bar component', this.dayAppointmentsCounterUpdate);
+			console.log('checking tools bar component', this.appointmentsCounterUpdate);
 		}
 	}
 

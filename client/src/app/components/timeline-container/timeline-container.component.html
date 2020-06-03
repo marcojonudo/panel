@@ -2,9 +2,9 @@
 	<div class="day h-100 align-center">{{day | date : 'dd/MM/yyyy'}}</div>
 	<app-timeline
 		[day]="day"
-		[quartersSaturation]="quartersSaturation"
 		[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 		[maxScheduleWidth]="maxScheduleWidth"
+		[saturatedQuarters]="saturatedQuarters"
 		class="flex-grow-1">
 	</app-timeline>
 </div>

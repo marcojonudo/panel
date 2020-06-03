@@ -12,6 +12,7 @@
 	</app-card-details>
 	<app-appointments-panel
 		*ngIf="checkShowAppointmentsDetails()"
-		[dayAppointmentsCounter]="info.params">
+		[day]="day"
+		[appointmentsCounterUpdate]="info.params">
 	</app-appointments-panel>
 </div>

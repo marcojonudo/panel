@@ -58,9 +58,7 @@ export class CardContextMenuComponent implements OnInit {
 		const clickedCard = this.contextMenuInfo.group.cards.find((card: Card) =>
 			DimensionsService.calcLeftFromStart(card.end) > xLeft
 		);
-		NotificationService.notifyLateralInfo(
-			new DayLateralPanelInfo(clickedCard.day, new CardDetailsInfo(clickedCard))
-		);
+		NotificationService.notifyLateralInfo(clickedCard.day, new CardDetailsInfo(clickedCard))
 		NotificationService.notifyContextMenu(undefined);
 	}
 

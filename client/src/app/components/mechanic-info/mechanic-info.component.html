@@ -3,7 +3,7 @@
 	<div
 		*ngIf="oneDayMode; else minLayout"
 		class="w-100 d-flex mechanic-info border-top border-bottom border-semi-dark"
-		[ngClass]="{'mechanic-info-highlight': checkHighlightMechanic()}"
+		[ngClass]="{'mechanic-info-highlight': highlight}"
 		[style.height.px]="defaultHeight">
 		<div class="w-70 d-flex flex-column">
 			<div

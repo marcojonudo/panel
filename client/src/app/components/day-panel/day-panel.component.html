@@ -3,8 +3,8 @@
 	<div class="w-100 h-100">
 		<app-timeline-container
 			[day]="day"
-			[quartersSaturation]="quartersSaturation"
 			[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
+			[saturatedQuarters]="saturatedQuarters"
 			[maxScheduleWidth]="maxScheduleWidth"
 			class="timeline-container-wrapper">
 		</app-timeline-container>
@@ -17,7 +17,7 @@
 			[day]="day"
 			[mechanics]="mechanics"
 			[mechanicLineUpdate]="mechanicLineUpdate"
-			[dayMechanicSkills]="dayMechanicSkills"
+			[mechanicSkillsUpdate]="mechanicSkillsUpdate"
 			[showAppointmentsName]="showAppointmentsName">
 		</app-grid>
 	</div>

@@ -1,18 +1,15 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component, EventEmitter,
 	Input,
-	OnChanges,
-	Output,
-	SimpleChanges
+	Output
 } from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {Dayjs} from "dayjs";
+import {MechanicSkills} from "../../objects/mechanic-skills";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -24,7 +21,7 @@ export class MechanicLineContainerComponent {
 
 	@Input() day: Dayjs;
 	@Input() mechanicLineUpdate: MechanicUpdate;
-	@Input() dayMechanicSkills: DayMechanicSkills;
+	@Input() mechanicSkills: MechanicSkills;
 	@Input() mechanic: Mechanic;
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
@@ -32,7 +29,7 @@ export class MechanicLineContainerComponent {
 	@Input() showAppointmentsName: boolean;
 	@Output() resizedLine: EventEmitter<boolean>;
 
-	constructor(private cdRef: ChangeDetectorRef) {
+	constructor() {
 		this.resizedLine = new EventEmitter<boolean>();
 	}
 
@@ -50,6 +47,10 @@ export class MechanicLineContainerComponent {
 
 	emitResizedLine(resized: boolean): void {
 		this.resizedLine.emit(resized);
+	}
+
+	checkHighlightMechanic(mechanicSkills: MechanicSkills = this.mechanicSkills): boolean {
+		return mechanicSkills.skills != undefined;
 	}
 
 	check() {

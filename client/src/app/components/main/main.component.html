@@ -20,9 +20,9 @@
 						class="animated fadeIn"
 						[day]="today"
 						[mechanics]="findDayMechanics(today) | mechanics: onlyAppointmentsMode"
-						[quartersSaturation]="findQuartersSaturation(today)"
+						[saturatedQuarters]="findSaturatedQuarters(today)"
+						[mechanicSkillsUpdate]="findMechanicSkills(today)"
 						[mechanicLineUpdate]="checkTriggerLineCd(today)"
-						[dayMechanicSkills]="findDayMechanicSkills(today)"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth"
@@ -36,12 +36,13 @@
 				</div>
 			</div>
 			<app-lateral-panel
+				[day]="today"
 				[info]="findLateralInfo(today)"
 				[style.right.px]="lateralPanelRight">
 			</app-lateral-panel>
 			<app-tools-bar
 				[day]="today"
-				[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(today)"
+				[appointmentsCounterUpdate]="findAppointmentsCounter(today)"
 				[maxScheduleWidth]="maxScheduleWidth"
 				[maxScheduleMaxWidth]="maxScheduleMaxWidth">
 			</app-tools-bar>
@@ -59,14 +60,15 @@
 						class="w-100 animated fadeIn"
 						[day]="day"
 						[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
-						[quartersSaturation]="findQuartersSaturation(day)"
+						[saturatedQuarters]="findSaturatedQuarters(day)"
+						[mechanicSkillsUpdate]="findMechanicSkills(day)"
 						[mechanicLineUpdate]="checkTriggerLineCd(day)"
-						[dayMechanicSkills]="findDayMechanicSkills(day)"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth">
 					</app-day-panel>
 					<app-lateral-panel
+						[day]="day"
 						[info]="findLateralInfo(day)"
 						[style.right.px]="lateralPanelRight">
 					</app-lateral-panel>
@@ -74,7 +76,7 @@
 						class="appointments-summary blank-background border-left border-semi-dark"
 						[style.width.px]="toolsBarWidth"
 						[day]="day"
-						[dayAppointmentsCounterUpdate]="findDayAppointmentsCounterUpdate(day)"
+						[appointmentsCounterUpdate]="findAppointmentsCounter(day)"
 						[width]="toolsBarWidth"
 						[enabled]="true">
 					</app-appointments-summary>

@@ -11,7 +11,6 @@ import {MechanicInfoComponent} from './components/mechanic-info/mechanic-info.co
 import {MechanicLineContainerComponent} from './components/mechanic-line-container/mechanic-line-container.component';
 import {TimelineContainerComponent} from './components/timeline-container/timeline-container.component';
 
-import {DayInfoPanelComponent} from './components/day-info-panel/day-info-panel.component';
 import {AppointmentsPanelComponent} from './components/appointments-panel/appointments-panel.component';
 import {DayPanelComponent} from './components/day-panel/day-panel.component';
 import {DimensionSlidersComponent} from './components/dimension-sliders/dimension-sliders.component';
@@ -69,7 +68,6 @@ import { ContextMenuComponent } from './components/context-menu/context-menu.com
 		MechanicInfoComponent,
 		MechanicLineContainerComponent,
 		TimelineContainerComponent,
-		DayInfoPanelComponent,
 		AppointmentsPanelComponent,
 		DayPanelComponent,
 		DimensionSlidersComponent,

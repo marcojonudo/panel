@@ -1,7 +1,7 @@
-import {DayAppointmentsCounter} from "./day-appointments-counter";
+import {AppointmentsCounter} from "./appointments-counter";
 
 export interface DaysAppointmentsCounter {
 
-	[key: number]: DayAppointmentsCounter;
+	[key: number]: AppointmentsCounter;
 
 }

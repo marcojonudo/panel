@@ -38,7 +38,7 @@ export class CardDetailsComponent {
 	}
 
 	closePanel(): void {
-		NotificationService.notifyLateralInfo(new DayLateralPanelInfo(this.card.day, undefined));
+		NotificationService.notifyLateralInfo(this.card.day, undefined);
 	}
 
 	checkVehiclePosition(vehiclePosition: string): boolean {

@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
-import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {Dayjs} from "dayjs";
 import {HourQuarter} from "../../objects/hour-quarter";
 
@@ -13,8 +12,8 @@ import {HourQuarter} from "../../objects/hour-quarter";
 export class TimelineContainerComponent {
 
 	@Input() day: Dayjs;
-	@Input() quartersSaturation: QuartersSaturation;
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
+	@Input() saturatedQuarters: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 
 	get timelineHeight(): number {

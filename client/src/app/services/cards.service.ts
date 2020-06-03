@@ -21,7 +21,6 @@ import {ScheduleInterval} from "../objects/schedule-interval";
 import {HourQuarters} from "../objects/hour-quarters";
 import {QuartersSaturation} from "../objects/quarters-saturation";
 import {QuarterSaturation} from "../objects/quarters-saturation-update/quarter-saturation";
-import {DayQuartersSaturation} from "../objects/quarters-saturation-update/day-quarters-saturation";
 import {UnassignedAuxiliarySection} from "../objects/unassigned-sections/unassigned-temporal-section";
 import {AuxiliaryCardBehaviour} from "../objects/card-type-behaviour/auxiliary-card-behaviour";
 import {DefaultCardBehaviour} from "../objects/card-type-behaviour/default-card-behaviour";
@@ -36,6 +35,7 @@ import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {WarningToast} from "../objects/toasts/warning-toast";
 import {Dayjs} from "dayjs";
 import {Observable} from "rxjs/internal/Observable";
+import {HourQuarter} from "../objects/hour-quarter";
 
 @Injectable({
 	providedIn: 'root'
@@ -283,7 +283,7 @@ export class CardsService {
 			cardsGroup.end
 		);
 		this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
-		this.checkQuarterSaturation(day);
+		this.updateQuartersSaturation(day, cardsGroup.cards[0].lastDay)
 	}
 
 	static removeFromUnassigned(group: CardsGroup, notify: boolean = true): void {
@@ -930,18 +930,25 @@ export class CardsService {
 
 	// region Quarter saturation
 
-	static checkQuarterSaturation(day: Dayjs): QuartersSaturation {
+	static updateQuartersSaturation(day: Dayjs, lastDay: Dayjs = undefined): void {
+		const saturatedQuarters = this.buildDaySaturation(day);
+		if (lastDay && !day.isSame(lastDay)) {
+			const lastDaySaturatedQuarters = this.buildDaySaturation(lastDay);
+			NotificationService.notifySaturatedQuarters(lastDay, lastDaySaturatedQuarters);
+		}
+		NotificationService.notifySaturatedQuarters(day, saturatedQuarters);
+	}
+
+	static buildDaySaturation(day: Dayjs): HourQuarter[] {
 		const dayMechanics = MechanicsService.findDayMechanics(day).filter((mechanic: Mechanic) => !mechanic.fixed);
 		const dayGroups = this.findDayGroups(day).filter((group: CardsGroup) =>
 			dayMechanics.find((mechanic: Mechanic) => group.cards[0].mechanicCode == mechanic.code) != undefined
 		);
-
-		const quartersSaturation = this.handleDayGroupsQuartersSaturation(dayGroups, dayMechanics);
-		NotificationService.notifyQuartersSaturation(new DayQuartersSaturation(day, quartersSaturation));
-		return quartersSaturation;
+		const quartersSaturation = this.buildQuartersSaturation(dayGroups, dayMechanics);
+		return this.buildSaturatedQuarters(quartersSaturation);
 	}
 
-	static handleDayGroupsQuartersSaturation(dayGroups: CardsGroup[], dayMechanics: Mechanic[]): any {
+	static buildQuartersSaturation(dayGroups: CardsGroup[], dayMechanics: Mechanic[]): any {
 		const quartersSaturation = {};
 		const processedGroupsIds = [];
 		dayGroups.forEach((group: CardsGroup) => {
@@ -964,6 +971,21 @@ export class CardsService {
 			}
 		});
 		return quartersSaturation;
+	}
+
+	static buildSaturatedQuarters(
+		quartersSaturation: QuartersSaturation,
+		mechanicsSaturationPercentage: number = Constants.VALUE.MECHANICS_SATURATION_PERCENTAGE
+	): HourQuarter[] {
+		const saturatedQuarters = [];
+		for (const [minutes, saturation] of Object.entries(quartersSaturation)) {
+			if (saturation.cards > saturation.mechanics * mechanicsSaturationPercentage/100) {
+				saturatedQuarters.push(
+					new HourQuarter(Math.floor(parseInt(minutes)/60), parseInt(minutes)%60)
+				);
+			}
+		}
+		return saturatedQuarters;
 	}
 
 	static findNextPositionGroups(lineGroups: CardsGroup[], group: CardsGroup): CardsGroup[] {

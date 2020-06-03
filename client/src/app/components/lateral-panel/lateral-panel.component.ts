@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
 import {Constants} from "../../objects/constants";
 import {animate, style, transition, trigger} from "@angular/animations";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-lateral-panel',
@@ -11,6 +12,7 @@ import {animate, style, transition, trigger} from "@angular/animations";
 })
 export class LateralPanelComponent {
 
+	@Input() day: Dayjs;
 	@Input() info: LateralPanelInfo;
 
 	// region Getters / setters
@@ -26,7 +28,7 @@ export class LateralPanelComponent {
 	}
 
 	checkShowSkills(info: LateralPanelInfo = this.info): boolean {
-		return info && info.type == Constants.LATERAL_PANEL_INFO_TYPE.SKILLS;
+		return info && info.type == Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS;
 	}
 
 	checkShowCardDetails(info: LateralPanelInfo = this.info): boolean {

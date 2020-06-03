@@ -2,12 +2,13 @@
 	background-color: #ffffff;
 }
 
-.quarter {
+.hour {
 	font-weight: bold;
 }
 
-.quarter-border {
+.quarter {
 	border-left: 1px dotted;
+	transition: background-color .2s;
 }
 
 .hour-border {

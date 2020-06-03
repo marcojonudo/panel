@@ -1,7 +1,6 @@
 import {
 	Directive,
 	ElementRef,
-	HostBinding,
 	Input, OnChanges,
 	OnInit,
 	Renderer2, SimpleChanges

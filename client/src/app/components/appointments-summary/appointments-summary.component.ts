@@ -1,13 +1,12 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import {DayAppointmentsCounter} from "../../objects/day-appointments-counter";
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {AppointmentsCounter} from "../../objects/appointments-counter";
 import {AppointmentsService} from "../../services/appointments.service";
 import {NotificationService} from "../../services/notification.service";
-import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointments-details-info";
 import {Constants} from "../../objects/constants";
-import {DayAppointmentsCounterUpdate} from "../../objects/appointments-counter-update/day-appointments-counter-update";
 import {KeyValue} from "@angular/common";
 import {Dayjs} from "dayjs";
+import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
 
 @Component({
 	selector: 'app-appointments-summary',
@@ -18,15 +17,13 @@ import {Dayjs} from "dayjs";
 export class AppointmentsSummaryComponent {
 
 	@Input() day: Dayjs;
-	@Input() dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate;
+	@Input() appointmentsCounterUpdate: AppointmentsCounterUpdate;
 	@Input() width: number;
 	@Input() enabled: boolean;
 
 	private showingLateralPanel: boolean;
 
-	constructor(
-		private appointmentsService: AppointmentsService
-	) {
+	constructor(private appointmentsService: AppointmentsService) {
 		this.showingLateralPanel = false;
 	}
 
@@ -40,11 +37,15 @@ export class AppointmentsSummaryComponent {
 		return Constants.VALUE.APPOINTMENT_SUMMARY_ITEM_HEIGHT;
 	}
 
-	// endregion
-
-	findDayAppointmentsCounter(day: Dayjs = this.day): DayAppointmentsCounter {
-		return this.appointmentsService.daysAppointmentsCounter[day.valueOf()];
+	get morningAppointmentSaturation(): number {
+		return Constants.APPOINTMENT_SATURATION.MORNING;
 	}
+
+	get afternoonAppointmentSaturation(): number {
+		return Constants.APPOINTMENT_SATURATION.AFTERNOON;
+	}
+
+	// endregion
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
 		return this.appointmentsService.findSaturationPercentage(appointments, max, appointmentSaturation);
@@ -54,15 +55,13 @@ export class AppointmentsSummaryComponent {
 		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);
 	}
 
-	openAppointmentsDetails(day: Dayjs = this.day): void {
-		NotificationService.notifyLateralInfo(
-			new DayLateralPanelInfo(
-				day,
-				new AppointmentsDetailsInfo(
-					this.showingLateralPanel ? undefined : this.findDayAppointmentsCounter()
-				)
-			)
-		);
+	openAppointmentsDetails(
+		day: Dayjs = this.day,
+		appointmentsCounter: AppointmentsCounter = this.appointmentsCounterUpdate.value
+	): void {
+		const appointmentsDetailsInfo = this.showingLateralPanel
+			? undefined : new AppointmentsDetailsInfo(appointmentsCounter);
+		NotificationService.notifyLateralInfo(day, appointmentsDetailsInfo);
 		this.showingLateralPanel = !this.showingLateralPanel;
 	}
 

@@ -1,12 +1,11 @@
 import {ChangeDetectionStrategy, Component, Input, OnInit,} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
-import {QuartersSaturation} from "../../objects/quarters-saturation";
 import {Mechanic} from "../../objects/mechanic";
 import {DimensionsService} from "../../services/dimensions.service";
 import {HourQuarter} from "../../objects/hour-quarter";
 import {Dayjs} from "dayjs";
+import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills-update";
 
 @Component({
 	selector: 'app-day-panel',
@@ -18,9 +17,9 @@ export class DayPanelComponent implements OnInit {
 
 	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
-	@Input() quartersSaturation: QuartersSaturation;
+	@Input() saturatedQuarters: HourQuarter[];
 	@Input() mechanicLineUpdate: MechanicUpdate;
-	@Input() dayMechanicSkills: DayMechanicSkills;
+	@Input() mechanicSkillsUpdate: MechanicSkillsUpdate;
 	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;

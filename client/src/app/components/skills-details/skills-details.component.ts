@@ -29,12 +29,14 @@ export class SkillsDetailsComponent {
 
 	buildAllSkillsArray(parentSkills: Skill[] = this.mechanicSkills.skills): Skill[] {
 		const skills = [];
-		parentSkills.forEach((parent: Skill) => {
-			skills.push(parent);
-			parent.children.forEach((child: Skill) => {
-				skills.push(child);
+		if (parentSkills) {
+			parentSkills.forEach((parent: Skill) => {
+				skills.push(parent);
+				parent.children.forEach((child: Skill) => {
+					skills.push(child);
+				});
 			});
-		});
+		}
 		return skills;
 	}
 

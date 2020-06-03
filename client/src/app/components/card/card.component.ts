@@ -94,25 +94,16 @@ export class CardComponent {
 
 	highlightOrderCards(day: Dayjs, orderNumber: number, highlight: boolean) {
 		/* Se resaltan las fichas sólo si se pasa el ratón por encima de una asignada (tiene day) */
-		if (day) {
-			// const orderGroups = CardsService.findOrderGroups(CardsService.assignedCardsGroups, orderNumber);
-			// orderGroups.forEach((group: CardsGroup) => {
-			// 	group.cards.forEach((card: Card) => {
-			// 		card.highlight = true;
-			// 	})
-			// });
-			// const orderCards = CardsService.findOrderCards(orderNumber).filter((card: Card) => {
-			// 	return !card.day.isSame(day) || card.mechanicCode != mechanicCode
-			// });
-			CardsService.findOrderCards(orderNumber).forEach((card: Card) => {
-				card.highlight = highlight;
-			});
-			NotificationService.notifyMechanicLine(
-				Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-				undefined,
-				undefined
-			);
-		}
+		// if (day) {
+		// 	CardsService.findOrderCards(orderNumber).forEach((card: Card) => {
+		// 		card.highlight = highlight;
+		// 	});
+		// 	NotificationService.notifyMechanicLine(
+		// 		Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
+		// 		undefined,
+		// 		undefined
+		// 	);
+		// }
 	}
 
 	// region Link handlers

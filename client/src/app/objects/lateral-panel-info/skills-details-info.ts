@@ -12,9 +12,9 @@ export class SkillsDetailsInfo implements LateralPanelInfo {
 	show: boolean;
 
 	constructor(mechanicSkills: MechanicSkills) {
-		this.type = Constants.LATERAL_PANEL_INFO_TYPE.SKILLS;
+		this.type = Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS;
 		this.params = mechanicSkills;
-		this.show = mechanicSkills && mechanicSkills.skills.length != 0;
+		this.show = mechanicSkills && mechanicSkills.skills != undefined;
 	}
 
 	handle(daysMechanicSkills: DaysMechanicSkills, day: Dayjs): void {

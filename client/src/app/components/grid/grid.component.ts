@@ -12,12 +12,13 @@ import {Mechanic} from "../../objects/mechanic";
 import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Constants} from "../../objects/constants";
 import {MechanicsService} from "../../services/mechanics.service";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {NotificationService} from "../../services/notification.service";
-import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {CardsService} from "../../services/cards.service";
 import {Dayjs} from "dayjs";
 import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
+import {MechanicSkills} from "../../objects/mechanic-skills";
+import {MechanicsUpdateObjects} from "../../objects/trigger-cd/mechanics-update-objects";
+import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills-update";
 
 @Component({
 	selector: 'app-grid',
@@ -30,10 +31,12 @@ export class GridComponent implements OnInit {
 	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
 	@Input() mechanicLineUpdate: MechanicUpdate;
-	@Input() dayMechanicSkills: DayMechanicSkills;
+	@Input() mechanicSkillsUpdate: MechanicSkillsUpdate;
 	@Input() showAppointmentsName: boolean;
 
 	private pointerDownListener: () => void;
+
+	mechanicsUpdateObjects: MechanicsUpdateObjects;
 
 	constructor(
 		private mechanicsService: MechanicsService,
@@ -44,11 +47,21 @@ export class GridComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
+		this.initMechanicsUpdateObjects();
 		this.pointerDownListener = this.renderer.listen(
 			this.element.nativeElement,
 			Constants.EVENT.POINTER_DOWN,
 			this.onPointerDown.bind(this)
 		);
+	}
+
+	private initMechanicsUpdateObjects(mechanics: Mechanic[] = this.mechanics): void {
+		this.mechanicsUpdateObjects = {};
+		mechanics.forEach((mechanic: Mechanic) => {
+			this.mechanicsUpdateObjects[mechanic.code] = {};
+			this.mechanicsUpdateObjects[mechanic.code][Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS] =
+				new MechanicSkills();
+		});
 	}
 
 	// region Getters / setters
@@ -61,7 +74,7 @@ export class GridComponent implements OnInit {
 
 	onPointerDown(event: PointerEvent): void {
 		if ((<HTMLElement> event.target).id == Constants.ID.MECHANIC_LINE) {
-			NotificationService.notifyLateralInfo(new DayLateralPanelInfo(this.day, undefined));
+			NotificationService.notifyLateralInfo(this.day, undefined);
 		}
 	}
 
@@ -75,11 +88,13 @@ export class GridComponent implements OnInit {
 			? mechanicLineUpdate : undefined;
 	}
 
-	checkTriggerMechanicInfoCd(
+	findMechanicSkills(
 		mechanicCode: string,
-		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
-	): DayMechanicSkills {
-		return dayMechanicSkills && mechanicCode == dayMechanicSkills.mechanicCode ? dayMechanicSkills : undefined;
+		mechanicsUpdateObjects: MechanicsUpdateObjects = this.mechanicsUpdateObjects,
+		mechanicSkillsUpdate: MechanicSkillsUpdate = this.mechanicSkillsUpdate
+	): MechanicSkills {
+		mechanicSkillsUpdate.updateObjects(mechanicCode, mechanicsUpdateObjects);
+		return mechanicsUpdateObjects[mechanicCode][mechanicSkillsUpdate.type];
 	}
 
 	triggerMechanicLineCd(): void {

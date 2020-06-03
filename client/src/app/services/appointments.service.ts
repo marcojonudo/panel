@@ -11,17 +11,14 @@ import {UtilsService} from "./utils.service";
 import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
 import {Url} from "../objects/url";
 import {UpdateAppointmentDayParams} from "../objects/update-appointment-day-params";
-import {DayAppointmentsCounterUpdate} from "../objects/appointments-counter-update/day-appointments-counter-update";
 import {ScheduleInterval} from "../objects/schedule-interval";
 import {Dayjs} from "dayjs";
+import {AppointmentsCounter} from "../objects/appointments-counter";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class AppointmentsService {
-
-	private readonly TOTAL: string = 'TOTAL';
-	private readonly MAX: string = 'MAX';
 
 	private static _dragSchedulesMode: boolean = false;
 	private static _dragSchedulesAppointmentType: AppointmentType;
@@ -89,13 +86,11 @@ export class AppointmentsService {
 		return this.appointmentTypes.find((appointmentType: AppointmentType) => appointmentType.code == code);
 	}
 
-	findMechanicAppointmentByMechanic(
-		dayMechanics: Mechanic[],
-		mechanicId: number,
-		appointmentIndex: number
-	): any[] {
-		const mechanic = dayMechanics.find(mechanic => mechanic.id == mechanicId);
-		return [mechanic, mechanic.appointments[appointmentIndex]];
+	findDayAppointmentsCounter(
+		day: Dayjs,
+		daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
+	): AppointmentsCounter {
+		return daysAppointmentsCounter[day.valueOf()];
 	}
 
 	// endregion
@@ -151,12 +146,16 @@ export class AppointmentsService {
 	}
 
 	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
-		return appointments > this.findMax(max, appointmentSaturation);
+		return appointments >= this.findMax(max, appointmentSaturation);
 	}
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
 		const maxAppointments = this.findMax(max, appointmentSaturation);
-		return appointments && max ? Math.round((appointments / (maxAppointments ? maxAppointments : 1)) * 100) : 0;
+		if (!maxAppointments) {
+			return 100;
+		}
+		const percentage = Math.round(appointments / maxAppointments * 100);
+		return percentage > 100 ? 100 : percentage;
 	}
 
 	// endregion
@@ -186,7 +185,7 @@ export class AppointmentsService {
 					}
 				});
 			}
-			NotificationService.notifyAppointmentsCounter(new DayAppointmentsCounterUpdate(day));
+			NotificationService.notifyAppointmentsCounter(day, appointmentDayCounters);
 
 			if (updateDb) {
 				this.http.put(Url.appointmentsDaysCounters(), this.appointmentDaysToUpdate).subscribe();

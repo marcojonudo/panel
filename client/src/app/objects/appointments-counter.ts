@@ -1,6 +1,6 @@
 import {AppointmentDay} from "./appointment-day";
 
-export interface DayAppointmentsCounter {
+export interface AppointmentsCounter {
 
 	[key: string]: AppointmentDay;
 
