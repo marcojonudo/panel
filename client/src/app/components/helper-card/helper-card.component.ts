@@ -14,17 +14,62 @@ export class HelperCardComponent {
 	@Input() card: Card;
 
 	private readonly CARD_STATE_COLOR: any;
+	private readonly VEHICLE_POSITION: any;
+	private readonly PENDING_ICON_COLOR: any;
+	private readonly MATERIAL_ICON_COLOR: any;
 
-	constructor(private cardsService: CardsService) {
+	constructor() {
 		this.CARD_STATE_COLOR = {
 			P: '#FF0000',
 			E: '#008000',
 			A: '#0CC4D6'
 		};
+		this.VEHICLE_POSITION = {
+			GARAGE: 'T',
+			PARKING: 'P'
+		};
+		this.PENDING_ICON_COLOR = {
+			E: '#1d4999',
+			A: '#1d4999',
+			P: '#c25308'
+		};
+		this.MATERIAL_ICON_COLOR = {
+			E: '#c25308',
+			A: '#1d4999',
+			P: '#c25308'
+		}
 	}
 
 	findBackground(type: string): string {
 		return Constants.CARD_TYPE_BACKGROUND[type] || Constants.CARD_TYPE_BACKGROUND['DEFAULT'];
+	}
+
+	findVehiclePosition(position: string): string {
+		return this.VEHICLE_POSITION[position];
+	}
+
+	checkShowCustomIcon(): boolean {
+		return this.card.pending.call || this.card.pending.budget || this.card.pending.material != undefined;
+	}
+
+	findCustomIcon(): string {
+		if (this.card.pending.call) {
+			return 'phone';
+		} else if (this.card.pending.budget) {
+			return 'file-contract';
+		} else if (this.card.pending.material != undefined) {
+			return 'shopping-cart';
+		}
+		return undefined;
+	}
+
+	findCustomIconColor(): string {
+		if (this.card.pending.call || this.card.pending.budget) {
+			return this.PENDING_ICON_COLOR[this.card.order.state];
+		}
+		if (this.card.pending.material != undefined) {
+			return this.card.pending.material ? this.MATERIAL_ICON_COLOR[this.card.order.state] : '#1ebf1e';
+		}
 	}
 
 	getOrderStateColor(state: string): string {

@@ -24,7 +24,7 @@ export class ContextMenuComponent {
 		return x;
 	}
 
-	checkShowContextMenu(type: string, contextMenuInfoType: string = this.contextMenuInfo.type) {
+	checkShowContextMenu(type: string, contextMenuInfoType: string = this.contextMenuInfo.type): boolean {
 		return type == contextMenuInfoType;
 	}
 
