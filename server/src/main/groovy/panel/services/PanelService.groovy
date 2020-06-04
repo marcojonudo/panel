@@ -8,6 +8,7 @@ import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.skills.SkillsDatabaseClient
 import panel.pogos.CompleteInfo
+import panel.pogos.SyncOrdersSemaphore
 import panel.pogos.UpdateAppointmentDays
 import panel.pogos.UpdateCards
 import panel.utils.Constants
@@ -275,18 +276,36 @@ class PanelService {
 	// region Sync orders with cards
 
 	UpdateCards syncJpdvOrders(LocalDate day = LocalDate.now()) {
-		/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-		List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
-		/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-		List<Card> dbCards = panelDatabaseClient.getCards(day, null)
-		List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
-		List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
+		UpdateCards updateCards = null
+		if (SyncOrdersSemaphore.trySyncOrders()) {
+			try {
+				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
+				List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
+				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
+				List<Card> dbCards = panelDatabaseClient.getCards(day, null)
+				List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
+				List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
 
-		UpdateCards updateCards = syncOrders(orders, notAuxiliaryCards)
-		updateCards.auxiliaryCards = auxiliaryCards
+				updateCards = syncOrders(orders, notAuxiliaryCards)
+				updateCards.auxiliaryCards = auxiliaryCards
 
-		saveCards(updateCards)
+				saveCards(updateCards)
+			} catch(all) {
+				all.printStackTrace()
+				updateCards = findDbUpdateCards(day)
+			} finally {
+				SyncOrdersSemaphore.release()
+			}
+		} else {
+			SyncOrdersSemaphore.waitUntilUnlocked()
+			updateCards = findDbUpdateCards(day)
+		}
 		return updateCards
+	}
+
+	UpdateCards findDbUpdateCards(LocalDate day) {
+		List<Card> dbCards = panelDatabaseClient.getCards(day, null)
+		return new UpdateCards(dbCards)
 	}
 
 	/**
