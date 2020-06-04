@@ -108,14 +108,12 @@ export class RealTimeService {
 	}
 
 	updatePosition(cards: Card[]): void {
-		// TODO Revisar
 		const [lastAssigned, assigned] = [cards[0].lastDay != undefined, cards[0].day != undefined];
 		const allGroups = this.findGroups(cards[0], cards[0].lastDay, cards[0].lastMechanicCode);
 
 		/* Si se mueve un grupo con varias fichas, para cada una de ellas se actualizaría la posición del grupo. Para
 		*  evitarlo, se almacenan los grupos ya procesados para no volver a hacerlo */
 		const processedGroups = [];
-		console.log(0, allGroups, cards);
 		cards.forEach((card: Card) => {
 			const group = CardsService.findCardGroup(allGroups, card.panelId);
 			if (group && processedGroups.indexOf(group) == -1) {
@@ -140,7 +138,6 @@ export class RealTimeService {
 						card.line,
 						CardsService.findDayMechanicGroups(card.day, card.mechanicCode)
 					);
-					console.log(1);
 					CardsService.addToAssigned(group, card.day, card.mechanicCode);
 				} else {
 					CardsService.resetCardsGroup(group);

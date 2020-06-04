@@ -202,8 +202,7 @@ export class DimensionsService {
 	 * @param {Dayjs} today Hoy
 	 */
 	private static initSchedulesHours(daysMechanics: DaysMechanics, today: Dayjs): void {
-		const now = dayjs();
-		let [minDaysSchedule, maxDaysSchedule] = [now, now];
+		let [minDaysSchedule, maxDaysSchedule] = [undefined, undefined];
 		for (const day in daysMechanics) {
 			const dayMechanics = daysMechanics[day].filter((mechanic: Mechanic) => !mechanic.fixed);
 			if (dayMechanics.length) {
@@ -212,8 +211,8 @@ export class DimensionsService {
 					this.maxTodayScheduleHoursQuarter = this.buildHoursQuarter(minSchedule, maxSchedule);
 				}
 
-				minDaysSchedule = minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
-				maxDaysSchedule = maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
+				minDaysSchedule = !minDaysSchedule || minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
+				maxDaysSchedule = !maxDaysSchedule || maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
 			}
 		}
 		/* Si principio y fin del horario son iguales, significa que no existen horarios de mecánicos */

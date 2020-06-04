@@ -133,7 +133,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.quartersSaturationSubscription = NotificationService.saturatedQuarters$
 				.subscribe((daySaturatedQuartersUpdate: DaySaturatedQuartersUpdate) => {
 			daySaturatedQuartersUpdate.updateObjects(this.daysUpdateObjects);
-			console.log(1);
 			this.cdRef.detectChanges();
 		});
 
@@ -183,14 +182,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.lateralInfoSubscription = NotificationService.lateralInfo$
 				.subscribe((dayLateralPanelUpdate: DayLateralPanelUpdate) => {
 			dayLateralPanelUpdate.updateObjects(this.daysUpdateObjects);
-			console.log(5);
 			this.cdRef.detectChanges();
 		});
 
 		this.dayMechanicSkillsSubscription = NotificationService.dayMechanicSkills$
 				.subscribe((dayMechanicSkillsUpdate: DayMechanicSkillsUpdate) => {
 			dayMechanicSkillsUpdate.updateObjects(this.daysUpdateObjects);
-			console.log(6);
 			this.cdRef.detectChanges();
 		});
 
@@ -201,7 +198,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$
 				.subscribe((dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate) => {
 			dayAppointmentsCounterUpdate.updateObjects(this.daysUpdateObjects);
-			console.log(8);
 			// TODO Se debe ejecutar al modificar el total de citas. No al mover fichas
 			this.cdRef.detectChanges();
 		});
