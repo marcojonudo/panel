@@ -279,7 +279,7 @@ export class CardPositionService {
 	static validateCoordinates(
 		coordinates: Coordinates,
 		dayMechanicCardsGroups: CardsGroup[],
-		dropzonePosition: Position = this.destinyDropzone.position,
+		dropzone: Dropzone = this.destinyDropzone,
 		helperGroup: CardsGroup = this.helperGroup
 	): Coordinates {
 		/* Se comprueba si los laterales del grupo están fuera de la dropzone. Si lo están, se actualiza la posición
@@ -291,7 +291,10 @@ export class CardPositionService {
 		}
 
 		/* La posición se redondea a los múltiplos de 5 minutos */
-		coordinates = this.roundLastPosition(coordinates, dropzonePosition);
+		coordinates = this.roundLastPosition(coordinates, dropzone.position, dropzone.mechanic.lines);
+		if (!coordinates) {
+			return undefined;
+		}
 
 		/* Se comprueba si, una vez arreglada y redondeada la posición, el intervalo que ocupa el grupo sigue saliéndose
 		*  del horario. Si es así, se retorna undefined para volver a la posición original */
@@ -398,16 +401,23 @@ export class CardPositionService {
 	private static roundLastPosition(
 		coordinates: Coordinates,
 		dropzonePosition: Position,
+		mechanicLines: number,
 		intervalWidth: number = DimensionsService.intervalWidth
 	): Coordinates {
 		const leftIntervals = Math.floor(this.absolutePositionToLeft(coordinates.x) / intervalWidth);
 		const x = this.leftToAbsolutePosition(leftIntervals * intervalWidth);
 
-		const line = Math.abs(
-			Math.round(
-				(this.absolutePositionToTop(coordinates.y) - dropzonePosition.top) / DimensionsService.lineHeight
-			)
+		let line = Math.round(
+			(this.absolutePositionToTop(coordinates.y) - dropzonePosition.top) / DimensionsService.lineHeight
 		);
+		/* Si más de la mitad de la ficha se coloca por encima de la primera línea de mecánico, el resultado será -1.
+		*  En este caso, se coloca en la línea 0, que es la más próxima */
+		line = line < 0 ? 0 : line;
+		/* Si más de la mitad de la ficha se coloca debajo de la última línea de mecánico, la línea resultante será
+		*  superior a lo permitido. Por tanto, en ese caso, no se valida la posición*/
+		if (line >= mechanicLines) {
+			return undefined;
+		}
 		const y = this.dropzoneTopToAbsolutePosition(dropzonePosition.top) + line * DimensionsService.lineHeight;
 		[coordinates.x, coordinates.y, coordinates.line] = [x, y, line];
 		return coordinates;
