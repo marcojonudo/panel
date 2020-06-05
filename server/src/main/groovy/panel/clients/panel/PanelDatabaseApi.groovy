@@ -56,12 +56,6 @@ interface PanelDatabaseApi {
 			@Body List<Card> cards
 	)
 
-	List<Map> updateCardsDivision(
-			@Header String sessionId,
-			@QueryValue List<Integer> oldDivisionIndexes,
-			@Body List<Map<String, Object>> cards
-	)
-
 	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
 
 	void updatePendingCall(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)

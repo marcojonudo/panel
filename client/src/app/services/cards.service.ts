@@ -1067,10 +1067,11 @@ export class CardsService {
 	}
 
 	private static findClickedCard(cards: Card[], groupX: number, x: number): Card {
+		const xLeft = CardPositionService.absolutePositionToLeft(x) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 		return cards.find((card: Card, index: number) => {
 			const leftCardsDuration = CardsService.findCardsDuration(cards.slice(0, index+1));
 			const leftCardsWidth = DimensionsService.calcWidthFromDuration(leftCardsDuration);
-			return groupX + leftCardsWidth > x
+			return groupX + leftCardsWidth > xLeft;
 		});
 	}
 
@@ -1079,41 +1080,43 @@ export class CardsService {
 	}
 
 	divideCard(card: Card, group: CardsGroup, leftCardDuration: number, rightCardDuration: number): void {
-		const newCard = CardsService.createLeftCard(card, leftCardDuration);
-		CardsService.updateRightCard(card, newCard.end, rightCardDuration);
-		this.updateGroups(group, newCard, card);
+		CardsService.updateCard(card, rightCardDuration);
+		const newRightCard = CardsService.createCard(card, card.end, rightCardDuration);
+		this.updateGroups(group, card, newRightCard);
 	}
 
-	private static createLeftCard(card: Card, duration: number): Card {
+	private static createCard(card: Card, start: Dayjs, duration: number): Card {
 		const newCard = card.clone();
+		newCard.setStart(start);
 		newCard.setDuration(duration);
 		return newCard;
 	}
 
-	private static updateRightCard(card: Card, newStart: Dayjs, duration: number): void {
-		card.setStart(newStart);
+	private static updateCard(card: Card, duration: number): void {
 		card.setDuration(duration);
 		card.linkedPrevious = undefined;
 		card.linkedNext = undefined;
 	}
 
-	private updateGroups(group: CardsGroup, newCard: Card, card: Card): void {
+	private updateGroups(group: CardsGroup, card: Card, newRightCard: Card): void {
 		/* Se obtienen las fichas divididas de una orden y grupo. Como estas pueden estar en distintas
 		*  agrupaciones de fichas y días, se tiene que buscar en todas las fichas asignadas y no asignadas */
 		const dividedCards = CardsService.findOrderCards(card.order.number).filter((c: Card) =>
 			c.group.code == card.group.code
 		);
-		/* Sólo se actualiza el divisionIndex de las fichas a la derecha de la cortada */
-		const dividedCardsToUpdate = dividedCards.filter((c: Card) => c.panelId >= card.panelId);
-		const oldDivisionIndexes = CardsService.updateCardsDivisionIndexes(dividedCardsToUpdate, card);
+		const maxDivisionIndex = Math.max(...dividedCards.map((c: Card) => c.divisionIndex));
+		newRightCard.setDivisionIndex(maxDivisionIndex + 1);
 
 		const cardGroupIndex = group.cards.findIndex((c: Card) => c.panelId == card.panelId);
-		const leftDividedCards = group.cards.slice(0, cardGroupIndex);
-		const newGroup = new CardsGroup(leftDividedCards.concat(newCard), group.left);
-		group.removeCards(cardGroupIndex, group.cards.length);
+		const rightDividedCards = group.cards.slice(cardGroupIndex+1, group.cards.length);
+		group.removeCards(0, cardGroupIndex+1);
+		const newGroup = new CardsGroup(
+			[newRightCard].concat(rightDividedCards),
+			DimensionsService.calcLeftFromStart(group.end)
+		);
 		CardsService.updateDivisionLinks(newGroup, group);
 
-		this.http.post(Url.cards(), [newCard]).subscribe(() => {
+		this.http.post(Url.cards(), [newRightCard]).subscribe(() => {
 			/* Si la ficha dividida no era la primera del grupo, es necesario actualizar el linkedNext de la anterior */
 			if (cardGroupIndex > 0) {
 				this.http.put(
@@ -1122,26 +1125,13 @@ export class CardsService {
 				).subscribe();
 			}
 		});
-		this.http.put(
-			Url.cardsDivision(),
-			dividedCardsToUpdate,
-			{params: {oldDivisionIndexes: oldDivisionIndexes.map((i: number) => i.toString())}}
-		).subscribe();
+		this.http.put(Url.cardsDuration(), [group.cards[group.cards.length - 1]]).subscribe();
 
 		if (card.day) {
 			CardsService.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup);
 		} else {
 			CardsService.handleAddUnassignedCardsGroup(newGroup);
 		}
-	}
-
-	private static updateCardsDivisionIndexes(dividedCardsToUpdate: Card[], card: Card): number[] {
-		const oldDivisionIndexes = [];
-		dividedCardsToUpdate.forEach((c: Card) => {
-			oldDivisionIndexes.push(c.divisionIndex);
-			c.setDivisionIndex(c.divisionIndex + 1);
-		});
-		return oldDivisionIndexes;
 	}
 
 	private static updateDivisionLinks(newGroup: CardsGroup, group: CardsGroup): void {

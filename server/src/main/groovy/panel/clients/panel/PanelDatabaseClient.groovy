@@ -69,13 +69,6 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 			@Body List<Card> cards
 	)
 
-	@Put("/cards/division")
-	List<Map> updateCardsDivision(
-			@Header String sessionId,
-			@QueryValue List<Integer> oldDivisionIndexes,
-			@Body List<Map<String, Object>> cards
-	)
-
 	@Patch("/cards/vehiclePosition")
 	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
 

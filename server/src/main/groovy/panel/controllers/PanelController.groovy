@@ -56,15 +56,6 @@ class PanelController {
 		panelDatabaseClient.updateCardsDuration(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_DURATION, cards)
 	}
 
-	@Put("/cards/division")
-	void updateDivision(
-			@Header String sessionId,
-	        @QueryValue List<Integer> oldDivisionIndexes,
-	        @Body List<Map<String, Object>> cards
-	) {
-		panelDatabaseClient.updateCardsDivision(sessionId, oldDivisionIndexes, cards)
-	}
-
 	@Put("/cards/links")
 	void updateLinks(@Header String sessionId, @Body List<Card> cards) {
 		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_LINKS, cards)
