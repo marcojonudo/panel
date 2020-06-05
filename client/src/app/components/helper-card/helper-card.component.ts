@@ -44,6 +44,14 @@ export class HelperCardComponent {
 		return Constants.CARD_TYPE_BACKGROUND[type] || Constants.CARD_TYPE_BACKGROUND['DEFAULT'];
 	}
 
+	checkFirstCard(linkedPrevious: Card): boolean {
+		return !linkedPrevious;
+	}
+
+	checkLastCard(linkedNext: Card): boolean {
+		return !linkedNext;
+	}
+
 	findVehiclePosition(position: string): string {
 		return this.VEHICLE_POSITION[position];
 	}

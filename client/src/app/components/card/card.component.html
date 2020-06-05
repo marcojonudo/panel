@@ -10,15 +10,18 @@
 	<div class="h-100 d-flex flex-column">
 		<div class="d-flex">
 			<div class="flex-grow-1 flex-basis-0 align-center">
-				{{card.order.code}}
+				<span *ngIf="checkFirstCard(card.linkedPrevious)">{{card.order.code}}</span>
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
-				<div class="align-center card-state-indicator" [style.background-color]="getOrderStateColor(card.order.state)">
+				<div
+					*ngIf="checkFirstCard(card.linkedPrevious)"
+					class="align-center card-state-indicator"
+					[style.background-color]="getOrderStateColor(card.order.state)">
 					<strong>{{findVehiclePosition(card.vehiclePosition)}}</strong>
 				</div>
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
-				{{card.order.deadline | date: 'HH:mm'}}
+				<span *ngIf="checkLastCard(card.linkedNext)">{{card.order.deadline | date: 'HH:mm'}}</span>
 			</div>
 		</div>
 		<div class="flex-grow-1 flex-basis-0 d-flex">

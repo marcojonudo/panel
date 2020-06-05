@@ -48,6 +48,14 @@ export class CardComponent {
 		}
 	}
 
+	checkFirstCard(linkedPrevious: Card): boolean {
+		return !linkedPrevious;
+	}
+
+	checkLastCard(linkedNext: Card): boolean {
+		return !linkedNext;
+	}
+
 	getOrderStateColor(state: string): string {
 		return this.CARD_STATE_COLOR[state];
 	}
