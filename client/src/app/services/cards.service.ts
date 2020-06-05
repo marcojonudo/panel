@@ -930,6 +930,7 @@ export class CardsService {
 	static buildDaySaturation(day: Dayjs): HourQuarter[] {
 		const dayMechanics = MechanicsService.findDayMechanics(day).filter((mechanic: Mechanic) => !mechanic.fixed);
 		const dayGroups = this.findDayGroups(day).filter((group: CardsGroup) =>
+			group.cards[0].type == Constants.CARD_TYPE.APPOINTMENT &&
 			dayMechanics.find((mechanic: Mechanic) => group.cards[0].mechanicCode == mechanic.code) != undefined
 		);
 		const quartersSaturation = this.buildQuartersSaturation(dayGroups, dayMechanics);
