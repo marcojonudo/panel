@@ -1,4 +1,4 @@
-import {QuarterSaturation} from "./quarters-saturation-update/quarter-saturation";
+import {QuarterSaturation} from "./quarters-saturation/quarter-saturation";
 
 export interface QuartersSaturation {
 

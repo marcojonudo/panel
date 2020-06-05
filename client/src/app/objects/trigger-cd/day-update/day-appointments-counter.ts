@@ -1,5 +1,5 @@
 import {Dayjs} from "dayjs";
-import {AppointmentsCounter} from "../appointments-counter";
+import {AppointmentsCounter} from "../../appointments-counter";
 
 export class DayAppointmentsCounter {
 

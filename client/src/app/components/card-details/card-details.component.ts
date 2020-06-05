@@ -2,8 +2,6 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@ang
 import {Card} from "../../objects/card";
 import {Constants} from "../../objects/constants";
 import {NotificationService} from "../../services/notification.service";
-import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
-import {HttpClient} from "@angular/common/http";
 import {CardsService} from "../../services/cards.service";
 
 @Component({

@@ -1,6 +1,6 @@
-import {Skill} from "../skill";
 import {Dayjs} from "dayjs";
-import {MechanicSkills} from "../mechanic-skills";
+import {Skill} from "../../skill";
+import {MechanicSkills} from "../../mechanic-skills";
 
 export class DayMechanicSkills {
 

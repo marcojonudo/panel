@@ -5,10 +5,8 @@ import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned
 import {NotificationService} from "../../services/notification.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
-import {DayAppointmentsCounter} from "../../objects/appointments-counter-update/day-appointments-counter";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
-import {AppointmentsCounter} from "../../objects/appointments-counter";
 import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
 
 @Component({

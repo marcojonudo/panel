@@ -5,7 +5,6 @@ import {CardsGroup} from "../../objects/cards-group";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
 import {CardPositionService} from "../../services/card-position.service";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {DimensionsService} from "../../services/dimensions.service";
 import {JobLineTypeService} from "../../services/job-line-type.service";
 import {ScheduleInterval} from "../../objects/schedule-interval";
@@ -15,6 +14,8 @@ import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/upd
 import {CreateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/create-schedule-behaviour";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
+import {DayMechanic} from "../../objects/trigger-cd/day-update/day-mechanic";
+import {DropzonesUpdateObjects} from "../../objects/trigger-cd/dropzones-update-objects";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -22,13 +23,15 @@ import {Dayjs} from "dayjs";
 	styleUrls: ['./mechanic-line.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MechanicLineComponent {
+export class MechanicLineComponent implements OnInit {
 
 	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
-	@Input() mechanicLineUpdate: MechanicUpdate;
+	@Input() dayMechanic: DayMechanic;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() showAppointmentsName: boolean;
+
+	dropzonesUpdateObjects: DropzonesUpdateObjects;
 
 	constructor(
 		private mechanicsService: MechanicsService,
@@ -36,6 +39,17 @@ export class MechanicLineComponent {
 		private jobLineTypeService: JobLineTypeService,
 		private cdRef: ChangeDetectorRef
 	) {}
+
+	ngOnInit():void {
+		this.initDropzonesUpdateObjects();
+	}
+
+	private initDropzonesUpdateObjects(schedules: ScheduleInterval[] = this.mechanic.schedules): void {
+		this.dropzonesUpdateObjects = {};
+		schedules.forEach((schedule: ScheduleInterval) => {
+			this.dropzonesUpdateObjects[schedule.start.valueOf()] = undefined;
+		});
+	}
 
 	// region Getters / setters
 
@@ -145,9 +159,15 @@ export class MechanicLineComponent {
 		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 
-	checkUpdateDropzone(mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
-		return mechanicLineUpdate && Constants.UPDATE_ALL_MECHANIC_LINES_TYPES.includes(mechanicLineUpdate.type)
-			? mechanicLineUpdate : undefined;
+	checkUpdateDropzone(
+		start: Dayjs,
+		dayMechanic: DayMechanic = this.dayMechanic,
+		dropzonesUpdateObjects: DropzonesUpdateObjects = this.dropzonesUpdateObjects
+	): Boolean {
+		if (dayMechanic.dropzoneUpdate) {
+			dayMechanic.dropzoneUpdate.updateObjects(dropzonesUpdateObjects, start);
+		}
+		return dropzonesUpdateObjects[start.valueOf()];
 	}
 
 	createCreateScheduleBehaviour(): DragScheduleBehaviour {
@@ -164,7 +184,7 @@ export class MechanicLineComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line', this.mechanicLineUpdate, this.mechanic);
+			console.log('checking mechanic line', this.dayMechanic, this.mechanic);
 		}
 	}
 

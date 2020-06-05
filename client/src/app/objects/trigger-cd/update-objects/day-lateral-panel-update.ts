@@ -1,9 +1,9 @@
 import {Constants} from "../../constants";
 import {UpdateObject} from "./update-object";
 import {LateralPanelInfo} from "../../lateral-panel-info/lateral-panel-info";
-import {DayLateralPanelInfo} from "../../lateral-panel-info/day-lateral-panel-info";
 import {DaysUpdateObjects} from "../days-update-objects";
 import {Dayjs} from "dayjs";
+import {DayLateralPanelInfo} from "../day-update/day-lateral-panel-info";
 
 export class DayLateralPanelUpdate implements UpdateObject {
 
@@ -11,7 +11,7 @@ export class DayLateralPanelUpdate implements UpdateObject {
 	value: DayLateralPanelInfo;
 
 	constructor(value: DayLateralPanelInfo) {
-		this.type = Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL;
+		this.type = Constants.UPDATE_OBJECT.LATERAL_PANEL;
 		this.value = value;
 	}
 

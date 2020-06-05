@@ -8,7 +8,7 @@ export class AppointmentsCounterUpdate implements UpdateObject {
 	value: AppointmentsCounter;
 
 	constructor(value: AppointmentsCounter) {
-		this.type = Constants.TRIGGER_CD_UPDATE_PROPERTY.APPOINTMENTS_COUNTER;
+		this.type = Constants.UPDATE_OBJECT.APPOINTMENTS_COUNTER;
 		this.value = value;
 	}
 

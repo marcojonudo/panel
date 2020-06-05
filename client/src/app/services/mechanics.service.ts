@@ -155,11 +155,7 @@ export class MechanicsService {
 
 	static updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.setLines(newLines);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
-			mechanic.day,
-			mechanic.code
-		);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code, true);
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {
@@ -177,11 +173,7 @@ export class MechanicsService {
 		const index = mechanics.indexOf(mechanic);
 		MechanicsService.rearrangeMechanics(mechanics, index);
 
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.LINES_NUMBER,
-			day,
-			mechanic.code
-		);
+		NotificationService.notifyMechanicLine(day, mechanic.code);
 
 		if (updateDb) {
 			this.http.put(Url.mechanicsPosition(), mechanics.concat(mechanic)).subscribe();

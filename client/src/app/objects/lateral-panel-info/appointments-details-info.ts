@@ -15,6 +15,4 @@ export class AppointmentsDetailsInfo implements LateralPanelInfo {
 		this.show = appointmentsCounter != undefined;
 	}
 
-	handle(): void {}
-
 }

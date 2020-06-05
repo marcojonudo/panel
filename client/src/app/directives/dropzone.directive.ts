@@ -11,7 +11,6 @@ import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Constants} from "../objects/constants";
 import {DropzoneService} from "../services/dropzone.service";
 import {DimensionsService} from "../services/dimensions.service";
-import {MechanicUpdate} from "../objects/update-days-cards/mechanic-update";
 import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Directive({
@@ -23,7 +22,7 @@ export class DropzoneDirective implements OnInit, OnChanges {
 	@Input() subType?: string;
 	@Input() mechanic: Mechanic;
 	@Input() interval: ScheduleInterval;
-	@Input() update: MechanicUpdate;
+	@Input() update: Boolean;
 
 	private dropzone: Dropzone;
 

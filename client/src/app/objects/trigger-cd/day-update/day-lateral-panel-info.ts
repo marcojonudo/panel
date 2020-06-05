@@ -1,5 +1,5 @@
-import {LateralPanelInfo} from "./lateral-panel-info";
 import {Dayjs} from "dayjs";
+import {LateralPanelInfo} from "../../lateral-panel-info/lateral-panel-info";
 
 export class DayLateralPanelInfo {
 

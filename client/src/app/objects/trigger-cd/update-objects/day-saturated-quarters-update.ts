@@ -2,8 +2,8 @@ import {Constants} from "../../constants";
 import {UpdateObject} from "./update-object";
 import {DaysUpdateObjects} from "../days-update-objects";
 import {Dayjs} from "dayjs";
-import {DaySaturatedQuarters} from "../../quarters-saturation-update/day-saturated-quarters";
 import {HourQuarter} from "../../hour-quarter";
+import {DaySaturatedQuarters} from "../day-update/day-saturated-quarters";
 
 export class DaySaturatedQuartersUpdate implements UpdateObject {
 
@@ -11,7 +11,7 @@ export class DaySaturatedQuartersUpdate implements UpdateObject {
 	value: DaySaturatedQuarters;
 
 	constructor(value: DaySaturatedQuarters) {
-		this.type = Constants.TRIGGER_CD_UPDATE_PROPERTY.SATURATED_QUARTERS;
+		this.type = Constants.UPDATE_OBJECT.SATURATED_QUARTERS;
 		this.value = value;
 	}
 

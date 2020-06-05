@@ -11,7 +11,7 @@
 	<app-mechanic-line
 		[day]="day"
 		[mechanic]="mechanic"
-		[mechanicLineUpdate]="mechanicLineUpdate"
+		[dayMechanic]="dayMechanic"
 		[appointments]="mechanic.appointments"
 		[showAppointmentsName]="showAppointmentsName"
 		class="h-100 flex-grow-1">
@@ -19,7 +19,7 @@
 	<div
 		class="w-100 resizable cursor-resize"
 		appResizableLine
-		[mechanic]="mechanic"
-		(resized)="emitResizedLine($event)"></div>
+		[mechanic]="mechanic">
+	</div>
 </div>
 <div>{{check()}}</div>

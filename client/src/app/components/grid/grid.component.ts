@@ -9,16 +9,16 @@ import {
 } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Mechanic} from "../../objects/mechanic";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Constants} from "../../objects/constants";
 import {MechanicsService} from "../../services/mechanics.service";
 import {NotificationService} from "../../services/notification.service";
 import {CardsService} from "../../services/cards.service";
 import {Dayjs} from "dayjs";
-import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 import {MechanicSkills} from "../../objects/mechanic-skills";
 import {MechanicsUpdateObjects} from "../../objects/trigger-cd/mechanics-update-objects";
 import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills-update";
+import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line-update";
+import {DayMechanic} from "../../objects/trigger-cd/day-update/day-mechanic";
 
 @Component({
 	selector: 'app-grid',
@@ -30,7 +30,7 @@ export class GridComponent implements OnInit {
 
 	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
-	@Input() mechanicLineUpdate: MechanicUpdate;
+	@Input() mechanicLineUpdate: MechanicLineUpdate;
 	@Input() mechanicSkillsUpdate: MechanicSkillsUpdate;
 	@Input() showAppointmentsName: boolean;
 
@@ -59,8 +59,9 @@ export class GridComponent implements OnInit {
 		this.mechanicsUpdateObjects = {};
 		mechanics.forEach((mechanic: Mechanic) => {
 			this.mechanicsUpdateObjects[mechanic.code] = {};
-			this.mechanicsUpdateObjects[mechanic.code][Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS] =
+			this.mechanicsUpdateObjects[mechanic.code][Constants.UPDATE_OBJECT.MECHANIC_SKILLS] =
 				new MechanicSkills();
+			this.mechanicsUpdateObjects[mechanic.code][Constants.UPDATE_OBJECT.MECHANIC_LINE] = undefined;
 		});
 	}
 
@@ -78,14 +79,13 @@ export class GridComponent implements OnInit {
 		}
 	}
 
-	checkTriggerMechanicLineCd(
+	findMechanicLineUpdate(
 		mechanicCode: string,
-		mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate
-	): MechanicUpdate {
-		return mechanicLineUpdate
-			&& (mechanicLineUpdate.mechanicCode == mechanicCode
-				|| Constants.UPDATE_ALL_MECHANIC_LINES_TYPES.includes(mechanicLineUpdate.type))
-			? mechanicLineUpdate : undefined;
+		mechanicsUpdateObjects: MechanicsUpdateObjects = this.mechanicsUpdateObjects,
+		mechanicLineUpdate: MechanicLineUpdate = this.mechanicLineUpdate
+	): DayMechanic {
+		mechanicLineUpdate.updateObjects(mechanicCode, mechanicsUpdateObjects);
+		return mechanicsUpdateObjects[mechanicCode][mechanicLineUpdate.type];
 	}
 
 	findMechanicSkills(
@@ -95,11 +95,6 @@ export class GridComponent implements OnInit {
 	): MechanicSkills {
 		mechanicSkillsUpdate.updateObjects(mechanicCode, mechanicsUpdateObjects);
 		return mechanicsUpdateObjects[mechanicCode][mechanicSkillsUpdate.type];
-	}
-
-	triggerMechanicLineCd(): void {
-		this.mechanicLineUpdate = new MechanicLineUpdate(Constants.MECHANIC_LINE_UPDATE_TYPE.RESIZE_LINE);
-		this.cdRef.detectChanges();
 	}
 
 	drop(event: CdkDragDrop<string[]>) {

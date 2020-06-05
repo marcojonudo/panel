@@ -1,5 +1,5 @@
 import {Dayjs} from "dayjs";
-import {HourQuarter} from "../hour-quarter";
+import {HourQuarter} from "../../hour-quarter";
 
 export class DaySaturatedQuarters {
 

@@ -4,6 +4,4 @@ export interface LateralPanelInfo {
 	params: any;
 	show: boolean;
 
-	handle(...info: any[]): void;
-
 }

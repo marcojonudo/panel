@@ -21,8 +21,8 @@
 						[day]="today"
 						[mechanics]="findDayMechanics(today) | mechanics: onlyAppointmentsMode"
 						[saturatedQuarters]="findSaturatedQuarters(today)"
-						[mechanicSkillsUpdate]="findMechanicSkills(today)"
-						[mechanicLineUpdate]="checkTriggerLineCd(today)"
+						[mechanicSkillsUpdate]="findUpdateObject(today, mechanicSkillsUpdateType)"
+						[mechanicLineUpdate]="findUpdateObject(today, mechanicLineUpdateType)"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth"
@@ -42,7 +42,7 @@
 			</app-lateral-panel>
 			<app-tools-bar
 				[day]="today"
-				[appointmentsCounterUpdate]="findAppointmentsCounter(today)"
+				[appointmentsCounterUpdate]="findUpdateObject(today, appointmentsCounterUpdateType)"
 				[maxScheduleWidth]="maxScheduleWidth"
 				[maxScheduleMaxWidth]="maxScheduleMaxWidth">
 			</app-tools-bar>
@@ -61,8 +61,8 @@
 						[day]="day"
 						[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
 						[saturatedQuarters]="findSaturatedQuarters(day)"
-						[mechanicSkillsUpdate]="findMechanicSkills(day)"
-						[mechanicLineUpdate]="checkTriggerLineCd(day)"
+						[mechanicSkillsUpdate]="findUpdateObject(day, mechanicSkillsUpdateType)"
+						[mechanicLineUpdate]="findUpdateObject(day, mechanicLineUpdateType)"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth">
@@ -76,7 +76,7 @@
 						class="appointments-summary blank-background border-left border-semi-dark"
 						[style.width.px]="toolsBarWidth"
 						[day]="day"
-						[appointmentsCounterUpdate]="findAppointmentsCounter(day)"
+						[appointmentsCounterUpdate]="findUpdateObject(day, appointmentsCounterUpdateType)"
 						[width]="toolsBarWidth"
 						[enabled]="true">
 					</app-appointments-summary>

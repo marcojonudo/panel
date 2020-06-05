@@ -14,6 +14,4 @@ export class CardDetailsInfo implements LateralPanelInfo {
 		this.show = card != undefined;
 	}
 
-	handle(): void {}
-
 }

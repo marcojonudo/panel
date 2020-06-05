@@ -20,7 +20,7 @@ import {MechanicsService} from "./mechanics.service";
 import {ScheduleInterval} from "../objects/schedule-interval";
 import {HourQuarters} from "../objects/hour-quarters";
 import {QuartersSaturation} from "../objects/quarters-saturation";
-import {QuarterSaturation} from "../objects/quarters-saturation-update/quarter-saturation";
+import {QuarterSaturation} from "../objects/quarters-saturation/quarter-saturation";
 import {UnassignedAuxiliarySection} from "../objects/unassigned-sections/unassigned-temporal-section";
 import {AuxiliaryCardBehaviour} from "../objects/card-type-behaviour/auxiliary-card-behaviour";
 import {DefaultCardBehaviour} from "../objects/card-type-behaviour/default-card-behaviour";
@@ -485,11 +485,7 @@ export class CardsService {
 
 		if (group.start) {
 			group.end = group.end.add(durationIncrease, Constants.DAY_JS.m);
-			NotificationService.notifyMechanicLine(
-				Constants.MECHANIC_LINE_UPDATE_TYPE.CARD_DURATION,
-				card.day,
-				card.mechanicCode
-			);
+			NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
 		} else {
 			NotificationService.notifyBand();
 		}
@@ -540,11 +536,7 @@ export class CardsService {
 
 	static handleAddAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.ADD_GROUP,
-			day,
-			mechanicCode
-		);
+		NotificationService.notifyMechanicLine(day, mechanicCode);
 	}
 
 	static handleRemoveAssignedCardsGroup(
@@ -555,11 +547,7 @@ export class CardsService {
 	): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
 		if (notify) {
-			NotificationService.notifyMechanicLine(
-				Constants.MECHANIC_LINE_UPDATE_TYPE.REMOVE_GROUP,
-				day,
-				mechanicCode
-			);
+			NotificationService.notifyMechanicLine(day, mechanicCode);
 		}
 	}
 
@@ -1041,11 +1029,7 @@ export class CardsService {
 			group.mode = mode;
 		});
 		if (groups[0].cards[0].day) {
-			NotificationService.notifyMechanicLine(
-				Constants.MECHANIC_LINE_UPDATE_TYPE.CARD_MODE,
-				groups[0].cards[0].day,
-				groups[0].cards[0].mechanicCode
-			);
+			NotificationService.notifyMechanicLine(groups[0].cards[0].day, groups[0].cards[0].mechanicCode);
 		} else {
 			NotificationService.notifyBand();
 		}
@@ -1238,11 +1222,7 @@ export class CardsService {
 
 	updateVehiclePosition(card: Card, vehiclePosition: string, updateDb: boolean = true): void {
 		card.vehiclePosition = this.findVehiclePositionValue(card.vehiclePosition, vehiclePosition);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-			card.day,
-			card.mechanicCode
-		);
+		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
 		if (updateDb) {
 			this.http.patch(Url.cardsVehiclePosition(), [card]).subscribe();
 		}
@@ -1254,11 +1234,7 @@ export class CardsService {
 
 	updatePendingCall(card: Card, pendingCall: boolean, updateDb: boolean = true): void {
 		card.pending.call = pendingCall;
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-			card.day,
-			card.mechanicCode
-		);
+		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
 		if (updateDb) {
 			this.http.patch(Url.cardsPendingCall(), [card]).subscribe();
 		}
@@ -1266,11 +1242,7 @@ export class CardsService {
 
 	updatePendingBudget(card: Card, pendingBudget: boolean, updateDb: boolean = true): void {
 		card.pending.budget = pendingBudget;
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-			card.day,
-			card.mechanicCode
-		);
+		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
 		if (updateDb) {
 			this.http.patch(Url.cardsPendingBudget(), [card]).subscribe();
 		}

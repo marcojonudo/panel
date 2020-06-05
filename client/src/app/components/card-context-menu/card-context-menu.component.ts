@@ -5,7 +5,6 @@ import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {Card} from "../../objects/card";
 import {DimensionsService} from "../../services/dimensions.service";
-import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
 import {CardDetailsInfo} from "../../objects/lateral-panel-info/card-details-info";
 import {GroupContextMenuInfo} from "../../objects/context-menu/group-context-menu-info";
 import {CardsGroup} from "../../objects/cards-group";

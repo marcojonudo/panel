@@ -1,15 +1,14 @@
 import {
 	ChangeDetectionStrategy,
-	Component, EventEmitter,
-	Input,
-	Output
+	Component,
+	Input
 } from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Dayjs} from "dayjs";
 import {MechanicSkills} from "../../objects/mechanic-skills";
+import {DayMechanic} from "../../objects/trigger-cd/day-update/day-mechanic";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -20,18 +19,15 @@ import {MechanicSkills} from "../../objects/mechanic-skills";
 export class MechanicLineContainerComponent {
 
 	@Input() day: Dayjs;
-	@Input() mechanicLineUpdate: MechanicUpdate;
+	@Input() dayMechanic: DayMechanic;
 	@Input() mechanicSkills: MechanicSkills;
 	@Input() mechanic: Mechanic;
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;
 	@Input() showAppointmentsName: boolean;
-	@Output() resizedLine: EventEmitter<boolean>;
 
-	constructor() {
-		this.resizedLine = new EventEmitter<boolean>();
-	}
+	constructor() {}
 
 	// region Getters / setters
 
@@ -45,17 +41,13 @@ export class MechanicLineContainerComponent {
 		return this.mechanic.height + Constants.VALUE.JOB_LINE_TYPE_HEIGHT;
 	}
 
-	emitResizedLine(resized: boolean): void {
-		this.resizedLine.emit(resized);
-	}
-
 	checkHighlightMechanic(mechanicSkills: MechanicSkills = this.mechanicSkills): boolean {
 		return mechanicSkills.skills != undefined;
 	}
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line container', this.mechanicLineUpdate)
+			console.log('checking mechanic line container', this.dayMechanic)
 		}
 	}
 }

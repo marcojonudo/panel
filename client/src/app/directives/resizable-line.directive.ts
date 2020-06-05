@@ -3,6 +3,7 @@ import {Mechanic} from "../objects/mechanic";
 import {CardsService} from "../services/cards.service";
 import {MechanicsService} from "../services/mechanics.service";
 import {DimensionsService} from "../services/dimensions.service";
+import {NotificationService} from "../services/notification.service";
 
 @Directive({
   selector: '[appResizableLine]'
@@ -10,7 +11,6 @@ import {DimensionsService} from "../services/dimensions.service";
 export class ResizableLineDirective implements OnInit {
 
 	@Input() mechanic: Mechanic;
-	@Output() resized: EventEmitter<boolean>;
 
 	private pointerDownListener;
 	private pointerMoveListener;
@@ -22,11 +22,8 @@ export class ResizableLineDirective implements OnInit {
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
-		private mechanicsService: MechanicsService,
-		private cardsService: CardsService
-	) {
-		this.resized = new EventEmitter<boolean>();
-	}
+		private mechanicsService: MechanicsService
+	) {}
 
 	ngOnInit(): void {
 		this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
@@ -63,8 +60,8 @@ export class ResizableLineDirective implements OnInit {
 		this.pointerMoveListener();
 		this.pointerUpListener();
 
-		this.resized.emit(true);
 		this.mechanicsService.updateDbMechanicLines(this.mechanic);
+		NotificationService.notifyMechanicLine()
 	}
 
 }

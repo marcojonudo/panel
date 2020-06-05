@@ -7,11 +7,7 @@ import {CardsService} from "../../services/cards.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {MechanicsService} from "../../services/mechanics.service";
 import {NotificationService} from "../../services/notification.service";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {JobLineTypeService} from "../../services/job-line-type.service";
-import {DayLateralPanelInfo} from "../../objects/lateral-panel-info/day-lateral-panel-info";
-import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
-import {MechanicSkills} from "../../objects/mechanic-skills";
 import {Dayjs} from "dayjs";
 
 @Component({
@@ -121,11 +117,7 @@ export class MechanicInfoComponent {
 
 	updateJobLineType(mechanic: Mechanic = this.mechanic): void {
 		this.jobLineTypeService.updateDbJobLineType(mechanic);
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.JOB_LINE_TYPE,
-			mechanic.day,
-			mechanic.code
-		);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 		this.cdRef.detectChanges();
 	}
 

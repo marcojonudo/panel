@@ -6,7 +6,6 @@ import {
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {NotificationService} from "../../services/notification.service";
 import {UtilsService} from "../../services/utils.service";
 import {DimensionsService} from "../../services/dimensions.service";
@@ -18,7 +17,6 @@ import {Mechanic} from "../../objects/mechanic";
 import {interval} from "rxjs/internal/observable/interval";
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
 import {AppointmentsService} from "../../services/appointments.service";
-import {MechanicLineUpdate} from "../../objects/update-days-cards/mechanic-line-update";
 import {Toast} from "../../objects/toasts/toast";
 import {DomSanitizer} from "@angular/platform-browser";
 import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
@@ -34,6 +32,10 @@ import {DayMechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/d
 import {DaySaturatedQuartersUpdate} from "../../objects/trigger-cd/update-objects/day-saturated-quarters-update";
 import {DayAppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/day-appointments-counter-update";
 import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
+import {DayMechanicLineUpdate} from "../../objects/trigger-cd/update-objects/day-mechanic-line-update";
+import {DayMechanic} from "../../objects/trigger-cd/day-update/day-mechanic";
+import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line-update";
+import {UpdateObject} from "../../objects/trigger-cd/update-objects/update-object";
 
 @Component({
 	selector: 'app-main',
@@ -61,9 +63,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _toast: Toast;
 
 	private _cursor: string;
-
-	private _mechanicLineUpdate: MechanicUpdate;
-	private _mechanicInfoUpdate: MechanicUpdate;
 
 	private _contextMenuInfo: ContextMenuInfo;
 
@@ -125,8 +124,9 @@ export class MainComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.assignedDaysCardsGroups = CardsService.assignedDaysCardsGroups;
 		this.mechanicLineSubscription = NotificationService.mechanicLine$
-				.subscribe((mechanicLineUpdate: MechanicUpdate) => {
-			this.mechanicLineUpdate = mechanicLineUpdate;
+				.subscribe((dayMechanicLineUpdate: DayMechanicLineUpdate) => {
+			dayMechanicLineUpdate.updateObjects(this.daysUpdateObjects);
+			console.log(0);
 			this.cdRef.detectChanges();
 		});
 
@@ -162,7 +162,8 @@ export class MainComponent implements OnInit, OnDestroy {
 				CardsService.assignedDaysCardsGroups
 			);
 			this.existentTodaySchedules = this.oneDayMode && this.checkDaySchedulesExist();
-			this.mechanicLineUpdate = new MechanicLineUpdate(Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH);
+			NotificationService.notifyMechanicLine();
+			console.log(3);
 			this.cdRef.detectChanges();
 		});
 		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
@@ -324,14 +325,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.LATERAL_PANEL_WIDTH;
 	}
 
-	get mechanicLineUpdate(): MechanicUpdate {
-		return this._mechanicLineUpdate;
-	}
-
-	set mechanicLineUpdate(value: MechanicUpdate) {
-		this._mechanicLineUpdate = value;
-	}
-
 	get contextMenuInfo(): ContextMenuInfo {
 		return this._contextMenuInfo;
 	}
@@ -384,6 +377,18 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._cursor = value;
 	}
 
+	get mechanicLineUpdateType(): string {
+		return Constants.UPDATE_OBJECT.MECHANIC_LINE;
+	}
+
+	get mechanicSkillsUpdateType(): string {
+		return Constants.UPDATE_OBJECT.MECHANIC_SKILLS;
+	}
+
+	get appointmentsCounterUpdateType(): string {
+		return Constants.UPDATE_OBJECT.APPOINTMENTS_COUNTER;
+	}
+
 	// endregion
 
 	private initDaysUpdateObjects(days: Dayjs[] = this.days): void {
@@ -391,13 +396,15 @@ export class MainComponent implements OnInit, OnDestroy {
 		if (days.length) {
 			days.forEach((day: Dayjs) => {
 				const dayUpdateObjects = {}
-				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.SATURATED_QUARTERS] =
+				dayUpdateObjects[Constants.UPDATE_OBJECT.SATURATED_QUARTERS] =
 					CardsService.buildDaySaturation(day);
-				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS] =
+				dayUpdateObjects[Constants.UPDATE_OBJECT.MECHANIC_SKILLS] =
 					new MechanicSkillsUpdate(new MechanicSkills());
-				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL] = undefined;
-				dayUpdateObjects[Constants.TRIGGER_CD_UPDATE_PROPERTY.APPOINTMENTS_COUNTER] =
+				dayUpdateObjects[Constants.UPDATE_OBJECT.LATERAL_PANEL] = undefined;
+				dayUpdateObjects[Constants.UPDATE_OBJECT.APPOINTMENTS_COUNTER] =
 					new AppointmentsCounterUpdate(this.appointmentsService.findDayAppointmentsCounter(day));
+				dayUpdateObjects[Constants.UPDATE_OBJECT.MECHANIC_LINE] =
+					new MechanicLineUpdate(new DayMechanic());
 
 				this.daysUpdateObjects[day.valueOf()] = dayUpdateObjects;
 			});
@@ -408,33 +415,24 @@ export class MainComponent implements OnInit, OnDestroy {
 		return MechanicsService.findDayMechanics(day);
 	}
 
-	checkTriggerLineCd(day: Dayjs, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
-		let update = undefined;
-		if (mechanicLineUpdate) {
-			update = !mechanicLineUpdate.day || day.isSame(mechanicLineUpdate.day)
-				? mechanicLineUpdate : undefined;
-		}
-		return update;
+	findUpdateObject(
+		day: Dayjs,
+		type: string,
+		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects
+	): UpdateObject {
+		return daysUpdateObjects[day.valueOf()][type];
 	}
 
 	findSaturatedQuarters(
 		day: Dayjs,
 		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
-		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.SATURATED_QUARTERS
+		type: string = Constants.UPDATE_OBJECT.SATURATED_QUARTERS
 	): HourQuarter[] {
 		return daysUpdateObjects[day.valueOf()][type];
 	}
 
 	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
 		return contextMenuInfo != undefined;
-	}
-
-	findMechanicSkills(
-		day: Dayjs,
-		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
-		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS
-	): MechanicSkillsUpdate {
-		return daysUpdateObjects[day.valueOf()][type];
 	}
 
 	private checkDaySchedulesExist(day: Dayjs = this.today): boolean {
@@ -445,16 +443,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	findLateralInfo(
 		day: Dayjs,
 		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
-		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.LATERAL_PANEL
+		type: string = Constants.UPDATE_OBJECT.LATERAL_PANEL
 	): LateralPanelInfo {
-		return daysUpdateObjects[day.valueOf()][type];
-	}
-
-	findAppointmentsCounter(
-		day: Dayjs,
-		daysUpdateObjects: DaysUpdateObjects = this.daysUpdateObjects,
-		type: string = Constants.TRIGGER_CD_UPDATE_PROPERTY.APPOINTMENTS_COUNTER
-	): AppointmentsCounterUpdate {
 		return daysUpdateObjects[day.valueOf()][type];
 	}
 

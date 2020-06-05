@@ -9,7 +9,7 @@ export class MechanicSkillsUpdate implements UpdateObject {
 	value: MechanicSkills;
 
 	constructor(value: MechanicSkills) {
-		this.type = Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS;
+		this.type = Constants.UPDATE_OBJECT.MECHANIC_SKILLS;
 		this.value = value;
 	}
 

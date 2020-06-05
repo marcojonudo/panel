@@ -28,7 +28,7 @@ export class LateralPanelComponent {
 	}
 
 	checkShowSkills(info: LateralPanelInfo = this.info): boolean {
-		return info && info.type == Constants.TRIGGER_CD_UPDATE_PROPERTY.MECHANIC_SKILLS;
+		return info && info.type == Constants.UPDATE_OBJECT.MECHANIC_SKILLS;
 	}
 
 	checkShowCardDetails(info: LateralPanelInfo = this.info): boolean {

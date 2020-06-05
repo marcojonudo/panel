@@ -1,37 +1,38 @@
 import {Injectable} from '@angular/core';
 import {UnassignedCardUpdate} from "../objects/update-cards/unassigned-card-update";
-import {MechanicLineUpdate} from "../objects/update-days-cards/mechanic-line-update";
 import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
-import {MechanicUpdate} from "../objects/update-days-cards/mechanic-update";
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import {Coordinates} from "../objects/coordinates";
 import {CardsGroup} from "../objects/cards-group";
-import {DaySaturatedQuarters} from "../objects/quarters-saturation-update/day-saturated-quarters";
 import {ContextMenuInfo} from "../objects/context-menu/context-menu-info";
-import {DayAppointmentsCounter} from "../objects/appointments-counter-update/day-appointments-counter";
-import {Constants} from "../objects/constants";
 import {Toast} from "../objects/toasts/toast";
 import {Dayjs} from "dayjs";
-import {DayMechanicSkills} from "../objects/skills-update/day-mechanic-skills";
 import {Skill} from "../objects/skill";
 import {HourQuarter} from "../objects/hour-quarter";
 import {DayMechanicSkillsUpdate} from "../objects/trigger-cd/update-objects/day-mechanic-skills-update";
 import {DaySaturatedQuartersUpdate} from "../objects/trigger-cd/update-objects/day-saturated-quarters-update";
 import {DayLateralPanelUpdate} from "../objects/trigger-cd/update-objects/day-lateral-panel-update";
 import {LateralPanelInfo} from "../objects/lateral-panel-info/lateral-panel-info";
-import {DayLateralPanelInfo} from "../objects/lateral-panel-info/day-lateral-panel-info";
 import {AppointmentsCounter} from "../objects/appointments-counter";
 import {DayAppointmentsCounterUpdate} from "../objects/trigger-cd/update-objects/day-appointments-counter-update";
+import {DayAppointmentsCounter} from "../objects/trigger-cd/day-update/day-appointments-counter";
+import {DaySaturatedQuarters} from "../objects/trigger-cd/day-update/day-saturated-quarters";
+import {DayLateralPanelInfo} from "../objects/trigger-cd/day-update/day-lateral-panel-info";
+import {DayMechanicSkills} from "../objects/trigger-cd/day-update/day-mechanic-skills";
+import {DayMechanicLineUpdate} from "../objects/trigger-cd/update-objects/day-mechanic-line-update";
+import {DayMechanic} from "../objects/trigger-cd/day-update/day-mechanic";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class NotificationService {
 
-	private static mechanicLineSubject: Subject<MechanicUpdate>;
-	private static _mechanicLine$: Observable<MechanicUpdate>;
+	private static _updateArray: any;
+
+	private static mechanicLineSubject: Subject<DayMechanicLineUpdate>;
+	private static _mechanicLine$: Observable<DayMechanicLineUpdate>;
 
 	private static bandSubject: Subject<UnassignedCardUpdate>;
 	private static _band$: Observable<UnassignedCardUpdate>;
@@ -78,7 +79,9 @@ export class NotificationService {
 	// region Init
 
 	static init(): void {
-		this.mechanicLineSubject = new Subject<MechanicUpdate>();
+		this.updateArray = [];
+
+		this.mechanicLineSubject = new Subject<DayMechanicLineUpdate>();
 		this.mechanicLine$ = this.mechanicLineSubject.asObservable();
 
 		this.bandSubject = new Subject<UnassignedCardUpdate>();
@@ -128,11 +131,19 @@ export class NotificationService {
 
 	// region Getters / setters
 
-	static get mechanicLine$(): Observable<MechanicUpdate> {
+	static get updateArray(): any {
+		return this._updateArray;
+	}
+
+	static set updateArray(value: any) {
+		this._updateArray = value;
+	}
+
+	static get mechanicLine$(): Observable<DayMechanicLineUpdate> {
 		return this._mechanicLine$;
 	}
 
-	static set mechanicLine$(value: Observable<MechanicUpdate>) {
+	static set mechanicLine$(value: Observable<DayMechanicLineUpdate>) {
 		this._mechanicLine$ = value;
 	}
 
@@ -252,15 +263,20 @@ export class NotificationService {
 
 	static notifyAll(): void {
 		NotificationService.notifyBand();
-		NotificationService.notifyMechanicLine(Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH);
+		NotificationService.notifyMechanicLine();
 	}
 
 	static notifyBand(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger()): void {
 		this.bandSubject.next(cardUpdate);
 	}
 
-	static notifyMechanicLine(type: string = undefined, day: Dayjs = undefined, mechanicCode: string = undefined): void {
-		this.mechanicLineSubject.next(new MechanicLineUpdate(type, day, mechanicCode));
+	static notifyMechanicLine(
+		day: Dayjs = undefined,
+		mechanicCode: string = undefined,
+		updateDropzone: boolean = undefined
+	): void {
+		const dayMechanicLineUpdate = new DayMechanicLineUpdate(new DayMechanic(day, mechanicCode, updateDropzone));
+		this.mechanicLineSubject.next(dayMechanicLineUpdate);
 	}
 
 	static notifyAppointmentsCounter(day: Dayjs, appointmentsCounter: AppointmentsCounter): void {

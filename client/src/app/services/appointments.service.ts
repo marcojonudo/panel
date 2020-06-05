@@ -251,11 +251,7 @@ export class AppointmentsService {
 		);
 		mechanic.appointments.push(newAppointment);
 
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
-			mechanic.day,
-			mechanic.code
-		);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 
 		return newAppointment;
 	}
@@ -272,11 +268,7 @@ export class AppointmentsService {
 		appointmentSchedule.schedule.start = start;
 		appointmentSchedule.schedule.setEnd(end);
 
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
-			mechanic.day,
-			mechanic.code
-		);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
 	static delete(
@@ -288,11 +280,7 @@ export class AppointmentsService {
 		);
 		mechanic.appointments.splice(appointmentIndex, 1);
 
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.APPOINTMENT_SCHEDULE,
-			mechanic.day,
-			mechanic.code
-		);
+		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
 	createDb(appointment: AppointmentSchedule): void {

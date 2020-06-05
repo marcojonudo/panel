@@ -7,12 +7,11 @@
 		[style.margin-bottom.px]="mechanicBottomMargin"
 		[day]="day"
 		[mechanic]="mechanic"
-		[mechanicLineUpdate]="checkTriggerMechanicLineCd(mechanic.code)"
+		[dayMechanic]="findMechanicLineUpdate(mechanic.code)"
 		[mechanicSkills]="findMechanicSkills(mechanic.code)"
 		[showAppointmentsName]="showAppointmentsName"
 		[appointments]="mechanic.appointments"
-		[position]="mechanic.panelPosition"
-		(resizedLine)="triggerMechanicLineCd()">
+		[position]="mechanic.panelPosition">
 	</app-mechanic-line-container>
 </div>
 <div>{{check()}}</div>

@@ -236,11 +236,7 @@ export class RealTimeService {
 	static updateMechanicJobLineType(mechanic: Mechanic): void {
 		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
 		localMechanic.jobLineType = mechanic.jobLineType;
-		NotificationService.notifyMechanicLine(
-			Constants.MECHANIC_LINE_UPDATE_TYPE.JOB_LINE_TYPE,
-			localMechanic.day,
-			localMechanic.code
-		);
+		NotificationService.notifyMechanicLine(localMechanic.day, localMechanic.code);
 	}
 
 	static updateLines(mechanic: Mechanic): void {
@@ -344,11 +340,7 @@ export class RealTimeService {
 				localCard.vehicle = card.vehicle;
 				localCard.order = card.order;
 				if (localCard.day) {
-					NotificationService.notifyMechanicLine(
-						Constants.MECHANIC_LINE_UPDATE_TYPE.SYNC_JPDV,
-						localCard.day,
-						localCard.mechanicCode
-					);
+					NotificationService.notifyMechanicLine(localCard.day, localCard.mechanicCode);
 				}
 			});
 		}
@@ -367,11 +359,7 @@ export class RealTimeService {
 						/* Si el grupo tiene más de una ficha, no sé borra el grupo, sino que se borra la ficha de la
                         *  lista */
 						group.removeCard(card.panelId);
-						NotificationService.notifyMechanicLine(
-							Constants.MECHANIC_LINE_UPDATE_TYPE.REMOVE_GROUP,
-							card.day,
-							card.mechanicCode
-						);
+						NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
 					}
 				} else {
 					const unassignedGroups = CardsService.findUnassignedGroups(card.type, card.status);
