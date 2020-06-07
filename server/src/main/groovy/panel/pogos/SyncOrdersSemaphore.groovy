@@ -13,7 +13,6 @@ class SyncOrdersSemaphore {
 
     static void create() {
         semaphore = new Semaphore(ASYNC_THREADS)
-        println(semaphore.toString())
     }
 
     static boolean trySyncOrders() {

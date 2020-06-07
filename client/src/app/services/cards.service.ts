@@ -187,8 +187,6 @@ export class CardsService {
 		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
 		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, daysMechanics);
 
-		// this.quartersSaturation = this.checkQuarterSaturation(UtilsService.clearTime(new Date()));
-
 		console.log('Cards', this.cards);
 		console.log('Auxiliary cards groups', this.unassignedAuxiliaryCardsGroups);
 		console.log('Finished cards groups', this.finishedCardsGroups);
@@ -1082,7 +1080,9 @@ export class CardsService {
 	divideCard(card: Card, group: CardsGroup, leftCardDuration: number, rightCardDuration: number): void {
 		CardsService.updateCard(card, rightCardDuration);
 		const newRightCard = CardsService.createCard(card, card.end, rightCardDuration);
+		const dividedCards = this.updateDividedCards(card, newRightCard);
 		this.updateGroups(group, card, newRightCard);
+		this.updateDividedDbCards(dividedCards);
 	}
 
 	private static createCard(card: Card, start: Dayjs, duration: number): Card {
@@ -1094,19 +1094,39 @@ export class CardsService {
 
 	private static updateCard(card: Card, duration: number): void {
 		card.setDuration(duration);
-		card.linkedPrevious = undefined;
 		card.linkedNext = undefined;
 	}
 
-	private updateGroups(group: CardsGroup, card: Card, newRightCard: Card): void {
+	private updateDividedCards(card: Card, newRightCard: Card): Card[] {
 		/* Se obtienen las fichas divididas de una orden y grupo. Como estas pueden estar en distintas
 		*  agrupaciones de fichas y días, se tiene que buscar en todas las fichas asignadas y no asignadas */
-		const dividedCards = CardsService.findOrderCards(card.order.number).filter((c: Card) =>
+		const allDividedCards = CardsService.findOrderCards(card.order.number).filter((c: Card) =>
 			c.group.code == card.group.code
 		);
-		const maxDivisionIndex = Math.max(...dividedCards.map((c: Card) => c.divisionIndex));
+		const maxDivisionIndex = Math.max(...allDividedCards.map((c: Card) => c.divisionIndex));
 		newRightCard.setDivisionIndex(maxDivisionIndex + 1);
 
+		const dividedCards = [card, newRightCard];
+		if (card.dividedNext) {
+			const dividedNextCard = allDividedCards.find((c: Card) => c.panelId == card.dividedNext.panelId);
+			dividedCards.push(dividedNextCard);
+		}
+		CardsService.updateCardsLinks(dividedCards, 'divided');
+		return dividedCards;
+	}
+
+	private static updateCardsLinks(cards: Card[], property: string): void {
+		cards.forEach((card: Card, i: number) => {
+			if (i != 0) {
+				card[`${property}Previous`] = cards[i-1].clone();
+			}
+			if (i != cards.length - 1) {
+				card[`${property}Next`] = cards[i+1].clone();
+			}
+		});
+	}
+
+	private updateGroups(group: CardsGroup, card: Card, newRightCard: Card): void {
 		const cardGroupIndex = group.cards.findIndex((c: Card) => c.panelId == card.panelId);
 		const rightDividedCards = group.cards.slice(cardGroupIndex+1, group.cards.length);
 		group.removeCards(0, cardGroupIndex+1);
@@ -1114,19 +1134,7 @@ export class CardsService {
 			[newRightCard].concat(rightDividedCards),
 			DimensionsService.calcLeftFromStart(group.end)
 		);
-		CardsService.updateDivisionLinks(newGroup, group);
-
-		this.http.post(Url.cards(), [newRightCard]).subscribe(() => {
-			/* Si la ficha dividida no era la primera del grupo, es necesario actualizar el linkedNext de la anterior */
-			if (cardGroupIndex > 0) {
-				this.http.put(
-					Url.cardsLinks(),
-					newGroup.cards.slice(newGroup.cards.length-2, newGroup.cards.length-1)
-				).subscribe();
-			}
-		});
-		this.http.put(Url.cardsDuration(), [group.cards[group.cards.length - 1]]).subscribe();
-
+		CardsService.updateLinkedLinks(newGroup, group);
 		if (card.day) {
 			CardsService.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup);
 		} else {
@@ -1134,19 +1142,17 @@ export class CardsService {
 		}
 	}
 
-	private static updateDivisionLinks(newGroup: CardsGroup, group: CardsGroup): void {
-		this.relateCardsLinks(newGroup.cards);
-		this.relateCardsLinks(group.cards);
+	private static updateLinkedLinks(newGroup: CardsGroup, group: CardsGroup): void {
+		this.updateCardsLinks(newGroup.cards, 'linked');
+		this.updateCardsLinks(group.cards, 'linked');
 	}
 
-	private static relateCardsLinks(cards: Card[]): void {
-		cards.forEach((card: Card, i: number) => {
-			if (i != 0) {
-				card.linkedPrevious = cards[i-1].clone();
-			}
-			if (i != cards.length - 1) {
-				card.linkedNext = cards[i+1].clone();
-			}
+	private updateDividedDbCards(dividedCards: Card[]): void {
+		const newCard = dividedCards[1];
+		dividedCards.splice(1, 1);
+
+		this.http.post(Url.cards(), [newCard], {params: {updateLinks: 'false'}}).subscribe(() => {
+			this.http.put(Url.cardsDivision(), dividedCards).subscribe();
 		});
 	}
 

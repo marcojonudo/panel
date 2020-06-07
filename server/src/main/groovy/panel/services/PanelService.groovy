@@ -305,7 +305,8 @@ class PanelService {
 
 	UpdateCards findDbUpdateCards(LocalDate day) {
 		List<Card> dbCards = panelDatabaseClient.getCards(day, null)
-		return new UpdateCards(dbCards)
+		List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
+		return new UpdateCards(dbCards, auxiliaryCards)
 	}
 
 	/**
@@ -544,11 +545,7 @@ class PanelService {
 	 */
 	void saveCards(UpdateCards updateCards) {
 		if (updateCards.newCards) {
-			panelDatabaseClient.createCards("", updateCards.newCards.collect { it.properties })
-			/* Los IDs de las fichas se asignan una vez guardados en DB, por lo que es necesario realizar esta operación
-			* para poder relacionar los IDS enlazados */
-			relateCards(updateCards.newCards)
-			panelDatabaseClient.updateCardsLinks(null, null, updateCards.newCards)
+			panelDatabaseClient.createCards("", updateCards.newCards.collect { it.properties }, true)
 		}
 		if (updateCards.updatedCards) {
 			panelDatabaseClient.updateCards(updateCards.updatedCards)

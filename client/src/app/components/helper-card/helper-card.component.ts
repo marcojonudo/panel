@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Card} from "../../objects/card";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-helper-card',
@@ -50,6 +51,36 @@ export class HelperCardComponent {
 
 	checkLastCard(linkedNext: Card): boolean {
 		return !linkedNext;
+	}
+
+	checkShowDivisionInfo(dividedPrevious: Card, dividedNext: Card): boolean {
+		return dividedPrevious != undefined || dividedNext != undefined;
+	}
+
+	checkShowLeftDivisionInfo(dividedPrevious: Card): boolean {
+		return dividedPrevious != undefined;
+	}
+
+	checkShowRightDivisionInfo(dividedNext: Card): boolean {
+		return dividedNext != undefined;
+	}
+
+	findDividedPreviousPosition(dividedPrevious: Card): string {
+		return MechanicsService.findMechanic(dividedPrevious.day, dividedPrevious.mechanicCode).panelPosition;
+	}
+
+	checkArrowDirection(card: Card, dividedCard: Card) {
+		const mechanicPosition = MechanicsService.findMechanic(card.day, card.mechanicCode).panelPosition;
+		const dividedMechanicPosition = MechanicsService.findMechanic(
+			dividedCard.day, dividedCard.mechanicCode
+		).panelPosition;
+		if (mechanicPosition > dividedMechanicPosition) {
+			return 'up';
+		} else if (mechanicPosition < dividedMechanicPosition) {
+			return 'down';
+		} else {
+			return card.start.isBefore(dividedCard.start) ? 'right' : 'left';
+		}
 	}
 
 	findVehiclePosition(position: string): string {

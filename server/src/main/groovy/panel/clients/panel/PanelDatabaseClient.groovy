@@ -40,7 +40,11 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 
 	@Post("/cards")
-	List<Card> createCards(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	List<Card> createCards(
+		@Header String sessionId,
+		@Body List<Map<String, Object>> cards,
+		@QueryValue boolean updateLinks
+	)
 
 	@Put("/cards")
 	List<Card> updateCards(@Body List<Card> cards)
@@ -68,6 +72,9 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 			@Header String realTimeAction,
 			@Body List<Card> cards
 	)
+
+	@Put("/cards/division")
+	List<Map> updateCardsDivision(@Header String sessionId, @Body List<Map<String, Object>> cards)
 
 	@Patch("/cards/vehiclePosition")
 	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)

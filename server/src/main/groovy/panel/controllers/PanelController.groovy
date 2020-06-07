@@ -42,8 +42,8 @@ class PanelController {
 	}
 
 	@Post("/cards")
-	void createCards(@Header String sessionId, @Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.createCards(sessionId, cards)
+	void createCards(@Header String sessionId, @QueryValue boolean updateLinks, @Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.createCards(sessionId, cards, updateLinks)
 	}
 
 	@Put("/cards/position")
@@ -54,6 +54,14 @@ class PanelController {
 	@Put("/cards/duration")
 	void updateDuration(@Header String sessionId, @Body List<Card> cards) {
 		panelDatabaseClient.updateCardsDuration(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_DURATION, cards)
+	}
+
+	@Put("/cards/division")
+	void updateDivision(
+		@Header String sessionId,
+		@Body List<Map<String, Object>> cards
+	) {
+		panelDatabaseClient.updateCardsDivision(sessionId, cards)
 	}
 
 	@Put("/cards/links")

@@ -10,6 +10,7 @@ import {UnassignedCardLinkHandler} from "../../objects/card-links/unassigned-car
 import {AssignedCardLinkHandler} from "../../objects/card-links/assigned-card-link-handler";
 import {Dayjs} from "dayjs";
 import {NotificationService} from "../../services/notification.service";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-card',
@@ -62,6 +63,36 @@ export class CardComponent {
 
 	findVehiclePosition(position: string): string {
 		return this.VEHICLE_POSITION[position];
+	}
+
+	checkShowDivisionInfo(dividedPrevious: Card, dividedNext: Card): boolean {
+		return dividedPrevious != undefined || dividedNext != undefined;
+	}
+
+	checkShowLeftDivisionInfo(dividedPrevious: Card): boolean {
+		return dividedPrevious != undefined;
+	}
+
+	checkShowRightDivisionInfo(dividedNext: Card): boolean {
+		return dividedNext != undefined;
+	}
+
+	findDividedPreviousPosition(dividedPrevious: Card): string {
+		return MechanicsService.findMechanic(dividedPrevious.day, dividedPrevious.mechanicCode).panelPosition;
+	}
+
+	checkArrowDirection(card: Card, dividedCard: Card) {
+		const mechanicPosition = MechanicsService.findMechanic(card.day, card.mechanicCode).panelPosition;
+		const dividedMechanicPosition = MechanicsService.findMechanic(
+			dividedCard.day, dividedCard.mechanicCode
+		).panelPosition;
+		if (mechanicPosition > dividedMechanicPosition) {
+			return 'up';
+		} else if (mechanicPosition < dividedMechanicPosition) {
+			return 'down';
+		} else {
+			return card.start.isBefore(dividedCard.start) ? 'right' : 'left';
+		}
 	}
 
 	checkShowCustomIcon(): boolean {

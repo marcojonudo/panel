@@ -34,6 +34,10 @@ export class Url {
 		return `${environment.serverUrl}/panel/cards/duration`;
 	}
 
+	public static cardsDivision(): string {
+		return `${environment.serverUrl}/panel/cards/division`;
+	}
+
 	public static cardsLinks(): string {
 		return `${environment.serverUrl}/panel/cards/links`;
 	}

@@ -13,11 +13,12 @@ class UpdateCards {
 	List<Card> sameCards
 	List<Card> auxiliaryCards
 
-	UpdateCards(List<Card> sameCards = []) {
+	UpdateCards(List<Card> sameCards = [], List<Card> auxiliaryCards = []) {
 		newCards = []
 		updatedCards = []
 		deletedCards = []
 		this.sameCards = sameCards
+		this.auxiliaryCards = auxiliaryCards
 	}
 
 	List<Card> getAll() {

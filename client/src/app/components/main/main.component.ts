@@ -133,6 +133,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.quartersSaturationSubscription = NotificationService.saturatedQuarters$
 				.subscribe((daySaturatedQuartersUpdate: DaySaturatedQuartersUpdate) => {
 			daySaturatedQuartersUpdate.updateObjects(this.daysUpdateObjects);
+					console.log(1);
 			this.cdRef.detectChanges();
 		});
 
@@ -148,6 +149,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			} else {
 				this.pointerDownListener();
 			}
+					console.log(2);
 			this.cdRef.detectChanges();
 		});
 
@@ -177,22 +179,26 @@ export class MainComponent implements OnInit, OnDestroy {
 			);
 			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
 			NotificationService.notifyAll();
+			console.log(4);
 			this.cdRef.detectChanges();
 		});
 
 		this.lateralInfoSubscription = NotificationService.lateralInfo$
 				.subscribe((dayLateralPanelUpdate: DayLateralPanelUpdate) => {
 			dayLateralPanelUpdate.updateObjects(this.daysUpdateObjects);
+					console.log(5);
 			this.cdRef.detectChanges();
 		});
 
 		this.dayMechanicSkillsSubscription = NotificationService.dayMechanicSkills$
 				.subscribe((dayMechanicSkillsUpdate: DayMechanicSkillsUpdate) => {
 			dayMechanicSkillsUpdate.updateObjects(this.daysUpdateObjects);
+					console.log(6);
 			this.cdRef.detectChanges();
 		});
 
 		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$.subscribe(() => {
+			console.log(7);
 			this.cdRef.detectChanges();
 		});
 
@@ -200,11 +206,13 @@ export class MainComponent implements OnInit, OnDestroy {
 				.subscribe((dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate) => {
 			dayAppointmentsCounterUpdate.updateObjects(this.daysUpdateObjects);
 			// TODO Se debe ejecutar al modificar el total de citas. No al mover fichas
+					console.log(8);
 			this.cdRef.detectChanges();
 		});
 
 		this.toastSubscription = NotificationService.toast$.subscribe((toast: Toast) => {
 			this.toast = toast;
+			console.log(9);
 			this.cdRef.detectChanges();
 		});
 
@@ -220,11 +228,13 @@ export class MainComponent implements OnInit, OnDestroy {
 			} else {
 				this.appointmentsTypesContextMenuListener();
 			}
+			console.log(10);
 			this.cdRef.detectChanges();
 		});
 
 		interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
 			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
+			console.log(11);
 			this.cdRef.detectChanges();
 		});
 
