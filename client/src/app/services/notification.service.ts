@@ -11,28 +11,32 @@ import {Toast} from "../objects/toasts/toast";
 import {Dayjs} from "dayjs";
 import {Skill} from "../objects/skill";
 import {HourQuarter} from "../objects/hour-quarter";
-import {DayMechanicSkillsUpdate} from "../objects/trigger-cd/update-objects/day-mechanic-skills-update";
-import {DaySaturatedQuartersUpdate} from "../objects/trigger-cd/update-objects/day-saturated-quarters-update";
-import {DayLateralPanelUpdate} from "../objects/trigger-cd/update-objects/day-lateral-panel-update";
 import {LateralPanelInfo} from "../objects/lateral-panel-info/lateral-panel-info";
 import {AppointmentsCounter} from "../objects/appointments-counter";
-import {DayAppointmentsCounterUpdate} from "../objects/trigger-cd/update-objects/day-appointments-counter-update";
-import {DayAppointmentsCounter} from "../objects/trigger-cd/day-update/day-appointments-counter";
-import {DaySaturatedQuarters} from "../objects/trigger-cd/day-update/day-saturated-quarters";
-import {DayLateralPanelInfo} from "../objects/trigger-cd/day-update/day-lateral-panel-info";
-import {DayMechanicSkills} from "../objects/trigger-cd/day-update/day-mechanic-skills";
-import {DayMechanicLineUpdate} from "../objects/trigger-cd/update-objects/day-mechanic-line-update";
-import {DayMechanic} from "../objects/trigger-cd/day-update/day-mechanic";
+import {DayAppointmentsCounterUpdate} from "../objects/trigger-cd/update-objects/appointments-counter/day-appointments-counter-update";
+import {DayLateralPanelUpdate} from "../objects/trigger-cd/update-objects/lateral-panel/day-lateral-panel-update";
+import {DaySaturatedQuartersUpdate} from "../objects/trigger-cd/update-objects/saturated-quarteres/day-saturated-quarters-update";
+import {DayMechanicSkillsUpdate} from "../objects/trigger-cd/update-objects/mechanic-skills/day-mechanic-skills-update";
+import {MechanicSkills} from "../objects/mechanic-skills";
+import {DayMechanicLineUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/day-mechanic-line-update";
+import {DayMechanicGroupUpdate} from "../objects/trigger-cd/update-objects/groups/day-mechanic-group-update";
+import {Constants} from "../objects/constants";
+import {TriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
+import {DayTriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
+import {MechanicLineUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class NotificationService {
 
-	private static _updateArray: any;
+	private static _updateArray: DayTriggerMapUpdate[];
 
 	private static mechanicLineSubject: Subject<DayMechanicLineUpdate>;
 	private static _mechanicLine$: Observable<DayMechanicLineUpdate>;
+
+	private static updateArraySubject: Subject<any>;
+	private static _updateArray$: Observable<any>;
 
 	private static bandSubject: Subject<UnassignedCardUpdate>;
 	private static _band$: Observable<UnassignedCardUpdate>;
@@ -76,10 +80,16 @@ export class NotificationService {
 	private static dayMechanicSkillsSubject: Subject<DayMechanicSkillsUpdate>;
 	private static _dayMechanicSkills$: Observable<DayMechanicSkillsUpdate>;
 
+	private static groupSubject: Subject<DayMechanicGroupUpdate>;
+	private static _group$: Observable<DayMechanicGroupUpdate>;
+
 	// region Init
 
 	static init(): void {
 		this.updateArray = [];
+
+		this.updateArraySubject = new Subject<DayTriggerMapUpdate>();
+		this.updateArray$ = this.updateArraySubject.asObservable();
 
 		this.mechanicLineSubject = new Subject<DayMechanicLineUpdate>();
 		this.mechanicLine$ = this.mechanicLineSubject.asObservable();
@@ -125,17 +135,20 @@ export class NotificationService {
 
 		this.dayMechanicSkillsSubject = new Subject<DayMechanicSkillsUpdate>();
 		this.dayMechanicSkills$ = this.dayMechanicSkillsSubject.asObservable();
+
+		this.groupSubject = new Subject<DayMechanicGroupUpdate>();
+		this.group$ = this.groupSubject.asObservable();
 	}
 
 	// endregion
 
 	// region Getters / setters
 
-	static get updateArray(): any {
+	static get updateArray(): DayTriggerMapUpdate[] {
 		return this._updateArray;
 	}
 
-	static set updateArray(value: any) {
+	static set updateArray(value: DayTriggerMapUpdate[]) {
 		this._updateArray = value;
 	}
 
@@ -259,7 +272,32 @@ export class NotificationService {
 		this._dayMechanicSkills$ = value;
 	}
 
+	static get group$(): Observable<DayMechanicGroupUpdate> {
+		return this._group$;
+	}
+
+	static set group$(value: Observable<DayMechanicGroupUpdate>) {
+		this._group$ = value;
+	}
+
+	static get updateArray$(): Observable<any> {
+		return this._updateArray$;
+	}
+
+	static set updateArray$(value: Observable<any>) {
+		this._updateArray$ = value;
+	}
+
 	// endregion
+
+	static notifyUpdateArray(updateArray: any[] = this.updateArray): void {
+		this.updateArraySubject.next(updateArray);
+		this.clearUpdateArray();
+	}
+
+	static clearUpdateArray() {
+		this.updateArray = [];
+	}
 
 	static notifyAll(): void {
 		NotificationService.notifyBand();
@@ -273,17 +311,30 @@ export class NotificationService {
 	static notifyMechanicLine(
 		day: Dayjs = undefined,
 		mechanicCode: string = undefined,
-		updateDropzone: boolean = undefined
+		notifyImmediately: boolean = false,
+		triggerMapUpdate: TriggerMapUpdate = undefined,
+		type: string = Constants.UPDATE_OBJECT.MECHANIC_LINE
 	): void {
-		const dayMechanicLineUpdate = new DayMechanicLineUpdate(new DayMechanic(day, mechanicCode, updateDropzone));
-		this.mechanicLineSubject.next(dayMechanicLineUpdate);
+		const mechanicTriggerMapUpdate = new MechanicLineUpdate(mechanicCode, triggerMapUpdate)
+
+		const existentDayMechanicLineUpdate = this.updateArray.find((dayTriggerMapUpdate: DayTriggerMapUpdate) =>
+			dayTriggerMapUpdate.type == type
+		);
+		if (existentDayMechanicLineUpdate) {
+			existentDayMechanicLineUpdate.value.push(mechanicTriggerMapUpdate);
+		} else {
+			this.updateArray.push(new DayMechanicLineUpdate(day, mechanicTriggerMapUpdate));
+		}
+
+		if (notifyImmediately) {
+			this.notifyUpdateArray();
+		}
 	}
 
 	static notifyAppointmentsCounter(day: Dayjs, appointmentsCounter: AppointmentsCounter): void {
-		const dayAppointmentsCounterUpdate = new DayAppointmentsCounterUpdate(
-			new DayAppointmentsCounter(day, appointmentsCounter)
-		);
-		this.appointmentsCounterSubject.next(dayAppointmentsCounterUpdate);
+		const dayAppointmentsCounterUpdate = new DayAppointmentsCounterUpdate(day, appointmentsCounter);
+		this.updateArray.push(dayAppointmentsCounterUpdate);
+		// this.appointmentsCounterSubject.next(dayAppointmentsCounterUpdate);
 	}
 
 	static notifyOneDayMode(oneDayMode: boolean): void {
@@ -307,8 +358,9 @@ export class NotificationService {
 	}
 
 	static notifySaturatedQuarters(day: Dayjs, saturatedQuarters: HourQuarter[]): void {
-		const daySaturatedQuartersUpdate = new DaySaturatedQuartersUpdate(new DaySaturatedQuarters(day, saturatedQuarters));
-		this.saturatedQuartersSubject.next(daySaturatedQuartersUpdate);
+		const daySaturatedQuartersUpdate = new DaySaturatedQuartersUpdate(day, saturatedQuarters);
+		this.updateArray.push(daySaturatedQuartersUpdate);
+		// this.saturatedQuartersSubject.next(daySaturatedQuartersUpdate);
 	}
 
 	static notifyContextMenu(contextMenuInfo: ContextMenuInfo): void {
@@ -320,7 +372,7 @@ export class NotificationService {
 	}
 
 	static notifyLateralInfo(day: Dayjs, lateralPanelInfo: LateralPanelInfo): void {
-		const dayLateralPanelUpdate = new DayLateralPanelUpdate(new DayLateralPanelInfo(day, lateralPanelInfo));
+		const dayLateralPanelUpdate = new DayLateralPanelUpdate(day, lateralPanelInfo);
 		this.lateralInfoSubject.next(dayLateralPanelUpdate)
 	}
 
@@ -333,8 +385,15 @@ export class NotificationService {
 	}
 
 	static notifyDayMechanicSkills(day: Dayjs, mechanicCode: string, skills: Skill[]): void {
-		const dayMechanicSkillsUpdate = new DayMechanicSkillsUpdate(new DayMechanicSkills(day, mechanicCode, skills));
+		const dayMechanicSkillsUpdate = new DayMechanicSkillsUpdate(day, new MechanicSkills(mechanicCode, skills));
 		this.dayMechanicSkillsSubject.next(dayMechanicSkillsUpdate);
+	}
+
+	static notifyGroup(day: Dayjs, mechanicCode: string, groupsUpdate: DayTriggerMapUpdate): void {
+		// const dayMechanicLineUpdate = new DayMechanicLineUpdate(day, groupsUpdate)
+		// const dayMechanicLineUpdate = new DayMechanicLineUpdate(day, groupsUpdate);
+		// this.updateArray.push(dayMechanicLineUpdate);
+		// this.groupSubject.next(dayGroupUpdate);
 	}
 
 }

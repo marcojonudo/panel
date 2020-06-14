@@ -7,7 +7,7 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
-import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
+import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
 
 @Component({
 	selector: 'app-tools-bar',

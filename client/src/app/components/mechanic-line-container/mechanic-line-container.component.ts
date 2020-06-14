@@ -8,7 +8,9 @@ import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Dayjs} from "dayjs";
 import {MechanicSkills} from "../../objects/mechanic-skills";
-import {DayMechanic} from "../../objects/trigger-cd/day-update/day-mechanic";
+import {CardsGroup} from "../../objects/cards-group";
+import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
+import {TriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -19,15 +21,15 @@ import {DayMechanic} from "../../objects/trigger-cd/day-update/day-mechanic";
 export class MechanicLineContainerComponent {
 
 	@Input() day: Dayjs;
-	@Input() dayMechanic: DayMechanic;
+	@Input() mechanicLineUpdate: TriggerMapUpdate;
 	@Input() mechanicSkills: MechanicSkills;
 	@Input() mechanic: Mechanic;
+	@Input() groups: CardsGroup[];
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;
 	@Input() showAppointmentsName: boolean;
-
-	constructor() {}
+	@Input() groupUpdate: GroupUpdate;
 
 	// region Getters / setters
 
@@ -47,7 +49,7 @@ export class MechanicLineContainerComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line container', this.dayMechanic)
+			console.log('checking mechanic line container', this.groupUpdate)
 		}
 	}
 }

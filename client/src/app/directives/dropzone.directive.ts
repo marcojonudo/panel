@@ -12,6 +12,7 @@ import {Constants} from "../objects/constants";
 import {DropzoneService} from "../services/dropzone.service";
 import {DimensionsService} from "../services/dimensions.service";
 import {ScheduleInterval} from "../objects/schedule-interval";
+import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 
 @Directive({
 	selector: '[appDropzone]'
@@ -22,7 +23,7 @@ export class DropzoneDirective implements OnInit, OnChanges {
 	@Input() subType?: string;
 	@Input() mechanic: Mechanic;
 	@Input() interval: ScheduleInterval;
-	@Input() update: Boolean;
+	@Input() dropzoneUpdate: DropzoneUpdate;
 
 	private dropzone: Dropzone;
 
@@ -51,7 +52,7 @@ export class DropzoneDirective implements OnInit, OnChanges {
 	ngOnChanges(changes: SimpleChanges) {
 		/* Si la línea de mecánico está siendo actualizada por un cambio de zoom, se deben actualizar las posiciones y
 		*  de la dropzone */
-		if (changes.update && changes.update.currentValue) {
+		if (changes.dropzoneUpdate && changes.dropzoneUpdate.currentValue) {
 			/* Se define el timeout para dar tiempo a que actualice la interfaz y se generen tanto un rect real,
 			*  como un valor final de scroll */
 			setTimeout(() => {

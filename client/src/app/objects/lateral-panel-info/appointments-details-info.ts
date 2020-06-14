@@ -1,7 +1,7 @@
-import {LateralPanelInfo} from "./lateral-panel-info";
 import {Constants} from "../constants";
+import {LateralPanelInfo} from "./lateral-panel-info";
 import {AppointmentsCounter} from "../appointments-counter";
-import {AppointmentsCounterUpdate} from "../trigger-cd/update-objects/appointments-counter-update";
+import {AppointmentsCounterUpdate} from "../trigger-cd/update-objects/appointments-counter/appointments-counter-update";
 
 export class AppointmentsDetailsInfo implements LateralPanelInfo {
 

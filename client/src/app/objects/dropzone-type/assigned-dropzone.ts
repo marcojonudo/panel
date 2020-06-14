@@ -10,6 +10,7 @@ import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {Card} from "../card";
+import {NotificationService} from "../../services/notification.service";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -78,7 +79,10 @@ export class AssignedDropzone implements Dropzone {
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
 		*  desplazamiento */
 		setTimeout(
-			() => CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
+			() => {
+				CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
+				NotificationService.notifyUpdateArray();
+			},
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}

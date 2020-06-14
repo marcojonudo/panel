@@ -1,4 +1,10 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	Input,
+	OnInit
+} from '@angular/core';
 import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
 import {CardsGroup} from "../../objects/cards-group";
@@ -14,8 +20,12 @@ import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/upd
 import {CreateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/create-schedule-behaviour";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
-import {DayMechanic} from "../../objects/trigger-cd/day-update/day-mechanic";
-import {DropzonesUpdateObjects} from "../../objects/trigger-cd/dropzones-update-objects";
+import {GroupsUpdateObjects} from "../../objects/trigger-cd/groups-update-objects";
+import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
+import {DayGroup} from "../../objects/trigger-cd/update-objects/groups/day-group";
+import {DropzonesTriggerMap} from "../../objects/trigger-cd/trigger-maps/dropzones-trigger-map";
+import {TriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
+import {DropzoneUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -27,11 +37,14 @@ export class MechanicLineComponent implements OnInit {
 
 	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
-	@Input() dayMechanic: DayMechanic;
+	@Input() groups: CardsGroup[];
+	@Input() mechanicLineUpdate: TriggerMapUpdate;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() showAppointmentsName: boolean;
+	@Input() groupUpdate: GroupUpdate;
 
-	dropzonesUpdateObjects: DropzonesUpdateObjects;
+	dropzonesTriggerMap: DropzonesTriggerMap;
+	groupsUpdateObjects: GroupsUpdateObjects;
 
 	constructor(
 		private mechanicsService: MechanicsService,
@@ -40,14 +53,15 @@ export class MechanicLineComponent implements OnInit {
 		private cdRef: ChangeDetectorRef
 	) {}
 
-	ngOnInit():void {
-		this.initDropzonesUpdateObjects();
+	ngOnInit(): void {
+		this.dropzonesTriggerMap = new DropzonesTriggerMap(this.mechanic.schedules);
+		this.initGroupsUpdateObjects(CardsService.findDayMechanicGroups(this.day, this.mechanic.code));
 	}
 
-	private initDropzonesUpdateObjects(schedules: ScheduleInterval[] = this.mechanic.schedules): void {
-		this.dropzonesUpdateObjects = {};
-		schedules.forEach((schedule: ScheduleInterval) => {
-			this.dropzonesUpdateObjects[schedule.start.valueOf()] = undefined;
+	private initGroupsUpdateObjects(groups: CardsGroup[]): void {
+		this.groupsUpdateObjects = {};
+		groups.forEach((group: CardsGroup) => {
+			this.groupsUpdateObjects[group.id] = undefined;
 		});
 	}
 
@@ -74,10 +88,6 @@ export class MechanicLineComponent implements OnInit {
 	}
 
 	// endregion
-
-	findGroups(day: Dayjs, mechanicCode: string): CardsGroup[] {
-		return CardsService.findDayMechanicGroups(day, mechanicCode);
-	}
 
 	calcScheduleWidth(duration: number): number {
 		return DimensionsService.calcWidthFromDuration(duration);
@@ -161,13 +171,14 @@ export class MechanicLineComponent implements OnInit {
 
 	checkUpdateDropzone(
 		start: Dayjs,
-		dayMechanic: DayMechanic = this.dayMechanic,
-		dropzonesUpdateObjects: DropzonesUpdateObjects = this.dropzonesUpdateObjects
-	): Boolean {
-		if (dayMechanic.dropzoneUpdate) {
-			dayMechanic.dropzoneUpdate.updateObjects(dropzonesUpdateObjects, start);
+		mechanicLineUpdate: TriggerMapUpdate = this.mechanicLineUpdate,
+		dropzonesTriggerMap: DropzonesTriggerMap = this.dropzonesTriggerMap,
+		dropzoneType: string = Constants.UPDATE_OBJECT.DROPZONE
+	): any {
+		if (mechanicLineUpdate && mechanicLineUpdate.type == dropzoneType) {
+			(<DropzoneUpdate> mechanicLineUpdate).updateTriggerMap(dropzonesTriggerMap, start);
 		}
-		return dropzonesUpdateObjects[start.valueOf()];
+		return dropzonesTriggerMap[start.valueOf()];
 	}
 
 	createCreateScheduleBehaviour(): DragScheduleBehaviour {
@@ -178,13 +189,24 @@ export class MechanicLineComponent implements OnInit {
 		return new UpdateScheduleBehaviour(left);
 	}
 
+	findDayGroup(
+		groupId: string,
+		groupsUpdateObjects: GroupsUpdateObjects = this.groupsUpdateObjects,
+		groupUpdate: GroupUpdate = this.groupUpdate
+	): DayGroup {
+		if (groupUpdate) {
+			groupUpdate.updateObjects(groupsUpdateObjects, groupId);
+		}
+		return groupsUpdateObjects[groupId];
+	}
+
 	trackByItem(index, item) {
 		return item;
 	}
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line', this.dayMechanic, this.mechanic);
+			console.log('checking mechanic line', this.mechanic.panelPosition, this.groups);
 		}
 	}
 

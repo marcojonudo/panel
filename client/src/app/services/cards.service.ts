@@ -383,6 +383,8 @@ export class CardsService {
 		});
 
 		group.id = group.cards[0].panelId;
+		group.day = group.cards[0].day;
+		group.mechanicCode = group.cards[0].mechanicCode;
 		group.start = group.cards[0].start;
 		group.end = group.cards[group.cards.length - 1].end;
 	}
@@ -534,7 +536,7 @@ export class CardsService {
 
 	static handleAddAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
-		NotificationService.notifyMechanicLine(day, mechanicCode);
+		NotificationService.notifyMechanicLine(day, mechanicCode, false);
 	}
 
 	static handleRemoveAssignedCardsGroup(
@@ -545,7 +547,7 @@ export class CardsService {
 	): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
 		if (notify) {
-			NotificationService.notifyMechanicLine(day, mechanicCode);
+			NotificationService.notifyMechanicLine(day, mechanicCode, false);
 		}
 	}
 
@@ -722,18 +724,17 @@ export class CardsService {
 		/* Se usa concat en lugar de push para que no modifique el array original, y se actualice antes de tiempo en
 		*  mechanic-line.component. Haciendo el push, el array cardsGroups del mechanic-line.component se actualiza aquí
 		*  en lugar de en el propio componente */
-		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode] =
-			UtilsService.sort(
-				this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].concat([group]),
-				(g: CardsGroup) => g.start
-			);
-		this.assignedCardsGroups = this.assignedCardsGroups.concat(group);
+		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].push(group);
+		this.assignedCardsGroups.push(group);
 	}
 
 	private static removeAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
-		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode] =
-			this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].filter((g: CardsGroup) => g.id != group.id);
-		this.assignedCardsGroups = this.assignedCardsGroups.filter((g: CardsGroup) => g.id != group.id);
+		const index = this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].findIndex((g: CardsGroup) =>
+			g.id == group.id
+		);
+		const allGroupsIndex = this.assignedCardsGroups.findIndex((g: CardsGroup) => g.id == group.id);
+		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].splice(index, 1);
+		this.assignedCardsGroups.splice(allGroupsIndex, 1);
 	}
 
 	private static addUnassignedCardsGroup(group: CardsGroup, index: number): void {

@@ -20,13 +20,14 @@
 						class="animated fadeIn"
 						[day]="today"
 						[mechanics]="findDayMechanics(today) | mechanics: onlyAppointmentsMode"
-						[saturatedQuarters]="findSaturatedQuarters(today)"
-						[mechanicSkillsUpdate]="findUpdateObject(today, mechanicSkillsUpdateType)"
-						[mechanicLineUpdate]="findUpdateObject(today, mechanicLineUpdateType)"
+						[saturatedQuarters]="findDaySaturatedQuarters(today)"
+						[mechanicSkillsUpdate]="findDayMechanicSkillsUpdate(today)"
+						[mechanicLineUpdates]="findMechanicLineUpdates(today)"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth"
-						[timeIndicatorLeft]="timeIndicatorLeft">
+						[timeIndicatorLeft]="timeIndicatorLeft"
+						[mechanicGroupUpdate]="findUpdateObject(today, groupUpdateType)">
 					</app-day-panel>
 				</div>
 				<div
@@ -37,12 +38,12 @@
 			</div>
 			<app-lateral-panel
 				[day]="today"
-				[info]="findLateralInfo(today)"
+				[info]="findLateralPanelInfo(today)"
 				[style.right.px]="lateralPanelRight">
 			</app-lateral-panel>
 			<app-tools-bar
 				[day]="today"
-				[appointmentsCounterUpdate]="findUpdateObject(today, appointmentsCounterUpdateType)"
+				[appointmentsCounterUpdate]="findAppointmentsCounterUpdate(today)"
 				[maxScheduleWidth]="maxScheduleWidth"
 				[maxScheduleMaxWidth]="maxScheduleMaxWidth">
 			</app-tools-bar>
@@ -60,23 +61,23 @@
 						class="w-100 animated fadeIn"
 						[day]="day"
 						[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
-						[saturatedQuarters]="findSaturatedQuarters(day)"
-						[mechanicSkillsUpdate]="findUpdateObject(day, mechanicSkillsUpdateType)"
-						[mechanicLineUpdate]="findUpdateObject(day, mechanicLineUpdateType)"
+						[saturatedQuarters]="findDaySaturatedQuarters(day)"
+						[mechanicSkillsUpdate]="findDayMechanicSkillsUpdate(day)"
+						[mechanicLineUpdates]="findMechanicLineUpdates(day)"
 						[showAppointmentsName]="showAppointmentsName"
 						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth">
 					</app-day-panel>
 					<app-lateral-panel
 						[day]="day"
-						[info]="findLateralInfo(day)"
+						[info]="findLateralPanelInfo(day)"
 						[style.right.px]="lateralPanelRight">
 					</app-lateral-panel>
 					<app-appointments-summary
 						class="appointments-summary blank-background border-left border-semi-dark"
 						[style.width.px]="toolsBarWidth"
 						[day]="day"
-						[appointmentsCounterUpdate]="findUpdateObject(day, appointmentsCounterUpdateType)"
+						[appointmentsCounterUpdate]="findAppointmentsCounterUpdate(day)"
 						[width]="toolsBarWidth"
 						[enabled]="true">
 					</app-appointments-summary>

@@ -13,6 +13,9 @@ export class CardsGroup {
 	private _type: string;
 	private _status: string;
 
+	day: Dayjs;
+	mechanicCode: string;
+
 	private _lastStart: Dayjs;
 	private _start: Dayjs;
 	private _left: number;
@@ -32,6 +35,8 @@ export class CardsGroup {
 		this.id = this.cards[0].panelId;
 		this.type = this.cards[0].type;
 		this.status = this.cards[0].status;
+		this.day = this.cards[0].day;
+		this.mechanicCode = this.cards[0].mechanicCode;
 		this.start = this.cards[0].start;
 		this.end = this.cards[this.cards.length-1].end;
 		this.line = this.cards[0].line;

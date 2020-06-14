@@ -9,6 +9,7 @@ import {Url} from "../objects/url";
 import {Constants} from "../objects/constants";
 import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
+import {MechanicLineUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -155,7 +156,11 @@ export class MechanicsService {
 
 	static updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.setLines(newLines);
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code, true);
+		NotificationService.notifyMechanicLine(
+			mechanic.day,
+			mechanic.code,
+			true
+		);
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {

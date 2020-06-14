@@ -53,7 +53,7 @@
 		[type]="assignedDropzoneType"
 		[mechanic]="mechanic"
 		[interval]="interval"
-		[update]="checkUpdateDropzone(interval.start)"
+		[dropzoneUpdate]="checkUpdateDropzone(interval.start)"
 		appDragSchedule
 		[behaviour]="createCreateScheduleBehaviour()">
 		<div
@@ -82,7 +82,7 @@
 		</div>
 	</div>
 	<app-draggable-group
-		*ngFor="let group of findGroups(day, mechanic.code)"
+		*ngFor="let group of groups"
 		class="assigned-card"
 		[ngClass]="{'hidden': checkHideGroup(group.id)}"
 		[ngStyle]="{
@@ -90,7 +90,8 @@
 			'transform': 'translateX(' + group.left + 'px) translateY(' + group.cards[0].line * 100 + '%)'
 		}"
 		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
-		[cardsGroup]="group">
+		[group]="group"
+		[dayGroup]="findDayGroup(group.id)">
 	</app-draggable-group>
 </div>
 <div>{{check()}}</div>

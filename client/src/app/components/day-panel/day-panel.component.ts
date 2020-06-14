@@ -4,8 +4,9 @@ import {Mechanic} from "../../objects/mechanic";
 import {DimensionsService} from "../../services/dimensions.service";
 import {HourQuarter} from "../../objects/hour-quarter";
 import {Dayjs} from "dayjs";
-import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills-update";
-import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line-update";
+import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
+import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/mechanic-skills-update";
+import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
 
 @Component({
 	selector: 'app-day-panel',
@@ -18,12 +19,13 @@ export class DayPanelComponent implements OnInit {
 	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
 	@Input() saturatedQuarters: HourQuarter[];
-	@Input() mechanicLineUpdate: MechanicLineUpdate;
+	@Input() mechanicLineUpdates: MechanicLineUpdate[];
 	@Input() mechanicSkillsUpdate: MechanicSkillsUpdate;
 	@Input() showAppointmentsName: boolean;
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 	@Input() timeIndicatorLeft: number;
+	@Input() mechanicGroupUpdate: MechanicGroupUpdate;
 
 	timeIndicatorHeight: number;
 
@@ -37,7 +39,7 @@ export class DayPanelComponent implements OnInit {
 
 	checkDayPanel() {
 		if (Constants.CHECK) {
-			console.log('checking day panel', this.mechanicLineUpdate);
+			console.log('checking day panel', this.mechanicLineUpdates);
 		}
 	}
 

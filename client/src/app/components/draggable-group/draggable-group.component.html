@@ -1,12 +1,12 @@
 <div
 	appDraggable
-	[cardsGroup]="cardsGroup"
-	[cardBehaviour]="findCardBehaviour(cardsGroup)"
+	[cardsGroup]="group"
+	[cardBehaviour]="findCardBehaviour(group)"
 	class="h-100 d-flex draggable"
-	[style.cursor]="findCursor(cardsGroup.mode)"
+	[style.cursor]="findCursor(group.mode)"
 	(hiddenCardsGroup)="emitHiddenCardsGroup($event)">
 	<app-card
-		*ngFor="let card of cardsGroup.cards"
+		*ngFor="let card of group.cards"
 		[card]="card"
 		[width]="card.width">
 	</app-card>

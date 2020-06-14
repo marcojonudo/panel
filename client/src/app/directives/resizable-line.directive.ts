@@ -1,9 +1,10 @@
-import {Directive, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2} from '@angular/core';
+import {Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
 import {Mechanic} from "../objects/mechanic";
 import {CardsService} from "../services/cards.service";
 import {MechanicsService} from "../services/mechanics.service";
 import {DimensionsService} from "../services/dimensions.service";
 import {NotificationService} from "../services/notification.service";
+import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 
 @Directive({
   selector: '[appResizableLine]'
@@ -61,7 +62,7 @@ export class ResizableLineDirective implements OnInit {
 		this.pointerUpListener();
 
 		this.mechanicsService.updateDbMechanicLines(this.mechanic);
-		NotificationService.notifyMechanicLine()
+		NotificationService.notifyMechanicLine(undefined, undefined, true, new DropzoneUpdate());
 	}
 
 }

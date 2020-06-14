@@ -7,7 +7,7 @@ import {NotificationService} from "../../services/notification.service";
 import {AppointmentsCounter} from "../../objects/appointments-counter";
 import {KeyValue} from "@angular/common";
 import {Dayjs} from "dayjs";
-import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
+import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
 
 @Component({
 	selector: 'app-appointments-panel',

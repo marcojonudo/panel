@@ -1,8 +1,12 @@
 import {
+	ChangeDetectionStrategy,
 	Component,
 	EventEmitter,
 	Input,
-	Output
+	OnChanges,
+	OnInit,
+	Output,
+	SimpleChanges
 } from '@angular/core';
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
@@ -10,15 +14,18 @@ import {CardsService} from "../../services/cards.service";
 import {CardTypeBehaviour} from "../../objects/card-type-behaviour/card-type-behaviour";
 import {UtilsService} from "../../services/utils.service";
 import {DomSanitizer} from "@angular/platform-browser";
+import {DayGroup} from "../../objects/trigger-cd/update-objects/groups/day-group";
 
 @Component({
 	selector: 'app-draggable-group',
 	templateUrl: './draggable-group.component.html',
-	styleUrls: ['./draggable-group.component.css']
+	styleUrls: ['./draggable-group.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DraggableGroupComponent {
 
-	@Input() cardsGroup: CardsGroup;
+	@Input() group: CardsGroup;
+	@Input() dayGroup: DayGroup;
 
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
@@ -37,16 +44,16 @@ export class DraggableGroupComponent {
 			: cursorName;
 	}
 
-	emitHiddenCardsGroup(cardsGroup: CardsGroup) {
+	emitHiddenCardsGroup(group: CardsGroup) {
 		/* En el caso de líneas de mecánicos, ocultar la ficha consiste en asignar un z-index negativo al host, en
 		*  lugar de operar sobre el template. De esta forma, se evitan problemas con el onMouseMove del dropzone (al
 		*  estar la ficha encima, aunque oculta, no se lanzaba el evento) */
-		this.hiddenCardsGroup.emit(cardsGroup);
+		this.hiddenCardsGroup.emit(group);
 	}
 
 	check(): void {
 		if (Constants.CHECK) {
-			console.log('checking draggable group', this.cardsGroup);
+			console.log('checking draggable group', this.group.id, this.dayGroup);
 		}
 	}
 

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {AppointmentsCounter} from "../../objects/appointments-counter";
 import {AppointmentsService} from "../../services/appointments.service";
 import {NotificationService} from "../../services/notification.service";
@@ -6,7 +6,7 @@ import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointm
 import {Constants} from "../../objects/constants";
 import {KeyValue} from "@angular/common";
 import {Dayjs} from "dayjs";
-import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter-update";
+import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
 
 @Component({
 	selector: 'app-appointments-summary',
@@ -46,6 +46,10 @@ export class AppointmentsSummaryComponent {
 	}
 
 	// endregion
+
+	findAppointmentsCounter(): AppointmentsCounter {
+		return this.appointmentsCounterUpdate.value;
+	}
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
 		return this.appointmentsService.findSaturationPercentage(appointments, max, appointmentSaturation);
