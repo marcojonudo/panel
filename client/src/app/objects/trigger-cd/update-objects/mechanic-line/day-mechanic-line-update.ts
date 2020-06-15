@@ -1,5 +1,4 @@
 import {Dayjs} from "dayjs";
-import {MechanicLineUpdate} from "./mechanic-line-update";
 import {Constants} from "../../../constants";
 import {DayTriggerMapUpdate} from "../trigger-map-update/day-trigger-map-update";
 import {MechanicTriggerMapUpdate} from "../trigger-map-update/mechanic-trigger-map-update";

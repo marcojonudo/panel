@@ -3,10 +3,7 @@ import {
 	Component,
 	EventEmitter,
 	Input,
-	OnChanges,
-	OnInit,
-	Output,
-	SimpleChanges
+	Output
 } from '@angular/core';
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
@@ -14,7 +11,7 @@ import {CardsService} from "../../services/cards.service";
 import {CardTypeBehaviour} from "../../objects/card-type-behaviour/card-type-behaviour";
 import {UtilsService} from "../../services/utils.service";
 import {DomSanitizer} from "@angular/platform-browser";
-import {DayGroup} from "../../objects/trigger-cd/update-objects/groups/day-group";
+import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
 
 @Component({
 	selector: 'app-draggable-group',
@@ -25,7 +22,7 @@ import {DayGroup} from "../../objects/trigger-cd/update-objects/groups/day-group
 export class DraggableGroupComponent {
 
 	@Input() group: CardsGroup;
-	@Input() dayGroup: DayGroup;
+	@Input() groupUpdate: GroupUpdate;
 
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
@@ -53,7 +50,7 @@ export class DraggableGroupComponent {
 
 	check(): void {
 		if (Constants.CHECK) {
-			console.log('checking draggable group', this.group.id, this.dayGroup);
+			console.log('checking draggable group', this.group.id, this.groupUpdate);
 		}
 	}
 

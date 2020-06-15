@@ -1,43 +1,28 @@
-import {GroupUpdate} from "./group-update";
 import {Constants} from "../../../constants";
 import {MechanicsTriggerMap} from "../../trigger-maps/mechanics-trigger-map";
 import {MechanicTriggerMapUpdate} from "../trigger-map-update/mechanic-trigger-map-update";
+import {GroupTriggerMapUpdate} from "../trigger-map-update/group-trigger-map-update";
+import {GroupUpdate} from "./group-update";
 
 export class MechanicGroupUpdate implements MechanicTriggerMapUpdate {
 
 	type: string;
 	mechanicCode: string;
-	value: GroupUpdate;
+	value: GroupUpdate[];
 
-	constructor(mechanicCode: string = undefined, value: GroupUpdate) {
-		this.type = Constants.UPDATE_OBJECT.GROUP;
+	constructor(mechanicCode: string = undefined, value: GroupTriggerMapUpdate = undefined) {
+		this.type = Constants.UPDATE_OBJECT.GROUPS;
 		this.mechanicCode = mechanicCode;
-		this.value = value;
+		this.value = [value];
 	}
 
 	updateTriggerMap(
 		mechanicsTriggerMap: MechanicsTriggerMap,
 		mechanicCode: string,
 		type: string = this.type,
-		groupUpdate: GroupUpdate = this.value
+		groups: GroupUpdate[] = this.value
 	): void {
-		if (this.mechanicCode == mechanicCode) {
-			mechanicsTriggerMap[mechanicCode][type] = this.value;
-		}
-		// if (groupUpdate.value && groupUpdate.value.group.mechanicCode == mechanicCode) {
-		// 	mechanicsTriggerMap[mechanicCode][type] = this.value;
-		// }
-
-
-
-
-		// if (group.cards[0].mechanicCode) {
-		// 	mechanicsTriggerMap[dayMechanic.mechanicCode][type] = this.value;
-		// } else {
-		// 	for (const mechanicCode of Object.keys(mechanicsTriggerMap)) {
-		// 		mechanicsTriggerMap[mechanicCode][type] = this.value
-		// 	}
-		// }
+		mechanicsTriggerMap[mechanicCode][type] = this.value;
 	}
 
 }

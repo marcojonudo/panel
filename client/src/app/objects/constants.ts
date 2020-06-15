@@ -153,7 +153,7 @@ export class Constants {
 		APPOINTMENTS_COUNTER: 'appointmentsCounter',
 		MECHANIC_LINE: 'mechanicLine',
 		DROPZONE: 'DROPZONE',
-		GROUP: 'group',
+		GROUPS: 'groups',
 		ADD_GROUPS: 'ADD_GROUPS',
 		REMOVE_GROUPS: 'REMOVE_GROUPS',
 		MUTATE_GROUPS: 'MUTATE_GROUPS'

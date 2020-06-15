@@ -1,29 +1,27 @@
 import {Constants} from "../../../constants";
-import {GroupsUpdateObjects} from "../../groups-update-objects";
-import {DayGroup} from "./day-group";
+import {GroupsTriggerMap} from "../../groups-trigger-map";
+import {GroupTriggerMapUpdate} from "../trigger-map-update/group-trigger-map-update";
+import {CardsGroup} from "../../../cards-group";
 
-export class GroupUpdate {
+export class GroupUpdate implements GroupTriggerMapUpdate {
 
 	type: string;
-	key: string;
-	value: DayGroup;
+	groupId: string;
+	value: CardsGroup;
 
-	constructor(type: string = undefined, value: DayGroup = undefined) {
-		this.type = type;
+	constructor(groupId: string = undefined, value: CardsGroup = undefined) {
+		this.type = Constants.UPDATE_OBJECT.GROUPS;
+		this.groupId = groupId;
 		this.value = value;
 	}
 
-	updateObjects(
-		groupsUpdateObjects: GroupsUpdateObjects,
+	updateTriggerMap(
+		groupsTriggerMap: GroupsTriggerMap,
 		groupId: string,
 		type: string = this.type,
-		dayGroup: DayGroup = this.value
+		group: CardsGroup = this.value
 	): void {
-		if (this.type == Constants.UPDATE_OBJECT.REMOVE_GROUP) {
-			delete groupsUpdateObjects[groupId];
-		} else {
-			groupsUpdateObjects[groupId] = dayGroup;
-		}
+		groupsTriggerMap[groupId] = this;
 	}
 
 }

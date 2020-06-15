@@ -25,7 +25,7 @@ export class DayPanelComponent implements OnInit {
 	@Input() maxScheduleHoursQuarter: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 	@Input() timeIndicatorLeft: number;
-	@Input() mechanicGroupUpdate: MechanicGroupUpdate;
+	@Input() mechanicGroupUpdates: MechanicGroupUpdate[];
 
 	timeIndicatorHeight: number;
 

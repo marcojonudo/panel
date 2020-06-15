@@ -11,6 +11,7 @@ import {AssignedCardLinkHandler} from "../../objects/card-links/assigned-card-li
 import {Dayjs} from "dayjs";
 import {NotificationService} from "../../services/notification.service";
 import {MechanicsService} from "../../services/mechanics.service";
+import {CardsGroup} from "../../objects/cards-group";
 
 @Component({
 	selector: 'app-card',
@@ -133,16 +134,18 @@ export class CardComponent {
 
 	highlightOrderCards(day: Dayjs, orderNumber: number, highlight: boolean) {
 		/* Se resaltan las fichas sólo si se pasa el ratón por encima de una asignada (tiene day) */
-		// if (day) {
-		// 	CardsService.findOrderCards(orderNumber).forEach((card: Card) => {
-		// 		card.highlight = highlight;
-		// 	});
-		// 	NotificationService.notifyMechanicLine(
-		// 		Constants.MECHANIC_LINE_UPDATE_TYPE.HIGHLIGHT_CARDS,
-		// 		undefined,
-		// 		undefined
-		// 	);
-		// }
+		if (day) {
+			const orderGroups = CardsService.findOrderGroups(
+				CardsService.assignedCardsGroups.concat(CardsService.unassignedCardsGroups),
+				orderNumber
+			);
+			orderGroups.forEach((g: CardsGroup) => {
+				g.cards.forEach((c: Card) => {
+					c.highlight = highlight;
+				})
+			})
+			NotificationService.notifyGroups(orderGroups);
+		}
 	}
 
 	// region Link handlers

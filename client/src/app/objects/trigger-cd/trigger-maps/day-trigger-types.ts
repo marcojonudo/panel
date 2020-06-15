@@ -5,7 +5,6 @@ import {LateralPanelInfo} from "../../lateral-panel-info/lateral-panel-info";
 import {MechanicLineUpdate} from "../update-objects/mechanic-line/mechanic-line-update";
 import {MechanicGroupUpdate} from "../update-objects/groups/mechanic-group-update";
 import {AppointmentsCounter} from "../../appointments-counter";
-import {GroupUpdate} from "../update-objects/groups/group-update";
 
 export class DayTriggerTypes {
 
@@ -14,7 +13,7 @@ export class DayTriggerTypes {
 	lateralPanel: LateralPanelInfo;
 	appointmentsCounter: AppointmentsCounterUpdate;
 	mechanicLine: MechanicLineUpdate[];
-	group: MechanicGroupUpdate;
+	groups: MechanicGroupUpdate[];
 
 	constructor(saturatedQuarters: HourQuarter[], appointmentsCounter: AppointmentsCounter) {
 		this.saturatedQuarters = saturatedQuarters;
@@ -22,7 +21,7 @@ export class DayTriggerTypes {
 		this.lateralPanel = undefined;
 		this.appointmentsCounter = new AppointmentsCounterUpdate(appointmentsCounter);
 		this.mechanicLine = [new MechanicLineUpdate()];
-		this.group = new MechanicGroupUpdate(undefined, new GroupUpdate());
+		this.groups = [new MechanicGroupUpdate()];
 	}
 
 }

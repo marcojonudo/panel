@@ -24,6 +24,9 @@ import {Constants} from "../objects/constants";
 import {TriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
 import {DayTriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
 import {MechanicLineUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
+import {MechanicGroupUpdate} from "../objects/trigger-cd/update-objects/groups/mechanic-group-update";
+import {MechanicTriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map-update/mechanic-trigger-map-update";
+import {GroupUpdate} from "../objects/trigger-cd/update-objects/groups/group-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -389,11 +392,35 @@ export class NotificationService {
 		this.dayMechanicSkillsSubject.next(dayMechanicSkillsUpdate);
 	}
 
-	static notifyGroup(day: Dayjs, mechanicCode: string, groupsUpdate: DayTriggerMapUpdate): void {
-		// const dayMechanicLineUpdate = new DayMechanicLineUpdate(day, groupsUpdate)
-		// const dayMechanicLineUpdate = new DayMechanicLineUpdate(day, groupsUpdate);
-		// this.updateArray.push(dayMechanicLineUpdate);
-		// this.groupSubject.next(dayGroupUpdate);
+	static notifyGroups(groups: CardsGroup[], notifyImmediately: boolean = true): void {
+		const dayMechanicGroupUpdates = [];
+		groups.forEach((group: CardsGroup) => {
+			const dayMechanicGroupUpdate = dayMechanicGroupUpdates.find((dayUpdate: DayMechanicGroupUpdate) =>
+				dayUpdate.day.isSame(group.day)
+			);
+			if (dayMechanicGroupUpdate) {
+				const mechanicGroupUpdate = dayMechanicGroupUpdate.value
+						.find((mechanicGroupUpdate: MechanicTriggerMapUpdate) =>
+					mechanicGroupUpdate.mechanicCode == group.mechanicCode
+				);
+				if (mechanicGroupUpdate) {
+					mechanicGroupUpdate.value.push(group);
+				} else {
+					dayMechanicGroupUpdate.value.push(
+						new MechanicGroupUpdate(group.mechanicCode, new GroupUpdate(group.id, group))
+					);
+				}
+				dayMechanicGroupUpdate.groups.push(group);
+			} else {
+				const mechanicGroupUpdate = new MechanicGroupUpdate(group.mechanicCode, new GroupUpdate(group.id, group));
+				dayMechanicGroupUpdates.push(new DayMechanicGroupUpdate(group.day, mechanicGroupUpdate));
+			}
+		});
+
+		this.updateArray.push(...dayMechanicGroupUpdates);
+		if (notifyImmediately) {
+			this.notifyUpdateArray();
+		}
 	}
 
 }

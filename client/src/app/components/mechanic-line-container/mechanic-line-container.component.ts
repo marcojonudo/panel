@@ -11,6 +11,7 @@ import {MechanicSkills} from "../../objects/mechanic-skills";
 import {CardsGroup} from "../../objects/cards-group";
 import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
 import {TriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
+import {GroupTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/group-trigger-map-update";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -29,7 +30,7 @@ export class MechanicLineContainerComponent {
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;
 	@Input() showAppointmentsName: boolean;
-	@Input() groupUpdate: GroupUpdate;
+	@Input() groupUpdates: GroupUpdate[];
 
 	// region Getters / setters
 
@@ -49,7 +50,7 @@ export class MechanicLineContainerComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line container', this.groupUpdate)
+			console.log('checking mechanic line container', this.groupUpdates)
 		}
 	}
 }

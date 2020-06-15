@@ -20,12 +20,12 @@ import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/upd
 import {CreateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/create-schedule-behaviour";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
-import {GroupsUpdateObjects} from "../../objects/trigger-cd/groups-update-objects";
+import {GroupsTriggerMap} from "../../objects/trigger-cd/groups-trigger-map";
 import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
-import {DayGroup} from "../../objects/trigger-cd/update-objects/groups/day-group";
 import {DropzonesTriggerMap} from "../../objects/trigger-cd/trigger-maps/dropzones-trigger-map";
 import {TriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
 import {DropzoneUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
+import {GroupTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/group-trigger-map-update";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -41,10 +41,10 @@ export class MechanicLineComponent implements OnInit {
 	@Input() mechanicLineUpdate: TriggerMapUpdate;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() showAppointmentsName: boolean;
-	@Input() groupUpdate: GroupUpdate;
+	@Input() groupUpdates: GroupUpdate[];
 
 	dropzonesTriggerMap: DropzonesTriggerMap;
-	groupsUpdateObjects: GroupsUpdateObjects;
+	groupsTriggerMap: GroupsTriggerMap;
 
 	constructor(
 		private mechanicsService: MechanicsService,
@@ -55,14 +55,7 @@ export class MechanicLineComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.dropzonesTriggerMap = new DropzonesTriggerMap(this.mechanic.schedules);
-		this.initGroupsUpdateObjects(CardsService.findDayMechanicGroups(this.day, this.mechanic.code));
-	}
-
-	private initGroupsUpdateObjects(groups: CardsGroup[]): void {
-		this.groupsUpdateObjects = {};
-		groups.forEach((group: CardsGroup) => {
-			this.groupsUpdateObjects[group.id] = undefined;
-		});
+		this.groupsTriggerMap = new GroupsTriggerMap(this.groups);
 	}
 
 	// region Getters / setters
@@ -88,6 +81,25 @@ export class MechanicLineComponent implements OnInit {
 	}
 
 	// endregion
+
+	findGroups(groups: CardsGroup[] = this.groups): CardsGroup[] {
+		this.handleGroupsTriggerMap(groups);
+		return groups;
+	}
+
+	handleGroupsTriggerMap(groups: CardsGroup[], groupsTriggerMap: GroupsTriggerMap = this.groupsTriggerMap): void {
+		groups.forEach((group: CardsGroup) => {
+			if (!(group.id in groupsTriggerMap)) {
+				groupsTriggerMap[group.id] = undefined;
+			}
+		});
+		for (const groupId of Object.keys(groupsTriggerMap)) {
+			const existentGroup = groups.find((g: CardsGroup) => g.id == groupId);
+			if (!existentGroup) {
+				delete groupsTriggerMap[groupId];
+			}
+		}
+	}
 
 	calcScheduleWidth(duration: number): number {
 		return DimensionsService.calcWidthFromDuration(duration);
@@ -189,15 +201,16 @@ export class MechanicLineComponent implements OnInit {
 		return new UpdateScheduleBehaviour(left);
 	}
 
-	findDayGroup(
+	checkUpdateGroup(
 		groupId: string,
-		groupsUpdateObjects: GroupsUpdateObjects = this.groupsUpdateObjects,
-		groupUpdate: GroupUpdate = this.groupUpdate
-	): DayGroup {
+		groupsTriggerMap: GroupsTriggerMap = this.groupsTriggerMap,
+		groupUpdates: GroupUpdate[] = this.groupUpdates
+	): GroupUpdate {
+		const groupUpdate = groupUpdates.find((update: GroupTriggerMapUpdate) => update.groupId == groupId);
 		if (groupUpdate) {
-			groupUpdate.updateObjects(groupsUpdateObjects, groupId);
+			groupUpdate.updateTriggerMap(groupsTriggerMap, groupId);
 		}
-		return groupsUpdateObjects[groupId];
+		return groupsTriggerMap[groupId];
 	}
 
 	trackByItem(index, item) {

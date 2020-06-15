@@ -36,7 +36,7 @@ export class GridComponent implements OnInit {
 	@Input() mechanicLineUpdates: MechanicLineUpdate[];
 	@Input() mechanicSkillsUpdate: MechanicSkillsUpdate;
 	@Input() showAppointmentsName: boolean;
-	@Input() mechanicGroupUpdate: MechanicGroupUpdate;
+	@Input() mechanicGroupUpdates: MechanicGroupUpdate[];
 
 	private pointerDownListener: () => void;
 
@@ -81,7 +81,7 @@ export class GridComponent implements OnInit {
 		mechanicCode: string,
 		mechanicsTriggerMap: MechanicsTriggerMap = this.mechanicsTriggerMap,
 		mechanicLineUpdates: MechanicLineUpdate[] = this.mechanicLineUpdates
-	): void {
+	): MechanicLineUpdate {
 		const mechanicLineUpdate = mechanicLineUpdates.find((update: MechanicLineUpdate) =>
 			update.mechanicCode == mechanicCode || !update.mechanicCode
 		);
@@ -91,13 +91,18 @@ export class GridComponent implements OnInit {
 		return mechanicsTriggerMap[mechanicCode][mechanicLineUpdates[0].type];
 	}
 
-	findGroupUpdate(
+	findGroupsUpdate(
 		mechanicCode: string,
 		mechanicsTriggerMap: MechanicsTriggerMap = this.mechanicsTriggerMap,
-		mechanicGroupUpdate: MechanicGroupUpdate = this.mechanicGroupUpdate
-	): GroupUpdate {
-		mechanicGroupUpdate.updateTriggerMap(mechanicsTriggerMap, mechanicCode);
-		return mechanicsTriggerMap[mechanicCode][mechanicGroupUpdate.type];
+		mechanicGroupUpdates: MechanicGroupUpdate[] = this.mechanicGroupUpdates
+	): GroupUpdate[] {
+		const mechanicGroupUpdate = mechanicGroupUpdates.find((update: MechanicGroupUpdate) =>
+			update.mechanicCode == mechanicCode
+		)
+		if (mechanicGroupUpdate) {
+			mechanicGroupUpdate.updateTriggerMap(mechanicsTriggerMap, mechanicCode);
+		}
+		return mechanicsTriggerMap[mechanicCode][mechanicGroupUpdates[0].type];
 	}
 
 	findMechanicSkills(

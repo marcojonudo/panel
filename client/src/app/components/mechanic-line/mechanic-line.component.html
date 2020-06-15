@@ -82,7 +82,7 @@
 		</div>
 	</div>
 	<app-draggable-group
-		*ngFor="let group of groups"
+		*ngFor="let group of findGroups()"
 		class="assigned-card"
 		[ngClass]="{'hidden': checkHideGroup(group.id)}"
 		[ngStyle]="{
@@ -91,7 +91,7 @@
 		}"
 		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
 		[group]="group"
-		[dayGroup]="findDayGroup(group.id)">
+		[groupUpdate]="checkUpdateGroup(group.id)">
 	</app-draggable-group>
 </div>
 <div>{{check()}}</div>

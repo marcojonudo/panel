@@ -35,6 +35,7 @@ import {DayTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigg
 import { DaysTriggerMap } from 'src/app/objects/trigger-cd/trigger-maps/days-trigger-map';
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
 import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
+import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
 
 @Component({
 	selector: 'app-main',
@@ -419,11 +420,11 @@ export class MainComponent implements OnInit, OnDestroy {
 		return MechanicsService.findDayMechanics(day);
 	}
 
-	findUpdateObject(
+	findGroupsUpdate(
 		day: Dayjs,
-		type: string,
-		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap
-	): any {
+		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
+		type: string = Constants.UPDATE_OBJECT.GROUPS
+	): MechanicGroupUpdate[] {
 		return daysTriggerMap[day.valueOf()][type];
 	}
 

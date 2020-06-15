@@ -201,9 +201,11 @@ export class CardsService {
 		let processedCards = [];
 		for (let card of unassignedCards) {
 			const processed = processedCards.indexOf(card) > -1;
+			console.log(card.panelId, processed);
 			if (!processed) {
 				let linkedCards = this.findAllLinkedCards(unassignedCards, card);
-				groups.push(new CardsGroup(this.sortLinkedCards(linkedCards)));
+				const group = new CardsGroup(this.sortLinkedCards(linkedCards));
+				groups.push(group);
 				processedCards = processedCards.concat(linkedCards);
 			}
 		}
