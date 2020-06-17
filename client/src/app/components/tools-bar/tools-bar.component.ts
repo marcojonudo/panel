@@ -1,7 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
-import {UnassignedCardUpdateTrigger} from "../../objects/update-cards/unassigned-card-update-trigger";
 import {NotificationService} from "../../services/notification.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
@@ -125,11 +124,8 @@ export class ToolsBarComponent {
 	}
 
 	showFinishedCardsBar(): void {
-		const unassignedCardUpdate = new UnassignedCardUpdateTrigger(
-			undefined,
-			this.showingFinished ? CardsService.unassignedSections[0].name : Constants.CARD_STATUS.FINISHED
-		);
-		NotificationService.notifyBand(unassignedCardUpdate);
+		const section = this.showingFinished ? CardsService.unassignedSections[0].name : Constants.CARD_STATUS.FINISHED;
+		NotificationService.notifyBand(section);
 		this.showingFinished = !this.showingFinished;
 	}
 

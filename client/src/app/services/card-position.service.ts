@@ -152,7 +152,10 @@ export class CardPositionService {
 
 	// region Update dimensions
 
-	static updateDimensions(unassignedSections: UnassignedSection[], daysGroups: DaysAssignedGroups) {
+	static updateDimensions(
+		unassignedSections: UnassignedSection[] = CardsService.unassignedSections,
+		daysGroups: DaysAssignedGroups = CardsService.assignedDaysCardsGroups
+	) {
 		this.updateUnassignedDimensions(unassignedSections);
 		this.updateAssignedDimensions(daysGroups);
 	}

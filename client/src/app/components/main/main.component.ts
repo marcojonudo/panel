@@ -36,6 +36,7 @@ import { DaysTriggerMap } from 'src/app/objects/trigger-cd/trigger-maps/days-tri
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
 import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
 import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
+import {MaxScheduleWidthUpdate} from "../../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
 
 @Component({
 	selector: 'app-main',
@@ -174,28 +175,24 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-			CardPositionService.updateDimensions(
-				CardsService.unassignedSections,
-				CardsService.assignedDaysCardsGroups
-			);
+			CardPositionService.updateDimensions();
 			this.existentTodaySchedules = this.oneDayMode && this.checkDaySchedulesExist();
+			// TODO
 			NotificationService.notifyMechanicLine();
 			console.log(3);
 			this.cdRef.detectChanges();
 		});
-		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
+		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$
+				.subscribe((update: MaxScheduleWidthUpdate) => {
 			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
 			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
 			*  del slider */
-			this.maxScheduleWidth = maxScheduleWidth;
-			CardPositionService.updateDimensions(
-				CardsService.unassignedSections,
-				CardsService.assignedDaysCardsGroups
-			);
+			this.maxScheduleWidth = update.maxScheduleWidth;
 			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
-			NotificationService.notifyAll();
 			console.log(4);
-			this.cdRef.detectChanges();
+			if (update.trigger) {
+				this.cdRef.detectChanges();
+			}
 		});
 
 		this.lateralInfoSubscription = NotificationService.lateralInfo$

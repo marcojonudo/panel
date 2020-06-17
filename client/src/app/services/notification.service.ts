@@ -1,6 +1,4 @@
 import {Injectable} from '@angular/core';
-import {UnassignedCardUpdate} from "../objects/update-cards/unassigned-card-update";
-import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
 import {Subject} from "rxjs/internal/Subject";
 import {Observable} from "rxjs/internal/Observable";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
@@ -25,8 +23,10 @@ import {TriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map
 import {DayTriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
 import {MechanicLineUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
 import {MechanicGroupUpdate} from "../objects/trigger-cd/update-objects/groups/mechanic-group-update";
-import {MechanicTriggerMapUpdate} from "../objects/trigger-cd/update-objects/trigger-map-update/mechanic-trigger-map-update";
 import {GroupUpdate} from "../objects/trigger-cd/update-objects/groups/group-update";
+import {BandUpdate} from "../objects/trigger-cd/update-objects/band/band-update";
+import {MaxScheduleWidthUpdate} from "../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
+import {CardsService} from "./cards.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -41,8 +41,8 @@ export class NotificationService {
 	private static updateArraySubject: Subject<any>;
 	private static _updateArray$: Observable<any>;
 
-	private static bandSubject: Subject<UnassignedCardUpdate>;
-	private static _band$: Observable<UnassignedCardUpdate>;
+	private static bandSubject: Subject<BandUpdate>;
+	private static _band$: Observable<BandUpdate>;
 
 	private static appointmentsCounterSubject: Subject<DayAppointmentsCounterUpdate>;
 	private static _appointmentsCounter$: Observable<DayAppointmentsCounterUpdate>;
@@ -50,8 +50,8 @@ export class NotificationService {
 	private static oneDayModeSubject: Subject<boolean>;
 	private static _oneDayMode$: Observable<boolean>;
 
-	private static maxScheduleWidthSubject: Subject<number>;
-	private static _maxScheduleWidth$: Observable<number>;
+	private static maxScheduleWidthSubject: Subject<MaxScheduleWidthUpdate>;
+	private static _maxScheduleWidth$: Observable<MaxScheduleWidthUpdate>;
 
 	private static coordinatesSubject: Subject<Coordinates>;
 	private static _coordinates$: Observable<Coordinates>;
@@ -97,7 +97,7 @@ export class NotificationService {
 		this.mechanicLineSubject = new Subject<DayMechanicLineUpdate>();
 		this.mechanicLine$ = this.mechanicLineSubject.asObservable();
 
-		this.bandSubject = new Subject<UnassignedCardUpdate>();
+		this.bandSubject = new Subject<BandUpdate>();
 		this.band$ = this.bandSubject.asObservable();
 
 		this.appointmentsCounterSubject = new Subject<DayAppointmentsCounterUpdate>();
@@ -106,7 +106,7 @@ export class NotificationService {
 		this.oneDayModeSubject = new Subject<boolean>();
 		this.oneDayMode$ = this.oneDayModeSubject.asObservable();
 
-		this.maxScheduleWidthSubject = new Subject<number>();
+		this.maxScheduleWidthSubject = new Subject<MaxScheduleWidthUpdate>();
 		this.maxScheduleWidth$ = this.maxScheduleWidthSubject.asObservable();
 
 		this.coordinatesSubject = new BehaviorSubject<Coordinates>(new Coordinates(0, 0));
@@ -163,11 +163,11 @@ export class NotificationService {
 		this._mechanicLine$ = value;
 	}
 
-	static get band$(): Observable<UnassignedCardUpdate> {
+	static get band$(): Observable<BandUpdate> {
 		return this._band$;
 	}
 
-	static set band$(value: Observable<UnassignedCardUpdate>) {
+	static set band$(value: Observable<BandUpdate>) {
 		this._band$ = value;
 	}
 
@@ -187,11 +187,11 @@ export class NotificationService {
 		this._oneDayMode$ = value;
 	}
 
-	static get maxScheduleWidth$(): Observable<number> {
+	static get maxScheduleWidth$(): Observable<MaxScheduleWidthUpdate> {
 		return this._maxScheduleWidth$;
 	}
 
-	static set maxScheduleWidth$(value: Observable<number>) {
+	static set maxScheduleWidth$(value: Observable<MaxScheduleWidthUpdate>) {
 		this._maxScheduleWidth$ = value;
 	}
 
@@ -302,19 +302,24 @@ export class NotificationService {
 		this.updateArray = [];
 	}
 
-	static notifyAll(): void {
-		NotificationService.notifyBand();
-		NotificationService.notifyMechanicLine();
+	static notifyAll(
+		unassignedGroups: CardsGroup[],
+		assignedGroups: CardsGroup[],
+		notifyImmediately: boolean = true
+	): void {
+		NotificationService.notifyBand(undefined, unassignedGroups);
+		NotificationService.notifyGroups(assignedGroups, notifyImmediately);
 	}
 
-	static notifyBand(cardUpdate: UnassignedCardUpdate = new UnassignedCardUpdateTrigger()): void {
-		this.bandSubject.next(cardUpdate);
+	static notifyBand(section: string = undefined, groups: CardsGroup[] = undefined): void {
+		const groupsUpdate = groups ? groups.map((group: CardsGroup) => new GroupUpdate(group.id, group)) : undefined;
+		this.bandSubject.next(new BandUpdate(section, groupsUpdate));
 	}
 
 	static notifyMechanicLine(
 		day: Dayjs = undefined,
 		mechanicCode: string = undefined,
-		notifyImmediately: boolean = false,
+		notifyImmediately: boolean = true,
 		triggerMapUpdate: TriggerMapUpdate = undefined,
 		type: string = Constants.UPDATE_OBJECT.MECHANIC_LINE
 	): void {
@@ -345,7 +350,12 @@ export class NotificationService {
 	}
 
 	static notifyMaxScheduleWidth(maxScheduleWidth: number): void {
-		this.maxScheduleWidthSubject.next(maxScheduleWidth);
+		this.maxScheduleWidthSubject.next(new MaxScheduleWidthUpdate(maxScheduleWidth));
+
+		/* Un cambio de maxScheduleWidth siempre implica tener que redimensionar elementos de la interfaz */
+		NotificationService.notifyBand(undefined, CardsService.unassignedCardsGroups)
+		NotificationService.notifyGroups(CardsService.assignedCardsGroups)
+		NotificationService.notifyMechanicLine()
 	}
 
 	static notifyCoordinates(coordinates: Coordinates): void {
@@ -392,7 +402,7 @@ export class NotificationService {
 		this.dayMechanicSkillsSubject.next(dayMechanicSkillsUpdate);
 	}
 
-	static notifyGroups(groups: CardsGroup[], notifyImmediately: boolean = true): void {
+	static notifyGroups(groups: CardsGroup[], notifyImmediately: boolean = false): void {
 		const dayMechanicGroupUpdates = [];
 		groups.forEach((group: CardsGroup) => {
 			const dayMechanicGroupUpdate = dayMechanicGroupUpdates.find((dayUpdate: DayMechanicGroupUpdate) =>
@@ -400,17 +410,16 @@ export class NotificationService {
 			);
 			if (dayMechanicGroupUpdate) {
 				const mechanicGroupUpdate = dayMechanicGroupUpdate.value
-						.find((mechanicGroupUpdate: MechanicTriggerMapUpdate) =>
+						.find((mechanicGroupUpdate: MechanicGroupUpdate) =>
 					mechanicGroupUpdate.mechanicCode == group.mechanicCode
 				);
 				if (mechanicGroupUpdate) {
-					mechanicGroupUpdate.value.push(group);
+					mechanicGroupUpdate.value.push(new GroupUpdate(group.id, group));
 				} else {
 					dayMechanicGroupUpdate.value.push(
 						new MechanicGroupUpdate(group.mechanicCode, new GroupUpdate(group.id, group))
 					);
 				}
-				dayMechanicGroupUpdate.groups.push(group);
 			} else {
 				const mechanicGroupUpdate = new MechanicGroupUpdate(group.mechanicCode, new GroupUpdate(group.id, group));
 				dayMechanicGroupUpdates.push(new DayMechanicGroupUpdate(group.day, mechanicGroupUpdate));

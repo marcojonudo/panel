@@ -1,15 +1,15 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit,} from '@angular/core';
-import {Draggable, Droppable} from "@shopify/draggable"
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
 import {Constants} from "../../objects/constants";
-import {UnassignedCardUpdate} from "../../objects/update-cards/unassigned-card-update";
 import {Subscription} from "rxjs/internal/Subscription";
 import {GroupedTypeCards} from "../../objects/grouped-type-cards";
 import {UnassignedSection} from "../../objects/unassigned-sections/unassigned-section";
 import {NotificationService} from "../../services/notification.service";
-import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
+import {GroupsTriggerMap} from "../../objects/trigger-cd/trigger-maps/groups-trigger-map";
+import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
+import {BandUpdate} from "../../objects/trigger-cd/update-objects/band/band-update";
 
 @Component({
 	selector: 'app-band',
@@ -43,6 +43,8 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	private _section: UnassignedSection;
 
+	private groupsTriggerMap: GroupsTriggerMap;
+
 	private bandSubscription: Subscription;
 
 	constructor(
@@ -56,13 +58,20 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.unassignedTypesCardsGroups = CardsService.unassignedTypesCardsGroups;
-		this.bandSubscription = NotificationService.band$
-			.subscribe((cardUpdate: UnassignedCardUpdate) => {
-				if (cardUpdate.type) {
-					this.section = CardsService.unassignedSections.find(section => section.name == cardUpdate.type);
-				}
-				this.cdRef.detectChanges();
-			});
+		this.groupsTriggerMap = new GroupsTriggerMap(this.section.findGroups());
+		this.bandSubscription = NotificationService.band$.subscribe((bandUpdate: BandUpdate) => {
+			if (bandUpdate.section) {
+				this.section = CardsService.unassignedSections.find(section =>
+					section.name == bandUpdate.section
+				);
+			}
+			if (bandUpdate.groupsUpdate) {
+				bandUpdate.groupsUpdate.forEach((groupUpdate: GroupUpdate) => {
+					groupUpdate.updateTriggerMap(this.groupsTriggerMap, groupUpdate.groupId);
+				});
+			}
+			this.cdRef.detectChanges();
+		});
 	}
 
 	ngOnDestroy(): void {
@@ -124,6 +133,30 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	// endregion
+
+	findGroups(section: UnassignedSection = this.section): CardsGroup[] {
+		const groups = section.findGroups();
+		this.handleGroupsTriggerMap(groups);
+		return groups;
+	}
+
+	handleGroupsTriggerMap(groups: CardsGroup[], groupsTriggerMap: GroupsTriggerMap = this.groupsTriggerMap): void {
+		groups.forEach((group: CardsGroup) => {
+			if (!(group.id in groupsTriggerMap)) {
+				groupsTriggerMap[group.id] = undefined;
+			}
+		});
+		for (const groupId of Object.keys(groupsTriggerMap)) {
+			const existentGroup = groups.find((g: CardsGroup) => g.id == groupId);
+			if (!existentGroup) {
+				delete groupsTriggerMap[groupId];
+			}
+		}
+	}
+
+	checkUpdateGroup(groupId: string, groupsTriggerMap: GroupsTriggerMap = this.groupsTriggerMap): GroupUpdate {
+		return groupsTriggerMap[groupId];
+	}
 
 	checkFinishedSection(section: UnassignedSection = this.section): boolean {
 		return section.name == Constants.CARD_STATUS.FINISHED;

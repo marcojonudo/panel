@@ -40,7 +40,7 @@
 	class="flex-grow-1 unassigned-orders-cards-container not-finished-groups-container"
 	[style.height.px]="unassignedBarHeight">
 	<app-draggable-group
-		*ngFor="let group of section.findGroups()"
+		*ngFor="let group of findGroups()"
 		class="unassigned-card"
 		[ngClass]="{'hidden': checkHideGroup(section.name, group.id)}"
 		[ngStyle]="{
@@ -48,7 +48,8 @@
 			'transform': 'translateX(' + group.left + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
 		}"
 		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
-		[group]="group">
+		[group]="group"
+		[groupUpdate]="checkUpdateGroup(group.id)">
 	</app-draggable-group>
 </div>
 <div>{{check()}}</div>

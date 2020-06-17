@@ -144,7 +144,7 @@ export class CardComponent {
 					c.highlight = highlight;
 				})
 			})
-			NotificationService.notifyGroups(orderGroups);
+			NotificationService.notifyGroups(orderGroups, true);
 		}
 	}
 

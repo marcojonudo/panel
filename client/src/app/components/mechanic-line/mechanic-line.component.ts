@@ -5,7 +5,6 @@ import {
 	Input,
 	OnInit
 } from '@angular/core';
-import {CardsService} from "../../services/cards.service";
 import {Mechanic} from "../../objects/mechanic";
 import {CardsGroup} from "../../objects/cards-group";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
@@ -20,7 +19,7 @@ import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/upd
 import {CreateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/create-schedule-behaviour";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
-import {GroupsTriggerMap} from "../../objects/trigger-cd/groups-trigger-map";
+import {GroupsTriggerMap} from "../../objects/trigger-cd/trigger-maps/groups-trigger-map";
 import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
 import {DropzonesTriggerMap} from "../../objects/trigger-cd/trigger-maps/dropzones-trigger-map";
 import {TriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";

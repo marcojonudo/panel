@@ -3,7 +3,6 @@ import {Card} from "../objects/card";
 
 import {CardsGroup} from "../objects/cards-group";
 import {HttpClient} from "@angular/common/http";
-import {UnassignedCardUpdateTrigger} from "../objects/update-cards/unassigned-card-update-trigger";
 import {Constants} from "../objects/constants";
 import {UtilsService} from "./utils.service";
 import {GroupedTypeCards} from "../objects/grouped-type-cards";
@@ -556,14 +555,14 @@ export class CardsService {
 	static handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined, notify: boolean = true): void {
 		this.addUnassignedCardsGroup(group, index);
 		if (notify) {
-			NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
+			NotificationService.notifyBand(undefined, [group]);
 		}
 	}
 
 	static handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {
 		this.removeUnassignedCardsGroup(group);
 		if (notify) {
-			NotificationService.notifyBand(new UnassignedCardUpdateTrigger(group));
+			NotificationService.notifyBand(undefined, [group]);
 		}
 	}
 

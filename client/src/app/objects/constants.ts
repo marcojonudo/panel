@@ -154,9 +154,7 @@ export class Constants {
 		MECHANIC_LINE: 'mechanicLine',
 		DROPZONE: 'DROPZONE',
 		GROUPS: 'groups',
-		ADD_GROUPS: 'ADD_GROUPS',
-		REMOVE_GROUPS: 'REMOVE_GROUPS',
-		MUTATE_GROUPS: 'MUTATE_GROUPS'
+		BAND: 'band'
 	};
 	public static readonly UPDATE_ALL_MECHANIC_LINES_TYPES: string[] = [
 		Constants.MECHANIC_LINE_UPDATE_TYPE.MAX_SCHEDULE_WIDTH,

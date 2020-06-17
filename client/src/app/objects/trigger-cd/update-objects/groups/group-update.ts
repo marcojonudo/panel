@@ -1,5 +1,5 @@
 import {Constants} from "../../../constants";
-import {GroupsTriggerMap} from "../../groups-trigger-map";
+import {GroupsTriggerMap} from "../../trigger-maps/groups-trigger-map";
 import {GroupTriggerMapUpdate} from "../trigger-map-update/group-trigger-map-update";
 import {CardsGroup} from "../../../cards-group";
 

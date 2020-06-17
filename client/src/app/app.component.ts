@@ -55,10 +55,7 @@ export class AppComponent implements AfterViewInit {
 
 				DimensionsService.init(MechanicsService.daysMechanics, MechanicsService.todaySchedules);
 
-				CardPositionService.updateDimensions(
-					CardsService.unassignedSections,
-					CardsService.assignedDaysCardsGroups
-				);
+				CardPositionService.updateDimensions();
 
 				JobLineTypeService.init(data.jobLineTypes);
 

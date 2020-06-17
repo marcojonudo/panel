@@ -431,6 +431,7 @@ export class DimensionsService {
 		this.quarterWidth = this.calcQuarterWidthFromMaxScheduleWidth(this.maxScheduleWidth);
 		this.hourWidth = this.calcHourWidthFromQuarterWidth(this.quarterWidth);
 		this.intervalWidth = this.calcIntervalWidthFromQuarterWidth(this.quarterWidth);
+		CardPositionService.updateDimensions();
 	}
 
 	// endregion

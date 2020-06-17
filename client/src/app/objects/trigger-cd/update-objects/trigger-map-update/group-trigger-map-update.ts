@@ -1,5 +1,5 @@
 import {TriggerMapUpdate} from "./trigger-map-update";
-import {GroupsTriggerMap} from "../../groups-trigger-map";
+import {GroupsTriggerMap} from "../../trigger-maps/groups-trigger-map";
 
 export interface GroupTriggerMapUpdate extends TriggerMapUpdate {
 

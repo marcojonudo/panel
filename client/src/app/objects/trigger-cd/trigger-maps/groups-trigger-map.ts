@@ -1,6 +1,6 @@
-import {TriggerMap} from "./trigger-maps/trigger-map";
-import {CardsGroup} from "../cards-group";
-import {GroupUpdate} from "./update-objects/groups/group-update";
+import {TriggerMap} from "./trigger-map";
+import {CardsGroup} from "../../cards-group";
+import {GroupUpdate} from "../update-objects/groups/group-update";
 
 export class GroupsTriggerMap implements TriggerMap {
 
