@@ -14,3 +14,7 @@
 .hour-border {
 	border-left: 1px solid;
 }
+
+.small-font-size {
+	font-size: .8em;
+}

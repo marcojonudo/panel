@@ -199,14 +199,14 @@ export class MechanicsService {
 
 	static toggleOnlyAppointmentsMode(): void {
 		MechanicsService.onlyAppointmentsMode = !MechanicsService.onlyAppointmentsMode;
-		NotificationService.notifyOnlyAppointmentsMode();
+		NotificationService.notifyTriggerCd();
 	}
 
 	static toggleShowAppointmentsName(): void {
 		MechanicsService.showAppointmentsName = !MechanicsService.showAppointmentsName;
 		/* Se notifica el Observer de onlyAppointmentsMode ya que una vez actualizada la variable (en este caso,
 		*  showAppointmentsMode), sólo interesa lanzar el CD */
-		NotificationService.notifyOnlyAppointmentsMode();
+		NotificationService.notifyTriggerCd();
 	}
 
 	static checkExistentDaysMechanics(daysMechanics: DaysMechanics = this.daysMechanics): boolean {

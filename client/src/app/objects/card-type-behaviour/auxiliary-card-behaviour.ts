@@ -16,7 +16,7 @@ export class AuxiliaryCardBehaviour implements CardTypeBehaviour {
 	}
 
 	handleRightClick(group: CardsGroup, coordinates: Coordinates): void {
-		NotificationService.notifyContextMenu(new GroupContextMenuInfo(group, coordinates));
+		NotificationService.notifyContextMenu(new GroupContextMenuInfo(group, coordinates), true);
 	}
 
 }

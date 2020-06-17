@@ -17,7 +17,7 @@ export class DragScheduleContextMenuComponent {
 
 	selectAppointmentType(appointmentType: AppointmentType): void {
 		AppointmentsService.dragSchedulesAppointmentType = appointmentType;
-		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyContextMenu(undefined, true);
 	}
 
 }

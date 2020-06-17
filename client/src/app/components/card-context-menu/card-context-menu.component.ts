@@ -49,7 +49,7 @@ export class CardContextMenuComponent implements OnInit {
 			groupX,
 			contextMenuInfo.clickCoordinates.x - leftOffset
 		);
-		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyContextMenu(undefined, true);
 	}
 
 	showCardDetails(): void {
@@ -57,8 +57,8 @@ export class CardContextMenuComponent implements OnInit {
 		const clickedCard = this.contextMenuInfo.group.cards.find((card: Card) =>
 			DimensionsService.calcLeftFromStart(card.end) > xLeft
 		);
-		NotificationService.notifyLateralInfo(clickedCard.day, new CardDetailsInfo(clickedCard))
 		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyLateralInfo(clickedCard.day, new CardDetailsInfo(clickedCard), true)
 	}
 
 	replaceCard(group: CardsGroup = this.contextMenuInfo.group): void {
@@ -69,7 +69,7 @@ export class CardContextMenuComponent implements OnInit {
 		} else {
 			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_UNASSIGNED_GROUPS_TO_REPLACE));
 		}
-		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyContextMenu(undefined, true);
 	}
 
 }

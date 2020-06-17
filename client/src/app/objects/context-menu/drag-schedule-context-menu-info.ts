@@ -22,7 +22,7 @@ export class DragScheduleContextMenuInfo implements ContextMenuInfo {
 	}
 
 	handleRemoval(): void {
-		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyContextMenu(undefined, true);
 	}
 
 }

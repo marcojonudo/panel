@@ -26,7 +26,7 @@ export class GroupContextMenuInfo implements ContextMenuInfo {
 	}
 
 	handleRemoval(): void {
-		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyContextMenu(undefined, true);
 		CardsService.updateCardMode([this.group], Constants.GROUP_MODE.DRAG);
 	}
 

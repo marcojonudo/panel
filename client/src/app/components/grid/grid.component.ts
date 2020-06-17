@@ -3,9 +3,9 @@ import {
 	ChangeDetectorRef,
 	Component,
 	ElementRef,
-	Input,
+	Input, OnChanges,
 	OnInit,
-	Renderer2
+	Renderer2, SimpleChanges
 } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Mechanic} from "../../objects/mechanic";
@@ -69,7 +69,7 @@ export class GridComponent implements OnInit {
 
 	onPointerDown(event: PointerEvent): void {
 		if ((<HTMLElement> event.target).id == Constants.ID.MECHANIC_LINE) {
-			NotificationService.notifyLateralInfo(this.day, undefined);
+			NotificationService.notifyLateralInfo(this.day, undefined, true);
 		}
 	}
 

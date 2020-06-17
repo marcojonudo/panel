@@ -65,8 +65,8 @@ export class AppointmentsSummaryComponent {
 	): void {
 		const appointmentsDetailsInfo = this.showingLateralPanel
 			? undefined : new AppointmentsDetailsInfo(appointmentsCounter);
-		NotificationService.notifyLateralInfo(day, appointmentsDetailsInfo);
 		this.showingLateralPanel = !this.showingLateralPanel;
+		NotificationService.notifyLateralInfo(day, appointmentsDetailsInfo, true);
 	}
 
 	defaultOrder(a: KeyValue<number,string>, b: KeyValue<number,string>): number {

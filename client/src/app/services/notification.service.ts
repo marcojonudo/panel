@@ -27,6 +27,7 @@ import {GroupUpdate} from "../objects/trigger-cd/update-objects/groups/group-upd
 import {BandUpdate} from "../objects/trigger-cd/update-objects/band/band-update";
 import {MaxScheduleWidthUpdate} from "../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
 import {CardsService} from "./cards.service";
+import {ContextMenuUpdate} from "../objects/trigger-cd/update-objects/generic/context-menu-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -35,17 +36,11 @@ export class NotificationService {
 
 	private static _updateArray: DayTriggerMapUpdate[];
 
-	private static mechanicLineSubject: Subject<DayMechanicLineUpdate>;
-	private static _mechanicLine$: Observable<DayMechanicLineUpdate>;
-
 	private static updateArraySubject: Subject<any>;
 	private static _updateArray$: Observable<any>;
 
 	private static bandSubject: Subject<BandUpdate>;
 	private static _band$: Observable<BandUpdate>;
-
-	private static appointmentsCounterSubject: Subject<DayAppointmentsCounterUpdate>;
-	private static _appointmentsCounter$: Observable<DayAppointmentsCounterUpdate>;
 
 	private static oneDayModeSubject: Subject<boolean>;
 	private static _oneDayMode$: Observable<boolean>;
@@ -62,29 +57,17 @@ export class NotificationService {
 	private static draggingSubject: Subject<boolean>;
 	private static _dragging$: Observable<boolean>;
 
-	private static saturatedQuartersSubject: Subject<DaySaturatedQuartersUpdate>;
-	private static _saturatedQuarters$: Observable<DaySaturatedQuartersUpdate>;
+	private static contextMenuSubject: Subject<ContextMenuUpdate>;
+	private static _contextMenu$: Observable<ContextMenuUpdate>;
 
-	private static contextMenuSubject: Subject<ContextMenuInfo>;
-	private static _contextMenu$: Observable<ContextMenuInfo>;
-
-	private static onlyAppointmentsModeSubject: Subject<void>;
-	private static _onlyAppointmentsMode$: Observable<void>;
-
-	private static lateralInfoSubject: Subject<DayLateralPanelUpdate>;
-	private static _lateralInfo$: Observable<DayLateralPanelUpdate>;
+	private static triggerCdSubject: Subject<void>;
+	private static _triggerCd$: Observable<void>;
 
 	private static toastSubject: Subject<Toast>;
 	private static _toast$: Observable<Toast>;
 
 	private static mainCursorSubject: Subject<string>;
 	private static _mainCursor$: Observable<string>;
-
-	private static dayMechanicSkillsSubject: Subject<DayMechanicSkillsUpdate>;
-	private static _dayMechanicSkills$: Observable<DayMechanicSkillsUpdate>;
-
-	private static groupSubject: Subject<DayMechanicGroupUpdate>;
-	private static _group$: Observable<DayMechanicGroupUpdate>;
 
 	// region Init
 
@@ -94,14 +77,8 @@ export class NotificationService {
 		this.updateArraySubject = new Subject<DayTriggerMapUpdate>();
 		this.updateArray$ = this.updateArraySubject.asObservable();
 
-		this.mechanicLineSubject = new Subject<DayMechanicLineUpdate>();
-		this.mechanicLine$ = this.mechanicLineSubject.asObservable();
-
 		this.bandSubject = new Subject<BandUpdate>();
 		this.band$ = this.bandSubject.asObservable();
-
-		this.appointmentsCounterSubject = new Subject<DayAppointmentsCounterUpdate>();
-		this.appointmentsCounter$ = this.appointmentsCounterSubject.asObservable();
 
 		this.oneDayModeSubject = new Subject<boolean>();
 		this.oneDayMode$ = this.oneDayModeSubject.asObservable();
@@ -118,29 +95,17 @@ export class NotificationService {
 		this.draggingSubject = new BehaviorSubject<boolean>(false);
 		this.dragging$ = this.draggingSubject.asObservable();
 
-		this.saturatedQuartersSubject = new Subject<DaySaturatedQuartersUpdate>();
-		this.saturatedQuarters$ = this.saturatedQuartersSubject.asObservable();
-
-		this.contextMenuSubject = new Subject<ContextMenuInfo>();
+		this.contextMenuSubject = new Subject<ContextMenuUpdate>();
 		this.contextMenu$ = this.contextMenuSubject.asObservable();
 
-		this.onlyAppointmentsModeSubject = new Subject<void>();
-		this.onlyAppointmentsMode$ = this.onlyAppointmentsModeSubject.asObservable();
-
-		this.lateralInfoSubject = new Subject<DayLateralPanelUpdate>();
-		this.lateralInfo$ = this.lateralInfoSubject.asObservable();
+		this.triggerCdSubject = new Subject<void>();
+		this.triggerCd$ = this.triggerCdSubject.asObservable();
 
 		this.toastSubject = new Subject<Toast>();
 		this.toast$ = this.toastSubject.asObservable();
 
 		this.mainCursorSubject = new Subject<string>();
 		this.mainCursor$ = this.mainCursorSubject.asObservable();
-
-		this.dayMechanicSkillsSubject = new Subject<DayMechanicSkillsUpdate>();
-		this.dayMechanicSkills$ = this.dayMechanicSkillsSubject.asObservable();
-
-		this.groupSubject = new Subject<DayMechanicGroupUpdate>();
-		this.group$ = this.groupSubject.asObservable();
 	}
 
 	// endregion
@@ -155,28 +120,12 @@ export class NotificationService {
 		this._updateArray = value;
 	}
 
-	static get mechanicLine$(): Observable<DayMechanicLineUpdate> {
-		return this._mechanicLine$;
-	}
-
-	static set mechanicLine$(value: Observable<DayMechanicLineUpdate>) {
-		this._mechanicLine$ = value;
-	}
-
 	static get band$(): Observable<BandUpdate> {
 		return this._band$;
 	}
 
 	static set band$(value: Observable<BandUpdate>) {
 		this._band$ = value;
-	}
-
-	static get appointmentsCounter$(): Observable<DayAppointmentsCounterUpdate> {
-		return this._appointmentsCounter$;
-	}
-
-	static set appointmentsCounter$(value: Observable<DayAppointmentsCounterUpdate>) {
-		this._appointmentsCounter$ = value;
 	}
 
 	static get oneDayMode$(): Observable<boolean> {
@@ -219,36 +168,20 @@ export class NotificationService {
 		this._coordinates$ = value;
 	}
 
-	static get saturatedQuarters$(): Observable<DaySaturatedQuartersUpdate> {
-		return this._saturatedQuarters$;
-	}
-
-	static set saturatedQuarters$(value: Observable<DaySaturatedQuartersUpdate>) {
-		this._saturatedQuarters$ = value;
-	}
-
-	static get contextMenu$(): Observable<ContextMenuInfo> {
+	static get contextMenu$(): Observable<ContextMenuUpdate> {
 		return this._contextMenu$;
 	}
 
-	static set contextMenu$(value: Observable<ContextMenuInfo>) {
+	static set contextMenu$(value: Observable<ContextMenuUpdate>) {
 		this._contextMenu$ = value;
 	}
 
-	static get onlyAppointmentsMode$(): Observable<void> {
-		return this._onlyAppointmentsMode$;
+	static get triggerCd$(): Observable<void> {
+		return this._triggerCd$;
 	}
 
-	static set onlyAppointmentsMode$(value: Observable<void>) {
-		this._onlyAppointmentsMode$ = value;
-	}
-
-	static get lateralInfo$(): Observable<DayLateralPanelUpdate> {
-		return this._lateralInfo$;
-	}
-
-	static set lateralInfo$(value: Observable<DayLateralPanelUpdate>) {
-		this._lateralInfo$ = value;
+	static set triggerCd$(value: Observable<void>) {
+		this._triggerCd$ = value;
 	}
 
 	static get toast$(): Observable<Toast> {
@@ -265,22 +198,6 @@ export class NotificationService {
 
 	static set mainCursor$(value: Observable<string>) {
 		this._mainCursor$ = value;
-	}
-
-	static get dayMechanicSkills$(): Observable<DayMechanicSkillsUpdate> {
-		return this._dayMechanicSkills$;
-	}
-
-	static set dayMechanicSkills$(value: Observable<DayMechanicSkillsUpdate>) {
-		this._dayMechanicSkills$ = value;
-	}
-
-	static get group$(): Observable<DayMechanicGroupUpdate> {
-		return this._group$;
-	}
-
-	static set group$(value: Observable<DayMechanicGroupUpdate>) {
-		this._group$ = value;
 	}
 
 	static get updateArray$(): Observable<any> {
@@ -300,15 +217,6 @@ export class NotificationService {
 
 	static clearUpdateArray() {
 		this.updateArray = [];
-	}
-
-	static notifyAll(
-		unassignedGroups: CardsGroup[],
-		assignedGroups: CardsGroup[],
-		notifyImmediately: boolean = true
-	): void {
-		NotificationService.notifyBand(undefined, unassignedGroups);
-		NotificationService.notifyGroups(assignedGroups, notifyImmediately);
 	}
 
 	static notifyBand(section: string = undefined, groups: CardsGroup[] = undefined): void {
@@ -342,7 +250,6 @@ export class NotificationService {
 	static notifyAppointmentsCounter(day: Dayjs, appointmentsCounter: AppointmentsCounter): void {
 		const dayAppointmentsCounterUpdate = new DayAppointmentsCounterUpdate(day, appointmentsCounter);
 		this.updateArray.push(dayAppointmentsCounterUpdate);
-		// this.appointmentsCounterSubject.next(dayAppointmentsCounterUpdate);
 	}
 
 	static notifyOneDayMode(oneDayMode: boolean): void {
@@ -373,20 +280,23 @@ export class NotificationService {
 	static notifySaturatedQuarters(day: Dayjs, saturatedQuarters: HourQuarter[]): void {
 		const daySaturatedQuartersUpdate = new DaySaturatedQuartersUpdate(day, saturatedQuarters);
 		this.updateArray.push(daySaturatedQuartersUpdate);
-		// this.saturatedQuartersSubject.next(daySaturatedQuartersUpdate);
 	}
 
-	static notifyContextMenu(contextMenuInfo: ContextMenuInfo): void {
-		this.contextMenuSubject.next(contextMenuInfo);
+	static notifyContextMenu(contextMenuInfo: ContextMenuInfo, trigger: boolean = false): void {
+		this.contextMenuSubject.next(new ContextMenuUpdate(contextMenuInfo, trigger));
 	}
 
-	static notifyOnlyAppointmentsMode(): void {
-		this.onlyAppointmentsModeSubject.next();
+	static notifyTriggerCd(): void {
+		this.triggerCdSubject.next();
 	}
 
-	static notifyLateralInfo(day: Dayjs, lateralPanelInfo: LateralPanelInfo): void {
+	static notifyLateralInfo(day: Dayjs, lateralPanelInfo: LateralPanelInfo, notifyImmediately: boolean = false): void {
 		const dayLateralPanelUpdate = new DayLateralPanelUpdate(day, lateralPanelInfo);
-		this.lateralInfoSubject.next(dayLateralPanelUpdate)
+		this.updateArray.push(dayLateralPanelUpdate);
+
+		if (notifyImmediately) {
+			this.notifyUpdateArray();
+		}
 	}
 
 	static notifyToast(toast: Toast): void {
@@ -399,7 +309,8 @@ export class NotificationService {
 
 	static notifyDayMechanicSkills(day: Dayjs, mechanicCode: string, skills: Skill[]): void {
 		const dayMechanicSkillsUpdate = new DayMechanicSkillsUpdate(day, new MechanicSkills(mechanicCode, skills));
-		this.dayMechanicSkillsSubject.next(dayMechanicSkillsUpdate);
+		this.updateArray.push(dayMechanicSkillsUpdate);
+		this.notifyUpdateArray();
 	}
 
 	static notifyGroups(groups: CardsGroup[], notifyImmediately: boolean = false): void {

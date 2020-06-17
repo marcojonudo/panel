@@ -164,8 +164,10 @@ export class DimensionsService {
 
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
+
+		const dayMechanics = MechanicsService.findDayMechanics(today);
 		this.displayVerticalScrollbar = todaySchedules ? this.checkDisplayScrollbar(
-			this.oneDayMode, daysMechanics, today, this.gridContainerHeight
+			this.oneDayMode, dayMechanics, this.gridContainerHeight
 		) : false;
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
@@ -179,17 +181,15 @@ export class DimensionsService {
 
 	private static checkDisplayScrollbar(
 		oneDayMode: boolean,
-		daysMechanics: DaysMechanics,
-		today: any,
+		dayMechanics: Mechanic[],
 		gridContainerHeight: number
 	): boolean {
 		if (!oneDayMode) {
 			/* Si está habilitada la vista de varios días, siempre se muestra la barra de scroll */
 			return true;
 		}
-		const mechanics = daysMechanics[today.valueOf()];
-		if (mechanics.length) {
-			const mechanicsHeight = this.calcGridCompleteHeight(mechanics);
+		if (dayMechanics.length) {
+			const mechanicsHeight = this.calcGridCompleteHeight(dayMechanics);
 			return gridContainerHeight < mechanicsHeight;
 		}
 		return false;
@@ -255,7 +255,7 @@ export class DimensionsService {
 	 * Se definen los valores por defecto para las horas del horario y los anchos de horario, máximo y horas
 	 */
 	private static initMaxSchedule(today: Dayjs): void {
-		this.updateMaxSchedule(true, today);
+		this.updateMaxSchedule(true);
 		this.defaultHourWidth = this.hourWidth;
 	}
 
@@ -384,9 +384,11 @@ export class DimensionsService {
 	 * @param {today} today Día actual
 	 * @returns {number[]} Array de horas del horario
 	 */
-	static updateMaxSchedule(oneDayMode: boolean, today: Dayjs): void {
+	static updateMaxSchedule(oneDayMode: boolean): void {
+		const today = dayjs().startOf(Constants.DAY_JS.d);
+		const dayMechanics = MechanicsService.findDayMechanics(today);
 		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
-			oneDayMode, MechanicsService.daysMechanics, today, this.gridContainerHeight
+			oneDayMode, dayMechanics, this.gridContainerHeight
 		);
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, oneDayMode);
 		const maxQuarterWidth = this.calcQuarterWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
@@ -401,6 +403,8 @@ export class DimensionsService {
 		*  ancho del grid, ya que al activar la vista de varios días, automáticamente se ajusta a la pantalla */
 		this.maxScheduleWidth = oneDayMode ? this.maxScheduleMaxWidth : this.gridWidth;
 		this.calcWidthValuesFromMaxScheduleWidth(this.maxScheduleWidth);
+
+		CardPositionService.updateDimensions();
 
 		if (!oneDayMode) {
 			CardPositionService.scrollLeft = 0;
@@ -535,7 +539,9 @@ export class DimensionsService {
 
 	static toggleDayMode(): void {
 		this.oneDayMode = !this.oneDayMode;
+		DimensionsService.updateMaxSchedule(this.oneDayMode);
 		NotificationService.notifyOneDayMode(this.oneDayMode);
+		NotificationService.notifyMechanicLine();
 	}
 
 }

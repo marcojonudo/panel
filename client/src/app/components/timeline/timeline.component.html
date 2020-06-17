@@ -4,7 +4,9 @@
 		class="flex-grow-1 flex-basis-0 d-flex align-items-center justify-content-start pl-1 quarter border-semi-dark"
 		[ngClass]="{
 			'hour hour-border border-semi-dark': checkDisplayHours(hourQuarter.quarter),
-			'background-color-red': checkHighlightQuarter(hourQuarter.hour, hourQuarter.quarter)
+			'background-color-red': checkHighlightQuarter(hourQuarter.hour, hourQuarter.quarter),
+			'pl-1': checkDisplayMinutes(),
+			'small-font-size justify-content-center': !checkDisplayMinutes()
 		}">
 		<span *ngIf="checkDisplayHours(hourQuarter.quarter); else minutesBlock">
 			{{hourQuarter.hour}}<span *ngIf="checkDisplayMinutes()">:00</span>

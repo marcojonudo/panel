@@ -23,10 +23,6 @@ import {Coordinates} from "../../objects/coordinates";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
 import {HourQuarter} from "../../objects/hour-quarter";
-import {DayAppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/day-appointments-counter-update";
-import {DayLateralPanelUpdate} from "../../objects/trigger-cd/update-objects/lateral-panel/day-lateral-panel-update";
-import {DaySaturatedQuartersUpdate} from "../../objects/trigger-cd/update-objects/saturated-quarteres/day-saturated-quarters-update";
-import {DayMechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/day-mechanic-line-update";
 import {DayMechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/day-mechanic-skills-update";
 import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/mechanic-skills-update";
 import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
@@ -37,6 +33,7 @@ import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-i
 import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
 import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
 import {MaxScheduleWidthUpdate} from "../../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
+import {ContextMenuUpdate} from "../../objects/trigger-cd/update-objects/generic/context-menu-update";
 
 @Component({
 	selector: 'app-main',
@@ -77,18 +74,10 @@ export class MainComponent implements OnInit, OnDestroy {
 	private updateArraySubscription: Subscription;
 	private oneDayModeSubscription: Subscription;
 	private maxScheduleWidthSubscription: Subscription;
-	private mechanicLineSubscription: Subscription;
-	private skillsSubscription: Subscription;
-	private cardDetailsSubscription: Subscription;
-	private quartersSaturationSubscription: Subscription;
 	private contextMenuSubscription: Subscription;
-	private onlyAppointmentsModeSubscription: Subscription;
-	private lateralInfoSubscription: Subscription;
-	private appointmentsCounterSubscription: Subscription;
+	private triggerCdSubscription: Subscription;
 	private toastSubscription: Subscription;
 	private dragSchedulesSubscription: Subscription;
-	private dayMechanicSkillsSubscription: Subscription;
-	private groupSubscription: Subscription;
 
 	private appointmentsTypesContextMenuListener: () => void;
 	private pointerDownListener: () => void;
@@ -139,23 +128,9 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		this.mechanicLineSubscription = NotificationService.mechanicLine$
-				.subscribe((dayMechanicLineUpdate: DayMechanicLineUpdate) => {
-			dayMechanicLineUpdate.updateTriggerMap(this.daysTriggerMap);
-			console.log(0);
-			this.cdRef.detectChanges();
-		});
-
-		this.quartersSaturationSubscription = NotificationService.saturatedQuarters$
-				.subscribe((daySaturatedQuartersUpdate: DaySaturatedQuartersUpdate) => {
-			daySaturatedQuartersUpdate.updateTriggerMap(this.daysTriggerMap);
-			console.log(1);
-			this.cdRef.detectChanges();
-		});
-
 		this.contextMenuSubscription = NotificationService.contextMenu$
-				.subscribe((contextMenuInfo: ContextMenuInfo) => {
-			this.contextMenuInfo = contextMenuInfo;
+				.subscribe((update: ContextMenuUpdate) => {
+			this.contextMenuInfo = update.contextMenuInfo;
 			if (this.contextMenuInfo) {
 				this.pointerDownListener = this.renderer.listen(
 					this.element.nativeElement,
@@ -165,23 +140,19 @@ export class MainComponent implements OnInit, OnDestroy {
 			} else {
 				this.pointerDownListener();
 			}
-			console.log(2);
-			this.cdRef.detectChanges();
+			if (update.trigger) {
+				this.cdRef.detectChanges();
+			}
 		});
 
 		this.oneDayModeSubscription = NotificationService.oneDayMode$.subscribe((oneDayMode: boolean) => {
 			this.oneDayMode = oneDayMode;
-			DimensionsService.updateMaxSchedule(this.oneDayMode, this.today);
 			this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-			CardPositionService.updateDimensions();
 			this.existentTodaySchedules = this.oneDayMode && this.checkDaySchedulesExist();
-			// TODO
-			NotificationService.notifyMechanicLine();
-			console.log(3);
-			this.cdRef.detectChanges();
 		});
+
 		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$
 				.subscribe((update: MaxScheduleWidthUpdate) => {
 			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
@@ -189,42 +160,17 @@ export class MainComponent implements OnInit, OnDestroy {
 			*  del slider */
 			this.maxScheduleWidth = update.maxScheduleWidth;
 			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
-			console.log(4);
 			if (update.trigger) {
 				this.cdRef.detectChanges();
 			}
 		});
 
-		this.lateralInfoSubscription = NotificationService.lateralInfo$
-				.subscribe((dayLateralPanelUpdate: DayLateralPanelUpdate) => {
-			dayLateralPanelUpdate.updateTriggerMap(this.daysTriggerMap);
-					console.log(5);
-			this.cdRef.detectChanges();
-		});
-
-		this.dayMechanicSkillsSubscription = NotificationService.dayMechanicSkills$
-				.subscribe((dayMechanicSkillsUpdate: DayMechanicSkillsUpdate) => {
-			dayMechanicSkillsUpdate.updateTriggerMap(this.daysTriggerMap);
-					console.log(6);
-			this.cdRef.detectChanges();
-		});
-
-		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$.subscribe(() => {
-			console.log(7);
-			this.cdRef.detectChanges();
-		});
-
-		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$
-				.subscribe((dayAppointmentsCounterUpdate: DayAppointmentsCounterUpdate) => {
-			dayAppointmentsCounterUpdate.updateTriggerMap(this.daysTriggerMap);
-			// TODO Se debe ejecutar al modificar el total de citas. No al mover fichas
-					console.log(8);
+		this.triggerCdSubscription = NotificationService.triggerCd$.subscribe(() => {
 			this.cdRef.detectChanges();
 		});
 
 		this.toastSubscription = NotificationService.toast$.subscribe((toast: Toast) => {
 			this.toast = toast;
-			console.log(9);
 			this.cdRef.detectChanges();
 		});
 
@@ -244,12 +190,6 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		this.groupSubscription = NotificationService.group$.subscribe((dayGroupUpdate: DayMechanicGroupUpdate) => {
-			dayGroupUpdate.updateTriggerMap(this.daysTriggerMap);
-			console.log(12);
-			this.cdRef.detectChanges();
-		});
-
 		interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
 			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
 			console.log(11);
@@ -264,17 +204,10 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.updateArraySubscription.unsubscribe();
 		this.oneDayModeSubscription.unsubscribe();
 		this.maxScheduleWidthSubscription.unsubscribe();
-		this.mechanicLineSubscription.unsubscribe();
-		this.skillsSubscription.unsubscribe();
-		this.cardDetailsSubscription.unsubscribe();
-		this.quartersSaturationSubscription.unsubscribe();
-		this.onlyAppointmentsModeSubscription.unsubscribe();
-		this.lateralInfoSubscription.unsubscribe();
+		this.triggerCdSubscription.unsubscribe();
 		this.dragSchedulesSubscription.unsubscribe();
-		this.appointmentsCounterSubscription.unsubscribe();
 		this.toastSubscription.unsubscribe();
 		this.contextMenuSubscription.unsubscribe();
-		this.groupSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
@@ -487,7 +420,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	openContextMenu(event: PointerEvent): void {
 		event.preventDefault();
 		NotificationService.notifyContextMenu(
-			new DragScheduleContextMenuInfo(new Coordinates(event.clientX, event.clientY))
+			new DragScheduleContextMenuInfo(new Coordinates(event.clientX, event.clientY)),
+			true
 		);
 	}
 
