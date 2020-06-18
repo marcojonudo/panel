@@ -36,6 +36,8 @@ class PanelService {
 	@Inject private SkillsDatabaseClient skillsDatabaseClient
 	@Inject private CuboDatabaseClient cuboDatabaseClient
 
+	static LocalDate lastScheduleDay
+
 	CompleteInfo getPanelInfo(LocalDate day = LocalDate.now()) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
@@ -45,7 +47,10 @@ class PanelService {
 
 		deletePendingCards(day)
 
-		UpdateCards updateCards = syncJpdvOrders(day)
+		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
+		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
+		lastScheduleDay = LocalDate.parse(daysMechanics.keySet().last())
+		UpdateCards updateCards = syncJpdvOrders(day, lastScheduleDay)
 
 		/* Una vez cargados los horarios definidos y las nuevas fichas para crear, se sincroniza la información de
 		*  citas. Para cada día, se crean los registros de contador de cita asociadaso, inicializándolos con el número
@@ -275,14 +280,14 @@ class PanelService {
 
 	// region Sync orders with cards
 
-	UpdateCards syncJpdvOrders(LocalDate day = LocalDate.now()) {
+	UpdateCards syncJpdvOrders(LocalDate from, LocalDate to) {
 		UpdateCards updateCards = null
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
 				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-				List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES)
+				List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES, to)
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-				List<Card> dbCards = panelDatabaseClient.getCards(day, null)
+				List<Card> dbCards = panelDatabaseClient.getCards(from, null)
 				List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
 				List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
 
@@ -292,19 +297,19 @@ class PanelService {
 				saveCards(updateCards)
 			} catch(all) {
 				all.printStackTrace()
-				updateCards = findDbUpdateCards(day)
+				updateCards = findDbUpdateCards(from)
 			} finally {
 				SyncOrdersSemaphore.release()
 			}
 		} else {
 			SyncOrdersSemaphore.waitUntilUnlocked()
-			updateCards = findDbUpdateCards(day)
+			updateCards = findDbUpdateCards(from)
 		}
 		return updateCards
 	}
 
-	UpdateCards findDbUpdateCards(LocalDate day) {
-		List<Card> dbCards = panelDatabaseClient.getCards(day, null)
+	UpdateCards findDbUpdateCards(LocalDate from) {
+		List<Card> dbCards = panelDatabaseClient.getCards(from, null)
 		List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
 		return new UpdateCards(dbCards, auxiliaryCards)
 	}

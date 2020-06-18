@@ -23,7 +23,7 @@ class JpdvOrdersJob {
 
 	@Scheduled(cron = "\${cron.sync-jpdv-orders}")
 	void execute() {
-		UpdateCards updateCards = panelService.syncJpdvOrders(LocalDate.now())
+		UpdateCards updateCards = panelService.syncJpdvOrders(LocalDate.now(), PanelService.lastScheduleDay)
 		/* Se se ha actualizado alguna ficha, se actualizan los terminales con los cambios */
 		if (updateCards.updated()) {
 			RealTimeRequestInfo realTimeRequestInfo = new RealTimeRequestInfo(

@@ -77,7 +77,7 @@ export class MainComponent implements OnInit, OnDestroy {
 	private contextMenuSubscription: Subscription;
 	private triggerCdSubscription: Subscription;
 	private toastSubscription: Subscription;
-	private dragSchedulesSubscription: Subscription;
+	private mainCursorSubscription: Subscription;
 
 	private appointmentsTypesContextMenuListener: () => void;
 	private pointerDownListener: () => void;
@@ -174,7 +174,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		this.dragSchedulesSubscription = NotificationService.mainCursor$.subscribe((cursor: string) => {
+		this.mainCursorSubscription = NotificationService.mainCursor$.subscribe((cursor: string) => {
 			this.cursor = cursor;
 
 			if (this.cursor == Constants.MAIN_CURSOR.DRAGGING_SCHEDULES) {
@@ -186,13 +186,11 @@ export class MainComponent implements OnInit, OnDestroy {
 			} else {
 				this.appointmentsTypesContextMenuListener();
 			}
-			console.log(10);
 			this.cdRef.detectChanges();
 		});
 
 		interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
 			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
-			console.log(11);
 			this.cdRef.detectChanges();
 		});
 
@@ -205,7 +203,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.oneDayModeSubscription.unsubscribe();
 		this.maxScheduleWidthSubscription.unsubscribe();
 		this.triggerCdSubscription.unsubscribe();
-		this.dragSchedulesSubscription.unsubscribe();
+		this.mainCursorSubscription.unsubscribe();
 		this.toastSubscription.unsubscribe();
 		this.contextMenuSubscription.unsubscribe();
 	}

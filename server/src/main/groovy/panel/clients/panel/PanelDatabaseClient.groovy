@@ -23,8 +23,8 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 
 	@Get("/cards")
 	List<Card> getCards(
-			@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
-			@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
+		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
+		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
 	)
 
 	@Get("/jobLineTypes")
