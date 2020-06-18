@@ -28,12 +28,12 @@
 			<div class="flex-grow-1 flex-basis-0 align-center">
 				<div *ngIf="checkShowDivisionInfo(card.dividedPrevious, card.dividedNext)" class="d-flex">
 					<div *ngIf="checkShowLeftDivisionInfo(card.dividedPrevious)">
-						<span>{{findDividedPreviousPosition(card.dividedPrevious)}}</span>
-						<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, card.dividedPrevious)}}"></i>
+						<span>{{findDividedPosition(dividedPrevious)}}</span>
+						<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, dividedPrevious)}}"></i>
 					</div>
 					<div *ngIf="checkShowRightDivisionInfo(card.dividedNext)">
-						<span>{{findDividedPreviousPosition(card.dividedNext)}}</span>
-						<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, card.dividedNext)}}"></i>
+						<span>{{findDividedPosition(dividedNext)}}</span>
+						<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, dividedNext)}}"></i>
 					</div>
 				</div>
 			</div>

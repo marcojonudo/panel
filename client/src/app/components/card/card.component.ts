@@ -28,6 +28,9 @@ export class CardComponent {
 	private readonly PENDING_ICON_COLOR: any;
 	private readonly MATERIAL_ICON_COLOR: any;
 
+	dividedPrevious: Card;
+	dividedNext: Card;
+
 	constructor(private cardsService: CardsService) {
 		this.CARD_STATE_COLOR = {
 			P: '#FF0000',
@@ -71,15 +74,23 @@ export class CardComponent {
 	}
 
 	checkShowLeftDivisionInfo(dividedPrevious: Card): boolean {
-		return dividedPrevious != undefined;
+		const show = dividedPrevious != undefined;
+		if (show) {
+			this.dividedPrevious = CardsService.findCard(dividedPrevious.panelId);
+		}
+		return show;
 	}
 
 	checkShowRightDivisionInfo(dividedNext: Card): boolean {
-		return dividedNext != undefined;
+		const show = dividedNext != undefined;
+		if (show) {
+			this.dividedNext = CardsService.findCard(dividedNext.panelId);
+		}
+		return show;
 	}
 
-	findDividedPreviousPosition(dividedPrevious: Card): string {
-		return MechanicsService.findMechanic(dividedPrevious.day, dividedPrevious.mechanicCode).panelPosition;
+	findDividedPosition(dividedCard: Card): string {
+		return MechanicsService.findMechanic(dividedCard.day, dividedCard.mechanicCode).panelPosition;
 	}
 
 	checkArrowDirection(card: Card, dividedCard: Card) {
@@ -143,7 +154,7 @@ export class CardComponent {
 				g.cards.forEach((c: Card) => {
 					c.highlight = highlight;
 				})
-			})
+			});
 			NotificationService.notifyGroups(orderGroups, true);
 		}
 	}
@@ -184,7 +195,7 @@ export class CardComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking card', this.card, this.card.linkedPrevious, this.card.linkedNext);
+			console.log('checking card', this.card.panelId, this.card.start);
 		}
 	}
 

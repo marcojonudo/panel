@@ -538,6 +538,36 @@ export class CardsService {
 	static handleAddAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(day, mechanicCode, false);
+
+		const dividedGroups = this.findDividedGroups(group.cards);
+		NotificationService.notifyGroups(dividedGroups, false);
+	}
+
+	static findDividedGroups(cards: Card[]): CardsGroup[] {
+		const dividedCards = [];
+		cards.forEach((c: Card) => {
+			if (c.dividedPrevious) {
+				dividedCards.push(c.dividedPrevious);
+			}
+			if (c.dividedNext) {
+				dividedCards.push(c.dividedNext);
+			}
+		});
+		if (!dividedCards.length) {
+			return dividedCards;
+		}
+
+		const orderGroups = CardsService.findOrderGroups(CardsService.assignedCardsGroups, cards[0].order.number);
+		const dividedOrderGroups = [];
+		orderGroups.forEach((g: CardsGroup) => {
+			const dividedCard = g.cards.find((card: Card) =>
+				dividedCards.find((c: Card) => c.panelId == card.panelId) != undefined
+			);
+			if (dividedCard) {
+				dividedOrderGroups.push(g);
+			}
+		});
+		return dividedOrderGroups;
 	}
 
 	static handleRemoveAssignedCardsGroup(
@@ -762,6 +792,15 @@ export class CardsService {
 	}
 
 	// region Finders
+
+	static findCard(id: string, groups: CardsGroup[] = CardsService.assignedCardsGroups): Card {
+		let card = undefined;
+		groups.find((g: CardsGroup) => {
+			card = g.cards.find((c: Card) => c.panelId == id)
+			return card != undefined;
+		});
+		return card;
+	}
 
 	static findDayGroups(day: Dayjs): CardsGroup[] {
 		return [].concat(...Object.values(this.assignedDaysCardsGroups[day.valueOf()]));
