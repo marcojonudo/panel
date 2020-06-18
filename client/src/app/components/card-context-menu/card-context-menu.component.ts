@@ -49,7 +49,8 @@ export class CardContextMenuComponent implements OnInit {
 			groupX,
 			contextMenuInfo.clickCoordinates.x - leftOffset
 		);
-		NotificationService.notifyContextMenu(undefined, true);
+		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyGroups([contextMenuInfo.group], true)
 	}
 
 	showCardDetails(): void {
