@@ -16,7 +16,11 @@ export class AuxiliaryCardBehaviour implements CardTypeBehaviour {
 	}
 
 	handleRightClick(group: CardsGroup, coordinates: Coordinates): void {
-		NotificationService.notifyContextMenu(new GroupContextMenuInfo(group, coordinates), true);
+		/* Sólo se permite modificar la ficha si ya está asignada. Las plantillas de auxiliares deben permanecer
+		*  siempre igual */
+		if (group.day) {
+			NotificationService.notifyContextMenu(new GroupContextMenuInfo(group, coordinates), true);
+		}
 	}
 
 }
