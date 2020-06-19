@@ -4,19 +4,19 @@
 			class="btn align-center padding-0 border-right-0 border-bottom-0"
 			[ngClass]="checkSelectedSection(todayType) ? 'h-100 btn-danger' : 'h-75 btn-outline-danger not-selected-button'"
 			(click)="setSection(todayType)">
-			En curso
+			En curso ({{findGroupsLength(todayType)}})
 		</button>
 		<button
 			class="btn align-center padding-0 border-right-0 border-bottom-0 border-left-0"
 			[ngClass]="checkSelectedSection(appointmentType) ? 'h-100 btn-primary' : 'h-75 btn-outline-primary not-selected-button'"
 			(click)="setSection(appointmentType)">
-			Cita previa
+			Cita previa ({{findGroupsLength(appointmentType)}})
 		</button>
 		<button
 			class="btn align-center padding-0 border-right-0 border-bottom-0 border-left-0"
 			[ngClass]="checkSelectedSection(pendingType) ? 'h-100 btn-success' : 'h-75 btn-outline-success not-selected-button'"
 			(click)="setSection(pendingType)">
-			Pendientes
+			Pendientes ({{findGroupsLength(pendingType)}})
 		</button>
 		<button
 			class="btn align-center padding-0 border-bottom-0 border-left-0"
@@ -40,7 +40,7 @@
 	class="flex-grow-1 unassigned-orders-cards-container not-finished-groups-container"
 	[style.height.px]="unassignedBarHeight">
 	<app-draggable-group
-		*ngFor="let group of findGroups()"
+		*ngFor="let group of groups"
 		class="unassigned-card"
 		[ngClass]="{'hidden': checkHideGroup(section.name, group.id)}"
 		[ngStyle]="{

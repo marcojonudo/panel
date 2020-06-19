@@ -47,6 +47,8 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	private bandSubscription: Subscription;
 
+	groups: CardsGroup[];
+
 	constructor(
 		private cardPositionService: CardPositionService,
 		private cardsService: CardsService,
@@ -54,11 +56,12 @@ export class BandComponent implements OnInit, OnDestroy {
 	) {
 		this.unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
 		this.section = CardsService.unassignedSections[1];
+		this.groupsTriggerMap = new GroupsTriggerMap(this.section.findGroups());
+		this.setGroups();
 	}
 
 	ngOnInit(): void {
 		this.unassignedTypesCardsGroups = CardsService.unassignedTypesCardsGroups;
-		this.groupsTriggerMap = new GroupsTriggerMap(this.section.findGroups());
 		this.bandSubscription = NotificationService.band$.subscribe((bandUpdate: BandUpdate) => {
 			if (bandUpdate.section) {
 				this.section = CardsService.unassignedSections.find(section =>
@@ -134,10 +137,9 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	// endregion
 
-	findGroups(section: UnassignedSection = this.section): CardsGroup[] {
-		const groups = section.findGroups();
-		this.handleGroupsTriggerMap(groups);
-		return groups;
+	setGroups(section: UnassignedSection = this.section): void {
+		this.groups = section.findGroups();
+		this.handleGroupsTriggerMap(this.groups);
 	}
 
 	handleGroupsTriggerMap(groups: CardsGroup[], groupsTriggerMap: GroupsTriggerMap = this.groupsTriggerMap): void {
@@ -154,6 +156,21 @@ export class BandComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	findSection(sectionType: string, sections: UnassignedSection[] = this.cardSections): UnassignedSection {
+		return sections.find(section => section.name == sectionType);
+	}
+
+	findGroupsLength(
+		sectionType: string,
+		section: UnassignedSection = this.section,
+		groups: CardsGroup[] = this.groups
+	): number {
+		if (section.name == sectionType) {
+			return groups.length;
+		}
+		return this.findSection(sectionType).findGroups().length;
+	}
+
 	checkUpdateGroup(groupId: string, groupsTriggerMap: GroupsTriggerMap = this.groupsTriggerMap): GroupUpdate {
 		return groupsTriggerMap[groupId];
 	}
@@ -163,7 +180,8 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	setSection(type: string): void {
-		this.section = this.cardSections.find(section => section.name == type);
+		this.section = this.findSection(type);
+		this.setGroups()
 		this.cdRef.detectChanges();
 	}
 
