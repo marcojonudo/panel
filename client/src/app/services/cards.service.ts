@@ -259,7 +259,7 @@ export class CardsService {
 		this.handleAddFinishedCardsGroup(group);
 	}
 
-	static removeFromAssigned(cardsGroup: CardsGroup, day: Dayjs, mechanicCode: string, notify: boolean = true): any {
+	static removeFromAssigned(cardsGroup: CardsGroup, day: Dayjs, mechanicCode: string): any {
 		this.handleAssignedMovementGroupsLinks(
 			day,
 			mechanicCode,
@@ -267,7 +267,7 @@ export class CardsService {
 			cardsGroup.start,
 			cardsGroup.end
 		);
-		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup, notify);
+		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
 	}
 
 	static addToAssigned(cardsGroup: CardsGroup, day: Dayjs, newMechanicCode: string): void {
@@ -534,14 +534,19 @@ export class CardsService {
 		// NotificationService.notifyBand();
 	}
 
-	static handleAddAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
+	static handleAddAssignedCardsGroup(
+		day: Dayjs,
+		mechanicCode: string,
+		group: CardsGroup,
+		notifyImmediately: boolean = false
+	): void {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(day, mechanicCode, false);
 
 		/* Se tienen que notificar las fichas de la orden para las flechas blancas, y las divididas para las
 		*  flechas negras. Todas forman parte de la orden, por lo que se notifican en un solo paso */
 		const orderGroups = this.findOrderGroups(CardsService.assignedCardsGroups, group.cards[0].order.number);
-		NotificationService.notifyGroups(orderGroups, false);
+		NotificationService.notifyGroups(orderGroups, notifyImmediately);
 	}
 
 	static findDividedGroups(cards: Card[]): CardsGroup[] {
@@ -575,12 +580,10 @@ export class CardsService {
 		day: Dayjs,
 		mechanicCode: string,
 		group: CardsGroup,
-		notify: boolean = true
+		notifyImmediately: boolean = false
 	): void {
 		this.removeAssignedCardsGroup(day, mechanicCode, group);
-		if (notify) {
-			NotificationService.notifyMechanicLine(day, mechanicCode, false);
-		}
+		NotificationService.notifyMechanicLine(day, mechanicCode, notifyImmediately);
 	}
 
 	static handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined, notify: boolean = true): void {

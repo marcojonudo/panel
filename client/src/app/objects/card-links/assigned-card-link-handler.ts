@@ -15,11 +15,21 @@ export class AssignedCardLinkHandler implements CardLinkHandler {
 	}
 
 	updateGroupsAdd(newGroup: CardsGroup): void {
-		CardsService.handleAddAssignedCardsGroup(newGroup.cards[0].day, newGroup.cards[0].mechanicCode, newGroup);
+		CardsService.handleAddAssignedCardsGroup(
+			newGroup.cards[0].day,
+			newGroup.cards[0].mechanicCode,
+			newGroup,
+			true
+		);
 	}
 
 	updateGroupsRemove(newGroup: CardsGroup): void {
-		CardsService.handleRemoveAssignedCardsGroup(newGroup.cards[0].day, newGroup.cards[0].mechanicCode, newGroup);
+		CardsService.handleRemoveAssignedCardsGroup(
+			newGroup.cards[0].day,
+			newGroup.cards[0].mechanicCode,
+			newGroup,
+			true
+		);
 	}
 
 }
