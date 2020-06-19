@@ -46,21 +46,17 @@
 			</div>
 		</div>
 		<div
-			class="d-flex card-bottom-section"
+			class="d-flex card-bottom-section align-items-center justify-content-between"
 			[style.background]="findBottomSectionBackground(card.divisionIndex, card.group.color.code)">
-			<div class="flex-grow-1 flex-basis-0 align-center">
-				<i
-					*ngIf="checkShowLinkedLeftArrow(card.panelId, card.linkedPrevious, card.order.number)"
-					class="fas fa-long-arrow-alt-right linked-arrow">
-				</i>
-			</div>
-			<div class="flex-grow-1 flex-basis-0 align-center"></div>
-			<div class="flex-grow-1 flex-basis-0 align-center">
-				<i
-					*ngIf="checkShowLinkedRightArrow(card.panelId, card.linkedNext, card.order.number)"
-					class="fas fa-long-arrow-alt-right linked-arrow">
-				</i>
-			</div>
+			<i
+				*ngIf="checkShowLinkedLeftArrow(card.panelId, card.linkedPrevious, card.order.number)"
+				class="fas fa-long-arrow-alt-right linked-arrow pl-1">
+			</i>
+			<div class="align-center"></div>
+			<i
+				*ngIf="checkShowLinkedRightArrow(card.panelId, card.linkedNext, card.order.number)"
+				class="fas fa-long-arrow-alt-right linked-arrow pr-1">
+			</i>
 		</div>
 	</div>
 	<div class="w-100 h-100 d-flex align-items-center link-cards-container">
