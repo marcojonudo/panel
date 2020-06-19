@@ -30,6 +30,8 @@ export class CardsGroup {
 	cut: boolean;
 	mode: string;
 
+	highlight: boolean;
+
 	constructor(cards: Card[], left: number = undefined) {
 		this.cards = cards;
 		this.id = this.cards[0].panelId;
@@ -42,6 +44,7 @@ export class CardsGroup {
 		this.line = this.cards[0].line;
 		this.left = left;
 		this.mode = Constants.GROUP_MODE.DRAG;
+		this.highlight = false;
 	}
 
 	// region Getters / setters

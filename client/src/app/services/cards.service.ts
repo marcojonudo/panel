@@ -538,8 +538,10 @@ export class CardsService {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(day, mechanicCode, false);
 
-		const dividedGroups = this.findDividedGroups(group.cards);
-		NotificationService.notifyGroups(dividedGroups, false);
+		/* Se tienen que notificar las fichas de la orden para las flechas blancas, y las divididas para las
+		*  flechas negras. Todas forman parte de la orden, por lo que se notifican en un solo paso */
+		const orderGroups = this.findOrderGroups(CardsService.assignedCardsGroups, group.cards[0].order.number);
+		NotificationService.notifyGroups(orderGroups, false);
 	}
 
 	static findDividedGroups(cards: Card[]): CardsGroup[] {

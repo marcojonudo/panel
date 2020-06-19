@@ -12,6 +12,9 @@ import {CardTypeBehaviour} from "../../objects/card-type-behaviour/card-type-beh
 import {UtilsService} from "../../services/utils.service";
 import {DomSanitizer} from "@angular/platform-browser";
 import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
+import {Dayjs} from "dayjs";
+import {Card} from "../../objects/card";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
 	selector: 'app-draggable-group',
@@ -39,6 +42,27 @@ export class DraggableGroupComponent {
 		return UtilsService.isImage(cursorName)
 			? this.sanitizer.bypassSecurityTrustStyle(`url(../../../assets/img/cursors/${cursorName}), auto`)
 			: cursorName;
+	}
+
+	findHighlight(highlight: boolean): string {
+		return highlight ? `0 0 4px 3px #ffc000` : undefined;
+	}
+
+	highlightOrderCards(day: Dayjs, orderNumber: number, highlight: boolean) {
+		/* Se resaltan las fichas sólo si se pasa el ratón por encima de una asignada (tiene day) */
+		if (day) {
+			const orderGroups = CardsService.findOrderGroups(
+				CardsService.assignedCardsGroups.concat(CardsService.unassignedCardsGroups),
+				orderNumber
+			);
+			/* Sólo se resaltan las agrupaciones si están desagrupadas */
+			if (orderGroups.length > 1) {
+				orderGroups.forEach((g: CardsGroup) => {
+					g.highlight = highlight;
+				});
+				NotificationService.notifyGroups(orderGroups, true);
+			}
+		}
 	}
 
 	emitHiddenCardsGroup(group: CardsGroup) {

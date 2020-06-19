@@ -12,6 +12,7 @@ import {Dayjs} from "dayjs";
 import {NotificationService} from "../../services/notification.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {CardsGroup} from "../../objects/cards-group";
+import {UtilsService} from "../../services/utils.service";
 
 @Component({
 	selector: 'app-card',
@@ -89,6 +90,34 @@ export class CardComponent {
 		return show;
 	}
 
+	checkShowLinkedLeftArrow(id: string, linkedPrevious: Card, orderNumber: number): boolean {
+		if (linkedPrevious) {
+			return false;
+		}
+		const orderGroups = UtilsService.sort(
+			CardsService.findOrderGroups(CardsService.assignedCardsGroups, orderNumber),
+			(g: CardsGroup) => g.start
+		);
+		const groupIndex = orderGroups.findIndex((g: CardsGroup) =>
+			g.cards.find((c: Card) => c.panelId == id) != undefined
+		);
+		return groupIndex > 0;
+	}
+
+	checkShowLinkedRightArrow(id: string, linkedNext: Card, orderNumber: number) {
+		if (linkedNext) {
+			return false;
+		}
+		const orderGroups = UtilsService.sort(
+			CardsService.findOrderGroups(CardsService.assignedCardsGroups, orderNumber),
+			(g: CardsGroup) => g.start
+		);
+		const groupIndex = orderGroups.findIndex((g: CardsGroup) =>
+			g.cards.find((c: Card) => c.panelId == id) != undefined
+		);
+		return groupIndex < orderGroups.length - 1;
+	}
+
 	findDividedPosition(dividedCard: Card): string {
 		return MechanicsService.findMechanic(dividedCard.day, dividedCard.mechanicCode).panelPosition;
 	}
@@ -135,28 +164,8 @@ export class CardComponent {
 		return Constants.CARD_TYPE_BACKGROUND[type] || Constants.CARD_TYPE_BACKGROUND['DEFAULT'];
 	}
 
-	findBorder(highlight: boolean): string {
-		return highlight ? `2px solid red` : undefined;
-	}
-
 	findBottomSectionBackground(divisionIndex: number, color: string) {
 		return divisionIndex == 0 ? color : `repeating-linear-gradient(45deg, ${color}, ${color} 4px, #fff 4px, #fff 8px)`
-	}
-
-	highlightOrderCards(day: Dayjs, orderNumber: number, highlight: boolean) {
-		/* Se resaltan las fichas sólo si se pasa el ratón por encima de una asignada (tiene day) */
-		if (day) {
-			const orderGroups = CardsService.findOrderGroups(
-				CardsService.assignedCardsGroups.concat(CardsService.unassignedCardsGroups),
-				orderNumber
-			);
-			orderGroups.forEach((g: CardsGroup) => {
-				g.cards.forEach((c: Card) => {
-					c.highlight = highlight;
-				})
-			});
-			NotificationService.notifyGroups(orderGroups, true);
-		}
 	}
 
 	// region Link handlers

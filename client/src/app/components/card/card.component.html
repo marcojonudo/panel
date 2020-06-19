@@ -1,11 +1,8 @@
 <div
 	class="h-100 panel-card resizable"
-	(mouseenter)="highlightOrderCards(card.day, card.order.number, true)"
-	(mouseleave)="highlightOrderCards(card.day, card.order.number, false)"
 	[ngStyle]="{
 		'width.px': card.width,
-		'background-color': findBackground(card.type),
-		'border': findBorder(card.highlight)
+		'background-color': findBackground(card.type)
 	}">
 	<div class="h-100 d-flex flex-column">
 		<div class="d-flex">
@@ -51,9 +48,19 @@
 		<div
 			class="d-flex card-bottom-section"
 			[style.background]="findBottomSectionBackground(card.divisionIndex, card.group.color.code)">
+			<div class="flex-grow-1 flex-basis-0 align-center">
+				<i
+					*ngIf="checkShowLinkedLeftArrow(card.panelId, card.linkedPrevious, card.order.number)"
+					class="fas fa-long-arrow-alt-right linked-arrow">
+				</i>
+			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center"></div>
-			<div class="flex-grow-1 flex-basis-0 align-center"></div>
-			<div class="flex-grow-1 flex-basis-0 align-center"></div>
+			<div class="flex-grow-1 flex-basis-0 align-center">
+				<i
+					*ngIf="checkShowLinkedRightArrow(card.panelId, card.linkedNext, card.order.number)"
+					class="fas fa-long-arrow-alt-right linked-arrow">
+				</i>
+			</div>
 		</div>
 	</div>
 	<div class="w-100 h-100 d-flex align-items-center link-cards-container">

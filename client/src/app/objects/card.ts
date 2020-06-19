@@ -48,14 +48,12 @@ export class Card {
 
 	dividedPrevious: Card;
 	dividedNext: Card;
-
 	divisionIndex: number;
+
 	vehiclePosition: string;
 
 	possibleLinkedNext: boolean;
 	possibleLinkedPrevious: boolean;
-
-	highlight: boolean;
 
 	constructor(card: any, initialLoad: boolean = true) {
 		this.type = card.type;
@@ -87,7 +85,6 @@ export class Card {
 		this.lastLine = card.lastLine != undefined ? card.lastLine : initialLoad ? this.line : undefined;
 		this.lastStart = card.lastStart != undefined ? card.lastStart : initialLoad ? this.start : undefined;
 		this.lastEnd = card.lastEnd != undefined ? card.lastEnd : initialLoad ? this.end : undefined;
-		this.highlight = false;
 	}
 
 	setStart(start: Dayjs): void {

@@ -61,3 +61,8 @@ i {
 	background-size: 10px 10px;
 	cursor: pointer;
 }
+
+.linked-arrow {
+	color: #fff;
+	font-size: 1.3em;
+}

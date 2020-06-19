@@ -2,9 +2,15 @@
 	appDraggable
 	[cardsGroup]="group"
 	[cardBehaviour]="findCardBehaviour(group)"
-	class="h-100 d-flex draggable"
+	class="h-100 d-flex draggable group"
+	[ngStyle]="{
+		'cursor': findCursor(group.mode),
+		'box-shadow': findHighlight(group.highlight)
+	}"
 	[style.cursor]="findCursor(group.mode)"
-	(hiddenCardsGroup)="emitHiddenCardsGroup($event)">
+	(hiddenCardsGroup)="emitHiddenCardsGroup($event)"
+	(mouseenter)="highlightOrderCards(group.day, group.cards[0].order.number, true)"
+	(mouseleave)="highlightOrderCards(group.day, group.cards[0].order.number, false)">
 	<app-card
 		*ngFor="let card of group.cards"
 		[card]="card"
