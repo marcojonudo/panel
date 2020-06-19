@@ -28,6 +28,7 @@ import {BandUpdate} from "../objects/trigger-cd/update-objects/band/band-update"
 import {MaxScheduleWidthUpdate} from "../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
 import {CardsService} from "./cards.service";
 import {ContextMenuUpdate} from "../objects/trigger-cd/update-objects/generic/context-menu-update";
+import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -262,7 +263,12 @@ export class NotificationService {
 		/* Un cambio de maxScheduleWidth siempre implica tener que redimensionar elementos de la interfaz */
 		NotificationService.notifyBand(undefined, CardsService.unassignedCardsGroups)
 		NotificationService.notifyGroups(CardsService.assignedCardsGroups)
-		NotificationService.notifyMechanicLine()
+		NotificationService.notifyMechanicLine(
+			undefined,
+			undefined,
+			true,
+			new DropzoneUpdate()
+		)
 	}
 
 	static notifyCoordinates(coordinates: Coordinates): void {

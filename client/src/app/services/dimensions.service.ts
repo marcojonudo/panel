@@ -12,6 +12,7 @@ import {HourQuarter} from "../objects/hour-quarter";
 import {MechanicsService} from "./mechanics.service";
 import {Card} from "../objects/card";
 import {CardPositionService} from "./card-position.service";
+import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -541,7 +542,9 @@ export class DimensionsService {
 		this.oneDayMode = !this.oneDayMode;
 		DimensionsService.updateMaxSchedule(this.oneDayMode);
 		NotificationService.notifyOneDayMode(this.oneDayMode);
-		NotificationService.notifyMechanicLine();
+		NotificationService.notifyMechanicLine(
+			undefined, undefined, true, new DropzoneUpdate()
+		);
 	}
 
 }
