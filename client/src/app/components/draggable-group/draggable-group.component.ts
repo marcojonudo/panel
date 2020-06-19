@@ -60,7 +60,14 @@ export class DraggableGroupComponent {
 				orderGroups.forEach((g: CardsGroup) => {
 					g.highlight = highlight;
 				});
-				NotificationService.notifyGroups(orderGroups, true);
+				const assignedGroups = orderGroups.filter((g: CardsGroup) => g.day != undefined);
+				const unassignedGroups = orderGroups.filter((g: CardsGroup) => g.day == undefined);
+				if (assignedGroups.length) {
+					NotificationService.notifyGroups(assignedGroups, true);
+				}
+				if (unassignedGroups.length) {
+					NotificationService.notifyBand(undefined, unassignedGroups);
+				}
 			}
 		}
 	}
