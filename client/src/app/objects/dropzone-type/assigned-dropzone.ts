@@ -95,7 +95,10 @@ export class AssignedDropzone implements Dropzone {
 		/* Si el movimiento no valida, lo único que hay que hacer es añadir el grupo a su dropzone original (no hay que
 		*  actualizar propiedades, ni el panel de citas) */
 		setTimeout(
-			() => CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
+			() => {
+				CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
+				NotificationService.notifyUpdateArray();
+			},
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}
