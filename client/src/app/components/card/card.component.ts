@@ -106,8 +106,8 @@ export class CardComponent {
 		}
 	}
 
-	checkShowLinkedLeftArrow(id: string, linkedPrevious: Card, orderNumber: number): boolean {
-		if (linkedPrevious) {
+	checkShowLinkedLeftArrow(id: string, day: Dayjs, linkedPrevious: Card, orderNumber: number): boolean {
+		if (linkedPrevious || !day) {
 			return false;
 		}
 		const orderGroups = UtilsService.sort(
@@ -120,8 +120,8 @@ export class CardComponent {
 		return groupIndex > 0;
 	}
 
-	checkShowLinkedRightArrow(id: string, linkedNext: Card, orderNumber: number) {
-		if (linkedNext) {
+	checkShowLinkedRightArrow(id: string, day: Dayjs, linkedNext: Card, orderNumber: number) {
+		if (linkedNext || !day) {
 			return false;
 		}
 		const orderGroups = UtilsService.sort(
