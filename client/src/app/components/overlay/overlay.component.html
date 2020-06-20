@@ -1,13 +1,13 @@
-<app-helper-draggable-group
-	*ngIf="helperCardsGroup"
+<app-draggable-group
+	*ngIf="helperGroup"
 	appMovable
 	class="helper-cards-group"
 	[ngStyle]="{
 		'height.px': lineDefaultHeight,
 		'transition': (dragging ? 'none' : 'transform') + ' ' + translateDuration + 'ms'
 	}"
-	[cardsGroup]="helperCardsGroup"
+	[group]="helperGroup"
 	[coordinates]="coordinates"
 	(transitionend)="updateCard()">
-</app-helper-draggable-group>
+</app-draggable-group>
 <div>{{check()}}</div>

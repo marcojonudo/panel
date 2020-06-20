@@ -30,9 +30,7 @@ import {ScrollableDirective} from './directives/scrollable.directive';
 import {DropzoneDirective} from './directives/dropzone.directive';
 import {OverlayComponent} from './components/overlay/overlay.component';
 import {MainComponent} from './components/main/main.component';
-import {HelperCardComponent} from './components/helper-card/helper-card.component';
 import {DraggableGroupComponent} from './components/draggable-group/draggable-group.component';
-import {HelperDraggableGroupComponent} from './components/helper-draggable-group/helper-draggable-group.component';
 import {ResizableLineDirective} from './directives/resizable-line.directive';
 import {ResizableCardDirective} from './directives/resizable-card.directive';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
@@ -79,9 +77,7 @@ import { ContextMenuComponent } from './components/context-menu/context-menu.com
 		DropzoneDirective,
 		OverlayComponent,
 		MainComponent,
-		HelperCardComponent,
 		DraggableGroupComponent,
-		HelperDraggableGroupComponent,
 		ResizableLineDirective,
 		ResizableCardDirective,
 		SpinnerComponent,
