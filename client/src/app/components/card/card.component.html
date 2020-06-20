@@ -23,15 +23,13 @@
 		</div>
 		<div class="flex-grow-1 flex-basis-0 d-flex">
 			<div class="flex-grow-1 flex-basis-0 align-center">
-				<div *ngIf="checkShowDivisionInfo(card.dividedPrevious, card.dividedNext)" class="d-flex">
-					<div *ngIf="checkShowLeftDivisionInfo(card.dividedPrevious)">
-						<span>{{findDividedPosition(dividedPrevious)}}</span>
-						<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, dividedPrevious)}}"></i>
-					</div>
-					<div *ngIf="checkShowRightDivisionInfo(card.dividedNext)">
-						<span>{{findDividedPosition(dividedNext)}}</span>
-						<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, dividedNext)}}"></i>
-					</div>
+				<div *ngIf="checkShowLeftDivisionInfo(card.mechanicCode, card.dividedPrevious)">
+					<span>{{findDividedPosition(dividedPrevious)}}</span>
+					<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, dividedPrevious)}}"></i>
+				</div>
+				<div *ngIf="checkShowRightDivisionInfo(card.mechanicCode, card.dividedNext)">
+					<span>{{findDividedPosition(dividedNext)}}</span>
+					<i class="fas fa-long-arrow-alt-{{checkArrowDirection(card, dividedNext)}}"></i>
 				</div>
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
@@ -50,12 +48,14 @@
 			[style.background]="findBottomSectionBackground(card.divisionIndex, card.group.color.code)">
 			<i
 				*ngIf="checkShowLinkedLeftArrow(card.panelId, card.linkedPrevious, card.order.number)"
-				class="fas fa-long-arrow-alt-right linked-arrow pl-1">
+				class="fas fa-long-arrow-alt-right linked-arrow pl-1"
+				[style.color]="findLinkedArrowColor(card.divisionIndex)">
 			</i>
 			<div class="align-center"></div>
 			<i
 				*ngIf="checkShowLinkedRightArrow(card.panelId, card.linkedNext, card.order.number)"
-				class="fas fa-long-arrow-alt-right linked-arrow pr-1">
+				class="fas fa-long-arrow-alt-right linked-arrow pr-1"
+				[style.color]="findLinkedArrowColor(card.divisionIndex)">
 			</i>
 		</div>
 	</div>

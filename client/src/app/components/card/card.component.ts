@@ -70,24 +70,40 @@ export class CardComponent {
 		return this.VEHICLE_POSITION[position];
 	}
 
-	checkShowDivisionInfo(dividedPrevious: Card, dividedNext: Card): boolean {
-		return dividedPrevious != undefined || dividedNext != undefined;
-	}
-
-	checkShowLeftDivisionInfo(dividedPrevious: Card): boolean {
+	checkShowLeftDivisionInfo(mechanicCode: string, dividedPrevious: Card): boolean {
 		const show = dividedPrevious != undefined;
 		if (show) {
 			this.dividedPrevious = CardsService.findCard(dividedPrevious.panelId);
+			return mechanicCode != this.dividedPrevious.mechanicCode;
 		}
 		return show;
 	}
 
-	checkShowRightDivisionInfo(dividedNext: Card): boolean {
+	checkShowRightDivisionInfo(mechanicCode: string, dividedNext: Card): boolean {
 		const show = dividedNext != undefined;
 		if (show) {
 			this.dividedNext = CardsService.findCard(dividedNext.panelId);
+			return mechanicCode != this.dividedNext.mechanicCode;
 		}
 		return show;
+	}
+
+	findDividedPosition(dividedCard: Card): string {
+		return MechanicsService.findMechanic(dividedCard.day, dividedCard.mechanicCode).panelPosition;
+	}
+
+	checkArrowDirection(card: Card, dividedCard: Card) {
+		const mechanicPosition = MechanicsService.findMechanic(card.day, card.mechanicCode).panelPosition;
+		const dividedMechanicPosition = MechanicsService.findMechanic(
+			dividedCard.day, dividedCard.mechanicCode
+		).panelPosition;
+		if (mechanicPosition > dividedMechanicPosition) {
+			return 'up';
+		} else if (mechanicPosition < dividedMechanicPosition) {
+			return 'down';
+		} else {
+			return card.start.isBefore(dividedCard.start) ? 'right' : 'left';
+		}
 	}
 
 	checkShowLinkedLeftArrow(id: string, linkedPrevious: Card, orderNumber: number): boolean {
@@ -116,24 +132,6 @@ export class CardComponent {
 			g.cards.find((c: Card) => c.panelId == id) != undefined
 		);
 		return groupIndex < orderGroups.length - 1;
-	}
-
-	findDividedPosition(dividedCard: Card): string {
-		return MechanicsService.findMechanic(dividedCard.day, dividedCard.mechanicCode).panelPosition;
-	}
-
-	checkArrowDirection(card: Card, dividedCard: Card) {
-		const mechanicPosition = MechanicsService.findMechanic(card.day, card.mechanicCode).panelPosition;
-		const dividedMechanicPosition = MechanicsService.findMechanic(
-			dividedCard.day, dividedCard.mechanicCode
-		).panelPosition;
-		if (mechanicPosition > dividedMechanicPosition) {
-			return 'up';
-		} else if (mechanicPosition < dividedMechanicPosition) {
-			return 'down';
-		} else {
-			return card.start.isBefore(dividedCard.start) ? 'right' : 'left';
-		}
 	}
 
 	checkShowCustomIcon(): boolean {
@@ -166,6 +164,10 @@ export class CardComponent {
 
 	findBottomSectionBackground(divisionIndex: number, color: string) {
 		return divisionIndex == 0 ? color : `repeating-linear-gradient(45deg, ${color}, ${color} 4px, #fff 4px, #fff 8px)`
+	}
+
+	findLinkedArrowColor(divisionIndex: number): string {
+		return divisionIndex == 0 ? Constants.COLOR.WHITE : Constants.COLOR.BLACK;
 	}
 
 	// region Link handlers
