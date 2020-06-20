@@ -543,10 +543,21 @@ export class CardsService {
 		this.addAssignedCardsGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(day, mechanicCode, false);
 
+		const orderNumber = group.cards[0].order.number;
 		/* Se tienen que notificar las fichas de la orden para las flechas blancas, y las divididas para las
 		*  flechas negras. Todas forman parte de la orden, por lo que se notifican en un solo paso */
-		const orderGroups = this.findOrderGroups(CardsService.assignedCardsGroups, group.cards[0].order.number);
-		NotificationService.notifyGroups(orderGroups, notifyImmediately);
+		const assignedOrderGroups = this.findOrderGroups(CardsService.assignedCardsGroups, orderNumber);
+		const unassignedOrderGroups = this.findOrderGroups(CardsService.unassignedCardsGroups, orderNumber);
+
+		/* Sólo se notifican otros grupos si la orden tienen más de uno; en caso contrario, ni siquiera aparecen las
+		*  flechas, por lo que no es necesario */
+		if (assignedOrderGroups.length > 1) {
+			NotificationService.notifyGroups(assignedOrderGroups, notifyImmediately);
+		}
+		/* En caso de haber una sóla ficha no asignada, se notifica para que desaparezca el link handler */
+		if (unassignedOrderGroups.length > 0) {
+			NotificationService.notifyBand(undefined, unassignedOrderGroups)
+		}
 	}
 
 	static findDividedGroups(cards: Card[]): CardsGroup[] {
