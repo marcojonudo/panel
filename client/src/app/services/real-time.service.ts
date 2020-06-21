@@ -29,6 +29,7 @@ import {CardPositionService} from "./card-position.service";
 import {RealTimeCardUpdateVehiclePosition} from "../objects/real-time-update/real-time-card-update-vehicle-position";
 import {RealTimeCardUpdatePendingCall} from "../objects/real-time-update/real-time-card-update-pending-call";
 import {RealTimeCardUpdatePendingBudget} from "../objects/real-time-update/real-time-card-update-pending-budget";
+import {Url} from "../objects/url";
 
 @Injectable({
 	providedIn: 'root'
@@ -86,7 +87,7 @@ export class RealTimeService {
 	// endregion
 
 	connectUpdatePublisher(): void {
-		const eventSource = new EventSource(`${environment.serverUrl}/panel/publisher`);
+		const eventSource = new EventSource(Url.publisher());
 		eventSource.onmessage = event => {
 			if (event.lastEventId != this.sessionId) {
 				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
@@ -108,45 +109,54 @@ export class RealTimeService {
 	}
 
 	updatePosition(cards: Card[]): void {
-		const [lastAssigned, assigned] = [cards[0].lastDay != undefined, cards[0].day != undefined];
-		const allGroups = this.findGroups(cards[0], cards[0].lastDay, cards[0].lastMechanicCode);
-
-		/* Si se mueve un grupo con varias fichas, para cada una de ellas se actualizaría la posición del grupo. Para
-		*  evitarlo, se almacenan los grupos ya procesados para no volver a hacerlo */
-		const processedGroups = [];
+		/* Si al mover el grupo se solapa con otro, y este se desplaza (y así sucesivamente), habría fichas de más
+		*  de una orden. Se agrupan para procesar los grupos de forma individual */
+		const groupedCards = {};
 		cards.forEach((card: Card) => {
-			const group = CardsService.findCardGroup(allGroups, card.panelId);
-			if (group && processedGroups.indexOf(group) == -1) {
-				/* Se elimina el grupo del origen */
-				if (lastAssigned) {
-					CardsService.removeFromAssigned(group, card.lastDay, card.lastMechanicCode);
-				} else {
-					CardsService.removeFromUnassigned(group, false);
-				}
-
-				/* Se actualizan propiedades y se añade el grupo al destino */
-				if (assigned) {
-					/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
-					*  terminal) */
-					group.left = DimensionsService.calcLeftFromStart(card.start);
-					// this.cardsService.updatePosition(group, card.day, card.line, left);
-					CardsService.updateAssignedCards(
-						[group],
-						group,
-						card.day,
-						card.mechanicCode,
-						card.line,
-						CardsService.findDayMechanicGroups(card.day, card.mechanicCode)
-					);
-					CardsService.addToAssigned(group, card.day, card.mechanicCode);
-				} else {
-					CardsService.resetCardsGroup(group);
-					CardsService.addToUnassigned(group);
-				}
-
-				processedGroups.push(group);
+			if (groupedCards[card.order.number]) {
+				groupedCards[card.order.number].push(card);
+			} else {
+				groupedCards[card.order.number] = [card];
 			}
 		});
+
+		for (const [orderNumber, orderCards] of Object.entries(groupedCards)) {
+			/* Para saber si el grupo estaba asignado antes de moverlo en otro terminal, se recorren primero los grupos
+			*  no asignados (la mayoría de las veces habrá muchos menos, por lo que será más eficiente) */
+			let group = CardsService.findOrderGroups(CardsService.unassignedGroups, parseInt(orderNumber))
+				.find((g: CardsGroup) => g.id == orderCards[0].panelId);
+			group = group ? group : CardsService.findOrderGroups(CardsService.assignedGroups, parseInt(orderNumber))
+				.find((g: CardsGroup) => g.id == orderCards[0].panelId)
+
+			/* Si se encuentra el grupo dentro de los no asignados, se elimina de esa categoría */
+			if (group.day == undefined) {
+				CardsService.removeFromUnassigned(group, false);
+			} else {
+				/* Si no se encuentra el grupo dentro de los no asignados, significa que ya estaba asignado */
+				CardsService.removeFromAssigned(group, group.day, group.mechanicCode);
+			}
+
+			/* Si las fichas están asignadas */
+			if (orderCards[0].day != undefined) {
+				/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
+				*  terminal) */
+				group.left = DimensionsService.calcLeftFromStart(orderCards[0].start);
+				// this.cardsService.updatePosition(group, card.day, card.line, left);
+				CardsService.updateAssignedCards(
+					[group],
+					group,
+					orderCards[0].day,
+					orderCards[0].mechanicCode,
+					orderCards[0].line,
+					CardsService.findDayMechanicGroups(orderCards[0].day, orderCards[0].mechanicCode)
+				);
+				CardsService.addToAssigned(group, orderCards[0].day, orderCards[0].mechanicCode);
+			} else {
+				CardsService.resetCardsGroup(group);
+				CardsService.addToUnassigned(group);
+			}
+		}
+		NotificationService.notifyUpdateArray();
 	}
 
 	updateDuration(cards: Card[]): void {

@@ -13,7 +13,7 @@ export class ReplaceCardModeAction implements CardModeAction {
 
 	execute(group: CardsGroup, x: number): void {
 		this.cardsService.replaceGroup(group);
-		CardsService.updateCardMode(CardsService.unassignedCardsGroups.concat(group), Constants.GROUP_MODE.DRAG);
+		CardsService.updateCardMode(CardsService.unassignedGroups.concat(group), Constants.GROUP_MODE.DRAG);
 		CardsService.auxiliaryGroupToReplace = undefined;
 	}
 

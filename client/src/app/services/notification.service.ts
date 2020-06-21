@@ -261,8 +261,8 @@ export class NotificationService {
 		this.maxScheduleWidthSubject.next(new MaxScheduleWidthUpdate(maxScheduleWidth));
 
 		/* Un cambio de maxScheduleWidth siempre implica tener que redimensionar elementos de la interfaz */
-		NotificationService.notifyBand(undefined, CardsService.unassignedCardsGroups)
-		NotificationService.notifyGroups(CardsService.assignedCardsGroups)
+		NotificationService.notifyBand(undefined, CardsService.unassignedGroups)
+		NotificationService.notifyGroups(CardsService.assignedGroups)
 		NotificationService.notifyMechanicLine(
 			undefined,
 			undefined,

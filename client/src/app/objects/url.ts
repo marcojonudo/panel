@@ -78,4 +78,8 @@ export class Url {
 		return `${environment.serverUrl}/panel/syncJpdv`;
 	}
 
+	public static publisher(): string {
+		return `${environment.serverUrl}/panel/publisher`;
+	}
+
 }

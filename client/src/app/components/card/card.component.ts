@@ -111,7 +111,7 @@ export class CardComponent {
 			return false;
 		}
 		const orderGroups = UtilsService.sort(
-			CardsService.findOrderGroups(CardsService.assignedCardsGroups, orderNumber),
+			CardsService.findOrderGroups(CardsService.assignedGroups, orderNumber),
 			(g: CardsGroup) => g.start
 		);
 		const groupIndex = orderGroups.findIndex((g: CardsGroup) =>
@@ -125,7 +125,7 @@ export class CardComponent {
 			return false;
 		}
 		const orderGroups = UtilsService.sort(
-			CardsService.findOrderGroups(CardsService.assignedCardsGroups, orderNumber),
+			CardsService.findOrderGroups(CardsService.assignedGroups, orderNumber),
 			(g: CardsGroup) => g.start
 		);
 		const groupIndex = orderGroups.findIndex((g: CardsGroup) =>

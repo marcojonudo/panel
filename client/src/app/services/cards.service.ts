@@ -46,10 +46,10 @@ export class CardsService {
 	private static assignedCards: Card[];
 
 	private static _assignedDaysCardsGroups: DaysAssignedGroups;
-	private static _assignedCardsGroups: CardsGroup[];
+	private static _assignedGroups: CardsGroup[];
 	private static _unassignedAuxiliaryCardsGroups: CardsGroup[];
 	private static _finishedCardsGroups: CardsGroup[];
-	private static _unassignedCardsGroups: CardsGroup[];
+	private static _unassignedGroups: CardsGroup[];
 	private static _unassignedTypesCardsGroups: GroupedTypeCards;
 
 	private static _unassignedSections: UnassignedSection[];
@@ -77,12 +77,12 @@ export class CardsService {
 
 	// region Getters / setters
 
-	static get unassignedCardsGroups(): CardsGroup[] {
-		return this._unassignedCardsGroups;
+	static get unassignedGroups(): CardsGroup[] {
+		return this._unassignedGroups;
 	}
 
-	static set unassignedCardsGroups(value: CardsGroup[]) {
-		this._unassignedCardsGroups = value;
+	static set unassignedGroups(value: CardsGroup[]) {
+		this._unassignedGroups = value;
 	}
 
 	static get unassignedAuxiliaryCardsGroups(): CardsGroup[] {
@@ -109,12 +109,12 @@ export class CardsService {
 		this._unassignedTypesCardsGroups = value;
 	}
 
-	static get assignedCardsGroups(): CardsGroup[] {
-		return this._assignedCardsGroups;
+	static get assignedGroups(): CardsGroup[] {
+		return this._assignedGroups;
 	}
 
-	static set assignedCardsGroups(value: CardsGroup[]) {
-		this._assignedCardsGroups = value;
+	static set assignedGroups(value: CardsGroup[]) {
+		this._assignedGroups = value;
 	}
 
 	static get assignedDaysCardsGroups(): DaysAssignedGroups {
@@ -179,19 +179,19 @@ export class CardsService {
 		this.finishedCardsGroups = this.initAssignedCardsGroups(finishedCards);
 
 		this.unassignedCards = notFinishedCards.filter(card => !card.day);
-		this.unassignedCardsGroups = this.initUnassignedCardsGroups(this.unassignedCards);
-		this.unassignedTypesCardsGroups = this.initUnassignedTypesCardsGroups(this.unassignedCardsGroups);
+		this.unassignedGroups = this.initUnassignedCardsGroups(this.unassignedCards);
+		this.unassignedTypesCardsGroups = this.initUnassignedTypesCardsGroups(this.unassignedGroups);
 
 		this.assignedCards = notFinishedCards.filter(card => card.day);
-		this.assignedCardsGroups = this.initAssignedCardsGroups(this.assignedCards);
-		this.initAssignedDaysCardsObjects(this.assignedCardsGroups, daysMechanics);
+		this.assignedGroups = this.initAssignedCardsGroups(this.assignedCards);
+		this.initAssignedDaysCardsObjects(this.assignedGroups, daysMechanics);
 
 		console.log('Cards', this.cards);
 		console.log('Auxiliary cards groups', this.unassignedAuxiliaryCardsGroups);
 		console.log('Finished cards groups', this.finishedCardsGroups);
-		console.log('Unassigned cards groups', this.unassignedCardsGroups);
+		console.log('Unassigned cards groups', this.unassignedGroups);
 		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
-		console.log('Assigned cards groups', this.assignedCardsGroups);
+		console.log('Assigned cards groups', this.assignedGroups);
 		console.log('Assigned days cards groups', this.assignedDaysCardsGroups);
 	}
 
@@ -268,6 +268,7 @@ export class CardsService {
 			cardsGroup.end
 		);
 		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
+		this.updateQuartersSaturation(day)
 	}
 
 	static addToAssigned(cardsGroup: CardsGroup, day: Dayjs, newMechanicCode: string): void {
@@ -281,7 +282,7 @@ export class CardsService {
 			cardsGroup.end
 		);
 		this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
-		this.updateQuartersSaturation(day, cardsGroup.cards[0].lastDay)
+		this.updateQuartersSaturation(day)
 	}
 
 	static removeFromUnassigned(group: CardsGroup, notify: boolean = true): void {
@@ -392,7 +393,7 @@ export class CardsService {
 	private static updateOrderCode(card: Card, group: CardsGroup, index: number): void {
 		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
 			if (card.order.code == Constants.AUXILIARY_DEFAULT_ORDER_CODE) {
-				const assignedAuxiliaryGroups = this.assignedCardsGroups.filter((group: CardsGroup) =>
+				const assignedAuxiliaryGroups = this.assignedGroups.filter((group: CardsGroup) =>
 					group.cards[0].type == Constants.CARD_TYPE.AUXILIARY
 				);
 				const currentIndex = assignedAuxiliaryGroups.length
@@ -546,8 +547,8 @@ export class CardsService {
 		const orderNumber = group.cards[0].order.number;
 		/* Se tienen que notificar las fichas de la orden para las flechas blancas, y las divididas para las
 		*  flechas negras. Todas forman parte de la orden, por lo que se notifican en un solo paso */
-		const assignedOrderGroups = this.findOrderGroups(CardsService.assignedCardsGroups, orderNumber);
-		const unassignedOrderGroups = this.findOrderGroups(CardsService.unassignedCardsGroups, orderNumber);
+		const assignedOrderGroups = this.findOrderGroups(CardsService.assignedGroups, orderNumber);
+		const unassignedOrderGroups = this.findOrderGroups(CardsService.unassignedGroups, orderNumber);
 
 		/* Sólo se notifican otros grupos si la orden tienen más de uno; en caso contrario, ni siquiera aparecen las
 		*  flechas, por lo que no es necesario */
@@ -574,7 +575,7 @@ export class CardsService {
 			return dividedCards;
 		}
 
-		const orderGroups = CardsService.findOrderGroups(CardsService.assignedCardsGroups, cards[0].order.number);
+		const orderGroups = CardsService.findOrderGroups(CardsService.assignedGroups, cards[0].order.number);
 		const dividedOrderGroups = [];
 		orderGroups.forEach((g: CardsGroup) => {
 			const dividedCard = g.cards.find((card: Card) =>
@@ -771,16 +772,16 @@ export class CardsService {
 		*  mechanic-line.component. Haciendo el push, el array cardsGroups del mechanic-line.component se actualiza aquí
 		*  en lugar de en el propio componente */
 		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].push(group);
-		this.assignedCardsGroups.push(group);
+		this.assignedGroups.push(group);
 	}
 
 	private static removeAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		const index = this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].findIndex((g: CardsGroup) =>
 			g.id == group.id
 		);
-		const allGroupsIndex = this.assignedCardsGroups.findIndex((g: CardsGroup) => g.id == group.id);
+		const allGroupsIndex = this.assignedGroups.findIndex((g: CardsGroup) => g.id == group.id);
 		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].splice(index, 1);
-		this.assignedCardsGroups.splice(allGroupsIndex, 1);
+		this.assignedGroups.splice(allGroupsIndex, 1);
 	}
 
 	private static addUnassignedCardsGroup(group: CardsGroup, index: number): void {
@@ -791,7 +792,7 @@ export class CardsService {
 			groups.push(group);
 			CardPositionService.sortUnassignedGroups(groups);
 		}
-		this.unassignedCardsGroups.push(group);
+		this.unassignedGroups.push(group);
 		CardPositionService.sortUnassignedGroups(groups);
 		CardPositionService.updateUnassignedGroupsLeft(groups);
 	}
@@ -800,7 +801,7 @@ export class CardsService {
 		const groups = this.findUnassignedGroups(group.type, group.status);
 		const index = groups.findIndex(g => g.id == group.id);
 		groups.splice(index, 1);
-		this.unassignedCardsGroups = this.unassignedCardsGroups.filter((g: CardsGroup) => g.id != group.id);
+		this.unassignedGroups = this.unassignedGroups.filter((g: CardsGroup) => g.id != group.id);
 
 		/* Además de actualizar los elementos de los grupos, se actualiza su posición */
 		CardPositionService.updateUnassignedGroupsLeft(groups);
@@ -808,7 +809,7 @@ export class CardsService {
 
 	// region Finders
 
-	static findCard(id: string, groups: CardsGroup[] = CardsService.assignedCardsGroups): Card {
+	static findCard(id: string, groups: CardsGroup[] = CardsService.assignedGroups): Card {
 		let card = undefined;
 		groups.find((g: CardsGroup) => {
 			card = g.cards.find((c: Card) => c.panelId == id)
@@ -928,8 +929,8 @@ export class CardsService {
 
 	static findOrderCards(
 		orderNumber: number,
-		assignedGroups: CardsGroup[] = this.assignedCardsGroups,
-		unassignedGroups: CardsGroup[] = this.unassignedCardsGroups
+		assignedGroups: CardsGroup[] = this.assignedGroups,
+		unassignedGroups: CardsGroup[] = this.unassignedGroups
 	): Card[] {
 		const assignedCards = [].concat(
 			...this.findOrderGroups(assignedGroups, orderNumber).map((g: CardsGroup) => g.cards)

@@ -64,9 +64,9 @@ export class CardContextMenuComponent implements OnInit {
 
 	replaceCard(group: CardsGroup = this.contextMenuInfo.group): void {
 		/* Obligatoriamente tiene que haber grupos no asignados para poder reemplazar una ficha temporal */
-		if (CardsService.unassignedCardsGroups.length) {
+		if (CardsService.unassignedGroups.length) {
 			CardsService.auxiliaryGroupToReplace = group;
-			CardsService.updateCardMode(CardsService.unassignedCardsGroups, Constants.GROUP_MODE.REPLACE);
+			CardsService.updateCardMode(CardsService.unassignedGroups, Constants.GROUP_MODE.REPLACE);
 		} else {
 			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_UNASSIGNED_GROUPS_TO_REPLACE));
 		}

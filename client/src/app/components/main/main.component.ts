@@ -432,7 +432,7 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.contextMenuInfo.handleRemoval();
 			}
 			if (CardsService.auxiliaryGroupToReplace) {
-				CardsService.updateCardMode(CardsService.unassignedCardsGroups, Constants.GROUP_MODE.DRAG);
+				CardsService.updateCardMode(CardsService.unassignedGroups, Constants.GROUP_MODE.DRAG);
 			}
 		}
 	}

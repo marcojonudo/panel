@@ -52,7 +52,7 @@ export class DraggableGroupComponent {
 		/* Se resaltan las fichas sólo si se pasa el ratón por encima de una asignada (tiene day) */
 		if (day) {
 			const orderGroups = CardsService.findOrderGroups(
-				CardsService.assignedCardsGroups.concat(CardsService.unassignedCardsGroups),
+				CardsService.assignedGroups.concat(CardsService.unassignedGroups),
 				orderNumber
 			);
 			/* Sólo se resaltan las agrupaciones si están desagrupadas */
