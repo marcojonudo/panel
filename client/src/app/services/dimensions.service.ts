@@ -13,6 +13,7 @@ import {MechanicsService} from "./mechanics.service";
 import {Card} from "../objects/card";
 import {CardPositionService} from "./card-position.service";
 import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
+import {CardsService} from "./cards.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -545,6 +546,7 @@ export class DimensionsService {
 		NotificationService.notifyMechanicLine(
 			undefined, undefined, true, new DropzoneUpdate()
 		);
+		NotificationService.notifyBand(undefined, CardsService.unassignedGroups);
 	}
 
 }

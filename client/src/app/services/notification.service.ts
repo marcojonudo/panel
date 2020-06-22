@@ -235,7 +235,7 @@ export class NotificationService {
 		const mechanicTriggerMapUpdate = new MechanicLineUpdate(mechanicCode, triggerMapUpdate)
 
 		const existentDayMechanicLineUpdate = this.updateArray.find((dayTriggerMapUpdate: DayTriggerMapUpdate) =>
-			dayTriggerMapUpdate.type == type
+			dayTriggerMapUpdate.type == type && dayTriggerMapUpdate.day.isSame(day)
 		);
 		if (existentDayMechanicLineUpdate) {
 			existentDayMechanicLineUpdate.value.push(mechanicTriggerMapUpdate);
