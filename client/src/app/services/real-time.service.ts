@@ -30,6 +30,8 @@ import {RealTimeCardUpdateVehiclePosition} from "../objects/real-time-update/rea
 import {RealTimeCardUpdatePendingCall} from "../objects/real-time-update/real-time-card-update-pending-call";
 import {RealTimeCardUpdatePendingBudget} from "../objects/real-time-update/real-time-card-update-pending-budget";
 import {Url} from "../objects/url";
+import {UnassignedCardDurationHandler} from "../objects/card-duration/unassigned-card-duration-handler";
+import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
 
 @Injectable({
 	providedIn: 'root'
@@ -141,7 +143,6 @@ export class RealTimeService {
 				/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
 				*  terminal) */
 				group.left = DimensionsService.calcLeftFromStart(orderCards[0].start);
-				// this.cardsService.updatePosition(group, card.day, card.line, left);
 				CardsService.updateAssignedCards(
 					[group],
 					group,
@@ -160,37 +161,25 @@ export class RealTimeService {
 	}
 
 	updateDuration(cards: Card[]): void {
-		/* Por cómo se van actualizando las fichas (duración de una, desplazamientos de otras), aquella cuya duración
-		*  se actualiza es la última de la lista. El resto, son fichas que se desplazaron al aumentar la duración de
-		*  esta */
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 
-		let updatedDurationCard: Card = undefined;
-		let updatedDurationGroup = undefined;
-		const translatedCards = [];
-		cards.forEach((card: Card) => {
+		let updatedDurationCard = undefined;
+		const card = cards.find((card: Card) => {
 			const group = CardsService.findCardGroup(allGroups, card.panelId);
-			const updatedDurationGroupCard = group.cards.find((c: Card) => {
-				const receivedCard = cards.find((receivedCard: Card) => receivedCard.panelId == c.panelId);
-				return receivedCard.duration != c.duration;
-			});
-			if (updatedDurationGroupCard) {
-				if (!updatedDurationGroup) {
-					updatedDurationCard = updatedDurationGroupCard;
-					updatedDurationGroup = group;
-				}
-			} else {
-				translatedCards.push(card);
-			}
+			updatedDurationCard = group.cards.find((c: Card) => c.duration != card.duration);
+			return updatedDurationCard != undefined;
 		});
-
-		const receivedUpdatedDurationCard = cards.find((c: Card) => c.panelId == updatedDurationCard.panelId);
-		const durationDiff = receivedUpdatedDurationCard.duration - updatedDurationCard.duration;
-		const widthDiff = DimensionsService.calcWidthFromDuration(durationDiff);
-		CardsService.updateDurationProperties(updatedDurationCard, updatedDurationGroup, widthDiff, durationDiff);
-		if (translatedCards.length) {
-			this.updatePosition(translatedCards);
+		const widthIncrease = DimensionsService.calcWidthFromDuration(
+			card.duration - updatedDurationCard.duration
+		);
+		let mechanic, handler;
+		if (updatedDurationCard.day) {
+			mechanic = MechanicsService.findMechanic(updatedDurationCard.day, updatedDurationCard.mechanicCode);
+			handler = new AssignedCardDurationHandler();
+		} else {
+			handler = new UnassignedCardDurationHandler();
 		}
+		CardsService.handleCardDurationUpdate(updatedDurationCard, widthIncrease, mechanic, handler);
 	}
 
 	updateLinks(cards: Card[]): void {

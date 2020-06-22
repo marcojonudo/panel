@@ -3,6 +3,9 @@ import {Card} from "../objects/card";
 import {CardsService} from "../services/cards.service";
 import {DimensionsService} from "../services/dimensions.service";
 import {MechanicsService} from "../services/mechanics.service";
+import {CardDurationHandler} from "../objects/card-duration/card-duration-handler";
+import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
+import {UnassignedCardDurationHandler} from "../objects/card-duration/unassigned-card-duration-handler";
 
 @Directive({
   selector: '[appResizableCard]'
@@ -18,18 +21,20 @@ export class ResizableCardDirective {
 	private updatedCards: Card[];
 	private lastX: number;
 
+	private handler: CardDurationHandler;
+
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
 		private cdRef: ChangeDetectorRef,
-		private cardsService: CardsService,
-		private mechanicsService: MechanicsService
+		private cardsService: CardsService
 	) {
 		this.updatedCards = []
 	}
 
 	ngOnInit(): void {
 		this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
+		this.handler = this.card.day ? new AssignedCardDurationHandler() : new UnassignedCardDurationHandler();
 	}
 
 	onPointerDown(event: PointerEvent): void {
@@ -48,7 +53,8 @@ export class ResizableCardDirective {
 				CardsService.handleCardDurationUpdate(
 					this.card,
 					DimensionsService.intervalWidth * Math.sign(diff),
-					this.card.day ? MechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined
+					this.card.day ? MechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined,
+					this.handler
 				)
 			).filter((card, i, self) => self.indexOf(card) === i);
 			this.lastX = event.clientX;

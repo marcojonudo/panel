@@ -35,6 +35,7 @@ import {WarningToast} from "../objects/toasts/warning-toast";
 import {Dayjs} from "dayjs";
 import {Observable} from "rxjs/internal/Observable";
 import {HourQuarter} from "../objects/hour-quarter";
+import {CardDurationHandler} from "../objects/card-duration/card-duration-handler";
 
 @Injectable({
 	providedIn: 'root'
@@ -415,121 +416,6 @@ export class CardsService {
 		return `${card.order.code}-${card.group.code}-${card.divisionIndex}`;
 	}
 
-	static handleCardDurationUpdate(card: Card, widthIncrease: number, mechanic: Mechanic): Card[] {
-		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
-		const groups = mechanic
-			? this.findLineGroups(card.day, card.mechanicCode, card.line)
-			: this.findUnassignedGroups(card.type, card.status);
-		const group = this.findCardGroup(groups, card.panelId);
-
-		/* Si la ficha se está reduciendo, no es necesario hacer comprobaciones relativas a los límites del horario
-		*  u otros grupos desplazados, ya que no los afectaría */
-		if (widthIncrease < 0) {
-			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
-			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
-				if (!mechanic) {
-					const groupIndex = groups.findIndex((g: CardsGroup) => g.id == group.id);
-					const updatedGroups = groups.slice(groupIndex+1, groups.length+1);
-					this.updatePositionByStep(updatedGroups, widthIncrease, durationIncrease);
-				}
-				this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
-				return group.cards
-			}
-			return []
-		}
-
-		let updatedGroups = [];
-		if (mechanic) {
-			/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que
-            *  está asignada */
-			const groupOutsideSchedule = this.groupOutsideSchedule(group, mechanic.schedules);
-			/* Si ya está en el límite, no se actualiza la información */
-			if (groupOutsideSchedule) {
-				return [];
-			}
-
-			updatedGroups = this.findUpdatedDurationGroups(card);
-			/* Si el aumento de duración no desplaza otros grupos, se actualiza la ficha */
-			if (!updatedGroups.length) {
-				this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
-				return group.cards
-			}
-
-			/* En caso de que se desplacen otros grupos, estos podrían sobresalir del horario. Si es así, no se actualiza
-            *  la información */
-			const translatedGroupOutsideSchedule = this.groupOutsideSchedule(
-				updatedGroups[updatedGroups.length - 1],
-				mechanic.schedules
-			);
-			if (translatedGroupOutsideSchedule) {
-				return [];
-			}
-		} else {
-			const groupIndex = groups.findIndex((g: CardsGroup) => g.id == group.id);
-			updatedGroups = groups.slice(groupIndex+1, groups.length+1);
-		}
-
-		/* Si se desplazan grupos pero todos están dentro del horario, se actualizan */
-		const cards = this.updatePositionByStep(updatedGroups, widthIncrease, durationIncrease);
-		this.updateDurationProperties(card, group, widthIncrease, durationIncrease);
-		return cards.concat(group.cards);
-	}
-
-	static updateDurationProperties(card: Card, group: CardsGroup, widthIncrease: number, durationIncrease: number): void {
-		card.setDuration(card.duration + durationIncrease, card.width + widthIncrease);
-		group.cards.forEach((c: Card) => {
-			if (c.panelId != card.panelId && c.start > card.start) {
-				c.start = c.start.add(durationIncrease, Constants.DAY_JS.m);
-				c.end = c.start.add(c.duration, Constants.DAY_JS.m);
-			}
-		});
-
-		if (group.start) {
-			group.end = group.end.add(durationIncrease, Constants.DAY_JS.m);
-			NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
-		} else {
-			NotificationService.notifyBand();
-		}
-	}
-
-	static groupOutsideSchedule(group: CardsGroup, schedules: ScheduleInterval[]): boolean {
-		const threshold = schedules.find((interval: ScheduleInterval) => interval.end.isSame(group.end));
-		return threshold != undefined;
-	}
-
-	static findUpdatedDurationGroups(card: Card): CardsGroup[] {
-		const lineGroups = this.findLineGroups(card.day, card.mechanicCode, card.line);
-		let stopSearching = false;
-		return lineGroups.filter((group, i) => {
-			if (!stopSearching && group.start.isAfter(card.start)) {
-				const gapBetweenGroups = !lineGroups[i - 1].end.isSame(group.start);
-				if (gapBetweenGroups) {
-					stopSearching = true;
-				}
-				return !gapBetweenGroups
-			}
-			return false;
-		});
-	}
-
-	static updatePositionByStep(groups: CardsGroup[], widthStep: number, durationStep: number): Card[] {
-		const cards = [];
-		groups.forEach(group => {
-			group.left += widthStep;
-			if (group.start) {
-				group.start = group.start.add(durationStep, Constants.DAY_JS.m);
-				group.end = group.end.add(durationStep, Constants.DAY_JS.m);
-
-				group.cards.forEach(c => {
-					c.start = c.start.add(durationStep, Constants.DAY_JS.m);
-					c.end = c.start.add(c.duration, Constants.DAY_JS.m);
-				});
-			}
-			cards.push(...group.cards);
-		});
-		return cards;
-	}
-
 	static handleAddFinishedCardsGroup(group: CardsGroup): void {
 		this.addFinishedCardsGroup(group);
 		// NotificationService.notifyBand();
@@ -622,6 +508,40 @@ export class CardsService {
 		return card.start ?
 			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
 			this.findRightUnassignedNextCard(card.panelId, card.type, card.status);
+	}
+
+	// endregion
+
+	// region Duration
+
+	static handleCardDurationUpdate(
+		card: Card,
+		widthIncrease: number,
+		mechanic: Mechanic,
+		handler: CardDurationHandler
+	): Card[] {
+		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
+		const groups = handler.findGroups(card);
+		const group = this.findCardGroup(groups, card.panelId);
+
+		/* Si la ficha se está reduciendo, no es necesario hacer comprobaciones relativas a los límites del horario
+		*  u otros grupos desplazados, ya que no los afectaría */
+		if (widthIncrease < 0) {
+			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
+			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
+				return handler.updateDuration(card, group, durationIncrease, widthIncrease, []);
+			}
+			return []
+		}
+
+		/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que
+		*  está asignada */
+		const updatedGroups = handler.validateDurationUpdate(group, card, mechanic);
+		if (updatedGroups == undefined) {
+			return [];
+		}
+
+		return handler.updateDuration(card, group, durationIncrease, widthIncrease, updatedGroups);
 	}
 
 	// endregion
