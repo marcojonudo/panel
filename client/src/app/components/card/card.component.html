@@ -47,13 +47,13 @@
 			class="d-flex card-bottom-section align-items-center justify-content-between"
 			[style.background]="findBottomSectionBackground(card.divisionIndex, card.group.color.code)">
 			<i
-				*ngIf="checkShowLinkedLeftArrow(card.panelId, card.day, card.linkedPrevious, card.order.number)"
+				*ngIf="checkShowLinkedLeftArrow(card.panelId, card.day, card.divisionIndex, card.linkedPrevious, card.order.number)"
 				class="fas fa-long-arrow-alt-right linked-arrow pl-1"
 				[style.color]="findLinkedArrowColor(card.divisionIndex)">
 			</i>
 			<div class="align-center"></div>
 			<i
-				*ngIf="checkShowLinkedRightArrow(card.panelId, card.day, card.linkedNext, card.order.number)"
+				*ngIf="checkShowLinkedRightArrow(card.panelId, card.day, card.divisionIndex, card.linkedNext, card.order.number)"
 				class="fas fa-long-arrow-alt-right linked-arrow pr-1"
 				[style.color]="findLinkedArrowColor(card.divisionIndex)">
 			</i>
