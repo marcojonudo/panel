@@ -43,6 +43,11 @@ export class AssignedCardLinkHandler implements CardLinkHandler {
 		const groupCardsOriginalLength = group.cards.length;
 		const [groupToUpdate, groupToRemove] = sideLinkHandler.link(group, nextGroup, card);
 		CardsService.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, groupToRemove);
+
+		/* Cuando se agrupan dos grupos y sólo queda 1 para toda la orden, se deshabilita el highlight (un grupo por
+		*  orden no debe mostrar el resaltado). Por tanto, al estar activado al haber pasado el cursor por una de las
+		*  fichas, es necesario desactivarlo para que no quede permanentemente activado */
+		groupToUpdate.highlight = false;
 		NotificationService.notifyGroups([groupToUpdate], true);
 
 		/* Una vez actualizado el grupo, se obtienen las dos fichas de los extremos para actualizar su información de
