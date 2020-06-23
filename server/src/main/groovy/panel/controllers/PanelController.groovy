@@ -17,6 +17,7 @@ import utils.pogos.panel.Card
 import utils.pogos.schedules.EmployeeSchedule
 import utils.pogos.schedules.EmployeeScheduleAppointment
 
+import javax.annotation.Nullable
 import javax.inject.Inject
 import java.time.LocalDate
 import java.time.LocalTime
@@ -40,7 +41,7 @@ class PanelController {
 	}
 
 	@Post("/cards")
-	void createCards(@Header String sessionId, @QueryValue boolean updateLinks, @Body List<Map<String, Object>> cards) {
+	void createCards(@Header String sessionId, @QueryValue @Nullable Boolean updateLinks, @Body List<Map<String, Object>> cards) {
 		panelDatabaseClient.createCards(sessionId, cards, updateLinks)
 	}
 

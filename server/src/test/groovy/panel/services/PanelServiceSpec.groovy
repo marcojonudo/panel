@@ -5,7 +5,7 @@ import io.micronaut.test.annotation.MockBean
 import panel.clients.cubo.CuboDatabaseApi
 import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.fviberi.FviberiDatabaseClient
-import panel.clients.panel.PanelDatabaseApi
+
 import panel.clients.panel.PanelDatabaseClient
 import panel.pogos.UpdateAppointmentDays
 import panel.pogos.UpdateCards
@@ -34,7 +34,7 @@ class PanelServiceSpec extends Specification {
 	@Inject
 	CuboDatabaseClient cuboDatabaseClient
 
-	@MockBean(PanelDatabaseApi)
+	@MockBean(PanelDatabaseClient)
 	PanelDatabaseClient panelDatabaseClient() {
 		Mock(PanelDatabaseClient)
 	}

@@ -16,7 +16,7 @@ import java.time.LocalDate
 @CompileStatic
 @Client("http://\${host.ip}:8082/panel")
 @Header(name = "database", value = "panel")
-interface PanelDatabaseClient extends PanelDatabaseApi {
+interface PanelDatabaseClient {
 
 	@Get("/tasks")
 	List<Task> getTasks(@QueryValue List<Integer> articles)
@@ -43,7 +43,7 @@ interface PanelDatabaseClient extends PanelDatabaseApi {
 	List<Card> createCards(
 		@Header String sessionId,
 		@Body List<Map<String, Object>> cards,
-		@QueryValue boolean updateLinks
+		@QueryValue @Nullable Boolean updateLinks
 	)
 
 	@Put("/cards")
