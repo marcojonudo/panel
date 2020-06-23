@@ -32,6 +32,7 @@ import {RealTimeCardUpdatePendingBudget} from "../objects/real-time-update/real-
 import {Url} from "../objects/url";
 import {UnassignedCardDurationHandler} from "../objects/card-duration/unassigned-card-duration-handler";
 import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
+import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-handler";
 
 @Injectable({
 	providedIn: 'root'
@@ -185,22 +186,18 @@ export class RealTimeService {
 	updateLinks(cards: Card[]): void {
 		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
+		const leftCard = CardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
+			return c.panelId == cards[0].panelId
+		});
+		const linkHandler = leftCard.day ? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
+		/* Para agrupar o desagrupar fichas, se puede hacer por el lado izquierdo o el derecho. Se escoge uno al azar */
+		const sideLinkHandler = new RightCardLinkHandler();
 
-		/* Si la ficha de la izquierda tiene linkedNextId, significa que ambas se están enlazando */
+		/* Si la ficha de la izquierda tiene linkedNext, significa que ambas se están enlazando */
 		if (cards[0].linkedNext) {
-			const card = CardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
-				return c.panelId == cards[0].panelId
-			});
-			const linkHandler = card.day
-				? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
-			CardsService.linkNext(card, linkHandler);
+			linkHandler.link(leftCard, sideLinkHandler);
 		} else {
-			const card = CardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
-				return c.panelId == cards[0].panelId
-			});
-			const linkHandler = card.day
-				? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
-			CardsService.unlink(card, Constants.NEXT_CARD_DIRECTION.RIGHT, linkHandler);
+			linkHandler.unlink(leftCard, sideLinkHandler);
 		}
 	}
 

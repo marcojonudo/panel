@@ -3,33 +3,51 @@ import {CardLinkHandler} from "./card-link-handler";
 import {CardsService} from "../../services/cards.service";
 import {Card} from "../card";
 import {DimensionsService} from "../../services/dimensions.service";
+import {NotificationService} from "../../services/notification.service";
+import {SideCardLinkHandler} from "./side/side-card-link-handler";
 
 export class AssignedCardLinkHandler implements CardLinkHandler {
 
-	findGroups(card: Card): CardsGroup[] {
-		return CardsService.findLineGroups(card.day, card.mechanicCode, card.line);
+	lineGroups: CardsGroup[];
+
+	findGroups(card: Card, groups: CardsGroup[] = this.lineGroups): CardsGroup[] {
+		return groups ? groups : CardsService.findLineGroups(card.day, card.mechanicCode, card.line);
 	}
 
-	createGroup(cards: Card[], group: CardsGroup, cardIndex: number, offset: number): CardsGroup {
-		return new CardsGroup(cards, DimensionsService.calcLeftFromStart(group.cards[0].start));
+	findNextGroup(card: Card, sideLinkHandler: SideCardLinkHandler): CardsGroup {
+		const lineGroups = this.findGroups(card);
+		return sideLinkHandler.findAssignedGroup(lineGroups, card);
 	}
 
-	updateGroupsAdd(newGroup: CardsGroup): void {
-		CardsService.handleAddAssignedCardsGroup(
-			newGroup.cards[0].day,
-			newGroup.cards[0].mechanicCode,
-			newGroup,
-			true
-		);
+	unlink(card: Card, sideLinkHandler: SideCardLinkHandler): Card[] {
+		const lineGroups = this.findGroups(card);
+		const group = CardsService.findCardGroup(lineGroups, card.panelId);
+
+		const newGroupCards = sideLinkHandler.unlink(card, group);
+		const newGroup = new CardsGroup(newGroupCards, DimensionsService.calcLeftFromStart(newGroupCards[0].start));
+
+		/* Si  el grupo tiene 5 fichas, y las dos últimas se eliminan (pasan a formar parte de otro grupo), el original
+		*  debe quedar con 3 (5 - 2) */
+		group.removeCards(0, group.cards.length - newGroupCards.length);
+
+		CardsService.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup, true);
+
+		return [group.cards[group.cards.length - 1], newGroup.cards[0]];
 	}
 
-	updateGroupsRemove(newGroup: CardsGroup): void {
-		CardsService.handleRemoveAssignedCardsGroup(
-			newGroup.cards[0].day,
-			newGroup.cards[0].mechanicCode,
-			newGroup,
-			true
-		);
+	link(card: Card, sideLinkHandler: SideCardLinkHandler): Card[] {
+		const lineGroups = this.findGroups(card);
+		const group = CardsService.findCardGroup(lineGroups, card.panelId);
+		const nextGroup = sideLinkHandler.findAssignedGroup(lineGroups, card);
+
+		const groupCardsOriginalLength = group.cards.length;
+		const [groupToUpdate, groupToRemove] = sideLinkHandler.link(group, nextGroup, card);
+		CardsService.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, groupToRemove);
+		NotificationService.notifyGroups([groupToUpdate], true);
+
+		/* Una vez actualizado el grupo, se obtienen las dos fichas de los extremos para actualizar su información de
+		*  enlaces */
+		return groupToUpdate.cards.slice(groupCardsOriginalLength - 1, groupCardsOriginalLength + 1);
 	}
 
 }

@@ -498,18 +498,6 @@ export class CardsService {
 		}
 	}
 
-	static findLeftNextCard(card: Card): Card {
-		return card.start ?
-			this.findLeftAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.start) :
-			this.findLeftUnassignedNextCard(card.panelId, card.type, card.status);
-	}
-
-	static findRightNextCard(card: Card): Card {
-		return card.start ?
-			this.findRightAssignedNextCard(card.day, card.mechanicCode, card.line, card.order.number, card.end) :
-			this.findRightUnassignedNextCard(card.panelId, card.type, card.status);
-	}
-
 	// endregion
 
 	// region Duration
@@ -548,73 +536,14 @@ export class CardsService {
 
 	// region Link handlers
 
-	static unlink(card: Card, side: string, linkHandler: CardLinkHandler): Card[] {
-		/* Se obtienen los grupos de la línea o sin asignar, y a continuación el grupo al que pertence la ficha */
-		const groups = linkHandler.findGroups(card);
-		const group = CardsService.findCardGroup(groups, card.panelId);
-
-		/* Se actualizan las propiedades de las fichas */
-		const cardIndex = group.cards.findIndex(c => c.panelId == card.panelId);
-		let offset = CardsService.updateLinks(card, group, cardIndex, side);
-
-		/* Se definen los nuevos grupos, tanto el nuevo como la actualización de fichas del antiguo */
-		const newGroup = linkHandler.createGroup(
-			group.cards.slice(0, cardIndex + offset),
-			group,
-			cardIndex,
-			offset
-		);
-		group.removeCards(cardIndex + offset, group.cards.length);
-
-		/* El nuevo grupo, al ser el de la izquierda, tendrá el mismo índice que el original */
-		const groupIndex = groups.findIndex((g: CardsGroup) => g.id == group.id);
-		linkHandler.updateGroupsAdd(newGroup, groupIndex);
-
-		return [newGroup.cards[newGroup.cards.length - 1], group.cards[0]];
-	}
-
-	private static updateLinks(card: Card, group: CardsGroup, cardIndex: number, side: string): number {
-		let offset;
-		if (side == Constants.NEXT_CARD_DIRECTION.RIGHT) {
-			card.linkedNext = undefined;
-			group.cards[cardIndex + 1].linkedPrevious = undefined;
-			offset = 1;
-		} else {
-			card.linkedPrevious = undefined;
-			group.cards[cardIndex - 1].linkedNext = undefined;
-			offset = 0;
+	static checkShowHandler(card: Card, nextGroup: CardsGroup): boolean {
+		/* Si no hay ningún grupo justo a la izquierda de la ficha, no se muestra el icono para unir*/
+		if (!nextGroup) {
+			return false;
 		}
-		return offset;
-	}
 
-	static linkPrevious(card: Card, linkHandler: CardLinkHandler): Card[] {
-		const groups = linkHandler.findGroups(card);
-		const group = CardsService.findCardGroup(groups, card.panelId);
-		const leftGroup = CardsService.findLeftGroup(groups, group.id);
-
-		leftGroup.cards[leftGroup.cards.length - 1].linkedNext = card.clone();
-		card.linkedPrevious = leftGroup.cards[leftGroup.cards.length - 1].clone();
-
-		const lastLeftGroupCardIndex = leftGroup.cards.length - 1;
-		leftGroup.addCards(group.cards);
-		linkHandler.updateGroupsRemove(group);
-
-		return leftGroup.cards.slice(lastLeftGroupCardIndex);
-	}
-
-	static linkNext(card: Card, linkHandler: CardLinkHandler): Card[] {
-		const groups = linkHandler.findGroups(card);
-		const group = CardsService.findCardGroup(groups, card.panelId);
-		const rightGroup = CardsService.findRightGroup(groups, group.id);
-
-		rightGroup.cards[0].linkedPrevious = card.clone();
-		card.linkedNext = rightGroup.cards[0].clone();
-
-		const lastGroupCardIndex = group.cards.length - 1;
-		group.addCards(rightGroup.cards);
-		linkHandler.updateGroupsRemove(rightGroup);
-
-		return group.cards.slice(lastGroupCardIndex);
+		/* Se muestra el icono sólo si el grupo a la izquierda es de la misma orden */
+		return nextGroup.cards[0].order.number == card.order.number;
 	}
 
 	// endregion
@@ -748,79 +677,6 @@ export class CardsService {
 
 	static findLineGroups(day: Dayjs, mechanicCode: string, line: number): CardsGroup[] {
 		return this.findDayMechanicGroups(day, mechanicCode).filter(group => group.line == line);
-	}
-
-	static findLineCards(day: Dayjs, mechanicCode: string, line: number): Card[] {
-		const groups = this.findDayMechanicGroups(day, mechanicCode).filter(group => group.cards[0].line == line);
-		return [].concat(...groups.map(group => group.cards));
-	}
-
-	private static findLeftAssignedNextCard(
-		day: Dayjs,
-		mechanicCode: string,
-		line: number,
-		orderNumber: number,
-		start: Dayjs
-	): Card {
-		return this.findLineCards(day, mechanicCode, line).find((card: Card) => {
-			return card.order.number == orderNumber && card.end.isSame(start)
-		});
-	}
-
-	private static findRightAssignedNextCard(
-		day: Dayjs,
-		mechanicCode: string,
-		line: number,
-		orderNumber: number,
-		end: Dayjs
-	): Card {
-		return this.findLineCards(day, mechanicCode, line).find((card: Card) => {
-			return card.order.number == orderNumber && card.start.isSame(end)
-		});
-	}
-
-	private static findLeftUnassignedNextCard(panelId: string, type: string, status: string): Card {
-		const groups = this.findUnassignedGroups(type, status);
-		const group = this.findCardGroup(groups, panelId);
-		const cardIndex = group.cards.findIndex(card => card.panelId == panelId);
-		if (cardIndex > 0) {
-			return group.cards[cardIndex - 1];
-		} else {
-			const leftGroup = this.findLeftOrderGroup(groups, group.id, group.cards[0].order.number);
-			return leftGroup ? leftGroup.cards[leftGroup.cards.length - 1] : undefined;
-		}
-	}
-
-	private static findRightUnassignedNextCard(panelId: string, type: string, status: string): Card {
-		const groups = this.findUnassignedGroups(type, status);
-		const group = this.findCardGroup(groups, panelId);
-		const cardIndex = group.cards.findIndex(card => card.panelId == panelId);
-		if (cardIndex < group.cards.length - 1) {
-			return group.cards[cardIndex + 1];
-		} else {
-			const rightGroup = this.findRightOrderGroup(groups, group.id, group.cards[0].order.number);
-			return rightGroup ? rightGroup.cards[0] : undefined;
-		}
-	}
-
-	private static findLeftOrderGroup(groups: CardsGroup[], groupId: string, orderNumber: number): CardsGroup {
-		const group = this.findLeftGroup(groups, groupId);
-		return group && group.cards[0].order.number == orderNumber ? group : undefined;
-	}
-
-	private static findRightOrderGroup(groups: CardsGroup[], groupId: string, orderNumber: number): CardsGroup {
-		const group = this.findRightGroup(groups, groupId);
-		return group && group.cards[0].order.number == orderNumber ? group : undefined;
-	}
-
-	private static findLeftGroup(groups: CardsGroup[], groupId: string): CardsGroup {
-		const groupIndex = groups.findIndex(g => g.id == groupId);
-		return groupIndex > -1 && groupIndex > 0 ? groups[groupIndex - 1] : undefined;
-	}
-
-	private static findRightGroup(groups: CardsGroup[], groupId): CardsGroup {
-		const groupIndex = groups.findIndex(g => g.id == groupId);
-		return groupIndex > -1 && groupIndex < groups.length - 1 ? groups[groupIndex + 1] : undefined;
 	}
 
 	private static findLeftAssignedGroup(groups: CardsGroup[], start: Dayjs): CardsGroup {
