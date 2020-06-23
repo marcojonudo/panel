@@ -617,11 +617,27 @@ export class CardsService {
 	}
 
 	private static addAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
-		/* Se usa concat en lugar de push para que no modifique el array original, y se actualice antes de tiempo en
-		*  mechanic-line.component. Haciendo el push, el array cardsGroups del mechanic-line.component se actualiza aquí
-		*  en lugar de en el propio componente */
-		this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].push(group);
-		this.assignedGroups.push(group);
+		/* Se busca el grupo cuya comienzo sea superior al del grupo a añadir, para hacer en la posición anterior y que
+		*  la lista quede ordenada */
+		const mechanicGroupStartIndex = this.findDayMechanicGroups(day, mechanicCode).findIndex((g: CardsGroup) =>
+			g.start.isAfter(group.start)
+		);
+		if (mechanicGroupStartIndex != -1) {
+			this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].splice(
+				mechanicGroupStartIndex,
+				0,
+				group
+			);
+		} else {
+			this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].push(group);
+		}
+
+		const groupStartIndex = this.assignedGroups.findIndex((g: CardsGroup) => g.start.isAfter(group.start));
+		if (groupStartIndex != -1) {
+			this.assignedGroups.splice(groupStartIndex, 0, group);
+		} else {
+			this.assignedGroups.push(group);
+		}
 	}
 
 	private static removeAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
