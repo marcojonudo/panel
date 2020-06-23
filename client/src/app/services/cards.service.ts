@@ -1068,7 +1068,11 @@ export class CardsService {
 
 	updateVehiclePosition(card: Card, vehiclePosition: string, updateDb: boolean = true): void {
 		card.vehiclePosition = this.findVehiclePositionValue(card.vehiclePosition, vehiclePosition);
-		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
+		const group = CardsService.findCardGroup(
+			CardsService.findLineGroups(card.day, card.mechanicCode, card.line),
+			card.panelId
+		);
+		NotificationService.notifyGroups([group], true);
 		if (updateDb) {
 			this.http.patch(Url.cardsVehiclePosition(), [card]).subscribe();
 		}
@@ -1080,7 +1084,11 @@ export class CardsService {
 
 	updatePendingCall(card: Card, pendingCall: boolean, updateDb: boolean = true): void {
 		card.pending.call = pendingCall;
-		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
+		const group = CardsService.findCardGroup(
+			CardsService.findLineGroups(card.day, card.mechanicCode, card.line),
+			card.panelId
+		);
+		NotificationService.notifyGroups([group], true);
 		if (updateDb) {
 			this.http.patch(Url.cardsPendingCall(), [card]).subscribe();
 		}
@@ -1088,7 +1096,11 @@ export class CardsService {
 
 	updatePendingBudget(card: Card, pendingBudget: boolean, updateDb: boolean = true): void {
 		card.pending.budget = pendingBudget;
-		NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
+		const group = CardsService.findCardGroup(
+			CardsService.findLineGroups(card.day, card.mechanicCode, card.line),
+			card.panelId
+		);
+		NotificationService.notifyGroups([group], true);
 		if (updateDb) {
 			this.http.patch(Url.cardsPendingBudget(), [card]).subscribe();
 		}
