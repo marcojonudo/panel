@@ -879,7 +879,7 @@ export class CardsService {
 		if (groups[0].cards[0].day) {
 			NotificationService.notifyMechanicLine(groups[0].cards[0].day, groups[0].cards[0].mechanicCode);
 		} else {
-			NotificationService.notifyBand();
+			NotificationService.notifyBand(undefined, groups);
 		}
 	}
 
