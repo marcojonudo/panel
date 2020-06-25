@@ -74,7 +74,9 @@ interface PanelDatabaseClient {
 	)
 
 	@Put("/cards/division")
-	List<Map> updateCardsDivision(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	List<Map> updateCardsDivision(
+		@Header String sessionId, @Header String realTimeAction, @Body List<Map<String, Object>> cards
+	)
 
 	@Patch("/cards/vehiclePosition")
 	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)

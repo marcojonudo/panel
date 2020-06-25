@@ -926,12 +926,16 @@ export class CardsService {
 		return UtilsService.sum(cards, Constants.PROPERTY.DURATION);
 	}
 
-	divideCard(card: Card, group: CardsGroup, leftCardDuration: number, rightCardDuration: number): void {
+	divideCard(
+		card: Card, group: CardsGroup, leftCardDuration: number, rightCardDuration: number, updateDb: boolean = true
+	): void {
 		CardsService.updateCard(card, rightCardDuration);
 		const newRightCard = CardsService.createCard(card, card.end, rightCardDuration);
 		const dividedCards = this.updateDividedCards(card, newRightCard);
 		this.updateGroups(group, card, newRightCard);
-		this.updateDividedDbCards(dividedCards);
+		if (updateDb) {
+			this.updateDividedDbCards(dividedCards);
+		}
 	}
 
 	private static createCard(card: Card, start: Dayjs, duration: number): Card {
@@ -999,10 +1003,7 @@ export class CardsService {
 	private updateDividedDbCards(dividedCards: Card[]): void {
 		const newCard = dividedCards[1];
 		dividedCards.splice(1, 1);
-
-		this.http.post(Url.cards(), [newCard], {params: {updateLinks: 'false'}}).subscribe(() => {
-			this.http.put(Url.cardsDivision(), dividedCards).subscribe();
-		});
+		this.http.post(Url.cardsDivision(), dividedCards.concat(newCard)).subscribe();
 	}
 
 	// endregion

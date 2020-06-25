@@ -33,6 +33,7 @@ import {Url} from "../objects/url";
 import {UnassignedCardDurationHandler} from "../objects/card-duration/unassigned-card-duration-handler";
 import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
 import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-handler";
+import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-divide";
 
 @Injectable({
 	providedIn: 'root'
@@ -46,6 +47,8 @@ export class RealTimeService {
 			new RealTimeCardUpdateDuration(this, cards),
 		updateCardsLinks: (cards: any[]) =>
 			new RealTimeCardUpdateLinks(this, cards),
+		divideCards: (cards: any[]) =>
+			new RealTimeCardDivide(this, cards),
 		updateMechanicJobLineType: (mechanic: any) =>
 			new RealTimeMechanicUpdateJobLineType(mechanic),
 		updateMechanicLines: (mechanics: any[]) =>
@@ -199,6 +202,18 @@ export class RealTimeService {
 		} else {
 			linkHandler.unlink(leftCard, sideLinkHandler);
 		}
+	}
+
+	divideCards(cards: Card[]): void {
+		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
+		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
+		const group = CardsService.findCardGroup(allGroups, cards[0].panelId);
+		const card = group.cards.find((c: Card) => {
+			return c.panelId == cards[0].panelId
+		});
+
+		this.cardsService.divideCard(card, group, cards[0].duration, cards[1].duration, false);
+		NotificationService.notifyGroups([group], true)
 	}
 
 	updateVehiclePosition(card: Card): void {

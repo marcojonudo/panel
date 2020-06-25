@@ -44,7 +44,8 @@ class Constants {
 			SYNC_JPDV: 'syncJpdv',
 			UPDATE_VEHICLE_POSITION: 'updateVehiclePosition',
 			UPDATE_PENDING_CALL: 'updatePendingCall',
-			UPDATE_PENDING_BUDGET: 'updatePendingBudget'
+			UPDATE_PENDING_BUDGET: 'updatePendingBudget',
+			DIVIDE_CARDS: 'divideCards'
 	]
 
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']
