@@ -41,16 +41,18 @@ export class CardContextMenuComponent implements OnInit {
 		CardsService.updateCardMode([this.contextMenuInfo.group], Constants.GROUP_MODE.CUT);
 	}
 
-	cutCardByHalf(contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset): void {
+	cutCardByHalf(
+		contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset
+	): void {
 		const groupX = contextMenuInfo.group.start
 			? contextMenuInfo.group.left : CardPositionService.barLeftToAbsolutePosition(contextMenuInfo.group.left);
-		this.cardsService.cutCardByHalf(
+		const translatedGroups = this.cardsService.cutCardByHalf(
 			contextMenuInfo.group,
 			groupX,
 			contextMenuInfo.clickCoordinates.x - leftOffset
 		);
 		NotificationService.notifyContextMenu(undefined);
-		NotificationService.notifyGroups([contextMenuInfo.group], true)
+		NotificationService.notifyGroups(translatedGroups.concat([contextMenuInfo.group]), true);
 	}
 
 	showCardDetails(): void {

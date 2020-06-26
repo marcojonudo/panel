@@ -36,6 +36,7 @@ import {Dayjs} from "dayjs";
 import {Observable} from "rxjs/internal/Observable";
 import {HourQuarter} from "../objects/hour-quarter";
 import {CardDurationHandler} from "../objects/card-duration/card-duration-handler";
+import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
 
 @Injectable({
 	providedIn: 'root'
@@ -905,12 +906,26 @@ export class CardsService {
 		}
 	}
 
-	cutCardByHalf(group: CardsGroup, groupX: number, x: number): void {
+	cutCardByHalf(group: CardsGroup, groupX: number, x: number): CardsGroup[] {
 		const clickedCard = CardsService.findClickedCard(group.cards, groupX, x);
 		if (clickedCard.duration >= Constants.VALUE.CARD_MIN_DURATION * 1.5) {
 			const newDuration = UtilsService.roundCeil(clickedCard.duration / 2, 5);
-			this.divideCard(clickedCard, group, newDuration, newDuration);
+			if (newDuration * 2 > clickedCard.duration) {
+				const mechanic = MechanicsService.findMechanic(group.day, group.mechanicCode);
+				const translatedGroups = new AssignedCardDurationHandler().validateDurationUpdate(
+					group, clickedCard, mechanic
+				);
+				/* Sólo se actualiza la duración si, a desplazar otros grupos (al redondear hacia arriba al dividir, se
+				*  podrían añadir 5 minutos a una ficha y esta desplazar otras) estos no se salen de los horarios */
+				if (translatedGroups != undefined) {
+					this.divideCard(clickedCard, group, newDuration, newDuration, translatedGroups);
+					return translatedGroups;
+				}
+			} else {
+				this.divideCard(clickedCard, group, newDuration, newDuration);
+			}
 		}
+		return [];
 	}
 
 	private static findClickedCard(cards: Card[], groupX: number, x: number): Card {
@@ -927,14 +942,28 @@ export class CardsService {
 	}
 
 	divideCard(
-		card: Card, group: CardsGroup, leftCardDuration: number, rightCardDuration: number, updateDb: boolean = true
+		card: Card,
+		group: CardsGroup,
+		leftCardDuration: number,
+		rightCardDuration: number,
+		translatedGroups: CardsGroup[] = [],
+		updateDb: boolean = true
 	): void {
 		CardsService.updateCard(card, rightCardDuration);
 		const newRightCard = CardsService.createCard(card, card.end, rightCardDuration);
 		const dividedCards = this.updateDividedCards(card, newRightCard);
 		this.updateGroups(group, card, newRightCard);
+
+		const translatedCards = [];
+		translatedGroups.forEach((g: CardsGroup) => {
+			g.cards.forEach((c: Card) => {
+				c.setStart(c.start.add(5, Constants.DAY_JS.m));
+				translatedCards.push(c);
+			});
+			g.setStart(g.start.add(5, Constants.DAY_JS.m));
+		})
 		if (updateDb) {
-			this.updateDividedDbCards(dividedCards);
+			this.updateDividedDbCards(dividedCards, translatedCards);
 		}
 	}
 
@@ -1000,10 +1029,11 @@ export class CardsService {
 		this.updateCardsLinks(group.cards, 'linked');
 	}
 
-	private updateDividedDbCards(dividedCards: Card[]): void {
-		const newCard = dividedCards[1];
-		dividedCards.splice(1, 1);
-		this.http.post(Url.cardsDivision(), dividedCards.concat(newCard)).subscribe();
+	private updateDividedDbCards(dividedCards: Card[], translatedCards: Card[]): void {
+		this.http.post(Url.cardsDivision(), dividedCards).subscribe();
+		if (translatedCards.length) {
+			this.updateDbCardsPosition(translatedCards);
+		}
 	}
 
 	// endregion

@@ -127,39 +127,41 @@ export class RealTimeService {
 		});
 
 		for (const [orderNumber, orderCards] of Object.entries(groupedCards)) {
-			/* Para saber si el grupo estaba asignado antes de moverlo en otro terminal, se recorren primero los grupos
-			*  no asignados (la mayoría de las veces habrá muchos menos, por lo que será más eficiente) */
-			let group = CardsService.findOrderGroups(CardsService.unassignedGroups, parseInt(orderNumber))
-				.find((g: CardsGroup) => g.id == orderCards[0].panelId);
-			group = group ? group : CardsService.findOrderGroups(CardsService.assignedGroups, parseInt(orderNumber))
-				.find((g: CardsGroup) => g.id == orderCards[0].panelId)
+			(<Card[]> orderCards).forEach((card: Card) => {
+				/* Para saber si el grupo estaba asignado antes de moverlo en otro terminal, se recorren primero los grupos
+				*  no asignados (la mayoría de las veces habrá muchos menos, por lo que será más eficiente) */
+				let group = CardsService.findOrderGroups(CardsService.unassignedGroups, parseInt(orderNumber))
+					.find((g: CardsGroup) => g.id == card.panelId);
+				group = group ? group : CardsService.findOrderGroups(CardsService.assignedGroups, parseInt(orderNumber))
+					.find((g: CardsGroup) => g.id == card.panelId)
 
-			/* Si se encuentra el grupo dentro de los no asignados, se elimina de esa categoría */
-			if (group.day == undefined) {
-				CardsService.removeFromUnassigned(group, false);
-			} else {
-				/* Si no se encuentra el grupo dentro de los no asignados, significa que ya estaba asignado */
-				CardsService.removeFromAssigned(group, group.day, group.mechanicCode);
-			}
+				/* Si se encuentra el grupo dentro de los no asignados, se elimina de esa categoría */
+				if (group.day == undefined) {
+					CardsService.removeFromUnassigned(group, false);
+				} else {
+					/* Si no se encuentra el grupo dentro de los no asignados, significa que ya estaba asignado */
+					CardsService.removeFromAssigned(group, group.day, group.mechanicCode);
+				}
 
-			/* Si las fichas están asignadas */
-			if (orderCards[0].day != undefined) {
-				/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
-				*  terminal) */
-				group.left = DimensionsService.calcLeftFromStart(orderCards[0].start);
-				CardsService.updateAssignedCards(
-					[group],
-					group,
-					orderCards[0].day,
-					orderCards[0].mechanicCode,
-					orderCards[0].line,
-					CardsService.findDayMechanicGroups(orderCards[0].day, orderCards[0].mechanicCode)
-				);
-				CardsService.addToAssigned(group, orderCards[0].day, orderCards[0].mechanicCode);
-			} else {
-				CardsService.resetCardsGroup(group);
-				CardsService.addToUnassigned(group);
-			}
+				/* Si las fichas están asignadas */
+				if (card.day != undefined) {
+					/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
+					*  terminal) */
+					group.left = DimensionsService.calcLeftFromStart(card.start);
+					CardsService.updateAssignedCards(
+						[group],
+						group,
+						card.day,
+						card.mechanicCode,
+						card.line,
+						CardsService.findDayMechanicGroups(card.day, card.mechanicCode)
+					);
+					CardsService.addToAssigned(group, card.day, card.mechanicCode);
+				} else {
+					CardsService.resetCardsGroup(group);
+					CardsService.addToUnassigned(group);
+				}
+			});
 		}
 		NotificationService.notifyUpdateArray();
 	}
@@ -212,7 +214,7 @@ export class RealTimeService {
 			return c.panelId == cards[0].panelId
 		});
 
-		this.cardsService.divideCard(card, group, cards[0].duration, cards[1].duration, false);
+		this.cardsService.divideCard(card, group, cards[0].duration, cards[1].duration, [], false);
 		NotificationService.notifyGroups([group], true)
 	}
 

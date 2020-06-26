@@ -310,14 +310,11 @@ export class CardPositionService {
 	}
 
 	static findGroupsToUpdate(
-		clonedGroup: CardsGroup,
-		dayMechanicCardsGroups: CardsGroup[],
-		line: number,
-		destinyDropzone: Dropzone
+		clonedGroup: CardsGroup, lineGroups: CardsGroup[], destinyDropzone: Dropzone
 	): CardsGroup[] {
 		/* Se gestionan los movimientos de fichas solapadas. La lista que se retorna contiene tanto los grupos
 		 * solapados, como el grupo original; es decir, todos los que se deben actualizar tras completar el movimiento */
-		const groupsToUpdate = this.handleOverlappedMovements(dayMechanicCardsGroups, clonedGroup, line);
+		const groupsToUpdate = this.handleOverlappedMovements(lineGroups, clonedGroup);
 
 		/* Se comprueba si alguno de los grupos solapados se sale del horario */
 		const groupsOutsideDropzone = this.checkGroupsOutsideDropzone(groupsToUpdate, destinyDropzone);
@@ -430,12 +427,7 @@ export class CardPositionService {
 		cardsGroup.left = this.absolutePositionToLeft(x);
 	}
 
-	private static handleOverlappedMovements(
-		dayMechanicsGroups: CardsGroup[],
-		clonedGroup: CardsGroup,
-		line: number
-	): CardsGroup[] {
-		const lineGroups = dayMechanicsGroups.filter(group => group.line == line);
+	static handleOverlappedMovements(lineGroups: CardsGroup[], clonedGroup: CardsGroup): CardsGroup[] {
 		const overlappedGroups = this.iterateSuccessiveMovements(clonedGroup, lineGroups);
 		return overlappedGroups.includes(clonedGroup) ? overlappedGroups : overlappedGroups.concat(clonedGroup);
 	}

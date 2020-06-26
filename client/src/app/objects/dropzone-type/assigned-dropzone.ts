@@ -43,8 +43,8 @@ export class AssignedDropzone implements Dropzone {
 	}
 
 	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
-		const dayMechanicGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		return CardPositionService.findGroupsToUpdate(group, dayMechanicGroups, line, this);
+		const lineGroups = CardsService.findLineGroups(this.mechanic.day, this.mechanic.code, line);
+		return CardPositionService.findGroupsToUpdate(group, lineGroups, this);
 	}
 
 	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {

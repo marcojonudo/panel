@@ -33,10 +33,7 @@ export class DropzoneService {
 
 	// endregion
 
-	static init(
-		cardsService: CardsService,
-		appointmentsService: AppointmentsService
-	) {
+	static init(cardsService: CardsService, appointmentsService: AppointmentsService) {
 		this.dropzoneType = {};
 		this.dropzoneType[Constants.DROPZONE_TYPE.ASSIGNED] =
 			(mechanic: Mechanic, interval: ScheduleInterval) =>
