@@ -14,22 +14,22 @@
 			class="flex-grow-1 flex-basis-0 d-flex flex-column">
 			<div
 				class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage"
-				[ngClass]="{'text-red': checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation)}">
-				{{findSaturationPercentage(item.value.morning, item.value.max, morningAppointmentSaturation)}}%
+				[ngClass]="{'text-red': checkSaturation(item.value.morning.length, item.value.max, morningAppointmentSaturation)}">
+				{{findSaturationPercentage(item.value.morning.length, item.value.max, morningAppointmentSaturation)}}%
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
-				{{item.value.morning}}/{{findMax(item.value.max, morningAppointmentSaturation)}}
+				{{item.value.morning.length}}/{{findMax(item.value.max, morningAppointmentSaturation)}}
 			</div>
 		</div>
 		<div
 			class="flex-grow-1 flex-basis-0 d-flex flex-column">
 			<div
 				class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage"
-				[ngClass]="{'text-red': checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}">
-				{{findSaturationPercentage(item.value.afternoon, item.value.max, afternoonAppointmentSaturation)}}%
+				[ngClass]="{'text-red': checkSaturation(item.value.afternoon.length, item.value.max, afternoonAppointmentSaturation)}">
+				{{findSaturationPercentage(item.value.afternoon.length, item.value.max, afternoonAppointmentSaturation)}}%
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
-				{{item.value.afternoon}}/{{findMax(item.value.max, afternoonAppointmentSaturation)}}
+				{{item.value.afternoon.length}}/{{findMax(item.value.max, afternoonAppointmentSaturation)}}
 			</div>
 		</div>
 		<div class="flex-grow-1 flex-basis-0 d-flex">
@@ -37,11 +37,11 @@
 				class="h-100 flex-grow-1 flex-basis-0 d-flex flex-column">
 				<div
 					class="flex-grow-1 flex-basis-0 align-center appointments-panel-percentage"
-					[ngClass]="{'text-red': checkSaturation(item.value.total, item.value.max)}">
-					{{findSaturationPercentage(item.value.total, item.value.max)}}%
+					[ngClass]="{'text-red': checkSaturation(item.value.total.length, item.value.max)}">
+					{{findSaturationPercentage(item.value.total.length, item.value.max)}}%
 				</div>
 				<div class="flex-grow-1 flex-basis-0 align-center">
-					{{item.value.total}}/{{item.value.max}}
+					{{item.value.total.length}}/{{item.value.max}}
 				</div>
 			</div>
 			<div class="w-25 h-100 d-flex flex-column border-left">

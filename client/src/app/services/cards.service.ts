@@ -26,7 +26,6 @@ import {DefaultCardBehaviour} from "../objects/card-type-behaviour/default-card-
 import {CardTypeBehaviour} from "../objects/card-type-behaviour/card-type-behaviour";
 import {CutCardModeAction} from "../objects/card-mode-action/cut-card-mode-action";
 import {CardModeAction} from "../objects/card-mode-action/card-mode-action";
-import {CardLinkHandler} from "../objects/card-links/card-link-handler";
 import {CardPositionService} from "./card-position.service";
 import {ReplaceCardModeAction} from "../objects/card-mode-action/replace-card-mode-action";
 import {DropzoneService} from "./dropzone.service";
@@ -37,6 +36,7 @@ import {Observable} from "rxjs/internal/Observable";
 import {HourQuarter} from "../objects/hour-quarter";
 import {CardDurationHandler} from "../objects/card-duration/card-duration-handler";
 import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
+import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
 
 @Injectable({
 	providedIn: 'root'
@@ -258,7 +258,7 @@ export class CardsService {
 		// 	cardsGroup.start,
 		// 	cardsGroup.end
 		// );
-		this.handleAddFinishedCardsGroup(group);
+		this.handleAddFinishedGroup(group);
 	}
 
 	static removeFromAssigned(cardsGroup: CardsGroup, day: Dayjs, mechanicCode: string): any {
@@ -269,7 +269,7 @@ export class CardsService {
 			cardsGroup.start,
 			cardsGroup.end
 		);
-		this.handleRemoveAssignedCardsGroup(day, mechanicCode, cardsGroup);
+		this.handleRemoveAssignedGroup(day, mechanicCode, cardsGroup);
 		this.updateQuartersSaturation(day)
 	}
 
@@ -283,38 +283,18 @@ export class CardsService {
 			cardsGroup.start,
 			cardsGroup.end
 		);
-		this.handleAddAssignedCardsGroup(day, newMechanicCode, cardsGroup);
+		this.handleAddAssignedGroup(day, newMechanicCode, cardsGroup);
 		this.updateQuartersSaturation(day)
 	}
 
 	static removeFromUnassigned(group: CardsGroup, notify: boolean = true): void {
 		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type, group.status);
-		this.handleRemoveUnassignedCardsGroup(group, notify);
+		this.handleRemoveUnassignedGroup(group, notify);
 	}
 
 	static addToUnassigned(group: CardsGroup, notify: boolean = true): void {
 		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type, group.status);
-		this.handleAddUnassignedCardsGroup(group, undefined, notify);
-	}
-
-	static updateAssignedCards(
-		clonedGroups: CardsGroup[],
-		helperGroup: CardsGroup,
-		day: Dayjs,
-		newMechanicCode: string,
-		line: number,
-		dayMechanicGroups: CardsGroup[]
-	) {
-		const allOriginalGroups = dayMechanicGroups.concat(helperGroup);
-
-		clonedGroups.forEach((clonedGroup: CardsGroup) => {
-			/* Se obtiene el grupo de todos los del día, en lugar de sólo los de la línea, porque la ficha que se está
-			*  moviendo puede provenir de otra línea. Además, se añade cardsGroup porque si se mueve desde otra línea de
-			*  mecánico, no va a estar en dayMechanicsCardsGroups */
-			const group = allOriginalGroups.find((group: CardsGroup) => group.id == clonedGroup.id);
-			/* Se actualizan los valores relacionados con la posicion (left y start) */
-			CardsService.updatePosition(group, day, newMechanicCode, line, clonedGroup.left);
-		});
+		this.handleAddUnassignedGroup(group, undefined, notify);
 	}
 
 	createDbCards(cards: Card[]): void {
@@ -336,11 +316,9 @@ export class CardsService {
 	static updateFinishedGroup(group: CardsGroup) {
 		group.status = Constants.CARD_STATUS.FINISHED;
 		for (const card of group.cards) {
-			card.status = Constants.CARD_STATUS.FINISHED;
+			card.setStatus(Constants.CARD_STATUS.FINISHED);
 			/* Se definen las propiedades last para poder manejar los contadores de citas */
-			card.lastDay = card.day;
-			card.lastStart = card.start;
-			card.lastEnd = card.end;
+			card.setMechanicCode(undefined);
 		}
 	}
 
@@ -359,47 +337,42 @@ export class CardsService {
 		card.line = undefined;
 	}
 
-	static updatePosition(group: CardsGroup, day: Dayjs, mechanicCode: string, line: number, left: number) {
-		/* Sólo se puede mover un grupo a la vez, ya que es lo que se arrastra cuando se desplazan fichas por el
-		*  panel; sin embargo, en caso de haber solapamientos, son varios los que deben ser actualizados. Por ese
-		*  motivo se usa un array en lugar de un sólo grupo */
-		const status = group.cards[0].type == Constants.CARD_TYPE.AUXILIARY
+	static updatePositionProperties(
+		groups: CardsGroup[], day: Dayjs, mechanicCode: string, line: number, start: Dayjs
+	) {
+		const status = groups[0].cards[0].type == Constants.CARD_TYPE.AUXILIARY
 			? Constants.CARD_STATUS.AUXILIARY : Constants.CARD_STATUS.DEFAULT;
-		group.left = left;
-		group.status = status;
-		group.line = line;
-
-		group.cards.forEach((card: Card, index: number) => {
-			card.setDay(day);
-			card.setMechanicCode(mechanicCode);
-			card.setStatus(status);
-			card.setLine(line);
-			this.updateOrderCode(card, group, index);
-
-			const leftCardsDuration = UtilsService.sum(group.cards.slice(0, index), Constants.PROPERTY.DURATION);
-			card.setStart(
-				DimensionsService.calcStartFromLeft(
-					group.left + DimensionsService.calcWidthFromDuration(leftCardsDuration),
-					day
-				)
-			);
+		groups.forEach((group: CardsGroup, i: number) => {
+			group.day = day;
+			group.mechanicCode = mechanicCode;
+			group.line = line;
+			group.setStart(i == 0 ? start : groups[i-1].end);
+			group.status = status;
+			group.cards.forEach((card: Card, i: number) => {
+				card.setDay(day);
+				card.setMechanicCode(mechanicCode);
+				card.setLine(line);
+				card.setStart(i == 0 ? group.start : group.cards[i-1].end);
+				card.setStatus(status);
+				CardsService.updateOrderCode(card, group, i);
+			})
+			group.setId();
 		});
-
-		group.id = group.cards[0].panelId;
-		group.day = group.cards[0].day;
-		group.mechanicCode = group.cards[0].mechanicCode;
-		group.start = group.cards[0].start;
-		group.end = group.cards[group.cards.length - 1].end;
 	}
 
-	private static updateOrderCode(card: Card, group: CardsGroup, index: number): void {
+	static updateOrderCode(card: Card, group: CardsGroup, index: number): void {
 		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
 			if (card.order.code == Constants.AUXILIARY_DEFAULT_ORDER_CODE) {
 				const assignedAuxiliaryGroups = this.assignedGroups.filter((group: CardsGroup) =>
 					group.cards[0].type == Constants.CARD_TYPE.AUXILIARY
 				);
-				const currentIndex = assignedAuxiliaryGroups.length
-					? +assignedAuxiliaryGroups[assignedAuxiliaryGroups.length - 1].cards[0].order.code.substring(1) : 0;
+				let currentIndex = 0;
+				assignedAuxiliaryGroups.forEach((group: CardsGroup) => {
+					const index = +group.cards[0].order.code.substring(1);
+					if (index > currentIndex) {
+						currentIndex = index;
+					}
+				});
 				card.order.code = `${card.order.code.substring(0, 1)}${currentIndex+1}`;
 				card.order.number = currentIndex + 1;
 				card.panelId = CardsService.buildPanelId(card);
@@ -417,18 +390,18 @@ export class CardsService {
 		return `${card.order.code}-${card.group.code}-${card.divisionIndex}`;
 	}
 
-	static handleAddFinishedCardsGroup(group: CardsGroup): void {
-		this.addFinishedCardsGroup(group);
-		// NotificationService.notifyBand();
+	static handleAddFinishedGroup(group: CardsGroup): void {
+		this.addFinishedGroup(group);
+		NotificationService.notifyBand(undefined, [group]);
 	}
 
-	static handleAddAssignedCardsGroup(
+	static handleAddAssignedGroup(
 		day: Dayjs,
 		mechanicCode: string,
 		group: CardsGroup,
 		notifyImmediately: boolean = false
 	): void {
-		this.addAssignedCardsGroup(day, mechanicCode, group);
+		this.addAssignedGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(day, mechanicCode, false);
 
 		const orderNumber = group.cards[0].order.number;
@@ -475,25 +448,25 @@ export class CardsService {
 		return dividedOrderGroups;
 	}
 
-	static handleRemoveAssignedCardsGroup(
+	static handleRemoveAssignedGroup(
 		day: Dayjs,
 		mechanicCode: string,
 		group: CardsGroup,
 		notifyImmediately: boolean = false
 	): void {
-		this.removeAssignedCardsGroup(day, mechanicCode, group);
+		this.removeAssignedGroup(day, mechanicCode, group);
 		NotificationService.notifyMechanicLine(day, mechanicCode, notifyImmediately);
 	}
 
-	static handleAddUnassignedCardsGroup(group: CardsGroup, index: number = undefined, notify: boolean = true): void {
-		this.addUnassignedCardsGroup(group, index);
+	static handleAddUnassignedGroup(group: CardsGroup, index: number = undefined, notify: boolean = true): void {
+		this.addUnassignedGroup(group, index);
 		if (notify) {
 			NotificationService.notifyBand(undefined, [group]);
 		}
 	}
 
-	static handleRemoveUnassignedCardsGroup(group: CardsGroup, notify: boolean = true): void {
-		this.removeUnassignedCardsGroup(group);
+	static handleRemoveUnassignedGroup(group: CardsGroup, notify: boolean = true): void {
+		this.removeUnassignedGroup(group);
 		if (notify) {
 			NotificationService.notifyBand(undefined, [group]);
 		}
@@ -606,7 +579,7 @@ export class CardsService {
 
 	// endregion
 
-	private static addFinishedCardsGroup(group: CardsGroup): void {
+	private static addFinishedGroup(group: CardsGroup): void {
 		this.finishedCardsGroups.push(group);
 		CardPositionService.sortUnassignedGroups(this.finishedCardsGroups);
 		CardPositionService.updateUnassignedGroupsLeft(this.finishedCardsGroups);
@@ -617,7 +590,7 @@ export class CardsService {
 		this.finishedCardsGroups.splice(index, 1);
 	}
 
-	private static addAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
+	private static addAssignedGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		/* Se busca el grupo cuya comienzo sea superior al del grupo a añadir, para hacer en la posición anterior y que
 		*  la lista quede ordenada */
 		const mechanicGroupStartIndex = this.findDayMechanicGroups(day, mechanicCode).findIndex((g: CardsGroup) =>
@@ -625,9 +598,7 @@ export class CardsService {
 		);
 		if (mechanicGroupStartIndex != -1) {
 			this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].splice(
-				mechanicGroupStartIndex,
-				0,
-				group
+				mechanicGroupStartIndex, 0, group
 			);
 		} else {
 			this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].push(group);
@@ -641,7 +612,7 @@ export class CardsService {
 		}
 	}
 
-	private static removeAssignedCardsGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
+	private static removeAssignedGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {
 		const index = this.assignedDaysCardsGroups[day.valueOf()][mechanicCode].findIndex((g: CardsGroup) =>
 			g.id == group.id
 		);
@@ -650,7 +621,7 @@ export class CardsService {
 		this.assignedGroups.splice(allGroupsIndex, 1);
 	}
 
-	private static addUnassignedCardsGroup(group: CardsGroup, index: number): void {
+	private static addUnassignedGroup(group: CardsGroup, index: number): void {
 		const groups = this.findUnassignedGroups(group.type, group.status);
 		if (index) {
 			groups.splice(index, 0, group);
@@ -663,7 +634,7 @@ export class CardsService {
 		CardPositionService.updateUnassignedGroupsLeft(groups);
 	}
 
-	private static removeUnassignedCardsGroup(group: CardsGroup): void {
+	private static removeUnassignedGroup(group: CardsGroup): void {
 		const groups = this.findUnassignedGroups(group.type, group.status);
 		const index = groups.findIndex(g => g.id == group.id);
 		groups.splice(index, 1);
@@ -1018,9 +989,9 @@ export class CardsService {
 		);
 		CardsService.updateLinkedLinks(newGroup, group);
 		if (card.day) {
-			CardsService.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup);
+			CardsService.handleAddAssignedGroup(card.day, card.mechanicCode, newGroup);
 		} else {
-			CardsService.handleAddUnassignedCardsGroup(newGroup);
+			CardsService.handleAddUnassignedGroup(newGroup);
 		}
 	}
 
@@ -1040,22 +1011,25 @@ export class CardsService {
 
 	// region Auxiliary replacement
 
-	replaceGroup(group: CardsGroup, groupToReplace: CardsGroup = CardsService.auxiliaryGroupToReplace): void {
+	replaceGroup(group: CardsGroup, auxiliaryGroup: CardsGroup = CardsService.auxiliaryGroupToReplace): void {
 		const originDropzone = DropzoneService.findDropzone(group.cards[0]);
-		const destinyDropzone = DropzoneService.findDropzone(groupToReplace.cards[0]);
+		const destinyDropzone = DropzoneService.findDropzone(auxiliaryGroup.cards[0]);
 
-		/* Al usar las dropzones para llevar a cabo el movimiento, la propiedad left debe estar actualizada, ya que es
-		*  la que se toma como referencia para calcular el resto de propiedades */
-		const clonedGroup = group.clone();
-		clonedGroup.left = groupToReplace.left;
-		const groupsToUpdate = destinyDropzone.findGroupsToUpdate(clonedGroup, groupToReplace.line);
-		if (groupsToUpdate) {
-			this.deleteReplacedGroup(groupToReplace, destinyDropzone);
+		const validateInfo = (<AssignedDropzone> destinyDropzone).validateOverlappedGroups(
+			auxiliaryGroup,
+			CardsService.findDayMechanicGroups(auxiliaryGroup.day, auxiliaryGroup.mechanicCode),
+			auxiliaryGroup.line,
+			auxiliaryGroup.start,
+			auxiliaryGroup.start.add(group.findDuration(), Constants.DAY_JS.m),
+			destinyDropzone.interval
+		);
+		if (validateInfo) {
+			this.deleteReplacedGroup(auxiliaryGroup, destinyDropzone);
 			CardsService.updateReplacementGroup(
 				group,
-				groupsToUpdate,
-				groupToReplace,
-				groupToReplace.line,
+				validateInfo.groups,
+				auxiliaryGroup.line,
+				validateInfo.newStart,
 				originDropzone,
 				destinyDropzone
 			);
@@ -1066,26 +1040,20 @@ export class CardsService {
 
 	static updateReplacementGroup(
 		group: CardsGroup,
-		groupsToUpdate: CardsGroup[],
-		auxiliaryGroup: CardsGroup,
+		groups: CardsGroup[],
 		line: number,
+		newStart: Dayjs,
 		originDropzone: Dropzone,
 		destinyDropzone: Dropzone
 	): void {
-		originDropzone.removeGroup(group, false, destinyDropzone);
-		/* Al validar un movimiento dentro de la dropzone (al mover una ficha de forma normal), se obtiene
-		*  dayMechanicGroups. Al no validarse en este caso, ese valor no está actualizado y puede producir errores.
-		*  Por tanto, se obtiene y se pasa como parámetro */
-		destinyDropzone.addGroup(
-			groupsToUpdate,
-			group,
-			originDropzone,
-			line
-		);
+		originDropzone.removeGroup(group, destinyDropzone);
+		const allGroups = [group].concat(groups);
+		destinyDropzone.updateProperties(allGroups, newStart, line, destinyDropzone.mechanic);
+		destinyDropzone.addGroup(allGroups, group, originDropzone);
 	}
 
 	deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {
-		destinyDropzone.removeGroup(groupToReplace, false, undefined);
+		destinyDropzone.removeGroup(groupToReplace, undefined);
 		this.http.put(Url.cardsDeletion(), groupToReplace.cards).subscribe();
 	}
 

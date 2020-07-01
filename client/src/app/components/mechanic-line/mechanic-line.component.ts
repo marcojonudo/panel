@@ -171,8 +171,8 @@ export class MechanicLineComponent implements OnInit {
 		) != undefined;
 	}
 
-	setHiddenCardsGroup(cardsGroup: CardsGroup): void {
-		CardPositionService.hiddenGroup = cardsGroup;
+	setHiddenCardsGroup(group: CardsGroup): void {
+		CardPositionService.hiddenGroup = group;
 		this.cdRef.detectChanges();
 	}
 

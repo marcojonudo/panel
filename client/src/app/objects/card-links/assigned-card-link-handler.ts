@@ -30,7 +30,7 @@ export class AssignedCardLinkHandler implements CardLinkHandler {
 		*  debe quedar con 3 (5 - 2) */
 		group.removeCards(0, group.cards.length - newGroupCards.length);
 
-		CardsService.handleAddAssignedCardsGroup(card.day, card.mechanicCode, newGroup, true);
+		CardsService.handleAddAssignedGroup(card.day, card.mechanicCode, newGroup, true);
 
 		return [group.cards[group.cards.length - 1], newGroup.cards[0]];
 	}
@@ -42,7 +42,7 @@ export class AssignedCardLinkHandler implements CardLinkHandler {
 
 		const groupCardsOriginalLength = group.cards.length;
 		const [groupToUpdate, groupToRemove] = sideLinkHandler.link(group, nextGroup, card);
-		CardsService.handleRemoveAssignedCardsGroup(card.day, card.mechanicCode, groupToRemove);
+		CardsService.handleRemoveAssignedGroup(card.day, card.mechanicCode, groupToRemove);
 
 		/* Cuando se agrupan dos grupos y sólo queda 1 para toda la orden, se deshabilita el highlight (un grupo por
 		*  orden no debe mostrar el resaltado). Por tanto, al estar activado al haber pasado el cursor por una de las

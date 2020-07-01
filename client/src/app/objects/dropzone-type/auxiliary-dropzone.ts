@@ -9,6 +9,9 @@ import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
+import {Dayjs} from "dayjs";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {Card} from "../card";
 
 export class AuxiliaryDropzone implements Dropzone {
 
@@ -31,26 +34,20 @@ export class AuxiliaryDropzone implements Dropzone {
 		this.subType = subType;
 	}
 
-	validateCoordinates(coordinates: Coordinates): Coordinates {
-		return new Coordinates();
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
+		return new OverlappedGroupsInfo();
 	}
 
-	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
-		return [];
-	}
+	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {}
 
-	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {}
-
-	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
-		const sectionGroups = CardsService.findUnassignedGroups(group.type, group.status);
-		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+		CardsService.resetCardsGroup(groups[0]);
 	}
 
 	addGroup(
 		groups: CardsGroup[],
 		group: CardsGroup
 	): void {
-		CardsService.resetCardsGroup(group);
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToUnassigned(group);
 
@@ -59,6 +56,10 @@ export class AuxiliaryDropzone implements Dropzone {
 			() => NotificationService.notifyBand(),
 			CardPositionService.getAddGroupDelay(group)
 		);
+	}
+
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
+		return new Coordinates(group.left, CardPositionService.unassignedCardTop);
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {}

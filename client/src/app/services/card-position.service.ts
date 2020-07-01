@@ -13,6 +13,8 @@ import {Position} from "../objects/position";
 import {CardsService} from "./cards.service";
 import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
+import {OverlappedGroupsInfo} from "../objects/groups-translation/overlapped-groups-info";
+import {ValidateCoordinatesInfo} from "../objects/groups-translation/validate-coordinates-info";
 
 @Injectable({
 	providedIn: 'root'
@@ -198,49 +200,26 @@ export class CardPositionService {
 	// region Handle position updates
 
 	static handleDestinyPosition(
-		coordinates: Coordinates,
-		startPosition: Coordinates,
-		helperGroup: CardsGroup = this.helperGroup
+		coordinates: Coordinates, startPosition: Coordinates, helperGroup: CardsGroup = this.helperGroup
 	): Coordinates {
 		if (this.destinyDropzone) {
 			/* Se valida si el grupo encaja en la posición de destino (podría no caber en el horario, por ejemplo) */
-			const validatedCoordinates = this.destinyDropzone.validateCoordinates(coordinates);
-
-			/* Se elimina el grupo del dropzone de origen. En el siguiente paso, en función de si el movimiento había
-			*  validado o no, se añadirá al de destino o volverá de nuevo al de origen */
-			this.originDropzone.removeGroup(helperGroup, validatedCoordinates != undefined, this.destinyDropzone);
-
-			let groupsToUpdate = undefined;
-			if (validatedCoordinates) {
-				const clonedGroup = this.cloneGroupLeft(helperGroup, validatedCoordinates.x);
-				groupsToUpdate = this.destinyDropzone.findGroupsToUpdate(clonedGroup, validatedCoordinates.line);
-			}
-
-			/* Si el movimiento es válido */
-			if (groupsToUpdate != undefined) {
-				const lastCoordinates = this.destinyDropzone.findLastCoordinates(groupsToUpdate, helperGroup, coordinates);
-				/* Se añade el grupo al dropzone de destino */
-				this.destinyDropzone.addGroup(groupsToUpdate, helperGroup, this.originDropzone, lastCoordinates.line);
-				return lastCoordinates;
+			const validatedInfo = this.destinyDropzone.validate(coordinates, helperGroup);
+			if (validatedInfo != undefined) {
+				this.originDropzone.removeGroup(helperGroup, this.destinyDropzone);
+				const allGroups = [helperGroup].concat(validatedInfo.groups);
+				this.destinyDropzone.updateProperties(
+					allGroups, validatedInfo.newStart, coordinates.line, this.destinyDropzone.mechanic
+				);
+				this.destinyDropzone.addGroup(allGroups, helperGroup, this.originDropzone);
+				return this.destinyDropzone.findLastCoordinates(helperGroup, coordinates);
 			} else {
 				this.originDropzone.handleNotValidatedMovement(helperGroup);
 			}
 		} else {
-			this.originDropzone.removeGroup(helperGroup, false, this.destinyDropzone);
 			this.originDropzone.handleNotValidatedMovement(helperGroup);
 		}
 		return startPosition;
-	}
-
-	static cloneGroupLeft(group: CardsGroup, x: number): CardsGroup {
-		/* En este punto, modificar las propiedades reales del grupo puede ser problemático, ya que no se han completado
-        *  todas las validaciones; todavía faltan aquellas relativas a los grupos solapados. Por lo tanto, se clona para
-        *  poder modificarlo sin hacerlo en el objeto original */
-		const clonedGroup = this.helperGroup.clone();
-		/* Se actualiza la propiedad left para que se tenga en cuenta a la hora de identificar las fichas
-        *  solapadas */
-		this.updateLeft(clonedGroup, x);
-		return clonedGroup;
 	}
 
 	static handleUnassignedPosition(
@@ -281,121 +260,42 @@ export class CardPositionService {
 
 	static validateCoordinates(
 		coordinates: Coordinates,
-		dayMechanicCardsGroups: CardsGroup[],
-		dropzone: Dropzone = this.destinyDropzone,
-		helperGroup: CardsGroup = this.helperGroup
-	): Coordinates {
-		/* Se comprueba si los laterales del grupo están fuera de la dropzone. Si lo están, se actualiza la posición
-		 * para ajustar a los límites */
-		coordinates = this.fixGroupOutsideDropzonePosition(coordinates, helperGroup);
-		/* Si la ficha no cabe en el horario, se devuelve undefined para retornar a la posición original*/
-		if (!coordinates) {
-			return undefined;
-		}
-
+		dropzone: Dropzone,
+		dayMechanicGroups: CardsGroup[],
+		helperGroup: CardsGroup
+	): ValidateCoordinatesInfo {
 		/* La posición se redondea a los múltiplos de 5 minutos */
 		coordinates = this.roundLastPosition(coordinates, dropzone.position, dropzone.mechanic.lines);
-		if (!coordinates) {
-			return undefined;
+		let newStart = DimensionsService.calcStartFromLeft(
+			this.absolutePositionToLeft(coordinates.x), dropzone.mechanic.day
+		)
+		const lineGroups = dayMechanicGroups.filter((g: CardsGroup) =>
+			g.id != helperGroup.id && g.line == coordinates.line
+		);
+		/* El grupo puede soltarse encima de la parte de atrás de otro. En ese caso, debería desplazarse automáticamente
+		*  hacia la derecha, en lugar de tener en cuenta al segundo como grupo solapado */
+		const overlappedDroppedGroup = lineGroups.find((g: CardsGroup) =>
+			g.start <= newStart && g.end >= newStart
+		);
+		if (overlappedDroppedGroup) {
+			newStart = newStart.add(
+				overlappedDroppedGroup.end.diff(newStart, Constants.DAY_JS.m),
+				Constants.DAY_JS.m
+			);
+			coordinates.x = this.leftToAbsolutePosition(DimensionsService.calcLeftFromStart(newStart));
 		}
+		const newEnd = newStart.add(helperGroup.findDuration(), Constants.DAY_JS.m);
+		return new ValidateCoordinatesInfo(coordinates.line, newStart, newEnd);
 
-		/* Se comprueba si, una vez arreglada y redondeada la posición, el intervalo que ocupa el grupo sigue saliéndose
-		*  del horario. Si es así, se retorna undefined para volver a la posición original */
-		const positionOutsideDropzone = this.checkPositionOutsideDropzone(coordinates, helperGroup);
-		if (positionOutsideDropzone) {
-			return undefined;
-		}
-
-		return coordinates;
-	}
-
-	static findGroupsToUpdate(
-		clonedGroup: CardsGroup, lineGroups: CardsGroup[], destinyDropzone: Dropzone
-	): CardsGroup[] {
-		/* Se gestionan los movimientos de fichas solapadas. La lista que se retorna contiene tanto los grupos
-		 * solapados, como el grupo original; es decir, todos los que se deben actualizar tras completar el movimiento */
-		const groupsToUpdate = this.handleOverlappedMovements(lineGroups, clonedGroup);
-
-		/* Se comprueba si alguno de los grupos solapados se sale del horario */
-		const groupsOutsideDropzone = this.checkGroupsOutsideDropzone(groupsToUpdate, destinyDropzone);
-		/* Si es así, se retorna undefined para voler a la posición original */
-		if (groupsOutsideDropzone) {
-			return undefined;
-		}
-
-		return groupsToUpdate;
-	}
-
-	static updateAssignedGroupsPosition(
-		coordinates: Coordinates,
-		clonedGroups: CardsGroup[],
-		helperGroup: CardsGroup = this.helperGroup
-	): Coordinates {
-		const helperClonedGroup = clonedGroups.find(group => group.id == helperGroup.id);
-
-		coordinates.x = this.leftToAbsolutePosition(helperClonedGroup.left);
-		return coordinates;
-	}
-
-	private static checkGroupsOutsideDropzone(
-		groups: CardsGroup[],
-		dropzone: Dropzone = this.destinyDropzone
-	): boolean {
-		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.position.left, 2));
-		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
-
-		return groups.find(group => {
-			const duration = DimensionsService.calcWidthFromDuration(group.findDuration());
-			return this.checkOutsideLeft(group.left, dropzoneLeft) ||
-				this.checkOutsideRight(group.left + duration, dropzoneRight)
-		}) != undefined;
-	}
-
-	private static fixGroupOutsideDropzonePosition(
-		coordinates: Coordinates,
-		cardsGroup: CardsGroup,
-		dropzone: Dropzone = this.destinyDropzone
-	): Coordinates {
-		const leftX = this.absolutePositionToLeft(coordinates.x);
-		const durationWidth = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
-		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(dropzone.position.left);
-		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
-
-		let outsideLeft = this.checkOutsideLeft(leftX, dropzoneLeft);
-		if (outsideLeft) {
-			coordinates.x = this.leftToAbsolutePosition(dropzoneLeft + this.GROUP_ROUND_POSITION_OFFSET);
-		}
-		let outsideRight = this.checkOutsideRight(leftX + durationWidth, dropzoneRight);
-		if (outsideRight) {
-			coordinates.x = this.leftToAbsolutePosition(dropzoneRight - durationWidth + this.GROUP_ROUND_POSITION_OFFSET);
-		}
-
-		return outsideLeft && outsideRight ? undefined : coordinates;
-	}
-
-	private static checkPositionOutsideDropzone(
-		coordinates: Coordinates,
-		cardsGroup: CardsGroup,
-		dropzone: Dropzone = this.destinyDropzone
-	): boolean {
-		const leftX = this.absolutePositionToLeft(coordinates.x);
-		const duration = DimensionsService.calcWidthFromDuration(cardsGroup.findDuration());
-		const dropzoneLeft = this.dropzoneAbsolutePositionToLeft(UtilsService.roundToDecimal(dropzone.position.left, 2));
-		const dropzoneRight = this.dropzoneAbsolutePositionToLeft(dropzone.position.right);
-
-		return this.checkOutsideLeft(leftX, dropzoneLeft)
-			|| this.checkOutsideRight(leftX + duration, dropzoneRight);
-	}
-
-	private static checkOutsideLeft(leftX: number, dropzoneLeft: number): boolean {
-		/* Si la coordenada x está fuera de la dropzone, se le asigna el valor izquierdo de la misma, más una cifra.
-		*  Esta cifra permite que a la hora de redondear en el método roundLastPosition, la ficha quede dentro de la
-		*  dropzone, en lugar de justo a la izquierda */
-		return dropzoneLeft - leftX > 2;
-	}
-
-	private static checkOutsideRight(rightX: number, dropzoneRight: number): boolean {
-		return rightX - dropzoneRight > 2;
+		// /* Para validar si la posición es correcta, se deben tener en cuenta los grupos solapados. Estos grupos sólo
+		// *  pueden ser aquellos que no sean el que se está moviendo (si este parte desde la derecha), y los que estén
+		// *  en la misma línea más tarde que el nuevo start */
+		// const lineRightGroups = dayMechanicGroups.filter((g: CardsGroup) =>
+		// 	g.id != helperGroup.id && g.line == coordinates.line && g.end.isAfter(newStart)
+		// );
+		// const overlappedGroupsInfo = this.handleOverlappedMovements(newEnd, lineRightGroups).setNewStart(newStart);
+		// return newStart >= dropzone.interval.start && overlappedGroupsInfo.newEnd <= dropzone.interval.end ?
+		// 	overlappedGroupsInfo : undefined;
 	}
 
 	private static roundLastPosition(
@@ -413,115 +313,32 @@ export class CardPositionService {
 		/* Si más de la mitad de la ficha se coloca por encima de la primera línea de mecánico, el resultado será -1.
 		*  En este caso, se coloca en la línea 0, que es la más próxima */
 		line = line < 0 ? 0 : line;
-		/* Si más de la mitad de la ficha se coloca debajo de la última línea de mecánico, la línea resultante será
-		*  superior a lo permitido. Por tanto, en ese caso, no se valida la posición*/
-		if (line >= mechanicLines) {
-			return undefined;
-		}
+		line = line >= mechanicLines ? mechanicLines - 1 : line;
 		const y = this.dropzoneTopToAbsolutePosition(dropzonePosition.top) + line * DimensionsService.lineHeight;
 		[coordinates.x, coordinates.y, coordinates.line] = [x, y, line];
 		return coordinates;
 	}
 
-	private static updateLeft(cardsGroup: CardsGroup, x: number): void {
-		cardsGroup.left = this.absolutePositionToLeft(x);
-	}
-
-	static handleOverlappedMovements(lineGroups: CardsGroup[], clonedGroup: CardsGroup): CardsGroup[] {
-		const overlappedGroups = this.iterateSuccessiveMovements(clonedGroup, lineGroups);
-		return overlappedGroups.includes(clonedGroup) ? overlappedGroups : overlappedGroups.concat(clonedGroup);
-	}
-
-	private static iterateSuccessiveMovements(
-		clonedGroup: CardsGroup,
-		lineGroups: CardsGroup[],
-		groupsToUpdate: CardsGroup[] = [],
-		alreadyProcessedGroups: CardsGroup[] = [],
-	): CardsGroup[] {
+	static handleOverlappedMovements(
+		newEnd: Dayjs, rightLineGroups: CardsGroup[], alreadyOverlappedGroups: CardsGroup[] = []
+	): OverlappedGroupsInfo {
 		/* Se obtienen los grupos solapados. Se clonan para evitar que se actualice el left de los grupos originales,
 		 * ya que si al final se determina que la ficha no se puede mover, ya se habría actualizado este valor */
-		const overlappedCardsGroups = this.findOverlappedCardsGroups(clonedGroup, lineGroups, alreadyProcessedGroups);
+		const overlappedGroups = this.findOverlappedGroups(newEnd, rightLineGroups);
+		const allOverlappedGroups = alreadyOverlappedGroups.concat(overlappedGroups);
 		/* Se hacen los cálculos sólo si se encuentran fichas solapadas */
-		if (overlappedCardsGroups.length) {
-			const clonedOverlappedGroups = overlappedCardsGroups.map(group => group.clone());
-
-			/* Para saber si la ficha soltada está a la izquierda, derecha o entre dos fichas, se ordenan según la
-			*  propiedad 'left' */
-			const allCardsGroups = UtilsService.sort(
-				clonedOverlappedGroups.concat([clonedGroup]),
-				(cardsGroup) => cardsGroup.left
-			);
-
-			/* Se actualiza la propiedad left de los grupos para comprobar si alguno queda fuera de la dropzone */
-			this.calcLeft(allCardsGroups);
-
-			/* Si la ficha soltada desplaza otras hacia la derecha, también se debe comprobar si estas, a su vez, se
-			*  solapan con otras. Para ello, de la lista completa se obtienen aquellas que estén a la derecha de la soltada,
-			*  y se repite la gestión para fichas solapadas */
-			const movedGroupIndex = allCardsGroups.indexOf(clonedGroup);
-			const checkNewOverlappedIndex = movedGroupIndex == allCardsGroups.length - 1
-				? allCardsGroups.length - 1
-				: movedGroupIndex + 1;
-			const checkNewOverlapped = allCardsGroups.slice(checkNewOverlappedIndex);
-
-			if (checkNewOverlapped.length) {
-				return groupsToUpdate.concat(
-					...checkNewOverlapped.map(group =>
-						this.iterateSuccessiveMovements(group, lineGroups, [group], allCardsGroups)
-					)
-				);
-			}
+		if (overlappedGroups.length) {
+			const overlappedGroupsDuration = overlappedGroups.map((g: CardsGroup) => g.findDuration())
+				.reduce((a, b) => a + b, 0);
+			rightLineGroups = rightLineGroups.filter((g: CardsGroup) => g.start >= newEnd);
+			newEnd = newEnd.add(overlappedGroupsDuration, Constants.DAY_JS.m);
+			return this.handleOverlappedMovements(newEnd, rightLineGroups, allOverlappedGroups)
 		}
-		return groupsToUpdate;
+		return new OverlappedGroupsInfo(allOverlappedGroups, newEnd);
 	}
 
-	private static findOverlappedCardsGroups(
-		clonedGroup: CardsGroup,
-		lineGroups: CardsGroup[],
-		alreadyProcessedGroups: CardsGroup[]
-	): CardsGroup[] {
-		const omittedIds = CardsService.auxiliaryGroupToReplace
-			? [clonedGroup.id, CardsService.auxiliaryGroupToReplace.id] : [clonedGroup.id];
-		/* Para calcular solapamientos, sólo se tienen en cuenta grupos que no hayan sido procesados con anterioridad.
-		*  Si, por ejmeplo, en la primera iteración se procesa el grupo 7 y se actualiza su left, no debe tenerse en
-		*  cuenta en la siguiente, ya que todas las operaciones que se le tenían que realizar finalizaron en su
-		*  iteración */
-		lineGroups = lineGroups.filter((group: CardsGroup) =>
-			alreadyProcessedGroups.find((g: CardsGroup) => g.id == group.id) == undefined
-				&& omittedIds.indexOf(group.id) == -1
-		);
-
-		let newCardsMinutes = this.getDurationArray(
-			DimensionsService.calcStartFromLeft(clonedGroup.left, dayjs()),
-			clonedGroup.cards
-		);
-		newCardsMinutes = newCardsMinutes.slice(1, newCardsMinutes.length-1);
-
-		return lineGroups.filter(group => {
-			const minutesArray = CardPositionService.getDurationArray(group.cards[0].start, group.cards);
-			return minutesArray.find(minutes => newCardsMinutes.indexOf(minutes) >= 0);
-		});
-	}
-
-	private static getDurationArray(start: Dayjs, cards: Card[]) {
-		const end: Dayjs = start.add(UtilsService.sum(cards, Constants.PROPERTY.DURATION), Constants.DAY_JS.m);
-		return UtilsService.createMinutesArray(
-			start.diff(start.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
-			end.diff(end.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m),
-		);
-	}
-
-	private static calcLeft(cardsGroups: CardsGroup[]) {
-		cardsGroups.forEach((cardsGroup, index) => {
-			const width = CardPositionService.findCardsGroupsWidth(cardsGroups.slice(0, index));
-			cardsGroup.left = cardsGroups[0].left + width;
-		});
-	}
-
-	private static findCardsGroupsWidth(cardsGroups: CardsGroup[]): number {
-		let cards = [];
-		cardsGroups.forEach(cardsGroup => cards.push(...cardsGroup.cards));
-		return cards.map(card => card.width).reduce((a, b) => a + b, 0);
+	private static findOverlappedGroups(newEnd: Dayjs, rightLineGroups: CardsGroup[]): CardsGroup[] {
+		return rightLineGroups.filter((group: CardsGroup) => group.start.isBefore(newEnd));
 	}
 
 	// endregion
@@ -538,30 +355,19 @@ export class CardPositionService {
 		return value + scrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	private static dropzoneAbsolutePositionToLeft(
-		value: number
-	): number {
+	private static dropzoneAbsolutePositionToLeft(value: number): number {
 		return value - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	private static leftToAbsolutePosition(
-		value: number,
-		scrollLeft: number = this.scrollLeft
-	): number {
+	private static leftToAbsolutePosition(value: number, scrollLeft: number = this.scrollLeft): number {
 		return value - scrollLeft + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	static absolutePositionToTop(
-		value: number,
-		scrollTop: number = this.scrollTop
-	): number {
+	static absolutePositionToTop(value: number, scrollTop: number = this.scrollTop): number {
 		return value + scrollTop;
 	}
 
-	private static dropzoneTopToAbsolutePosition(
-		top: number,
-		scrollTop: number = this.scrollTop
-	) {
+	private static dropzoneTopToAbsolutePosition(top: number, scrollTop: number = this.scrollTop): number {
 		return top - scrollTop;
 	}
 

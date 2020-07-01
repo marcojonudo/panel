@@ -11,16 +11,16 @@
 		class="d-flex flex-column"
 		[ngStyle]="{'background-color': item.value.appointmentType.color, 'height.px': appointmentSummaryItemHeight}">
 		<span class="align-center flex-grow-1 flex-basis-0">{{item.key}}</span>
-		<span class="align-center flex-grow-1 flex-basis-0">{{findSaturationPercentage(item.value.total, item.value.max)}}%</span>
+		<span class="align-center flex-grow-1 flex-basis-0">{{findSaturationPercentage(item.value.total.length, item.value.max)}}%</span>
 		<div class="d-flex flex-grow-1 flex-basis-0">
 			<div
 				class="flex-grow-1 flex-basis-0 align-center border border-white"
-				[ngClass]="checkSaturation(item.value.morning, item.value.max, morningAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
+				[ngClass]="checkSaturation(item.value.morning.length, item.value.max, morningAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
 				M
 			</div>
 			<div
 				class="flex-grow-1 flex-basis-0 align-center border border-white"
-				[ngClass]="checkSaturation(item.value.afternoon, item.value.max, afternoonAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
+				[ngClass]="checkSaturation(item.value.afternoon.length, item.value.max, afternoonAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
 				T
 			</div>
 		</div>

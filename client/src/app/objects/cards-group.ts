@@ -150,10 +150,36 @@ export class CardsGroup {
 
 	// endregion
 
+	setId(): void {
+		this.id = this.cards[0].panelId;
+	}
+
 	setStart(start: Dayjs): void {
 		this.start = start;
-		this.left = this.start ? DimensionsService.calcLeftFromStart(this.start) : undefined;
-		this.end = this.start ? this.start.add(this.findDuration(), Constants.DAY_JS.m) : undefined;
+		if (this.start) {
+			this.left = DimensionsService.calcLeftFromStart(this.start);
+			this.end = this.start.add(this.findDuration(), Constants.DAY_JS.m);
+			// this.cards.forEach((card: Card, i: number) => {
+			// 	if (i == 0) {
+			// 		card.setStart(this.start);
+			// 	} else {
+			// 		card.setStart(this.cards[i-1].end);
+			// 	}
+			// });
+		} else {
+			this.left = undefined;
+			this.end = undefined;
+			// this.cards.forEach((card: Card) => {
+			// 	card.setStart(undefined);
+			// });
+		}
+	}
+
+	setStatus(status: string): void {
+		this.status = status;
+		this.cards.forEach((card: Card) => {
+			card.setStatus(status);
+		});
 	}
 
 	addCards(cards: Card[]): void {

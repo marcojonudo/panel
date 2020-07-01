@@ -11,6 +11,8 @@ import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import * as dayjs from "dayjs";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {Dayjs} from "dayjs";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -33,33 +35,30 @@ export class UnassignedDropzone implements Dropzone {
 		this.subType = subType;
 	}
 
-	validateCoordinates(coordinates: Coordinates): Coordinates {
-		return new Coordinates();
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
+		return new OverlappedGroupsInfo();
 	}
 
-	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
-		return [];
-	}
+	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
+		CardsService.removeFromUnassigned(group);
 
-	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
-		/* Si el movimiento se ha validado, es necesario ejectuar el CD para que se actualice la posición de los grupos
-		*  no asignados. En caso contrario no, ya que la el grupo retornará a su posición original */
-		CardsService.removeFromUnassigned(group, validated);
-		if (validated) {
+		/* Si las fichas se están asignado (destinyDropzone = ASSIGNED) entre días, puede ser necesario restar del
+		*  contador de citas del día de origen */
+		if (destinyDropzone.type == Constants.DROPZONE_TYPE.ASSIGNED) {
 			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
 		}
+
+			// if (validated) {
+		// TODO Revisar
+		// this.updateAppointmentsCounterSubtract(group, destinyDropzone);
+		// }
 	}
 
-	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
-		const sectionGroups = CardsService.findUnassignedGroups(group.type, group.status);
-		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+		CardsService.resetCardsGroup(groups[0]);
 	}
 
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup
-	): void {
-		CardsService.resetCardsGroup(group);
+	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToUnassigned(group);
 
@@ -70,32 +69,32 @@ export class UnassignedDropzone implements Dropzone {
 		);
 	}
 
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
+		return new Coordinates(group.left, CardPositionService.unassignedCardTop);
+	}
+
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
-			() => CardsService.addToUnassigned(group),
+			() => NotificationService.notifyBand(undefined, [group]),
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}
 
 	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
-		/* Si las fichas se están asignado (destinyDropzone = ASSIGNED) entre días, puede ser necesario restar del
-		*  contador de citas del día de origen */
-		if (destinyDropzone.type == Constants.DROPZONE_TYPE.ASSIGNED) {
-			/* Si la ficha no está finalizada, significa que se está asignando por primera vez. En este caso, el día de
-			*  origen es el de la orden, y sólo es necesario actualizar el total (al no estar asignada, sólo contaba
-			*  para el total, no para morngin o afternoon */
-			const originDay = group.cards[0].order.day;
-			/* El día de la orden podría haber pasado. De ser así, no se actualiza nada del contador de citas, ya
-			*  directamente no hay panel para días anteriores a hoy */
-			if (originDay.valueOf() >= dayjs().startOf(Constants.DAY_JS.d).valueOf()) {
-				this.appointmentsService.updateAppointment(
-					originDay,
-					group.cards,
-					false,
-					new UpdateAppointmentDayParams(false, false)
-				)
-			}
-		}
+		// /* Si la ficha no está finalizada, significa que se está asignando por primera vez. En este caso, el día de
+		// *  origen es el de la orden, y sólo es necesario actualizar el total (al no estar asignada, sólo contaba
+		// *  para el total, no para morning o afternoon */
+		// const originDay = group.cards[0].order.day;
+		// /* El día de la orden podría haber pasado. De ser así, no se actualiza nada del contador de citas, ya que
+		// *  directamente no hay panel para días anteriores a hoy */
+		// if (originDay >= dayjs().startOf(Constants.DAY_JS.d)) {
+		// 	this.appointmentsService.updateAppointment(
+		// 		originDay,
+		// 		group.cards,
+		// 		false,
+		// 		false
+		// 	)
+		// }
 	}
 
 	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {}

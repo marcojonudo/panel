@@ -10,6 +10,9 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
+import {Dayjs} from "dayjs";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {Card} from "../card";
 
 export class FinishDropzone implements Dropzone {
 
@@ -30,54 +33,42 @@ export class FinishDropzone implements Dropzone {
 		this.appointmentsService = appointmentsService;
 	}
 
-	validateCoordinates(coordinates: Coordinates): Coordinates {
-		return new Coordinates();
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
+		return new OverlappedGroupsInfo();
 	}
 
-	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
-		return [];
+	removeGroup(group: CardsGroup): void {}
+
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+		CardsService.updateFinishedGroup(groups[0]);
 	}
 
-	removeGroup(group: CardsGroup, validated: boolean): void {}
-
-	findLastCoordinates(groups: CardsGroup[], group: CardsGroup): Coordinates {
-		/* En el caso de fichas finalizadas no se devuelve posición, ya que no hay transición */
-		const sectionGroups = CardsService.findUnassignedGroups(group.type, Constants.CARD_STATUS.FINISHED);
-		return CardPositionService.handleUnassignedPosition(group, sectionGroups);
-	}
-
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup,
-		originDropzone: Dropzone
-	): void {
-		CardsService.updateFinishedGroup(group);
+	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		this.updateAppointmentsCounterAdd(group, originDropzone);
 		CardsService.addToFinished(group);
-		setTimeout(
-			() => NotificationService.notifyBand(),
-			CardPositionService.getAddGroupDelay(group)
-		);
+		CardPositionService.setHelperGroup(undefined);
 	}
 
-	handleNotValidatedMovement(group: CardsGroup): void {
-		CardsService.addToFinished(group);
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
+		return coordinates;
 	}
+
+	handleNotValidatedMovement(group: CardsGroup): void {}
 
 	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {}
 
 	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
-		if (originDropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED) {
-			// this.appointmentsService.updateAppointment(group.cards,true, true);
-			this.appointmentsService.updateAppointment(
-				group.cards[0].day,
-				group.cards,
-				true,
-				new UpdateAppointmentDayParams(false, true),
-				true
-			)
-		}
+		// // TODO Revsiar si en este caso hay que añadir una
+		// if (originDropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED) {
+		// 	this.appointmentsService.updateAppointment(
+		// 		group.cards[0].day,
+		// 		group.cards,
+		// 		true,
+		// 		false,
+		// 		true
+		// 	)
+		// }
 	}
 
 }

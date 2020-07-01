@@ -11,6 +11,8 @@ import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {Card} from "../card";
 import {NotificationService} from "../../services/notification.service";
+import {Dayjs} from "dayjs";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -22,8 +24,6 @@ export class AssignedDropzone implements Dropzone {
 	mechanic: Mechanic;
 	interval: ScheduleInterval;
 	position: Position;
-
-	dayMechanicGroups: CardsGroup[];
 
 	constructor(
 		cardsService: CardsService,
@@ -37,52 +37,70 @@ export class AssignedDropzone implements Dropzone {
 		this.interval = interval;
 	}
 
-	validateCoordinates(coordinates: Coordinates): Coordinates {
-		this.dayMechanicGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		return CardPositionService.validateCoordinates(coordinates, this.dayMechanicGroups);
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
+		const dayMechanicGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		const validateInfo = CardPositionService.validateCoordinates(coordinates, this, dayMechanicGroups, group);
+		return this.validateOverlappedGroups(
+			group, dayMechanicGroups, validateInfo.line, validateInfo.newStart, validateInfo.newEnd, this.interval
+		)
 	}
 
-	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[] {
-		const lineGroups = CardsService.findLineGroups(this.mechanic.day, this.mechanic.code, line);
-		return CardPositionService.findGroupsToUpdate(group, lineGroups, this);
+	validateOverlappedGroups(
+		group: CardsGroup,
+		dayMechanicGroups: CardsGroup[],
+		line: number,
+		newStart: Dayjs,
+		newEnd: Dayjs,
+		dropzoneInterval: ScheduleInterval
+	): OverlappedGroupsInfo {
+		/* Para validar si la posición es correcta, se deben tener en cuenta los grupos solapados. Estos grupos sólo
+		*  pueden ser aquellos que no sean el que se está moviendo (si este parte desde la derecha), y los que estén
+		*  en la misma línea más tarde que el nuevo start */
+		const lineRightGroups = dayMechanicGroups.filter((g: CardsGroup) =>
+			g.id != group.id && g.line == line && g.end.isAfter(newStart)
+		);
+		const overlappedGroupsInfo = CardPositionService.handleOverlappedMovements(newEnd, lineRightGroups)
+			.setNewStart(newStart);
+		return newStart >= dropzoneInterval.start && overlappedGroupsInfo.newEnd <= dropzoneInterval.end ?
+			overlappedGroupsInfo : undefined;
 	}
 
-	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
-		if (destinyDropzone) {
+	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
+		/* Sólo se tiene que reducir el contador de citas si una ficha se mueve de asignada a asignada (restar en una
+		*  categoría y sumar en otra), o de asignada a no asignada (restar en una categoría). Si se mueve a otra
+		*  dropzone (finalizada), no se resta nada al contador de citas */
+		if (destinyDropzone && destinyDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
 			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
 		}
 		CardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
-	findLastCoordinates(groups: CardsGroup[], group: CardsGroup, coordinates: Coordinates): Coordinates {
-		/* Se actualiza el left, start y end de los grupos y se retorna la posición final a la que se tendrá que
-		*  desplazar la ficha, una vez tenidos en cuenta los solapamientos */
-		return CardPositionService.updateAssignedGroupsPosition(coordinates, groups);
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+		CardsService.updatePositionProperties(
+			groups, newStart.startOf(Constants.DAY_JS.d), mechanic.code, line, newStart
+		);
 	}
 
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup,
-		originDropzone: Dropzone,
-		line: number
-	): void {
-		const dayMechanicGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		CardsService.updateAssignedCards(groups, group, this.mechanic.day, this.mechanic.code, line, dayMechanicGroups);
-
+	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void {
 		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
-		this.checkNewAuxiliaryCard(cardsToUpdate[0])
-			? this.cardsService.createDbCards(cardsToUpdate)
-			: this.cardsService.updateDbCardsPosition(cardsToUpdate);
+
+		/* Si se está actualizando en tiempo real, no hay fichas para actualizar en BD (ya se actualizaron al realizar
+		*  el movimiento en el terminal original) */
+		if (cardsToUpdate.length) {
+			/* Si se acaba de soltar en panel una ficha auxiliar nueva, esta debe crearse en BD, no actualizarse */
+			this.checkNewAuxiliaryCard(cardsToUpdate[0])
+				? this.cardsService.createDbCards(cardsToUpdate)
+				: this.cardsService.updateDbCardsPosition(cardsToUpdate);
+		}
+
 		this.updateAppointmentsCounterAdd(group, originDropzone);
+		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
 		*  desplazamiento */
 		setTimeout(
-			() => {
-				CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
-				NotificationService.notifyUpdateArray();
-			},
+			() => NotificationService.notifyUpdateArray(),
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}
@@ -91,40 +109,36 @@ export class AssignedDropzone implements Dropzone {
 		return card.type == Constants.CARD_TYPE.AUXILIARY && card.lastStatus == Constants.CARD_STATUS.DEFAULT;
 	}
 
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
+		return coordinates;
+	}
+
 	handleNotValidatedMovement(group: CardsGroup): void {
 		/* Si el movimiento no valida, lo único que hay que hacer es añadir el grupo a su dropzone original (no hay que
 		*  actualizar propiedades, ni el panel de citas) */
 		setTimeout(
-			() => {
-				CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
-				NotificationService.notifyUpdateArray();
-			},
+			() => NotificationService.notifyGroups([group], true),
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}
 
 	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
-		/* Sólo se tiene que reducir el contador de citas si una ficha se mueve de asignada a asignada (restar en una
-		*  categoría y sumar en otra), o de asignada a no asignada (restar en una categoría). Si se mueve a otra
-		*  dropzone (finalizada), no se resta nada al contador de citas */
-		if (destinyDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
-			this.appointmentsService.updateAppointment(
-				group.cards[0].day,
-				group.cards,
-				false,
-				new UpdateAppointmentDayParams(false, true)
-			);
-		}
+		// this.appointmentsService.updateAppointment(
+		// 	group.cards[0].day,
+		// 	group.cards,
+		// 	false,
+		// 	true
+		// );
 	}
 
 	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
-		this.appointmentsService.updateAppointment(
-			group.cards[0].day,
-			group.cards,
-			true,
-			new UpdateAppointmentDayParams(false, true),
-			true
-		)
+		// this.appointmentsService.updateAppointment(
+		// 	group.cards[0].day,
+		// 	group.cards,
+		// 	true,
+		// 	true,
+		// 	true
+		// )
 	}
 
 }

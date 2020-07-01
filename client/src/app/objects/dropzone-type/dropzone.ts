@@ -1,10 +1,11 @@
 import {CardsGroup} from "../cards-group";
-import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {Mechanic} from "../mechanic";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
+import {Dayjs} from "dayjs";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 
 export interface Dropzone {
 
@@ -16,15 +17,15 @@ export interface Dropzone {
 	interval: ScheduleInterval;
 	position: Position;
 
-	validateCoordinates(coordinates: Coordinates): Coordinates;
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo;
 
-	findGroupsToUpdate(group: CardsGroup, line: number): CardsGroup[];
+	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void;
 
-	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void;
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void;
 
-	findLastCoordinates(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
+	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void;
 
-	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone, line: number): void;
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
 

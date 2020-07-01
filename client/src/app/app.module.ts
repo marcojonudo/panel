@@ -23,7 +23,7 @@ import {ScrollingModule} from "@angular/cdk/scrolling";
 import {CardComponent} from './components/card/card.component';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AngularDraggableModule} from "angular2-draggable";
-import {ClickableCardDirective} from './directives/clickable-card.directive'
+import {ClickableDirective} from './directives/clickable.directive'
 import {OverlayModule} from "@angular/cdk/overlay";
 import {MovableDirective} from './directives/movable.directive';
 import {ScrollableDirective} from './directives/scrollable.directive';
@@ -71,7 +71,7 @@ import { ContextMenuComponent } from './components/context-menu/context-menu.com
 		DimensionSlidersComponent,
 		DaysPipe,
 		CardComponent,
-		ClickableCardDirective,
+		ClickableDirective,
 		MovableDirective,
 		ScrollableDirective,
 		DropzoneDirective,

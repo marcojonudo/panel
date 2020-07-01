@@ -18,14 +18,14 @@ import {DropzoneService} from "../services/dropzone.service";
 import {UtilsService} from "../services/utils.service";
 
 @Directive({
-	selector: '[appDraggable]',
+	selector: '[appClickable]',
 	exportAs: 'appDraggable'
 })
-export class ClickableCardDirective implements OnInit, AfterViewChecked {
+export class ClickableDirective implements OnInit, AfterViewChecked {
 
 	private readonly AVOID_DRAG_ID: string = 'link-handler';
 
-	@Input() cardsGroup: CardsGroup;
+	@Input() group: CardsGroup;
 	@Input() cardBehaviour: CardTypeBehaviour;
 	@Output() hiddenCardsGroup: EventEmitter<CardsGroup>;
 
@@ -74,7 +74,7 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 
 	private handleRightClick(event: PointerEvent): void {
 		event.preventDefault();
-		this.cardBehaviour.handleRightClick(this.cardsGroup, new Coordinates(event.clientX, event.clientY));
+		this.cardBehaviour.handleRightClick(this.group, new Coordinates(event.clientX, event.clientY));
 	}
 
 	handleClick(event: PointerEvent): void {
@@ -87,7 +87,7 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 
 	private handleLeftClick(event: PointerEvent): void {
 		/* Si el modo es DRAG, se llevan a cabo las acciones necesarias para conseguir el desplazamiento del grupo */
-		if (this.cardsGroup.mode == Constants.GROUP_MODE.DRAG) {
+		if (this.group.mode == Constants.GROUP_MODE.DRAG) {
 			this.init = true;
 			this.pointerMoveListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
@@ -100,7 +100,7 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 				this.onPointerUp.bind(this)
 			);
 		} else {
-			this.cardBehaviour.handleLeftClick(this.cardsGroup, event.clientX);
+			this.cardBehaviour.handleLeftClick(this.group, event.clientX);
 		}
 	}
 
@@ -122,19 +122,19 @@ export class ClickableCardDirective implements OnInit, AfterViewChecked {
 	private initDragging(event: PointerEvent): void {
 		/* Se emite el grupo arrastrado, para poder asignarle la clase hidden, que lo ubica detrás de las líneas
 		*  mientras se mueve el auxiliar. Debe hacerse desde mechanic-line.component, por eso se use le emitter */
-		this.hiddenCardsGroup.emit(this.cardsGroup);
+		this.hiddenCardsGroup.emit(this.group);
 
 		this.initCoordinates(event);
 
 		/* Se envía el grupo para mostrar el helper en el overlay */
-		CardPositionService.setHelperGroup(this.cardBehaviour.findHelperGroup(this.cardsGroup));
+		CardPositionService.setHelperGroup(this.cardBehaviour.findHelperGroup(this.group));
 		/* Permite asignar o eliminar la clase que añade una transición al helper, para desplazarse a la posicíon
 		*  final */
 		CardPositionService.setDragging(true);
 
 		/* La dropzone de origen se obtiene de forma programática para evitar problemas con los eventos de cursor. Por
 		*  ejemplo, que por desplazarlo muy rápido no se lance y se produzcan fallos al no estar definida */
-		CardPositionService.originDropzone = DropzoneService.findDropzone(this.cardsGroup.cards[0]);
+		CardPositionService.originDropzone = DropzoneService.findDropzone(this.group.cards[0]);
 	}
 
 	private initCoordinates(event: PointerEvent, cardRect: any = this.cardRect): void {

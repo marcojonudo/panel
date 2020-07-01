@@ -27,7 +27,7 @@ export class UnassignedCardLinkHandler implements CardLinkHandler {
 
 		/* El nuevo grupo se situá a la derecha del original, por lo que su índice será 1unidad superior */
 		const newGroupIndex = unassignedGroups.findIndex((g: CardsGroup) => g.id == group.id) + 1;
-		CardsService.handleAddUnassignedCardsGroup(newGroup, newGroupIndex, true);
+		CardsService.handleAddUnassignedGroup(newGroup, newGroupIndex, true);
 
 		return [group.cards[group.cards.length - 1], newGroup.cards[0]]
 	}
@@ -39,7 +39,7 @@ export class UnassignedCardLinkHandler implements CardLinkHandler {
 
 		const groupCardsOriginalLength = group.cards.length;
 		const [groupToUpdate, groupToRemove] = sideLinkHandler.link(group, nextGroup, card);
-		CardsService.handleRemoveUnassignedCardsGroup(groupToRemove);
+		CardsService.handleRemoveUnassignedGroup(groupToRemove);
 		return groupToUpdate.cards.slice(groupCardsOriginalLength - 1, groupCardsOriginalLength + 1);
 	}
 

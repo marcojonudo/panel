@@ -49,7 +49,7 @@ class PanelService {
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
-		lastScheduleDay = LocalDate.parse(daysMechanics.keySet().last())
+		lastScheduleDay = LocalDate.parse(daysMechanics.keySet().max())
 		UpdateCards updateCards = syncJpdvOrders(day, lastScheduleDay)
 
 		/* Una vez cargados los horarios definidos y las nuevas fichas para crear, se sincroniza la información de

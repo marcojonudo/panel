@@ -80,7 +80,7 @@ export class DropzoneService {
 					&& dropzone.mechanic.day.isSame(card.day)
 			);
 		} else {
-			if (card.start == Constants.CARD_STATUS.FINISHED) {
+			if (card.status == Constants.CARD_STATUS.FINISHED) {
 				return this.dropzones.find((dropzone: Dropzone) =>
 					dropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED
 				)

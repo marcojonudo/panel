@@ -58,7 +58,7 @@ export class CardComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.linkHandler = this.card.day ? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
+		this.linkHandler = this.card.mechanicCode ? new AssignedCardLinkHandler() : new UnassignedCardLinkHandler();
 	}
 
 	checkFirstCard(linkedPrevious: Card): boolean {

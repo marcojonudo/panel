@@ -34,6 +34,8 @@ import {UnassignedCardDurationHandler} from "../objects/card-duration/unassigned
 import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
 import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-handler";
 import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-divide";
+import {DropzoneService} from "./dropzone.service";
+import {process} from "@angular/compiler-cli/ngcc";
 
 @Injectable({
 	providedIn: 'root'
@@ -115,54 +117,32 @@ export class RealTimeService {
 	}
 
 	updatePosition(cards: Card[]): void {
-		/* Si al mover el grupo se solapa con otro, y este se desplaza (y así sucesivamente), habría fichas de más
-		*  de una orden. Se agrupan para procesar los grupos de forma individual */
-		const groupedCards = {};
+		const processedGroups = [];
 		cards.forEach((card: Card) => {
-			if (groupedCards[card.order.number]) {
-				groupedCards[card.order.number].push(card);
-			} else {
-				groupedCards[card.order.number] = [card];
+			/* Para saber si el grupo estaba asignado antes de moverlo en otro terminal, se recorren primero los grupos
+			*  no asignados (la mayoría de las veces habrá muchos menos, por lo que será más eficiente). No se puede
+			*  buscar a partir del card.day, o card.mechanicCode, porque al haber cambiado la posición estos pueden
+			*  ser nuevos (si se mueve una ficha del día 1 al día 2, en este panel (donde sigue en el día 1), no se
+			*  va a encontrar en el día 2 */
+			let group = CardsService.findCardGroup(CardsService.unassignedGroups, card.panelId);
+			group = group ? group : CardsService.findCardGroup(CardsService.assignedGroups, card.panelId);
+
+			const processedGroup = processedGroups.find((g: CardsGroup) => g.id == group.id);
+			if (!processedGroup) {
+				/* El grupo existente en panel antes de actualizar está en la posición de origen (la que tenía antes de
+				*  actualizarse en otro terminal) */
+				const originDropzone = DropzoneService.findDropzone(group.cards[0]);
+				const destinyDropzone = DropzoneService.findDropzone(card);
+
+				originDropzone.removeGroup(group, destinyDropzone);
+				destinyDropzone.updateProperties(
+					[group], card.start, card.line, destinyDropzone.mechanic
+				);
+				destinyDropzone.addGroup([], group, originDropzone);
+
+				processedGroups.push(group);
 			}
 		});
-
-		for (const [orderNumber, orderCards] of Object.entries(groupedCards)) {
-			(<Card[]> orderCards).forEach((card: Card) => {
-				/* Para saber si el grupo estaba asignado antes de moverlo en otro terminal, se recorren primero los grupos
-				*  no asignados (la mayoría de las veces habrá muchos menos, por lo que será más eficiente) */
-				let group = CardsService.findOrderGroups(CardsService.unassignedGroups, parseInt(orderNumber))
-					.find((g: CardsGroup) => g.id == card.panelId);
-				group = group ? group : CardsService.findOrderGroups(CardsService.assignedGroups, parseInt(orderNumber))
-					.find((g: CardsGroup) => g.id == card.panelId)
-
-				/* Si se encuentra el grupo dentro de los no asignados, se elimina de esa categoría */
-				if (group.day == undefined) {
-					CardsService.removeFromUnassigned(group, false);
-				} else {
-					/* Si no se encuentra el grupo dentro de los no asignados, significa que ya estaba asignado */
-					CardsService.removeFromAssigned(group, group.day, group.mechanicCode);
-				}
-
-				/* Si las fichas están asignadas */
-				if (card.day != undefined) {
-					/* left se calcula a partir de la hora que ya tiene asignada la ficha (ya se ha movido antes en otro
-					*  terminal) */
-					group.left = DimensionsService.calcLeftFromStart(card.start);
-					CardsService.updateAssignedCards(
-						[group],
-						group,
-						card.day,
-						card.mechanicCode,
-						card.line,
-						CardsService.findDayMechanicGroups(card.day, card.mechanicCode)
-					);
-					CardsService.addToAssigned(group, card.day, card.mechanicCode);
-				} else {
-					CardsService.resetCardsGroup(group);
-					CardsService.addToUnassigned(group);
-				}
-			});
-		}
 		NotificationService.notifyUpdateArray();
 	}
 

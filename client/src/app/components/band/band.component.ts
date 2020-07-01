@@ -64,9 +64,7 @@ export class BandComponent implements OnInit, OnDestroy {
 		this.unassignedTypesCardsGroups = CardsService.unassignedTypesCardsGroups;
 		this.bandSubscription = NotificationService.band$.subscribe((bandUpdate: BandUpdate) => {
 			if (bandUpdate.section) {
-				this.section = CardsService.unassignedSections.find(section =>
-					section.name == bandUpdate.section
-				);
+				this.setSection(bandUpdate.section);
 			}
 			if (bandUpdate.groupsUpdate) {
 				bandUpdate.groupsUpdate.forEach((groupUpdate: GroupUpdate) => {

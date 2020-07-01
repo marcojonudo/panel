@@ -30,7 +30,6 @@ import {MechanicsTriggerMap} from "../../objects/trigger-cd/trigger-maps/mechani
 })
 export class GridComponent implements OnInit {
 
-	//TODO Revisar input appointments y position de mechanic line container
 	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
 	@Input() mechanicLineUpdates: MechanicLineUpdate[];
