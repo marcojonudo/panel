@@ -550,7 +550,9 @@ class PanelService {
 	 */
 	void saveCards(UpdateCards updateCards) {
 		if (updateCards.newCards) {
-			panelDatabaseClient.createCards("", updateCards.newCards.collect { it.properties }, true)
+			/* Las relaciones entre fichas se asignan a la hora de guardar en BD, ya que aquí todavía no tienen un id.
+			*  Por lo tanto, en la respuesta ya figura la información completa */
+			updateCards.newCards = panelDatabaseClient.createCards("", updateCards.newCards.collect { it.properties }, true)
 		}
 		if (updateCards.updatedCards) {
 			panelDatabaseClient.updateCards(updateCards.updatedCards)
