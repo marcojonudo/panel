@@ -9,7 +9,7 @@ import {Url} from "../objects/url";
 import {Constants} from "../objects/constants";
 import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
-import {MechanicLineUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
+import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 
 @Injectable({
 	providedIn: 'root'
@@ -178,7 +178,7 @@ export class MechanicsService {
 		const index = mechanics.indexOf(mechanic);
 		MechanicsService.rearrangeMechanics(mechanics, index);
 
-		NotificationService.notifyMechanicLine(day, mechanic.code);
+		NotificationService.notifyMechanicLine(undefined, undefined, true, new DropzoneUpdate());
 
 		if (updateDb) {
 			this.http.put(Url.mechanicsPosition(), mechanics.concat(mechanic)).subscribe();
