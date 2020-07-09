@@ -39,11 +39,6 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	}
 
 	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
-		/* Si las fichas se están asignado (destinyDropzone = ASSIGNED) entre días, puede ser necesario restar del
-		*  contador de citas del día de origen */
-		if (destinyDropzone.type == Constants.DROPZONE_TYPE.ASSIGNED) {
-			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
-		}
 		CardsService.removeFromUnassigned(group);
 	}
 
@@ -73,20 +68,5 @@ export class UnassignedFinishedDropzone implements Dropzone {
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}
-
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
-		// /* Si la ficha estaba finalizada, se debe actualizar la info del último día en el que estuvo asignada
-		// *  (tanto morning o afternoon, como total, ya que en este caso sí se había contado la ficha según el
-		// *  tipo de horario */
-		// const originDay = group.cards[0].day;
-		// this.appointmentsService.updateAppointment(
-		// 	originDay,
-		// 	group.cards,
-		// 	false,
-		// 	true
-		// )
-	}
-
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {}
 
 }

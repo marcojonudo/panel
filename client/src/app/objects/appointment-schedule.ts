@@ -1,4 +1,4 @@
-import {AppointmentType} from "./appointment-type";
+import {AppointmentType} from "./appointments/appointment-type";
 import {ScheduleInterval} from "./schedule-interval";
 import {UtilsService} from "../services/utils.service";
 import * as dayjs from "dayjs";

@@ -1,4 +1,4 @@
-package panel.pogos
+package panel.pogos.firstLoad
 
 import groovy.transform.CompileStatic
 

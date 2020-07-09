@@ -1,18 +1,18 @@
 import {Constants} from "../constants";
 import {LateralPanelInfo} from "./lateral-panel-info";
-import {AppointmentsCounter} from "../appointments-counter";
-import {AppointmentsCounterUpdate} from "../trigger-cd/update-objects/appointments-counter/appointments-counter-update";
+import {AppointmentDayUpdate} from "../trigger-cd/update-objects/appointments-counter/appointment-day-update";
+import {AppointmentDay} from "../appointments/appointment-day";
 
 export class AppointmentsDetailsInfo implements LateralPanelInfo {
 
 	type: string;
-	params: AppointmentsCounterUpdate;
+	params: AppointmentDayUpdate;
 	show: boolean;
 
-	constructor(appointmentsCounter: AppointmentsCounter) {
+	constructor(appointmentDay: AppointmentDay) {
 		this.type = Constants.LATERAL_PANEL_INFO_TYPE.APPOINTMENTS_DETAILS;
-		this.params = new AppointmentsCounterUpdate(appointmentsCounter);
-		this.show = appointmentsCounter != undefined;
+		this.params = new AppointmentDayUpdate(appointmentDay);
+		this.show = appointmentDay != undefined;
 	}
 
 }

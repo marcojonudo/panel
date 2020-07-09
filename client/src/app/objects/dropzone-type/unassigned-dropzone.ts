@@ -41,17 +41,6 @@ export class UnassignedDropzone implements Dropzone {
 
 	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
 		CardsService.removeFromUnassigned(group);
-
-		/* Si las fichas se están asignado (destinyDropzone = ASSIGNED) entre días, puede ser necesario restar del
-		*  contador de citas del día de origen */
-		if (destinyDropzone.type == Constants.DROPZONE_TYPE.ASSIGNED) {
-			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
-		}
-
-			// if (validated) {
-		// TODO Revisar
-		// this.updateAppointmentsCounterSubtract(group, destinyDropzone);
-		// }
 	}
 
 	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
@@ -79,24 +68,5 @@ export class UnassignedDropzone implements Dropzone {
 			CardPositionService.getAddGroupDelay(group)
 		);
 	}
-
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
-		// /* Si la ficha no está finalizada, significa que se está asignando por primera vez. En este caso, el día de
-		// *  origen es el de la orden, y sólo es necesario actualizar el total (al no estar asignada, sólo contaba
-		// *  para el total, no para morning o afternoon */
-		// const originDay = group.cards[0].order.day;
-		// /* El día de la orden podría haber pasado. De ser así, no se actualiza nada del contador de citas, ya que
-		// *  directamente no hay panel para días anteriores a hoy */
-		// if (originDay >= dayjs().startOf(Constants.DAY_JS.d)) {
-		// 	this.appointmentsService.updateAppointment(
-		// 		originDay,
-		// 		group.cards,
-		// 		false,
-		// 		false
-		// 	)
-		// }
-	}
-
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {}
 
 }

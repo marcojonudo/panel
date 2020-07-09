@@ -12,11 +12,10 @@ import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.EcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.GetEcommerceScheduleError
 import panel.pogos.eCommerce.getSchedules.GetEcommerceSchedulesInfo
+import panel.pogos.schedules.ScheduleInterval
 import panel.services.EcommerceService
 import spock.lang.Shared
 import spock.lang.Specification
-import utils.pogos.panel.AppointmentType
-import utils.pogos.schedules.ScheduleInterval
 
 import javax.inject.Inject
 import java.time.LocalDate

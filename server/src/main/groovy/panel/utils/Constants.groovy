@@ -26,30 +26,37 @@ class Constants {
 
 	}
 
+	static class DateTimeFormat {
+
+		static final String yyyy_MM_dd_HH_mm_ss = "yyyy-MM-dd HH:mm:ss"
+
+	}
+
 	static final Map<String, String> HEADER_ID = [
-	        SESSION_ID: 'session-id',
-	        REAL_TIME_ACTION: 'real-time-action'
+		SESSION_ID: 'session-id',
+		REAL_TIME_ACTION: 'real-time-action'
 	]
 
 	static final Map<String, String> REAL_TIME_ACTION = [
-	        UPDATE_CARDS_POSITION: 'updateCardsPosition',
-	        UPDATE_CARDS_DURATION: 'updateCardsDuration',
-			UPDATE_CARDS_LINKS: 'updateCardsLinks',
-			UPDATE_MECHANIC_JOB_LINE_TYPE: 'updateMechanicJobLineType',
-			UPDATE_MECHANICS_POSITION: 'updateMechanicsPosition',
-			UPDATE_MECHANIC_LINES: 'updateMechanicLines',
-			CREATE_APPOINTMENT: 'createAppointment',
-			UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule',
-			DELETE_APPOINTMENT: 'deleteAppointment',
-			SYNC_JPDV: 'syncJpdv',
-			UPDATE_VEHICLE_POSITION: 'updateVehiclePosition',
-			UPDATE_PENDING_CALL: 'updatePendingCall',
-			UPDATE_PENDING_BUDGET: 'updatePendingBudget',
-			DIVIDE_CARDS: 'divideCards'
+		UPDATE_CARDS_POSITION: 'updateCardsPosition',
+		UPDATE_CARDS_DURATION: 'updateCardsDuration',
+		UPDATE_CARDS_LINKS: 'updateCardsLinks',
+		UPDATE_MECHANIC_JOB_LINE_TYPE: 'updateMechanicJobLineType',
+		UPDATE_MECHANICS_POSITION: 'updateMechanicsPosition',
+		UPDATE_MECHANIC_LINES: 'updateMechanicLines',
+		CREATE_APPOINTMENT: 'createAppointment',
+		UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule',
+		DELETE_APPOINTMENT: 'deleteAppointment',
+		SYNC_JPDV: 'syncJpdv',
+		UPDATE_VEHICLE_POSITION: 'updateVehiclePosition',
+		UPDATE_PENDING_CALL: 'updatePendingCall',
+		UPDATE_PENDING_BUDGET: 'updatePendingBudget',
+		DIVIDE_CARDS: 'divideCards'
 	]
 
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']
 	static final List<String> ECOMMERCE_APPOINTMENT_TYPE_CODES = ['ECO', 'TP']
+	static final List<String> RESET_NEW_CARDS_PROPERTIES = ['day', 'created']
 	static final String SPAIN_TIMEZONE = "Europe/Madrid"
 
 }

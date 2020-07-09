@@ -10,8 +10,7 @@ import {Dayjs} from "dayjs";
 import {Skill} from "../objects/skill";
 import {HourQuarter} from "../objects/hour-quarter";
 import {LateralPanelInfo} from "../objects/lateral-panel-info/lateral-panel-info";
-import {AppointmentsCounter} from "../objects/appointments-counter";
-import {DayAppointmentsCounterUpdate} from "../objects/trigger-cd/update-objects/appointments-counter/day-appointments-counter-update";
+import {DayAppointmentDayUpdate} from "../objects/trigger-cd/update-objects/appointments-counter/day-appointment-day-update";
 import {DayLateralPanelUpdate} from "../objects/trigger-cd/update-objects/lateral-panel/day-lateral-panel-update";
 import {DaySaturatedQuartersUpdate} from "../objects/trigger-cd/update-objects/saturated-quarteres/day-saturated-quarters-update";
 import {DayMechanicSkillsUpdate} from "../objects/trigger-cd/update-objects/mechanic-skills/day-mechanic-skills-update";
@@ -29,6 +28,7 @@ import {MaxScheduleWidthUpdate} from "../objects/trigger-cd/update-objects/gener
 import {CardsService} from "./cards.service";
 import {ContextMenuUpdate} from "../objects/trigger-cd/update-objects/generic/context-menu-update";
 import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
+import {AppointmentDay} from "../objects/appointments/appointment-day";
 
 @Injectable({
 	providedIn: 'root'
@@ -248,9 +248,9 @@ export class NotificationService {
 		}
 	}
 
-	static notifyAppointmentsCounter(day: Dayjs, appointmentsCounter: AppointmentsCounter): void {
-		const dayAppointmentsCounterUpdate = new DayAppointmentsCounterUpdate(day, appointmentsCounter);
-		this.updateArray.push(dayAppointmentsCounterUpdate);
+	static notifyAppointmentDay(day: Dayjs, appointmentDay: AppointmentDay): void {
+		const dayAppointmentDayUpdate = new DayAppointmentDayUpdate(day, appointmentDay);
+		this.updateArray.push(dayAppointmentDayUpdate);
 	}
 
 	static notifyOneDayMode(oneDayMode: boolean): void {

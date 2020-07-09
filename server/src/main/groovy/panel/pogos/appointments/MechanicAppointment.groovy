@@ -1,10 +1,10 @@
-package panel.pogos
+package panel.pogos.appointments
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import groovy.transform.CompileStatic
-import utils.pogos.Employee
-import utils.pogos.schedules.EmployeeSchedule
-import utils.pogos.schedules.ScheduleInterval
+import panel.pogos.schedules.Employee
+import panel.pogos.schedules.EmployeeSchedule
+import panel.pogos.schedules.ScheduleInterval
 
 import java.time.LocalDate
 import java.time.LocalTime

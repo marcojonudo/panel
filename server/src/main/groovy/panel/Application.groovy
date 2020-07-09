@@ -4,7 +4,7 @@ import groovy.transform.CompileStatic
 import io.micronaut.context.event.ApplicationEventListener
 import io.micronaut.runtime.Micronaut
 import io.micronaut.runtime.server.event.ServerStartupEvent
-import panel.pogos.SyncOrdersSemaphore
+import panel.pogos.firstLoad.SyncOrdersSemaphore
 
 import javax.inject.Singleton
 

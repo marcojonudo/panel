@@ -3,9 +3,9 @@ import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {Constants} from "../objects/constants";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
-import {AppointmentType} from "../objects/appointment-type";
+import {AppointmentType} from "../objects/appointments/appointment-type";
 import {Card} from "../objects/card";
-import {AppointmentDay} from "../objects/appointment-day";
+import {AppointmentDay} from "../objects/appointments/appointment-day";
 import {NotificationService} from "./notification.service";
 import {UtilsService} from "./utils.service";
 import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
@@ -16,6 +16,7 @@ import {AppointmentsCounter} from "../objects/appointments-counter";
 import * as dayjs from "dayjs";
 import {CardsService} from "./cards.service";
 import {CardsGroup} from "../objects/cards-group";
+import {AppointmentTypeValues} from "../objects/appointments/appointment-type-values";
 
 @Injectable({
 	providedIn: 'root'
@@ -88,11 +89,11 @@ export class AppointmentsService {
 		return this.appointmentTypes.find((appointmentType: AppointmentType) => appointmentType.code == code);
 	}
 
-	findDayAppointmentsCounter(
+	findAppointmentDay(
 		day: Dayjs,
-		daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
-	): AppointmentsCounter {
-		return daysAppointmentsCounter[day.valueOf()];
+		appointmentDays: AppointmentDay[] = this.appointmentDays
+	): AppointmentDay {
+		return appointmentDays.find((appointmentDay: AppointmentDay) => appointmentDay.day.isSame(day));
 	}
 
 	// endregion
@@ -105,11 +106,11 @@ export class AppointmentsService {
 	}
 
 	init(appointmentDays: any[]): void {
-		this.appointmentDays = this.initAppointmentDays(appointmentDays);
+		this.appointmentDays = appointmentDays.map(appointmentDay => new AppointmentDay(appointmentDay));
 		console.log('Appointment types', AppointmentsService.appointmentTypes);
 		console.log('Appointment days', this.appointmentDays);
-		this.daysAppointmentsCounter = this.initDaysAppointmentsCounter(this.appointmentDays);
-		console.log('Days appointments counter', this.daysAppointmentsCounter);
+		// this.daysAppointmentsCounter = this.initDaysAppointmentsCounter(this.appointmentDays);
+		// console.log('Days appointments counter', this.daysAppointmentsCounter);
 
 		AppointmentsService.dragSchedulesAppointmentType = AppointmentsService.appointmentTypes
 			.find((appointmentType: AppointmentType) =>
@@ -119,47 +120,49 @@ export class AppointmentsService {
 
 	// private init
 
-	private initAppointmentDays(appointmentDays: any[]): AppointmentDay[] {
-		return appointmentDays.map(appointmentDay => {
-			const day = dayjs(appointmentDay.day);
-			const appDay = new AppointmentDay(day, appointmentDay);
-			if (appointmentDay.morning || appointmentDay.afternoon) {
-				CardsService.findDayGroups(day).forEach((group: CardsGroup) => {
-					if (group.cards[0].type == Constants.CARD_TYPE.APPOINTMENT) {
-						group.cards.forEach((card: Card) => {
-							appDay.addAppointmentCard(card.panelId, UtilsService.findScheduleType(group.start, card.end));
-						});
-					}
-				});
-			}
-			if (appointmentDay.total) {
-				CardsService.unassignedGroups.forEach((group: CardsGroup) => {
-					if (group.cards[0].type == Constants.CARD_TYPE.APPOINTMENT && group.cards[0].order.day.isSame(day)) {
-						appDay.total.push(...group.cards.map((c: Card) => c.panelId));
-					}
-				});
-			}
-			return appDay;
-		});
-	}
+	// private initAppointmentDays(appointmentDays: any[]): AppointmentDay[] {
+	// 	return appointmentDays.map(appointmentDay => {
+	// 		const day = dayjs(appointmentDay.day);
+	// 		return new AppointmentDay(appointmentDay)
+	// 	});
+	// 	// 	const appDay = new AppointmentDay(day, appointmentDay);
+	// 	// 	if (appointmentDay.morning || appointmentDay.afternoon) {
+	// 	// 		CardsService.findDayGroups(day).forEach((group: CardsGroup) => {
+	// 	// 			if (group.cards[0].type == Constants.CARD_TYPE.APPOINTMENT) {
+	// 	// 				group.cards.forEach((card: Card) => {
+	// 	// 					appDay.addAppointmentCard(card.panelId, UtilsService.findScheduleType(group.start, card.end));
+	// 	// 				});
+	// 	// 			}
+	// 	// 		});
+	// 	// 	}
+	// 	// 	if (appointmentDay.total) {
+	// 	// 		CardsService.unassignedGroups.forEach((group: CardsGroup) => {
+	// 	// 			if (group.cards[0].type == Constants.CARD_TYPE.APPOINTMENT && group.cards[0].order.day.isSame(day)) {
+	// 	// 				appDay.total.push(...group.cards.map((c: Card) => c.panelId));
+	// 	// 			}
+	// 	// 		});
+	// 	// 	}
+	// 	// 	return appDay;
+	// 	// });
+	// }
 
-	private initDaysAppointmentsCounter(appointmentDays: AppointmentDay[]): DaysAppointmentsCounter {
-		const daysAppointmentsCounter = {};
-		for (let i = 0; i < appointmentDays.length; i = i + 4) {
-			daysAppointmentsCounter[appointmentDays[i].day.valueOf()] = this.initAppointmentsCounter(
-				appointmentDays.slice(i, i + 4)
-			);
-		}
-		return daysAppointmentsCounter
-	}
-
-	private initAppointmentsCounter(appointmentDayTypes: AppointmentDay[]): { [key: string]: AppointmentDay } {
-		const appointmentsCounter = {};
-		appointmentDayTypes.forEach((appointmentDay: AppointmentDay) => {
-			appointmentsCounter[appointmentDay.appointmentType.code] = appointmentDay;
-		});
-		return appointmentsCounter;
-	}
+	// private initDaysAppointmentsCounter(appointmentDays: AppointmentDay[]): DaysAppointmentsCounter {
+	// 	const daysAppointmentsCounter = {};
+	// 	for (let i = 0; i < appointmentDays.length; i = i + 4) {
+	// 		daysAppointmentsCounter[appointmentDays[i].day.valueOf()] = this.initAppointmentsCounter(
+	// 			appointmentDays.slice(i, i + 4)
+	// 		);
+	// 	}
+	// 	return daysAppointmentsCounter
+	// }
+	//
+	// private initAppointmentsCounter(appointmentDayTypes: AppointmentDay[]): { [key: string]: AppointmentDay } {
+	// 	const appointmentsCounter = {};
+	// 	appointmentDayTypes.forEach((appointmentDay: AppointmentDay) => {
+	// 		appointmentsCounter[appointmentDay.appointmentType.code] = appointmentDay;
+	// 	});
+	// 	return appointmentsCounter;
+	// }
 
 	// endregion
 
@@ -182,106 +185,28 @@ export class AppointmentsService {
 		return percentage > 100 ? 100 : percentage;
 	}
 
-	// endregion
-
-	// region Update appointment day
-
-	updateAppointment(
-		day: Dayjs,
-		cards: Card[],
-		add: boolean,
-		updateAll: boolean,
-		updateDb: boolean = false,
-		daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
-	): void {
-		if (cards[0].type == Constants.CARD_TYPE.APPOINTMENT) {
-			const appointmentDayCounters = daysAppointmentsCounter[day.valueOf()];
-			const appointmentDaysToUpdate = [];
-			for (const [typeCode, appointmentDay] of Object.entries(appointmentDayCounters)) {
-				const typeCards = cards.filter((card: Card) => card.group.appointmentType.code == typeCode);
-				typeCards.forEach(card => {
-					if (updateAll) {
-						this.updateAppointmentDay(appointmentDay, card, add, updateAll);
-					} else {
-						this.updateAppointmentDayTotal(appointmentDay, card.panelId, add);
-					}
-					if (appointmentDaysToUpdate.indexOf(appointmentDay) == -1) {
-						appointmentDaysToUpdate.push(appointmentDay);
-					}
-				});
-			}
-			NotificationService.notifyAppointmentsCounter(day, appointmentDayCounters);
-
-			if (updateDb) {
-				console.log('put', appointmentDaysToUpdate);
-				this.http.put(Url.appointmentsDaysCounters(), appointmentDaysToUpdate).subscribe();
-			}
-		}
-	}
-
-	private updateAppointmentDay(appointmentDay: AppointmentDay, card: Card, add: boolean, updateTotal: boolean): void {
-		const scheduleType = UtilsService.findScheduleType(card.start, card.end);
-		this.handleUpdateAppointmentsCounter(appointmentDay[scheduleType], card.panelId, add);
-		if (updateTotal) {
-			this.updateAppointmentDayTotal(appointmentDay, card.panelId, add);
-		}
-	}
-
-	private updateAppointmentDayTotal(appointmentDay: AppointmentDay, cardId: string, add: boolean = true): void {
-		this.handleUpdateAppointmentsCounter(appointmentDay[Constants.APPOINTMENT_COUNTER_TOTAL], cardId, add);
-	}
-
-	private handleUpdateAppointmentsCounter(cards: string[], cardId: string, add: boolean): void {
-		const index = cards.findIndex((cardId: string) => cardId == cardId);
-		if (add) {
-			this.addAppointmentsCounter(cards, index, cardId);
-		} else {
-			this.removeAppointmentsCounter(cards, index);
-		}
-	}
-
-	private addAppointmentsCounter(cards: string[], index: number, cardId: string): void {
-		/* Si el grupo ya está añadido al contador de citas (por ejemplo, cuando se asigna un grupo, sus fichas ya
-		*  figuran en el día de la orden), no se suma */
-		if (index == -1) {
-			cards.push(cardId);
-		}
-	}
-
-	private removeAppointmentsCounter(cards: string[], index: number): void {
-		cards.splice(index, 1);
-	}
-
-	// private updateAppointmentDayTotal2(
-	// 	day: Dayjs,
-	// 	cards: Card[],
-	// 	add: boolean,
-	// 	updateDb: boolean = false,
-	// 	daysAppointmentsCounter: DaysAppointmentsCounter = this.daysAppointmentsCounter
-	// ): void {
-	// 	const appointmentDayCounters = daysAppointmentsCounter[day.valueOf()];
-	//
-	// 	appointmentDay[Constants.APPOINTMENT_COUNTER_TOTAL] += add ? 1 : -1;
-	// }
-
-	// endregion
-
 	// region Update max
 
-	addMax(appointmentDay: AppointmentDay): void {
-		appointmentDay.max = appointmentDay.max + 1;
+	addMax(appointmentDay: AppointmentDay, appointmentTypeCode: string): void {
+		const values = appointmentDay.values.find((values: AppointmentTypeValues) =>
+			values.appointmentType.code == appointmentTypeCode
+		);
+		values.max = values.max + 1;
 		this.updateMaxDb(appointmentDay);
 	}
 
-	subtractMax(appointmentDay: any): void {
-		if (appointmentDay.max - 1 >= 0) {
-			appointmentDay.max = appointmentDay.max - 1 < 0 ? appointmentDay.max : appointmentDay.max - 1;
+	subtractMax(appointmentDay: AppointmentDay, appointmentTypeCode: string): void {
+		const values = appointmentDay.values.find((values: AppointmentTypeValues) =>
+			values.appointmentType.code == appointmentTypeCode
+		);
+		if (values.max - 1 >= 0) {
+			values.max = values.max - 1 < 0 ? values.max : values.max - 1;
 			this.updateMaxDb(appointmentDay);
 		}
 	}
 
 	private updateMaxDb(appointmentDay: AppointmentDay): void {
-		this.http.put(Url.appointmentDayMax(), appointmentDay).subscribe();
+		this.http.put(Url.appointmentDays(), [appointmentDay]).subscribe();
 	}
 
 	// endregion

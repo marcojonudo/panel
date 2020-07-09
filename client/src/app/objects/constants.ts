@@ -150,7 +150,7 @@ export class Constants {
 		SATURATED_QUARTERS: 'saturatedQuarters',
 		MECHANIC_SKILLS: 'mechanicSkills',
 		LATERAL_PANEL: 'lateralPanel',
-		APPOINTMENTS_COUNTER: 'appointmentsCounter',
+		APPOINTMENT_DAY: 'appointmentDay',
 		MECHANIC_LINE: 'mechanicLine',
 		DROPZONE: 'DROPZONE',
 		GROUPS: 'groups',

@@ -6,7 +6,7 @@ import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
-import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
+import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -17,7 +17,7 @@ import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects
 export class ToolsBarComponent {
 
 	@Input() day: Dayjs;
-	@Input() appointmentsCounterUpdate: AppointmentsCounterUpdate;
+	@Input() appointmentDayUpdate: AppointmentDayUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
 
@@ -133,7 +133,7 @@ export class ToolsBarComponent {
 
 	check(): void {
 		if (Constants.CHECK) {
-			console.log('checking tools bar component', this.appointmentsCounterUpdate);
+			console.log('checking tools bar component', this.appointmentDayUpdate);
 		}
 	}
 

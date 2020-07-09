@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
-import {AppointmentType} from "../../objects/appointment-type";
+import {AppointmentType} from "../../objects/appointments/appointment-type";
 import {AppointmentsService} from "../../services/appointments.service";
 import {NotificationService} from "../../services/notification.service";
 

@@ -1,12 +1,12 @@
 import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {AppointmentsCounter} from "../../objects/appointments-counter";
 import {AppointmentsService} from "../../services/appointments.service";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointments-details-info";
 import {Constants} from "../../objects/constants";
-import {KeyValue} from "@angular/common";
 import {Dayjs} from "dayjs";
-import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
+import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
+import {AppointmentDay} from "../../objects/appointments/appointment-day";
+import {AppointmentTypeValues} from "../../objects/appointments/appointment-type-values";
 
 @Component({
 	selector: 'app-appointments-summary',
@@ -17,7 +17,7 @@ import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects
 export class AppointmentsSummaryComponent {
 
 	@Input() day: Dayjs;
-	@Input() appointmentsCounterUpdate: AppointmentsCounterUpdate;
+	@Input() appointmentDayUpdate: AppointmentDayUpdate;
 	@Input() width: number;
 	@Input() enabled: boolean;
 
@@ -47,8 +47,8 @@ export class AppointmentsSummaryComponent {
 
 	// endregion
 
-	findAppointmentsCounter(): AppointmentsCounter {
-		return this.appointmentsCounterUpdate.value;
+	findAppointmentDayValues(): AppointmentTypeValues[] {
+		return this.appointmentDayUpdate.value.values;
 	}
 
 	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
@@ -61,16 +61,12 @@ export class AppointmentsSummaryComponent {
 
 	openAppointmentsDetails(
 		day: Dayjs = this.day,
-		appointmentsCounter: AppointmentsCounter = this.appointmentsCounterUpdate.value
+		appointmentDay: AppointmentDay = this.appointmentDayUpdate.value
 	): void {
 		const appointmentsDetailsInfo = this.showingLateralPanel
-			? undefined : new AppointmentsDetailsInfo(appointmentsCounter);
+			? undefined : new AppointmentsDetailsInfo(appointmentDay);
 		this.showingLateralPanel = !this.showingLateralPanel;
 		NotificationService.notifyLateralInfo(day, appointmentsDetailsInfo, true);
-	}
-
-	defaultOrder(a: KeyValue<number,string>, b: KeyValue<number,string>): number {
-		return 0;
 	}
 
 }

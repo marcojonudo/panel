@@ -11,11 +11,7 @@ import java.time.LocalDate
 @TupleConstructor
 class DayEcommerceSchedule {
 
-    @JsonFormat(
-            shape = JsonFormat.Shape.STRING,
-            pattern = Constants.DateFormat.yyyy_MM_dd,
-            timezone = Constants.SPAIN_TIMEZONE
-    )
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
     LocalDate day
     List<EcommerceSchedule> schedules
 

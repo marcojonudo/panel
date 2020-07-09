@@ -45,7 +45,6 @@ export class FinishDropzone implements Dropzone {
 
 	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
-		this.updateAppointmentsCounterAdd(group, originDropzone);
 		CardsService.addToFinished(group);
 		CardPositionService.setHelperGroup(undefined);
 	}
@@ -55,20 +54,5 @@ export class FinishDropzone implements Dropzone {
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {}
-
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {}
-
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
-		// // TODO Revsiar si en este caso hay que añadir una
-		// if (originDropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED) {
-		// 	this.appointmentsService.updateAppointment(
-		// 		group.cards[0].day,
-		// 		group.cards,
-		// 		true,
-		// 		false,
-		// 		true
-		// 	)
-		// }
-	}
 
 }

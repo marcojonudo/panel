@@ -1,4 +1,4 @@
-import {AppointmentDay} from "./appointment-day";
+import {AppointmentDay} from "./appointments/appointment-day";
 
 export interface AppointmentsCounter {
 

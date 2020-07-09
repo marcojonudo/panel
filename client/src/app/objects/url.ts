@@ -18,10 +18,6 @@ export class Url {
 		return `${environment.serverUrl}/panel/mechanic/jobLineType`;
 	}
 
-	public static appointmentsDaysCounters(): string {
-		return `${environment.serverUrl}/panel/appointmentDay/counters`;
-	}
-
 	public static cards(): string {
 		return `${environment.serverUrl}/panel/cards`;
 	}
@@ -58,8 +54,8 @@ export class Url {
 		return `${environment.serverUrl}/panel/cards/pendingBudget`;
 	}
 
-	public static appointmentDayMax(): string {
-		return `${environment.serverUrl}/panel/appointmentDay/max`;
+	public static appointmentDays(): string {
+		return `${environment.serverUrl}/panel/appointmentDays`;
 	}
 
 	public static appointmentType(): string {

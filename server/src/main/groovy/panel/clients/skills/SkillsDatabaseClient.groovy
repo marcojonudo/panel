@@ -4,7 +4,7 @@ import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.client.annotation.Client
-import utils.pogos.skills.Skill
+import panel.pogos.skills.Skill
 
 import javax.inject.Singleton
 

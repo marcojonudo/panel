@@ -43,7 +43,7 @@
 			</app-lateral-panel>
 			<app-tools-bar
 				[day]="today"
-				[appointmentsCounterUpdate]="findAppointmentsCounterUpdate(today)"
+				[appointmentDayUpdate]="findAppointmentDayUpdate(today)"
 				[maxScheduleWidth]="maxScheduleWidth"
 				[maxScheduleMaxWidth]="maxScheduleMaxWidth">
 			</app-tools-bar>
@@ -78,7 +78,7 @@
 						class="appointments-summary blank-background border-left border-semi-dark"
 						[style.width.px]="toolsBarWidth"
 						[day]="day"
-						[appointmentsCounterUpdate]="findAppointmentsCounterUpdate(day)"
+						[appointmentDayUpdate]="findAppointmentDayUpdate(day)"
 						[width]="toolsBarWidth"
 						[enabled]="true">
 					</app-appointments-summary>

@@ -66,12 +66,6 @@ export class AssignedDropzone implements Dropzone {
 	}
 
 	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
-		/* Sólo se tiene que reducir el contador de citas si una ficha se mueve de asignada a asignada (restar en una
-		*  categoría y sumar en otra), o de asignada a no asignada (restar en una categoría). Si se mueve a otra
-		*  dropzone (finalizada), no se resta nada al contador de citas */
-		if (destinyDropzone && destinyDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
-			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
-		}
 		CardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
@@ -93,7 +87,6 @@ export class AssignedDropzone implements Dropzone {
 				: this.cardsService.updateDbCardsPosition(cardsToUpdate);
 		}
 
-		this.updateAppointmentsCounterAdd(group, originDropzone);
 		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
@@ -120,25 +113,6 @@ export class AssignedDropzone implements Dropzone {
 			() => NotificationService.notifyGroups([group], true),
 			CardPositionService.getAddGroupDelay(group)
 		);
-	}
-
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
-		// this.appointmentsService.updateAppointment(
-		// 	group.cards[0].day,
-		// 	group.cards,
-		// 	false,
-		// 	true
-		// );
-	}
-
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
-		// this.appointmentsService.updateAppointment(
-		// 	group.cards[0].day,
-		// 	group.cards,
-		// 	true,
-		// 	true,
-		// 	true
-		// )
 	}
 
 }

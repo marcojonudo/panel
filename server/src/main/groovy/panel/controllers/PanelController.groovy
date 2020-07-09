@@ -7,15 +7,16 @@ import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
 import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
-import panel.pogos.CompleteInfo
-import panel.pogos.MechanicAppointment
+import panel.pogos.appointmentDays.AppointmentDay
+import panel.pogos.appointments.MechanicAppointment
+import panel.pogos.cards.Card
+import panel.pogos.firstLoad.CompleteInfo
 import panel.pogos.realTime.RealTimeRequestInfo
+import panel.pogos.schedules.EmployeeSchedule
+import panel.pogos.schedules.EmployeeScheduleAppointment
 import panel.publisher.PanelPublisher
 import panel.services.PanelService
 import panel.utils.Constants
-import utils.pogos.panel.Card
-import utils.pogos.schedules.EmployeeSchedule
-import utils.pogos.schedules.EmployeeScheduleAppointment
 
 import javax.annotation.Nullable
 import javax.inject.Inject
@@ -160,20 +161,9 @@ class PanelController {
 		)
 	}
 
-	@Put("/appointmentDay/counters")
-	void updateAppointmentDays(
-		@Header String sessionId,
-		@Body List<Map<String, Object>> appointmentDays
-	) {
+	@Put("/appointmentDays")
+	void updateAppointmentDays(@Header String sessionId, @Body List<AppointmentDay> appointmentDays) {
 		panelDatabaseClient.updateAppointmentDays(sessionId, appointmentDays)
-	}
-
-	@Put("/appointmentDay/max")
-	void updateAppointmentDayMax(
-		@Header String sessionId,
-		@Body Map<String, Object> appointmentDay
-	) {
-		panelDatabaseClient.updateAppointmentDayMax(sessionId, appointmentDay)
 	}
 
 //	@Post("/syncJpdv")

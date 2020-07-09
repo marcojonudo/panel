@@ -7,23 +7,32 @@ import panel.clients.cubo.CuboDatabaseClient
 import panel.clients.fviberi.FviberiDatabaseClient
 import panel.clients.panel.PanelDatabaseClient
 import panel.clients.skills.SkillsDatabaseClient
-import panel.pogos.CompleteInfo
-import panel.pogos.SyncOrdersSemaphore
-import panel.pogos.UpdateAppointmentDays
-import panel.pogos.UpdateCards
+import panel.pogos.appointmentDays.AppointmentDay
+import panel.pogos.appointmentDays.AppointmentType
+import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
+import panel.pogos.appointmentDays.AppointmentTypeValues
+import panel.pogos.appointmentDays.UpdateAppointmentDays
+import panel.pogos.cards.Card
+import panel.pogos.cards.Group
+import panel.pogos.cards.GroupUnits
+import panel.pogos.cards.Task
+import panel.pogos.firstLoad.CompleteInfo
+import panel.pogos.firstLoad.SyncOrdersSemaphore
+import panel.pogos.firstLoad.UpdateCards
+import panel.pogos.fviberi.Article
+import panel.pogos.fviberi.Order
+import panel.pogos.schedules.EmployeeSchedule
+import panel.pogos.schedules.JobLineType
+import panel.pogos.schedules.Schedule
+import panel.pogos.skills.Skill
 import panel.utils.Constants
-import utils.pogos.Schedule
-import utils.pogos.fviberi.Article
-import utils.pogos.fviberi.Order
-import utils.pogos.panel.*
-import utils.pogos.schedules.EmployeeSchedule
-import utils.pogos.skills.Skill
 
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 
 @Singleton
 @CompileStatic
@@ -51,23 +60,20 @@ class PanelService {
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
 		lastScheduleDay = LocalDate.parse(daysMechanics.keySet().max())
 		UpdateCards updateCards = syncJpdvOrders(day, lastScheduleDay)
-
-		/* Una vez cargados los horarios definidos y las nuevas fichas para crear, se sincroniza la información de
-		*  citas. Para cada día, se crean los registros de contador de cita asociadaso, inicializándolos con el número
-		*  de fichas correspondiente */
 		appointmentDays = syncAppointmentDays(
-				daysMechanics,
-				appointmentDays,
-				appointmentTypes.findAll { it.counter },
-				updateCards.newCards
+			daysMechanics,
+			appointmentDays,
+			appointmentTypes.findAll { it.counter },
+			updateCards.getAll().findAll { it.type == Card.CardType.APPOINTMENT }
 		)
+
 		return new CompleteInfo(
-				daysMechanics,
-				skills,
-				jobLineTypes,
-				appointmentTypes,
-				appointmentDays,
-				updateCards.getAll() + updateCards.auxiliaryCards
+			daysMechanics,
+			skills,
+			jobLineTypes,
+			appointmentTypes,
+			appointmentDays,
+			updateCards.getAll() + updateCards.auxiliary
 		)
 	}
 
@@ -255,7 +261,7 @@ class PanelService {
 	 */
 	List<Card> buildOrdersCards(List<Order> orders, Map<Order, List<GroupUnits>> ordersGroupsUnits) {
 		Map<Integer, List<GroupUnits>> durationGroupsUnits = panelDatabaseClient.getDurations(
-				(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
+			(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
 		)
 
 		List<Card> ordersCards = []
@@ -292,7 +298,7 @@ class PanelService {
 				List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
 
 				updateCards = syncOrders(orders, notAuxiliaryCards)
-				updateCards.auxiliaryCards = auxiliaryCards
+				updateCards.auxiliary = auxiliaryCards
 
 				saveCards(updateCards)
 			} catch(all) {
@@ -336,12 +342,18 @@ class PanelService {
 		return updateCards
 	}
 
+	/**
+	 * Obtiene las fichas, de las distintas categorías, que se deben cargar en panel
+	 * @param orders Lista de órdenes
+	 * @param dbCards Lista de fichas de base de datos
+	 * @param builtCards Lista de fichas construidas
+	 * @return Objeto con las distintas categorías de fichas
+	 */
 	static UpdateCards getCardsToUpdate(List<Order> orders, List<Card> dbCards, List<Card> builtCards) {
 		/* Se obtienen las órdenes cuyas fichas deben ser creadas (número de orden no existe en las fichas actuales) */
-		UpdateCards updateCards = getNewOrUpdatedCards(dbCards, builtCards)
-		updateCards.deletedCards = getDeletedCards(orders, dbCards, builtCards)
-		fixSameCardsDeletedInfo(updateCards.sameCards, updateCards.deletedCards)
-
+		UpdateCards updateCards = handleCardsUpdate(dbCards, builtCards)
+		updateCards.deleted = getDeletedCards(orders, dbCards, builtCards)
+		fixSameCardsDeletedInfo(updateCards.same, updateCards.deleted)
 		return updateCards
 	}
 
@@ -351,17 +363,58 @@ class PanelService {
 	 * @param builtCards Cards built based on orders info
 	 * @return UpdateCardsInfo with newCards and cardsToUpdate
 	 */
-	static UpdateCards getNewOrUpdatedCards(List<Card> dbCards, List<Card> builtCards) {
+	static UpdateCards handleCardsUpdate(List<Card> dbCards, List<Card> builtCards) {
 		UpdateCards updateCards = new UpdateCards()
 		builtCards.each { Card builtCard ->
-			List<Card> dayOrderCards = dbCards.findAll { it.order.number == builtCard.order.number }
+			List<Card> dbOrderCards = dbCards.findAll { it.order.number == builtCard.order.number }
 
-			if (dayOrderCards) {
-				boolean handledCards = handleExistentGroupCard(dayOrderCards, builtCard, updateCards)
-				if (!handledCards) {
-					/* Si el grupo de builtCard no coincide con ninguno de dayOrderCards, se comprueba si ha reemplazado
-					 * a alguno existente o si es una ficha completamente nueva */
-					handleReplacedGroupCard(dayOrderCards, builtCard, updateCards)
+			if (dbOrderCards) {
+				/* Se buscan todas las fichas, y no sólo una, ya que puede haber alguna dividida */
+				List<Card> dbGroupOrderCards = dbOrderCards.findAll { it.group.code == builtCard.group.code }
+				/* Si existe una ficha guardada con la misma agrupación, se comprueba si se ha actualizado algún dato
+				*  de la orden */
+				if (dbGroupOrderCards) {
+					/* Se obtiene el elemento 0, ya que si la ficha estaba dividida, las propiedades de la orden son
+					*  las mismas en todas ellas */
+					Map<String, Object> orderDifferences = checkUpdatedOrderInfo(dbGroupOrderCards[0], builtCard)
+					if (orderDifferences) {
+						/* En estos casos, al ser fichas divididas, se devuelven las de base de datos. Por lo tanto,
+                        *  su contenido debe actualizarse con el nuevo de la ficha recién creada */
+						dbGroupOrderCards = dbGroupOrderCards.collect { updateCardOrderInfo(it, builtCard) }
+						/* Si se actualiza la info de la orden, se debe reflejar en todas las posibles fichas divididas,
+						*  no sólo en builtCard. Por eso se pasa como parámetro dbGroupOrderCards */
+						if (checkResetCards(orderDifferences)) {
+							updateCards.reset += dbGroupOrderCards.collect { updateResetCard(it) }
+						} else {
+							updateCards.updated += dbGroupOrderCards
+						}
+					} else {
+						/* Fichas que no han sufrido ningún cambio, pero deben devolverse para que se carguen en panel.
+						*  Se añaden todas las de la lista, en lugar de sólo builtCard, porque si hay alguna dividida
+						*  nunca va a construirse; se dividen en panel, pero desde JPDV se generará siempre la ficha
+						*  completa original */
+						updateCards.same += dbGroupOrderCards
+					}
+				} else {
+					/* Si el grupo de builtCard no coincide con ninguno de dbOrderCards, se comprueba si ha reemplazado
+                    * a alguno existente o si es una ficha completamente nueva.
+					* La agrupación de la ficha recién construida podría ser muy parecida a alguna de las ya existentes.
+					* Si es así, se tendría que sustituir la ficha ya creada por la nueva */
+					Card replacedCard = findReplacedCard(dbOrderCards, builtCard)
+					if (replacedCard) {
+						Map<String, Object> orderDifferences = checkUpdatedOrderInfo(replacedCard, builtCard)
+						if (orderDifferences && checkResetCards(orderDifferences)) {
+							updateCards.newCards << builtCard
+						} else {
+							/* En caso de que haya que reemplazar una ficha, se actualiza la posición de la que va a
+							*  ocupar su posición. De esta forma, al hacer la carga inicial, ya se asigna
+							*  automáticamente */
+							updateCards.newReplace << updateReplacedCard(replacedCard, builtCard)
+						}
+					} else {
+						/* Si la nueva ficha no está reemplazando a una ya existente, se crea completamente nueva */
+						updateCards.newCards << builtCard
+					}
 				}
 			} else {
 				/* Si no se encuentran fichas asociadas al número de orden, significa que builtCard se ha construido
@@ -374,47 +427,12 @@ class PanelService {
 	}
 
 	/**
-	 * Handle existent group new card. Update updatedCards list if builtCard has been updated from JPDV
-	 * @param dayOrderCards Saved day order cards
-	 * @param builtCard Built card
-	 * @param updatedCards List of updated cards
-	 * @return boolean
+	 * Comprueba si las actualizaciones de una orden implican resetear la ficha (ocurre si cambian el día o la hora de
+	 * una cita)
+	 * @param orderDifferences Mapa con las diferencias de la orden existentes en una ficha
 	 */
-	static boolean handleExistentGroupCard(List<Card> dayOrderCards, Card builtCard, UpdateCards updateCards) {
-		/* Se buscan todas las fichas, y no sólo una, ya que puede haber alguna dividida */
-		List<Card> dayGroupOrderCards = dayOrderCards.findAll { it.group.code == builtCard.group.code }
-		if (dayGroupOrderCards) {
-			/* El grupo sigue siendo el mismo, por lo que se comprueba si ha cambiado alguna propiedad de la orden.
-			 * Se obtiene el elemento 0, ya que si la ficha estaba dividida, las propiedades de la orden son las mismas
-			 * en todas ellas */
-			if (checkUpdatedOrderInfo(dayGroupOrderCards[0], builtCard)) {
-				updateCards.updatedCards += dayGroupOrderCards.collect { updateCardOrderInfo(it, builtCard) }
-			} else {
-				/* Fichas que no han sufrido ningún cambio, pero deben devolverse para que se carguen en panel */
-				updateCards.sameCards += dayGroupOrderCards
-			}
-			return true
-		}
-		return false
-	}
-
-	/**
-	 * Handle replace group new card. Update updatedCards list if with new built card, or update an existent one
-	 * @param dayOrderCards Saved day order cards
-	 * @param builtCard Built card
-	 * @param updatedCards List of updated cards
-	 */
-	static void handleReplacedGroupCard(List<Card> dayOrderCards, Card builtCard, UpdateCards updateCards) {
-		Card replacedCard = findReplacedCard(dayOrderCards, builtCard)
-		if (replacedCard) {
-			if (checkUpdatedOrderInfo(replacedCard, builtCard)) {
-				updateCards.updatedCards << updateCardOrderInfo(updateCardGroupInfo(replacedCard, builtCard), builtCard)
-			} else {
-				updateCards.updatedCards << updateCardGroupInfo(replacedCard, builtCard)
-			}
-		} else {
-			updateCards.newCards << builtCard
-		}
+	static boolean checkResetCards(Map<String, Object> orderDifferences) {
+		return orderDifferences.find { it.key in Constants.RESET_NEW_CARDS_PROPERTIES }
 	}
 
 	/**
@@ -424,9 +442,9 @@ class PanelService {
 	 * @param builtCard Built card
 	 * @return Replaced card
 	 */
-	static Card findReplacedCard(List<Card> dayOrderCards, Card builtCard) {
+	static Card findReplacedCard(List<Card> dbOrderCards, Card builtCard) {
 		List<Integer> builtCardTasksCodes = builtCard.group.tasks.articleCode
-		Card replacedCard = dayOrderCards.find {
+		Card replacedCard = dbOrderCards.find {
 			List<Integer> dayOrderCardTasksCodes = it.group.tasks.articleCode
 			List<Integer> difference = builtCardTasksCodes.size() > dayOrderCardTasksCodes.size() ?
 											builtCardTasksCodes - dayOrderCardTasksCodes :
@@ -443,37 +461,65 @@ class PanelService {
 	/**
 	 * Check if a card order info has been updated from JPDV
 	 * @param builtCard Built card based on orders info
-	 * @param dayCard Card of the day, already saved in DB
+	 * @param dbCard Card of the day, already saved in DB
 	 * @return boolean
 	 */
-	static boolean checkUpdatedOrderInfo(Card dayCard, Card builtCard) {
-		Map orderDifferences = (builtCard.order.properties + builtCard.vehicle.properties) -
-				(dayCard.order.properties + dayCard.vehicle.properties)
-		return orderDifferences.size() > 0
+	static Map<String, Object> checkUpdatedOrderInfo(Card dbCard, Card builtCard) {
+		Map<String, Object> orderDifferences = ((builtCard.order.properties + builtCard.vehicle.properties) -
+			(dbCard.order.properties + dbCard.vehicle.properties)) as Map<String, Object>
+		return orderDifferences
 	}
 
 	/**
 	 * Update card object with new built card order info
 	 * @param builtCard Newly built card
-	 * @param dayCard Already saved card
+	 * @param dbCard Already saved card
 	 * @return Updated card
 	 */
-	static Card updateCardOrderInfo(Card dayCard, Card builtCard) {
-		dayCard.order = builtCard.order
-		dayCard.vehicle = builtCard.vehicle
-		return dayCard
+	static Card updateCardOrderInfo(Card dbCard, Card builtCard) {
+		dbCard.order = builtCard.order
+		dbCard.vehicle = builtCard.vehicle
+		return dbCard
 	}
 
 	/**
 	 * Update card object with new built card group info
 	 * @param builtCard Newly built card
-	 * @param dayCard Already saved card
+	 * @param dbCard Already saved card
 	 * @return Updated card
 	 */
-	static Card updateCardGroupInfo(Card dayCard, Card builtCard) {
-		dayCard.group = builtCard.group
-		dayCard.duration = builtCard.duration
-		return dayCard
+	static Card updateCardGroupInfo(Card dbCard, Card builtCard) {
+		dbCard.group = builtCard.group
+		dbCard.duration = builtCard.duration
+		return dbCard
+	}
+
+	/**
+	 * Actualiza la información de posición de la ficha que va a reemplazar a otra
+	 * @param dbCard Ficha que va a ser reemplazada
+	 * @param builtCard Ficha que va a reemplazar a la existente
+	 * @return Ficha actualizada
+	 */
+	static Card updateReplacedCard(Card dbCard, Card builtCard) {
+		builtCard.day = dbCard.day
+		builtCard.mechanicCode = dbCard.mechanicCode
+		builtCard.start = dbCard.start
+		return builtCard
+	}
+
+	/**
+	 * Actualiza la información de posición de la ficha que va a reemplazar a otra
+	 * @param dbCard Ficha que va a ser reemplazada
+	 * @param builtCard Ficha que va a reemplazar a la existente
+	 * @return Ficha actualizada
+	 */
+	static Card updateResetCard(Card dbCard) {
+		dbCard.day = null
+		dbCard.mechanicCode = null
+		dbCard.start = null
+		dbCard.line = null
+		dbCard.status = Card.Status.DEFAULT
+		return dbCard
 	}
 
 	/**
@@ -509,9 +555,9 @@ class PanelService {
 	 * @return List of cards to delete
 	 */
 	static List<Card> getUpdatedGroupDeletedCards(List<Card> dbCards, List<Card> builtCards) {
-		List<Card> cardsToDelete = dbCards.findAll { Card dayCard ->
-			List<Card> builtOrderCards = builtCards.findAll { it.order.number == dayCard.order.number }
-			Card orderAndGroupCard = builtOrderCards.find { it.group.code == dayCard.group.code }
+		List<Card> cardsToDelete = dbCards.findAll { Card dbCard ->
+			List<Card> builtOrderCards = builtCards.findAll { it.order.number == dbCard.order.number }
+			Card orderAndGroupCard = builtOrderCards.find { it.group.code == dbCard.group.code }
 			return builtOrderCards && !orderAndGroupCard
 		}
 		return cardsToDelete
@@ -552,30 +598,20 @@ class PanelService {
 		if (updateCards.newCards) {
 			/* Las relaciones entre fichas se asignan a la hora de guardar en BD, ya que aquí todavía no tienen un id.
 			*  Por lo tanto, en la respuesta ya figura la información completa */
-			updateCards.newCards = panelDatabaseClient.createCards("", updateCards.newCards.collect { it.properties }, true)
+			updateCards.newCards = panelDatabaseClient.createCards(
+				"", updateCards.newCards.collect { it.properties }, true
+			)
 		}
-		if (updateCards.updatedCards) {
-			panelDatabaseClient.updateCards(updateCards.updatedCards)
+		if (updateCards.newReplace) {
+			updateCards.newReplace = panelDatabaseClient.createCards(
+				"", updateCards.newReplace.collect { it.properties }, true
+			)
 		}
-		if (updateCards.deletedCards) {
-			panelDatabaseClient.deleteCards("", updateCards.deletedCards.collect { it.properties })
+		if (updateCards.getUpdate()) {
+			panelDatabaseClient.updateCards(updateCards.getUpdate())
 		}
-	}
-
-	/**
-	 * Relate linked cards IDs once the cards where saved in DB
-	 * @param cards List of recently created cards
-	 */
-	static void relateCards(List<Card> cards) {
-		cards.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
-			orderCards.eachWithIndex { Card card, int i ->
-				if (i != 0) {
-					card.linkedPrevious = orderCards[i-1]
-				}
-				if (i != orderCards.size() - 1) {
-					card.linkedNext = orderCards[i+1]
-				}
-			}
+		if (updateCards.deleted) {
+			panelDatabaseClient.deleteCards("", updateCards.deleted.collect { it.properties })
 		}
 	}
 
@@ -584,123 +620,284 @@ class PanelService {
 	// region Appointment days
 
 	List<AppointmentDay> syncAppointmentDays(
-			Map<String, List<EmployeeSchedule>> daysMechanics,
-			List<AppointmentDay> appointmentDays,
-			List<AppointmentType> appointmentTypes,
-			List<Card> createdCards
+		Map<String, List<EmployeeSchedule>> daysMechanics,
+		List<AppointmentDay> existentAppointmentDays,
+		List<AppointmentType> appointmentTypes,
+		List<Card> cards
 	) {
-		/* Se sincronizan los horarios con las citas */
-		UpdateAppointmentDays schedulesUpdateInfo = syncSchedulesAppointmentDays(
-				daysMechanics,
-				appointmentDays,
-				appointmentTypes,
-				createdCards
-		)
-		/* Se sincronizan las fichas con las citas. Se hace por si alguna ficha tiene como día de la orden
-		*  uno superior al último horario definido */
-		UpdateAppointmentDays cardsUpdateInfo = syncCardsAppointmentDays(
-				daysMechanics,
-				appointmentDays,
-				appointmentTypes,
-				createdCards
-		)
+		List<AppointmentDay> appointmentDays = daysMechanics.collect {
+			new AppointmentDay(LocalDate.parse(it.key), appointmentTypes)
+		}
+		fillAppointmentDays(appointmentDays, existentAppointmentDays, cards)
+		UpdateAppointmentDays updateAppointmentDays = findUpdateAppointmentDays(existentAppointmentDays, appointmentDays)
 
-		if (schedulesUpdateInfo.created || cardsUpdateInfo.created) {
-			panelDatabaseClient.createAppointmentDaysTotal(
-					"",
-					schedulesUpdateInfo.created + cardsUpdateInfo.created
-			)
+		if (updateAppointmentDays.created) {
+			panelDatabaseClient.createAppointmentDays("", updateAppointmentDays.created)
 		}
-		if (schedulesUpdateInfo.updated || cardsUpdateInfo.updated) {
-			panelDatabaseClient.updateAppointmentDaysTotal(
-					"",
-					schedulesUpdateInfo.updated + cardsUpdateInfo.updated
-			)
+		if (updateAppointmentDays.updated) {
+			panelDatabaseClient.updateAppointmentDays("", updateAppointmentDays.updated)
 		}
-		return appointmentDays + schedulesUpdateInfo.created + cardsUpdateInfo.created
+		return appointmentDays
 	}
 
-	static UpdateAppointmentDays syncSchedulesAppointmentDays(
-			Map<String, List<EmployeeSchedule>> daysMechanics,
-			List<AppointmentDay> appointmentDays,
-			List<AppointmentType> appointmentTypes,
-			List<Card> createdCards
+	static List<AppointmentDay> fillAppointmentDays(
+		List<AppointmentDay> appointmentDays,
+		List<AppointmentDay> existentAppointmentDays,
+		List<Card> cards
 	) {
-		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
-		/* Sólo se tienen en cuenta aquellos horarios con día (los horarios fijos de taller y tienda, cuyo day es null,
-		*  se omiten) */
-		daysMechanics.findAll { it.key }.each {
-			LocalDate day = LocalDate.parse(it.key)
-			/* Se obtienen los appointmentDay para cada tipo de cita para el día en concreto */
-			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == day }
-			/* Se obtienen las fichas cuya orden figura en el día en concreto */
-			List<Card> dayOrderCards = createdCards.findAll { it.order.day == day }
-			/* Si existen appointmentDay para el día, significa que se habían creado con anterioridad, y por tanto
-			*  sólo es necesario comprobar si alguna de las fichas es de este día para sumar al total */
-			if (appointmentDayTypes) {
-				if (dayOrderCards) {
-					updateInfo.updated += updateAppointmentDays(appointmentDayTypes, dayOrderCards)
+		appointmentDays.each { AppointmentDay appointmentDay ->
+			AppointmentDay existent = existentAppointmentDays.find { it.day == appointmentDay.day }
+			if (existent) {
+				appointmentDay.values.each { AppointmentTypeValues values ->
+					values.max = existent.values.find { it.appointmentType.code == values.appointmentType.code }.max
+				}
+			}
+		}
+		cards.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
+			LocalDate day = orderCards[0].order.day
+			AppointmentDay appointmentDay = appointmentDays.find { it.day == day }
+			List<AppointmentTypeCode> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)
+			appointmentTypeCodes.each { AppointmentTypeCode code ->
+				fillScheduleTypeAppointmentValues(
+					appointmentDay.values.find { it.appointmentType.code == code },
+					orderCards[0].order.created,
+					(int) orderCards.duration.sum(),
+					1
+				)
+			}
+		}
+//		appointmentDays.each { AppointmentDay appointmentDay ->
+//			List<Card> dayOrderCards = cards.findAll { it.order.day == appointmentDay.day }
+//			dayOrderCards.groupBy { it.order.number }.each {
+//				List<Card> orderCards = cards.findAll { it.order.code }
+//			}
+//		}
+//		List<AppointmentDay> appointmentDays = []
+//		cards.findAll {
+//			it.type == Card.CardType.APPOINTMENT
+//		}.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
+//			LocalDate day = orderCards[0].order.day
+//			AppointmentDay appointmentDay = appointmentDays.find { it.day == day }
+//			if (!appointmentDay) {
+//				appointmentDay = new AppointmentDay(day, appointmentTypes)
+//				appointmentDays << appointmentDay
+//			}
+//			List<AppointmentTypeCode> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)
+//			appointmentTypeCodes.each { AppointmentTypeCode code ->
+//				fillScheduleTypeAppointmentValues(
+//					appointmentDay.values.find { it.appointmentType.code == code },
+//					orderCards[0].order.created,
+//					(int) orderCards.duration.sum(),
+//					1
+//				)
+//			}
+//		}
+		return appointmentDays
+	}
+
+	static UpdateAppointmentDays findUpdateAppointmentDays(
+		List<AppointmentDay> existentAppointmentDays, List<AppointmentDay> appointmentDays
+	) {
+		UpdateAppointmentDays updateAppointmentDays = new UpdateAppointmentDays()
+		appointmentDays.each { AppointmentDay appointmentDay ->
+			AppointmentDay existentAppointmentDay = existentAppointmentDays.find { it.day == appointmentDay.day }
+			if (existentAppointmentDay) {
+				if (checkUpdatedAppointmentDay(existentAppointmentDay, appointmentDay)) {
+					updateAppointmentDays.updated << appointmentDay
 				}
 			} else {
-				updateInfo.created += createAppointmentDays(day, appointmentTypes, dayOrderCards)
+				updateAppointmentDays.created << appointmentDay
 			}
 		}
-
-		return updateInfo
+		return updateAppointmentDays
 	}
 
-	static UpdateAppointmentDays syncCardsAppointmentDays(
-			Map<String, List<EmployeeSchedule>> daysMechanics,
-			List<AppointmentDay> appointmentDays,
-			List<AppointmentType> appointmentTypes,
-			List<Card> createdCards
-	) {
-		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
+	static boolean checkUpdatedAppointmentDay(AppointmentDay existent, AppointmentDay appointmentDay) {
+		return existent.values.find { AppointmentTypeValues existentValues ->
+			AppointmentTypeValues values = appointmentDay.values.find {
+				it.appointmentType.code == existentValues.appointmentType.code
+			}
+			return existentValues.morning != values.morning || existentValues.afternoon != values.afternoon
+		}
+	}
 
-		LocalDate maxDay = daysMechanics.collect { it.value[0] }.day.max()
-		List<Card> futureScheduleCards = createdCards.findAll { it.order.day > maxDay }
-		futureScheduleCards.groupBy { it.order.day }.each { LocalDate orderDay, List<Card> cards ->
-			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == orderDay }
-			if (appointmentDayTypes) {
-				updateInfo.updated += updateAppointmentDays(appointmentDayTypes, cards)
+	/**
+	 * Se crean appointment days asociados a nuevos días de horarios
+	 * @param daysMechanics
+	 * @param appointmentDays
+	 * @param appointmentTypes
+	 * @param createdCards
+	 * @return
+	 */
+//	static UpdateAppointmentDays findUpdateAppointmentDaysInfo(
+//		Map<String, List<EmployeeSchedule>> daysMechanics,
+//		List<AppointmentDay> existentAppointmentDays,
+//		List<AppointmentType> appointmentTypes,
+//		List<Card> existentCards,
+//		List<Card> createdCards
+//	) {
+//		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
+//		/* Sólo se tienen en cuenta aquellos horarios con día (los horarios fijos de taller y tienda, cuyo day es null,
+//		*  se omiten) */
+//		daysMechanics.findAll {	it.key }.each { String formattedDay, List<EmployeeSchedule> mechanics ->
+//			LocalDate day = LocalDate.parse(formattedDay)
+//			AppointmentDay appointmentDay = existentAppointmentDays.find { it.day == day }
+//			boolean newAppointmentDay = false
+//			if (!appointmentDay) {
+//				appointmentDay = new AppointmentDay(day, appointmentTypes)
+//				updateInfo.created << appointmentDay
+//				newAppointmentDay = true
+//			}
+//			boolean updated = handleAppointmentDayUpdate(appointmentDay, day, existentCards, createdCards)
+//			/* Sólo se actualizan las citas actuales si alguna ha cambiado. Si todas permanecen igual, se evita este
+//			*  paso para no hacer la petición a base de datos */
+//			if (updated && !newAppointmentDay) {
+//				updateInfo.updated << appointmentDay
+//			}
+//		}
+//		return updateInfo
+//	}
+//
+//	static boolean handleAppointmentDayUpdate(
+//		AppointmentDay appointmentDay, LocalDate day, List<Card> sameCards, List<Card> updatedCards, List<Card> createdCards
+//	) {
+//		/* Se usa la variable para determinar si se ha actualizado algún valor. Si no, se omite la petición a base de
+//		*  datos */
+//		boolean updated = false
+//		List<OrderAppointmentInfo> ordersAppointmentTypes = findOrderAppointmentInfo([], [], createdCards, day)
+//		ordersAppointmentTypes.each { OrderAppointmentInfo orderAppointmentInfo ->
+//			boolean updatedAppointmentTypes = orderAppointmentInfo.previousCodes != orderAppointmentInfo.newCodes
+//			updated = updated ?: updatedAppointmentTypes
+//			if (updatedAppointmentTypes) {
+//				orderAppointmentInfo.previousCodes.each { AppointmentTypeCode code ->
+//					fillScheduleTypeAppointmentValues(
+//						appointmentDay.values.find { it.appointmentType.code == code },
+//						orderAppointmentInfo.start,
+//						orderAppointmentInfo.duration,
+//						-1
+//					)
+//				}
+//				orderAppointmentInfo.newCodes.each { AppointmentTypeCode code ->
+//					fillScheduleTypeAppointmentValues(
+//						appointmentDay.values.find { it.appointmentType.code == code },
+//						orderAppointmentInfo.start,
+//						orderAppointmentInfo.duration,
+//						1
+//					)
+//				}
+//			}
+//		}
+//		return updated
+//	}
+//
+//	static List<OrderAppointmentInfo> findOrderAppointmentInfo(
+//		List<Card> sameCards, List<Card> updatedCards, List<Card> createdCards, LocalDate orderDay
+//	) {
+//		/* Se buscan aquellas fichas recién creadas cuya fecha de orden sea la del bucle. Esa orden contará para citas
+//		*  en el día actual */
+//		List<Card> createdDayCards = createdCards.findAll { it.order.day == orderDay }
+//		List<OrderAppointmentInfo> orderAppointmentInfo = createdDayCards.groupBy {
+//			it.order.number
+//		}.collect { int orderNumber, List<Card> createdOrderDayCards ->
+//			/* Para la ficha de la orden recién creada, se buscan todas las fichas de esa orden que ya existieran en
+//			*  panel. De esta forma, se puede saber qué tipo de cita tenía asignada */
+//			List<Card> currentOrderCards = (sameCards + updatedCards).findAll { it.order.number == orderNumber }
+//			/* Si ya había fichas de esta orden, se obtiene los tipos de citas que tenía asigandos. De esta forma, se
+//			*  podrán restar las unidades si estos han cambiado al añadir las nuevas fichas */
+//			List<AppointmentTypeCode> currentAppointmentTypeCodes = currentOrderCards ?
+//				findOrderCardsAppointmentTypes(currentOrderCards) : []
+//
+//			List<Card> allNewCards = createdCards.findAll { it.order.number == orderNumber }
+//			/* Se obtiene el tipo de cita final, resultante de las fichas que ya había asignadas más las nuevas; es
+//			*  decir, de la orden completa */
+//			List<Card> allOrderCards = (currentOrderCards + allNewCards).findAll { it.order.number == orderNumber }
+//			List<AppointmentTypeCode> newAppointmentTypeCodes = findOrderCardsAppointmentTypes(allOrderCards)
+//			return new OrderAppointmentInfo(
+//				orderNumber,
+//				allOrderCards[0].order.created,
+//				(int) allOrderCards.duration.sum(),
+//				currentAppointmentTypeCodes,
+//				newAppointmentTypeCodes
+//			)
+//		}
+//		return orderAppointmentInfo
+//	}
+
+	/**
+	 * Devuelve los tipos de cita asociados a una orden
+	 * @param cards Fichas de la orden
+	 * @return Lista de códigos de cita
+	 */
+	static List<AppointmentTypeCode> findOrderCardsAppointmentTypes(List<Card> cards) {
+		/* Con que haya una sóla prestación de TP, toda la cita es de TP */
+		if (cards.find { it.group.appointmentType.code == AppointmentTypeCode.TP }) {
+			return [AppointmentTypeCode.TP]
+		} else {
+			/* Si no hay TP, pero se encuentra una prestación de INT, figura tanto en INT como en RAP */
+			if (cards.find { it.group.appointmentType.code == AppointmentTypeCode.INT }) {
+				return [AppointmentTypeCode.RAP, AppointmentTypeCode.INT]
 			} else {
-				updateInfo.created += createAppointmentDays(orderDay, appointmentTypes, cards)
+				return [AppointmentTypeCode.RAP]
 			}
 		}
-		return updateInfo
 	}
 
-	static List<AppointmentDay> updateAppointmentDays(List<AppointmentDay> appointmentDayTypes, List<Card> dayOrderCards) {
-		List<AppointmentDay> updatedAppointmentDayTypes = []
-		appointmentDayTypes.each { AppointmentDay appointmentDay ->
-			List<Card> typeCards = dayOrderCards.findAll {
-				it.group.appointmentType.code == appointmentDay.appointmentType.code
-			}
-			if (typeCards) {
-				appointmentDay.total += typeCards.size()
-				updatedAppointmentDayTypes << appointmentDay
-			}
-		}
-		return updatedAppointmentDayTypes
+//	static UpdateAppointmentDays syncCardsAppointmentDays(
+//			Map<String, List<EmployeeSchedule>> daysMechanics,
+//			List<AppointmentDay> appointmentDays,
+//			List<AppointmentDay> newAppointmentDays,
+//			List<Card> createdCards
+//	) {
+//		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
+//
+//		LocalDate maxDay = daysMechanics.collect { it.value[0] }.day.max()
+//		List<Card> futureScheduleCards = createdCards.findAll { it.order.day > maxDay }
+//		futureScheduleCards.groupBy { it.order.day }.each { LocalDate orderDay, List<Card> cards ->
+//			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == orderDay }
+//			if (appointmentDayTypes) {
+//				updateInfo.updated += updateAppointmentDays(appointmentDayTypes, cards)
+//			} else {
+//				updateInfo.created += createAppointmentDays(orderDay, appointmentTypes, cards)
+//			}
+//		}
+//		return updateInfo
+//	}
+//
+//	static List<AppointmentDay> updateAppointmentDays(List<AppointmentDay> appointmentDayTypes, List<Card> dayOrderCards) {
+//		List<AppointmentDay> updatedAppointmentDayTypes = []
+//		appointmentDayTypes.each { AppointmentDay appointmentDay ->
+//			List<Card> typeCards = dayOrderCards.findAll {
+//				it.group.appointmentType.code == appointmentDay.appointmentType.code
+//			}
+//			if (typeCards) {
+//				typeCards.each { fillScheduleTypeAppointmentDay(appointmentDay, it) }
+//				updatedAppointmentDayTypes << appointmentDay
+//			}
+//		}
+//		return updatedAppointmentDayTypes
+//	}
+//
+//	static List<AppointmentDay> createAppointmentDays(LocalDate day, List<AppointmentType> appointmentTypes) {
+//		return appointmentTypes.collect { new AppointmentDay(day: day, appointmentType: it) }
+//	}
+
+	static boolean checkMorningType(LocalTime start, int duration) {
+		LocalTime threshold = LocalTime.of(15, 0)
+		long startDiff = start.until(threshold, ChronoUnit.MINUTES)
+		long endDiff = threshold.until(start.plusMinutes(duration), ChronoUnit.MINUTES)
+		return startDiff > endDiff
 	}
 
-	static List<AppointmentDay> createAppointmentDays(
-			LocalDate day,
-			List<AppointmentType> appointmentTypes,
-			List<Card> dayOrderCards
+	static void fillScheduleTypeAppointmentValues(
+		AppointmentTypeValues values, LocalTime orderStart, int orderDuration, int value
 	) {
-		List<AppointmentDay> createdAppointmentDays = []
-		appointmentTypes.each { AppointmentType appointmentType ->
-			List<Card> typeCards = dayOrderCards.findAll {
-				it.group.appointmentType.code == appointmentType.code
-			}
-			createdAppointmentDays << new AppointmentDay(
-					day: day,
-					appointmentType: appointmentType,
-					total: typeCards.size()
-			)
+		boolean morningAppointment = checkMorningType(orderStart, orderDuration)
+		if (morningAppointment) {
+			values.morning += value
+		} else {
+			values.afternoon += value
 		}
-		return createdAppointmentDays
+		values.total += value
 	}
 
 	// endregion

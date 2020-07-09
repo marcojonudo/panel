@@ -47,7 +47,7 @@ dependencies {
     testCompile group: 'cglib', name: 'cglib-nodep', version: '3.3.0'
 
     compile "io.micronaut:micronaut-management"
-    compile "feuvert:utils:0.10.9"
+//    compile "feuvert:utils:0.10.9"
     compile "org.codehaus.groovy:groovy-json:2.5.4"
 }
 

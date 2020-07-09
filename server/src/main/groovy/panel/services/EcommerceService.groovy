@@ -2,16 +2,16 @@ package panel.services
 
 import groovy.transform.CompileStatic
 import panel.clients.cubo.CuboDatabaseClient
+import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
 import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.EcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.GetEcommerceScheduleError
 import panel.pogos.eCommerce.getSchedules.GetEcommerceSchedulesInfo
+import panel.pogos.schedules.EmployeeSchedule
+import panel.pogos.schedules.MechanicAppointment
+import panel.pogos.schedules.Schedule
+import panel.pogos.schedules.ScheduleInterval
 import panel.utils.Constants
-import utils.pogos.Schedule
-import utils.pogos.panel.AppointmentType
-import utils.pogos.schedules.EmployeeSchedule
-import utils.pogos.schedules.MechanicAppointment
-import utils.pogos.schedules.ScheduleInterval
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,9 +25,9 @@ class EcommerceService {
 
 	GetEcommerceSchedulesInfo findSchedules(LocalDate from, LocalDate to) {
 		List<MechanicAppointment> mechanicsAppointments = cuboDatabaseClient.getMechanicAppointments(
-				from,
-				to,
-				Constants.ECOMMERCE_APPOINTMENT_TYPE_CODES
+			from,
+			to,
+			Constants.ECOMMERCE_APPOINTMENT_TYPE_CODES
 		)
 		List<DayEcommerceSchedule> daysEcommerceSchedules
 		if (mechanicsAppointments) {
@@ -37,8 +37,8 @@ class EcommerceService {
 		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(from, to, false)
 		daysEcommerceSchedules = buildMechanicsSchedules(mechanics)
 		return daysEcommerceSchedules ?
-				new GetEcommerceSchedulesInfo(daysEcommerceSchedules, GetEcommerceScheduleError.NO_APPOINTMENTS) :
-				new GetEcommerceSchedulesInfo([], GetEcommerceScheduleError.NO_SCHEDULES)
+			new GetEcommerceSchedulesInfo(daysEcommerceSchedules, GetEcommerceScheduleError.NO_APPOINTMENTS) :
+			new GetEcommerceSchedulesInfo([], GetEcommerceScheduleError.NO_SCHEDULES)
 	}
 
 	/**
@@ -49,12 +49,12 @@ class EcommerceService {
 	static List<DayEcommerceSchedule> buildAppointmentsSchedules(List<MechanicAppointment> mechanicsAppointments) {
 		List<DayEcommerceSchedule> daysEcommerceSchedules = []
 		mechanicsAppointments.each { MechanicAppointment mechanicAppointment ->
-			AppointmentType.Code appointmentTypeCode = findAppointmentTypeCode(mechanicAppointment.appointmentTypeCode)
+			AppointmentTypeCode appointmentTypeCode = findAppointmentTypeCode(mechanicAppointment.appointmentTypeCode)
 			updateEmployeeSchedule(
-					daysEcommerceSchedules,
-					mechanicAppointment.mechanic.day,
-					appointmentTypeCode,
-					[mechanicAppointment.schedule]
+				daysEcommerceSchedules,
+				mechanicAppointment.mechanic.day,
+				appointmentTypeCode,
+				[mechanicAppointment.schedule]
 			)
 		}
 		return daysEcommerceSchedules
@@ -68,7 +68,7 @@ class EcommerceService {
 	static List<DayEcommerceSchedule> buildMechanicsSchedules(List<EmployeeSchedule> mechanics) {
 		List<DayEcommerceSchedule> daysEcommerceSchedules = []
 		mechanics.each { EmployeeSchedule mechanic ->
-			AppointmentType.Code appointmentTypeCode = AppointmentType.Code.ECO
+			AppointmentTypeCode appointmentTypeCode = AppointmentTypeCode.ECO
 			List<ScheduleInterval> intervals = buildScheduleIntervals(mechanic.schedule)
 			updateEmployeeSchedule(daysEcommerceSchedules, mechanic.day, appointmentTypeCode, intervals)
 		}
@@ -85,27 +85,25 @@ class EcommerceService {
 	static void updateEmployeeSchedule(
 			List<DayEcommerceSchedule> daysEcommerceSchedules,
 			LocalDate day,
-			AppointmentType.Code appointmentTypeCode,
+			AppointmentTypeCode appointmentTypeCode,
 			List<ScheduleInterval> intervals
 	) {
 		DayEcommerceSchedule existentDaySchedules = findDayEcommerceSchedule(daysEcommerceSchedules, day)
 		if (existentDaySchedules) {
 			EcommerceSchedule existentTypeEcommerceSchedule = findTypeEcommerceSchedule(
-					existentDaySchedules.schedules,
-					appointmentTypeCode
+				existentDaySchedules.schedules,
+				appointmentTypeCode
 			)
 			if (existentTypeEcommerceSchedule) {
 				existentTypeEcommerceSchedule.intervals += intervals
 			} else {
 				existentDaySchedules.schedules << new EcommerceSchedule(
-						intervals,
-						appointmentTypeCode
+					intervals, appointmentTypeCode
 				)
 			}
 		} else {
 			EcommerceSchedule ecommerceSchedule = new EcommerceSchedule(
-					intervals,
-					appointmentTypeCode
+				intervals, appointmentTypeCode
 			)
 			daysEcommerceSchedules << new DayEcommerceSchedule(day, [ecommerceSchedule])
 		}
@@ -116,13 +114,12 @@ class EcommerceService {
 	 * @param mechanicAppointmentTypeCode Tipo de cita del mecánico
 	 * @return TIpo de cita final
 	 */
-	static AppointmentType.Code findAppointmentTypeCode(String mechanicAppointmentTypeCode) {
-		AppointmentType.Code mechanicAppointmentType = AppointmentType.Code.values().find {
+	static AppointmentTypeCode findAppointmentTypeCode(String mechanicAppointmentTypeCode) {
+		AppointmentTypeCode mechanicAppointmentType = AppointmentTypeCode.values().find {
 			it.toString() == mechanicAppointmentTypeCode
 		}
-		AppointmentType.Code appointmentTypeCode = mechanicAppointmentType == AppointmentType.Code.TP ?
-				mechanicAppointmentType :
-				AppointmentType.Code.ECO
+		AppointmentTypeCode appointmentTypeCode = mechanicAppointmentType == AppointmentTypeCode.TP ?
+			mechanicAppointmentType : AppointmentTypeCode.ECO
 		return appointmentTypeCode
 	}
 
@@ -147,7 +144,7 @@ class EcommerceService {
 	 */
 	static EcommerceSchedule findTypeEcommerceSchedule(
 			List<EcommerceSchedule> ecommerceSchedules,
-			AppointmentType.Code appointmentTypeCode
+			AppointmentTypeCode appointmentTypeCode
 	) {
 		return ecommerceSchedules.find { it.type == appointmentTypeCode }
 	}

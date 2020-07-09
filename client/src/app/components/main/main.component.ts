@@ -30,7 +30,7 @@ import {DayMechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/gr
 import {DayTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
 import { DaysTriggerMap } from 'src/app/objects/trigger-cd/trigger-maps/days-trigger-map';
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
-import {AppointmentsCounterUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointments-counter-update";
+import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
 import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
 import {MaxScheduleWidthUpdate} from "../../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
 import {ContextMenuUpdate} from "../../objects/trigger-cd/update-objects/generic/context-menu-update";
@@ -388,11 +388,11 @@ export class MainComponent implements OnInit, OnDestroy {
 		return daysTriggerMap[day.valueOf()][type];
 	}
 
-	findAppointmentsCounterUpdate(
+	findAppointmentDayUpdate(
 		day: Dayjs,
 		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
-		type: string = Constants.UPDATE_OBJECT.APPOINTMENTS_COUNTER
-	): AppointmentsCounterUpdate {
+		type: string = Constants.UPDATE_OBJECT.APPOINTMENT_DAY
+	): AppointmentDayUpdate {
 		return daysTriggerMap[day.valueOf()][type];
 	}
 

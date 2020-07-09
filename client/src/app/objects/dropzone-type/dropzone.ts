@@ -29,8 +29,4 @@ export interface Dropzone {
 
 	handleNotValidatedMovement(group: CardsGroup): void;
 
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void;
-
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void;
-
 }

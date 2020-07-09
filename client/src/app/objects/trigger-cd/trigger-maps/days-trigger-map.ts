@@ -12,7 +12,7 @@ export class DaysTriggerMap implements TriggerMap {
 		days.forEach((day: Dayjs) => {
 			this[day.valueOf()] = new DayTriggerTypes(
 				CardsService.buildDaySaturation(day),
-				appointmentsService.findDayAppointmentsCounter(day)
+				appointmentsService.findAppointmentDay(day)
 			);
 		});
 	}

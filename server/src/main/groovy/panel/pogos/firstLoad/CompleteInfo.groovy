@@ -1,13 +1,13 @@
-package panel.pogos
+package panel.pogos.firstLoad
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
-import utils.pogos.panel.AppointmentDay
-import utils.pogos.panel.Card
-import utils.pogos.panel.JobLineType
-import utils.pogos.panel.AppointmentType
-import utils.pogos.schedules.EmployeeSchedule
-import utils.pogos.skills.Skill
+import panel.pogos.appointmentDays.AppointmentDay
+import panel.pogos.appointmentDays.AppointmentType
+import panel.pogos.cards.Card
+import panel.pogos.schedules.EmployeeSchedule
+import panel.pogos.schedules.JobLineType
+import panel.pogos.skills.Skill
 
 @CompileStatic
 class CompleteInfo {
@@ -22,12 +22,12 @@ class CompleteInfo {
 	List<Card> cards
 
 	CompleteInfo(
-			Map<String, List<EmployeeSchedule>> daysMechanics,
-			List<Skill> skills,
-			List<JobLineType> jobLineTypes,
-			List<AppointmentType> appointmentTypes,
-			List<AppointmentDay> appointmentDays,
-			List<Card> cards
+		Map<String, List<EmployeeSchedule>> daysMechanics,
+		List<Skill> skills,
+		List<JobLineType> jobLineTypes,
+		List<AppointmentType> appointmentTypes,
+		List<AppointmentDay> appointmentDays,
+		List<Card> cards
 	) {
 		this.daysMechanics = daysMechanics
 		this.skills = skills

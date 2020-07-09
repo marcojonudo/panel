@@ -1,6 +1,7 @@
-package panel.pogos
+package panel.pogos.realTime
 
 import groovy.transform.CompileStatic
+import panel.pogos.appointments.MechanicAppointment
 
 @CompileStatic
 abstract class PublisherInfo {

@@ -7,14 +7,13 @@ import panel.clients.cubo.CuboDatabaseClient
 import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.GetEcommerceScheduleError
 import panel.pogos.eCommerce.getSchedules.GetEcommerceSchedulesInfo
+import panel.pogos.schedules.EmployeeSchedule
+import panel.pogos.schedules.MechanicAppointment
+import panel.pogos.schedules.Schedule
+import panel.pogos.schedules.ScheduleInterval
 import panel.utils.Constants
 import spock.lang.Shared
 import spock.lang.Specification
-import utils.pogos.Schedule
-import utils.pogos.panel.AppointmentType
-import utils.pogos.schedules.EmployeeSchedule
-import utils.pogos.schedules.MechanicAppointment
-import utils.pogos.schedules.ScheduleInterval
 
 import javax.inject.Inject
 import java.time.LocalDate
