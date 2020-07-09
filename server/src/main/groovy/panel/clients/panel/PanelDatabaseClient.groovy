@@ -101,13 +101,7 @@ interface PanelDatabaseClient {
 	@Post("/appointmentDays")
 	void createAppointmentDays(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
 
-//	@Put("/appointmentDay/total")
-//	void updateAppointmentDaysTotal(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
-
 	@Put("/appointmentDays")
 	void updateAppointmentDays(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
-
-//	@Patch("/appointmentDay/max")
-//	void updateAppointmentDayMax(@Header String sessionId, @Body AppointmentDay appointmentDay)
 
 }

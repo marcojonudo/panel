@@ -20,6 +20,7 @@ export class MechanicInfoComponent {
 
 	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
+	@Input() jobLineType: string;
 	@Input() position: string;
 	@Input() highlight: boolean;
 

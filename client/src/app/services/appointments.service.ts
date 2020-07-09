@@ -109,60 +109,12 @@ export class AppointmentsService {
 		this.appointmentDays = appointmentDays.map(appointmentDay => new AppointmentDay(appointmentDay));
 		console.log('Appointment types', AppointmentsService.appointmentTypes);
 		console.log('Appointment days', this.appointmentDays);
-		// this.daysAppointmentsCounter = this.initDaysAppointmentsCounter(this.appointmentDays);
-		// console.log('Days appointments counter', this.daysAppointmentsCounter);
 
 		AppointmentsService.dragSchedulesAppointmentType = AppointmentsService.appointmentTypes
 			.find((appointmentType: AppointmentType) =>
 				appointmentType.code == Constants.APPOINTMENT_TYPE_CODE.RAP
 			)
 	}
-
-	// private init
-
-	// private initAppointmentDays(appointmentDays: any[]): AppointmentDay[] {
-	// 	return appointmentDays.map(appointmentDay => {
-	// 		const day = dayjs(appointmentDay.day);
-	// 		return new AppointmentDay(appointmentDay)
-	// 	});
-	// 	// 	const appDay = new AppointmentDay(day, appointmentDay);
-	// 	// 	if (appointmentDay.morning || appointmentDay.afternoon) {
-	// 	// 		CardsService.findDayGroups(day).forEach((group: CardsGroup) => {
-	// 	// 			if (group.cards[0].type == Constants.CARD_TYPE.APPOINTMENT) {
-	// 	// 				group.cards.forEach((card: Card) => {
-	// 	// 					appDay.addAppointmentCard(card.panelId, UtilsService.findScheduleType(group.start, card.end));
-	// 	// 				});
-	// 	// 			}
-	// 	// 		});
-	// 	// 	}
-	// 	// 	if (appointmentDay.total) {
-	// 	// 		CardsService.unassignedGroups.forEach((group: CardsGroup) => {
-	// 	// 			if (group.cards[0].type == Constants.CARD_TYPE.APPOINTMENT && group.cards[0].order.day.isSame(day)) {
-	// 	// 				appDay.total.push(...group.cards.map((c: Card) => c.panelId));
-	// 	// 			}
-	// 	// 		});
-	// 	// 	}
-	// 	// 	return appDay;
-	// 	// });
-	// }
-
-	// private initDaysAppointmentsCounter(appointmentDays: AppointmentDay[]): DaysAppointmentsCounter {
-	// 	const daysAppointmentsCounter = {};
-	// 	for (let i = 0; i < appointmentDays.length; i = i + 4) {
-	// 		daysAppointmentsCounter[appointmentDays[i].day.valueOf()] = this.initAppointmentsCounter(
-	// 			appointmentDays.slice(i, i + 4)
-	// 		);
-	// 	}
-	// 	return daysAppointmentsCounter
-	// }
-	//
-	// private initAppointmentsCounter(appointmentDayTypes: AppointmentDay[]): { [key: string]: AppointmentDay } {
-	// 	const appointmentsCounter = {};
-	// 	appointmentDayTypes.forEach((appointmentDay: AppointmentDay) => {
-	// 		appointmentsCounter[appointmentDay.appointmentType.code] = appointmentDay;
-	// 	});
-	// 	return appointmentsCounter;
-	// }
 
 	// endregion
 

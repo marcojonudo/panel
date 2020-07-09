@@ -35,7 +35,6 @@ import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-car
 import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-handler";
 import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-divide";
 import {DropzoneService} from "./dropzone.service";
-import {process} from "@angular/compiler-cli/ngcc";
 
 @Injectable({
 	providedIn: 'root'
@@ -139,7 +138,6 @@ export class RealTimeService {
 					[group], card.start, card.line, destinyDropzone.mechanic
 				);
 				destinyDropzone.addGroup([], group, originDropzone);
-
 				processedGroups.push(group);
 			}
 		});
