@@ -18,7 +18,7 @@ import java.time.LocalTime
 @CompileStatic
 @Client("http://\${host.ip}:8082/cubo")
 @Header(name = "database", value = "cubo")
-interface CuboDatabaseClient extends CuboDatabaseApi {
+interface CuboDatabaseClient {
 
 	@Get("/mechanics")
 	List<EmployeeSchedule> getMechanics(
@@ -52,14 +52,14 @@ interface CuboDatabaseClient extends CuboDatabaseApi {
 	EmployeeScheduleAppointment createAppointment(
 		@Header String sessionId,
 		@Header String realTimeAction,
-		@Body MechanicAppointment mechanicAppointment
+		@Body panel.pogos.appointments.MechanicAppointment mechanicAppointment
 	)
 
 	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
 		@Header String sessionId,
 		@Header String realTimeAction,
-		@Body MechanicAppointment mechanicAppointment
+		@Body panel.pogos.appointments.MechanicAppointment mechanicAppointment
 	)
 
 	@Delete("/appointment")
