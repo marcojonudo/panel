@@ -37,6 +37,8 @@ import {HourQuarter} from "../objects/hour-quarter";
 import {CardDurationHandler} from "../objects/card-duration/card-duration-handler";
 import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
 import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
+import {Vehicle} from "../objects/vehicle";
+import {Order} from "../objects/order";
 
 @Injectable({
 	providedIn: 'root'
@@ -244,6 +246,24 @@ export class CardsService {
 
 	private static findAllLinkedCards(cards: Card[], card: Card): Card[] {
 		return this.findPreviousCards(cards, card, [card]).concat(this.findNextCards(cards, card));
+	}
+
+	private static initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: DaysMechanics): any {
+		this.assignedDaysCardsGroups = {};
+
+		for (let dayTime in daysMechanics) {
+			this.assignedDaysCardsGroups[dayTime] = {};
+
+			for (let mechanic of daysMechanics[dayTime]) {
+				const assignedDayCardsGroups = assignedCardsGroups.filter(cardsGroup => {
+					return cardsGroup.cards[0].day.valueOf() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.code
+				});
+				this.assignedDaysCardsGroups[dayTime][mechanic.code] = UtilsService.sort(
+					assignedDayCardsGroups,
+					(g) => g.start
+				);
+			}
+		}
 	}
 
 	// endregion
@@ -472,113 +492,6 @@ export class CardsService {
 		}
 	}
 
-	// endregion
-
-	// region Duration
-
-	static handleCardDurationUpdate(
-		card: Card,
-		widthIncrease: number,
-		mechanic: Mechanic,
-		handler: CardDurationHandler
-	): Card[] {
-		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
-		const groups = handler.findGroups(card);
-		const group = this.findCardGroup(groups, card.panelId);
-
-		/* Si la ficha se está reduciendo, no es necesario hacer comprobaciones relativas a los límites del horario
-		*  u otros grupos desplazados, ya que no los afectaría */
-		if (widthIncrease < 0) {
-			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
-			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
-				return handler.updateDuration(card, group, durationIncrease, widthIncrease, []);
-			}
-			return []
-		}
-
-		/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que
-		*  está asignada */
-		const updatedGroups = handler.validateDurationUpdate(group, card, mechanic);
-		if (updatedGroups == undefined) {
-			return [];
-		}
-
-		return handler.updateDuration(card, group, durationIncrease, widthIncrease, updatedGroups);
-	}
-
-	// endregion
-
-	// region Link handlers
-
-	static checkShowHandler(card: Card, nextGroup: CardsGroup): boolean {
-		/* Si no hay ningún grupo justo a la izquierda de la ficha, no se muestra el icono para unir*/
-		if (!nextGroup) {
-			return false;
-		}
-
-		/* Se muestra el icono sólo si el grupo a la izquierda es de la misma orden */
-		return nextGroup.cards[0].order.number == card.order.number;
-	}
-
-	// endregion
-
-	// region Global cards map
-
-	private static initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: DaysMechanics): any {
-		this.assignedDaysCardsGroups = {};
-
-		for (let dayTime in daysMechanics) {
-			this.assignedDaysCardsGroups[dayTime] = {};
-
-			for (let mechanic of daysMechanics[dayTime]) {
-				const assignedDayCardsGroups = assignedCardsGroups.filter(cardsGroup => {
-					return cardsGroup.cards[0].day.valueOf() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.code
-				});
-				this.assignedDaysCardsGroups[dayTime][mechanic.code] = UtilsService.sort(
-					assignedDayCardsGroups,
-					(g) => g.start
-				);
-			}
-		}
-	}
-
-	// endregion
-
-	// region Link handlers checks
-
-	private static handleAssignedMovementGroupsLinks(
-		day: Dayjs,
-		mechanicCode: string,
-		line: number,
-		start: Dayjs,
-		end: Dayjs
-	): void {
-		const groups = this.findLineGroups(day, mechanicCode, line);
-		const leftGroup = this.findLeftAssignedGroup(groups, start);
-		const rightGroup = this.findRightAssignedGroup(groups, end);
-
-		if (leftGroup) {
-			leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNext =
-				!leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNext;
-		}
-		if (rightGroup) {
-			rightGroup.cards[0].possibleLinkedPrevious = !rightGroup.cards[0].possibleLinkedPrevious;
-		}
-	}
-
-	private static handleUnassignedMovementGroupsLinks(orderNumber: number, type: string, status: string): void {
-		const groups = this.findUnassignedGroups(type, status);
-		const orderGroups = this.findOrderGroups(groups, orderNumber);
-		orderGroups.forEach(group => {
-			group.cards.forEach(card => {
-				card.possibleLinkedPrevious = !card.possibleLinkedPrevious;
-				card.possibleLinkedNext = !card.possibleLinkedNext;
-			});
-		});
-	}
-
-	// endregion
-
 	private static addFinishedGroup(group: CardsGroup): void {
 		this.finishedCardsGroups.push(group);
 		CardPositionService.sortUnassignedGroups(this.finishedCardsGroups);
@@ -643,6 +556,91 @@ export class CardsService {
 		/* Además de actualizar los elementos de los grupos, se actualiza su posición */
 		CardPositionService.updateUnassignedGroupsLeft(groups);
 	}
+
+	// endregion
+
+	// region Duration
+
+	static handleCardDurationUpdate(
+		card: Card,
+		widthIncrease: number,
+		mechanic: Mechanic,
+		handler: CardDurationHandler
+	): Card[] {
+		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
+		const groups = handler.findGroups(card);
+		const group = this.findCardGroup(groups, card.panelId);
+
+		/* Si la ficha se está reduciendo, no es necesario hacer comprobaciones relativas a los límites del horario
+		*  u otros grupos desplazados, ya que no los afectaría */
+		if (widthIncrease < 0) {
+			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
+			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
+				return handler.updateDuration(card, group, durationIncrease, widthIncrease, []);
+			}
+			return []
+		}
+
+		/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que
+		*  está asignada */
+		const updatedGroups = handler.validateDurationUpdate(group, card, mechanic);
+		if (updatedGroups == undefined) {
+			return [];
+		}
+
+		return handler.updateDuration(card, group, durationIncrease, widthIncrease, updatedGroups);
+	}
+
+	// endregion
+
+	// region Link handlers
+
+	static checkShowHandler(card: Card, nextGroup: CardsGroup): boolean {
+		/* Si no hay ningún grupo justo a la izquierda de la ficha, no se muestra el icono para unir*/
+		if (!nextGroup) {
+			return false;
+		}
+
+		/* Se muestra el icono sólo si el grupo a la izquierda es de la misma orden */
+		return nextGroup.cards[0].order.number == card.order.number;
+	}
+
+	// endregion
+
+	// region Link handlers checks
+
+	private static handleAssignedMovementGroupsLinks(
+		day: Dayjs,
+		mechanicCode: string,
+		line: number,
+		start: Dayjs,
+		end: Dayjs
+	): void {
+		const groups = this.findLineGroups(day, mechanicCode, line);
+		const leftGroup = this.findLeftAssignedGroup(groups, start);
+		const rightGroup = this.findRightAssignedGroup(groups, end);
+
+		if (leftGroup) {
+			leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNext =
+				!leftGroup.cards[leftGroup.cards.length - 1].possibleLinkedNext;
+		}
+		if (rightGroup) {
+			rightGroup.cards[0].possibleLinkedPrevious = !rightGroup.cards[0].possibleLinkedPrevious;
+		}
+	}
+
+	private static handleUnassignedMovementGroupsLinks(orderNumber: number, type: string, status: string): void {
+		const groups = this.findUnassignedGroups(type, status);
+		const orderGroups = this.findOrderGroups(groups, orderNumber);
+		orderGroups.forEach(group => {
+			group.cards.forEach(card => {
+				card.possibleLinkedPrevious = !card.possibleLinkedPrevious;
+				card.possibleLinkedNext = !card.possibleLinkedNext;
+			});
+		});
+	}
+
+	// endregion
 
 	// region Finders
 
@@ -1046,14 +1044,14 @@ export class CardsService {
 		originDropzone: Dropzone,
 		destinyDropzone: Dropzone
 	): void {
-		originDropzone.removeGroup(group, destinyDropzone);
+		originDropzone.removeGroup(group);
 		const allGroups = [group].concat(groups);
 		destinyDropzone.updateProperties(allGroups, newStart, line, destinyDropzone.mechanic);
-		destinyDropzone.addGroup(allGroups, group, originDropzone);
+		destinyDropzone.addGroup(allGroups, group);
 	}
 
 	deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {
-		destinyDropzone.removeGroup(groupToReplace, undefined);
+		destinyDropzone.removeGroup(groupToReplace);
 		this.http.put(Url.cardsDeletion(), groupToReplace.cards).subscribe();
 	}
 
@@ -1103,6 +1101,15 @@ export class CardsService {
 		if (updateDb) {
 			this.http.patch(Url.cardsPendingBudget(), [card]).subscribe();
 		}
+	}
+
+	// endregion
+
+	// region Order
+
+	static updateCardOrder(card: Card, order: Order, vehicle: Vehicle): void {
+		card.order = order;
+		card.vehicle = vehicle;
 	}
 
 	// endregion

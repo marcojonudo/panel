@@ -51,7 +51,7 @@
 				<div class="flex-grow-1 flex-basis-0 align-center max-appointment-limit">
 					{{values.max}}
 				</div>
-				<div class="h-25 appointment-number-icon align-center" (click)="subtractMax(values)">
+				<div class="h-25 appointment-number-icon align-center" (click)="subtractMax(values.appointmentType.code)">
 					<i class="fas fa-chevron-down"></i>
 				</div>
 			</div>

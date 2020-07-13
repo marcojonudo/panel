@@ -63,21 +63,19 @@ export class AppointmentsPanelComponent {
 
 	addMax(
 		appointmentTypeCode: string,
-		day: Dayjs = this.day,
 		appointmentDay: AppointmentDay = this.appointmentDayUpdate.value
 	): void {
 		this.appointmentsService.addMax(appointmentDay, appointmentTypeCode);
-		NotificationService.notifyAppointmentDay(day, appointmentDay);
+		NotificationService.notifyAppointmentDay(appointmentDay);
 		this.cdRef.detectChanges();
 	}
 
 	subtractMax(
 		appointmentTypeCode: string,
-		day: Dayjs = this.day,
 		appointmentDay: AppointmentDay = this.appointmentDayUpdate.value
 	): void {
 		this.appointmentsService.subtractMax(appointmentDay, appointmentTypeCode);
-		NotificationService.notifyAppointmentDay(day, appointmentDay);
+		NotificationService.notifyAppointmentDay(appointmentDay);
 		this.cdRef.detectChanges();
 	}
 

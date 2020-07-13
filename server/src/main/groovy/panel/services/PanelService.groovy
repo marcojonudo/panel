@@ -58,21 +58,14 @@ class PanelService {
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
-		lastScheduleDay = LocalDate.parse(daysMechanics.keySet().max())
-		UpdateCards updateCards = syncJpdvOrders(day, lastScheduleDay)
-		appointmentDays = syncAppointmentDays(
-			daysMechanics,
-			appointmentDays,
-			appointmentTypes.findAll { it.counter },
-			updateCards.getAll().findAll { it.type == Card.CardType.APPOINTMENT }
-		)
+		UpdateCards updateCards = syncJpdvOrders(day, lastScheduleDay, appointmentDays, appointmentTypes)
 
 		return new CompleteInfo(
 			daysMechanics,
 			skills,
 			jobLineTypes,
 			appointmentTypes,
-			appointmentDays,
+			updateCards.appointmentDays ?: appointmentDays,
 			updateCards.getAll() + updateCards.auxiliary
 		)
 	}
@@ -90,6 +83,7 @@ class PanelService {
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from) {
 		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(from, null, true)
+		lastScheduleDay = mechanics.day.max()
 		return integrateFixedMechanics(mechanics)
 	}
 
@@ -286,7 +280,12 @@ class PanelService {
 
 	// region Sync orders with cards
 
-	UpdateCards syncJpdvOrders(LocalDate from, LocalDate to) {
+	UpdateCards syncJpdvOrders(
+		LocalDate from,
+		LocalDate to,
+		List<AppointmentDay> appointmentDays = [],
+		List<AppointmentType> appointmentTypes = []
+	) {
 		UpdateCards updateCards = null
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
@@ -299,6 +298,19 @@ class PanelService {
 
 				updateCards = syncOrders(orders, notAuxiliaryCards)
 				updateCards.auxiliary = auxiliaryCards
+
+				if (updateCards.getAppointments()) {
+					List<LocalDate> days = []
+					for (LocalDate day = from; day <= to; day = day.plusDays(1)) {
+						days << day
+					}
+					updateCards.appointmentDays = syncAppointmentDays(
+						days,
+						appointmentDays ?: panelDatabaseClient.getAppointmentDays(from),
+						(appointmentTypes ?: panelDatabaseClient.getAppointmentTypes()).findAll { it.counter },
+						updateCards.getAll().findAll { it.type == Card.CardType.APPOINTMENT }
+					)
+				}
 
 				saveCards(updateCards)
 			} catch(all) {
@@ -620,14 +632,12 @@ class PanelService {
 	// region Appointment days
 
 	List<AppointmentDay> syncAppointmentDays(
-		Map<String, List<EmployeeSchedule>> daysMechanics,
+		List<LocalDate> days,
 		List<AppointmentDay> existentAppointmentDays,
 		List<AppointmentType> appointmentTypes,
 		List<Card> cards
 	) {
-		List<AppointmentDay> appointmentDays = daysMechanics.collect {
-			new AppointmentDay(LocalDate.parse(it.key), appointmentTypes)
-		}
+		List<AppointmentDay> appointmentDays = days.collect { new AppointmentDay(it, appointmentTypes) }
 		fillAppointmentDays(appointmentDays, existentAppointmentDays, cards)
 		UpdateAppointmentDays updateAppointmentDays = findUpdateAppointmentDays(existentAppointmentDays, appointmentDays)
 
@@ -666,32 +676,6 @@ class PanelService {
 				)
 			}
 		}
-//		appointmentDays.each { AppointmentDay appointmentDay ->
-//			List<Card> dayOrderCards = cards.findAll { it.order.day == appointmentDay.day }
-//			dayOrderCards.groupBy { it.order.number }.each {
-//				List<Card> orderCards = cards.findAll { it.order.code }
-//			}
-//		}
-//		List<AppointmentDay> appointmentDays = []
-//		cards.findAll {
-//			it.type == Card.CardType.APPOINTMENT
-//		}.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
-//			LocalDate day = orderCards[0].order.day
-//			AppointmentDay appointmentDay = appointmentDays.find { it.day == day }
-//			if (!appointmentDay) {
-//				appointmentDay = new AppointmentDay(day, appointmentTypes)
-//				appointmentDays << appointmentDay
-//			}
-//			List<AppointmentTypeCode> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)
-//			appointmentTypeCodes.each { AppointmentTypeCode code ->
-//				fillScheduleTypeAppointmentValues(
-//					appointmentDay.values.find { it.appointmentType.code == code },
-//					orderCards[0].order.created,
-//					(int) orderCards.duration.sum(),
-//					1
-//				)
-//			}
-//		}
 		return appointmentDays
 	}
 

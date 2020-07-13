@@ -23,10 +23,8 @@ import {Coordinates} from "../../objects/coordinates";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
 import {HourQuarter} from "../../objects/hour-quarter";
-import {DayMechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/day-mechanic-skills-update";
 import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/mechanic-skills-update";
 import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
-import {DayMechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/day-mechanic-group-update";
 import {DayTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
 import { DaysTriggerMap } from 'src/app/objects/trigger-cd/trigger-maps/days-trigger-map';
 import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
@@ -86,14 +84,13 @@ export class MainComponent implements OnInit, OnDestroy {
 		private cardsService: CardsService,
 		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,
-		private appointmentsService: AppointmentsService,
 		private cdRef: ChangeDetectorRef,
 		private sanitizer: DomSanitizer,
 		private element: ElementRef,
 		private renderer: Renderer2
 	) {
 		this.days = MechanicsService.days;
-		this.daysTriggerMap = new DaysTriggerMap(this.days, this.appointmentsService);
+		this.daysTriggerMap = new DaysTriggerMap(this.days);
 
 		this.today = dayjs().startOf(Constants.DAY_JS.d);
 		this.oneDayMode = true;

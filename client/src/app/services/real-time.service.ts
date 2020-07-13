@@ -35,6 +35,7 @@ import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-car
 import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-handler";
 import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-divide";
 import {DropzoneService} from "./dropzone.service";
+import {AppointmentDay} from "../objects/appointments/appointment-day";
 
 @Injectable({
 	providedIn: 'root'
@@ -115,6 +116,11 @@ export class RealTimeService {
 			CardsService.findUnassignedGroups(card.type, card.status);
 	}
 
+	findPanelCardGroup(cardId: string): CardsGroup {
+		let group = CardsService.findCardGroup(CardsService.unassignedGroups, cardId);
+		return group ? group : CardsService.findCardGroup(CardsService.assignedGroups, cardId);
+	}
+
 	updatePosition(cards: Card[]): void {
 		const processedGroups = [];
 		cards.forEach((card: Card) => {
@@ -123,8 +129,7 @@ export class RealTimeService {
 			*  buscar a partir del card.day, o card.mechanicCode, porque al haber cambiado la posición estos pueden
 			*  ser nuevos (si se mueve una ficha del día 1 al día 2, en este panel (donde sigue en el día 1), no se
 			*  va a encontrar en el día 2 */
-			let group = CardsService.findCardGroup(CardsService.unassignedGroups, card.panelId);
-			group = group ? group : CardsService.findCardGroup(CardsService.assignedGroups, card.panelId);
+			let group = this.findPanelCardGroup(card.panelId);
 
 			const processedGroup = processedGroups.find((g: CardsGroup) => g.id == group.id);
 			if (!processedGroup) {
@@ -133,11 +138,11 @@ export class RealTimeService {
 				const originDropzone = DropzoneService.findDropzone(group.cards[0]);
 				const destinyDropzone = DropzoneService.findDropzone(card);
 
-				originDropzone.removeGroup(group, destinyDropzone);
+				originDropzone.removeGroup(group);
 				destinyDropzone.updateProperties(
 					[group], card.start, card.line, destinyDropzone.mechanic
 				);
-				destinyDropzone.addGroup([], group, originDropzone);
+				destinyDropzone.addGroup([], group);
 				processedGroups.push(group);
 			}
 		});
@@ -312,62 +317,81 @@ export class RealTimeService {
 	// region Sync JPDV
 
 	syncJpdvCards(syncInfo: SyncCardsInfo): void {
+		const unassignedNotifyGroups = [];
 		if (syncInfo.newCards.length) {
 			console.log('Adding JPDV cards', syncInfo.newCards);
 			syncInfo.newCards.forEach((card: Card) => {
 				const group = new CardsGroup([card]);
 				CardsService.addToUnassigned(group, false);
+				unassignedNotifyGroups.push(group);
 			});
 		}
-		if (syncInfo.updatedCards.length) {
-			console.log('Updating JPDV cards', syncInfo.updatedCards);
-			syncInfo.updatedCards.forEach((card: Card) => {
-				const group = CardsService.findCardGroup(
-					this.findGroups(card, card.day, card.mechanicCode),
-					card.panelId
-				);
+		if (syncInfo.newReplace.length) {
+			console.log('Replacing assigned cards', syncInfo.newReplace);
+			syncInfo.newReplace.forEach((card: Card) => {
+				CardsService.addToAssigned(new CardsGroup([card]), card.day, card.mechanicCode);
+			});
+		}
+		if (syncInfo.reset.length) {
+			console.log('Resetting assigned cards', syncInfo.reset);
+			const processedGroups = [];
+			syncInfo.reset.forEach((card: Card) => {
+				const group = this.findPanelCardGroup(card.panelId);
+				const processedGroup = processedGroups.find((g: CardsGroup) => g.id == group.id);
+				if (!processedGroup) {
+					/* Se baja el grupo a la cinta sólo si estaba asignado anteriormente. Si no lo estaba, no hace falta
+					*  operar con él */
+					if (group.mechanicCode) {
+						CardsService.removeFromAssigned(group, group.day, group.mechanicCode);
+						CardsService.resetCardsGroup(group)
+						CardsService.addToUnassigned(group, false);
+						unassignedNotifyGroups.push(group);
+					}
+				}
+			});
+		}
+		if (syncInfo.updated.length) {
+			console.log('Updating JPDV cards', syncInfo.updated);
+			syncInfo.updated.forEach((card: Card) => {
+				const group = this.findPanelCardGroup(card.panelId);
 				const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
-				localCard.group = card.group;
-				localCard.vehicle = card.vehicle;
-				localCard.order = card.order;
-				if (localCard.day) {
-					NotificationService.notifyMechanicLine(localCard.day, localCard.mechanicCode);
-				}
-			});
-		}
-		if (syncInfo.deletedCards.length) {
-			console.log('Deleting JPDV cards', syncInfo.deletedCards);
-			syncInfo.deletedCards.forEach((card: Card) => {
-				if (card.day) {
-					const group = CardsService.findCardGroup(
-						CardsService.findDayMechanicGroups(card.day, card.mechanicCode),
-						card.panelId
-					);
-					/* Si el grupo tiene una sóla ficha, se borra el grupo completo */
-					if (group.cards.length == 1) {
-						CardsService.removeFromAssigned(group, card.day, card.mechanicCode);
-					} else {
-						/* Si el grupo tiene más de una ficha, no sé borra el grupo, sino que se borra la ficha de la
-                        *  lista */
-						group.removeCard(card.panelId);
-						NotificationService.notifyMechanicLine(card.day, card.mechanicCode);
-					}
+				CardsService.updateCardOrder(localCard, card.order, card.vehicle);
+				if (group.mechanicCode) {
+					NotificationService.notifyMechanicLine(group.day, group.mechanicCode, false);
 				} else {
-					const unassignedGroups = CardsService.findUnassignedGroups(card.type, card.status);
-					const group = CardsService.findCardGroup(unassignedGroups, card.panelId);
-					if (group.cards.length == 1) {
-						CardsService.removeFromUnassigned(group, false)
-					} else {
-						/* Si el grupo tiene más de una ficha, no sé borra el grupo, sino que se borra la ficha de la
-                        *  lista */
-						group.removeCard(card.panelId);
-						CardPositionService.updateUnassignedGroupsLeft(unassignedGroups);
-					}
+					unassignedNotifyGroups.push(group);
 				}
 			});
 		}
-		if (syncInfo.triggerCd) {
-			NotificationService.notifyBand();
+		if (syncInfo.deleted.length) {
+			console.log('Deleting JPDV cards', syncInfo.deleted);
+			const processedGroups = [];
+			syncInfo.deleted.forEach((card: Card) => {
+				const group = this.findPanelCardGroup(card.panelId);
+				const processedGroup = processedGroups.find((g: CardsGroup) => g.id == group.id);
+				if (!processedGroup) {
+					/* El grupo existente en panel antes de actualizar está en la posición de origen (la que tenía antes de
+					*  actualizarse en otro terminal) */
+					const originDropzone = DropzoneService.findDropzone(group.cards[0]);
+					originDropzone.removeGroup(group);
+					processedGroups.push(group);
+				}
+			});
+		}
+		if (syncInfo.appointmentDays.length) {
+			AppointmentsService.updateAppointmentDays(syncInfo.appointmentDays);
+			syncInfo.appointmentDays.forEach((appointmentDay: AppointmentDay) => {
+				NotificationService.notifyAppointmentDay(appointmentDay);
+			});
+		}
+		/* Sólo se notifica el array de actualizaciones si se actualizó algún grupo (en cuyo caso, en el array estará
+		*  la actualización correspondiente). En caso contrario, no se hace para no ejecutar el CD innecesariamente */
+		if (NotificationService.updateArray.length) {
+			NotificationService.notifyUpdateArray();
+		}
+		/* Sólo se ejecuta el CD de la cinta si hay grupos no asignados que actualizar */
+		if (unassignedNotifyGroups.length) {
+			NotificationService.notifyBand(undefined, unassignedNotifyGroups);
 		}
 	}
 

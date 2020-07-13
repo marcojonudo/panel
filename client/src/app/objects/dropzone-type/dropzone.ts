@@ -19,11 +19,11 @@ export interface Dropzone {
 
 	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo;
 
-	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void;
+	removeGroup(group: CardsGroup): void;
 
 	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void;
 
-	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void;
+	addGroup(groups: CardsGroup[], group: CardsGroup): void;
 
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates;
 

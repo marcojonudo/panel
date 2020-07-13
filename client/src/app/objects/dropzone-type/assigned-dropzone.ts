@@ -6,7 +6,6 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {AppointmentsService} from "../../services/appointments.service";
-import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {Card} from "../card";
@@ -65,7 +64,7 @@ export class AssignedDropzone implements Dropzone {
 			overlappedGroupsInfo : undefined;
 	}
 
-	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
+	removeGroup(group: CardsGroup): void {
 		CardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
@@ -75,7 +74,7 @@ export class AssignedDropzone implements Dropzone {
 		);
 	}
 
-	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void {
+	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
 
 		/* Si se está actualizando en tiempo real, no hay fichas para actualizar en BD (ya se actualizaron al realizar

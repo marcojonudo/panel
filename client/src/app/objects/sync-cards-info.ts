@@ -1,17 +1,29 @@
 import {Card} from "./card";
+import {AppointmentDay} from "./appointments/appointment-day";
 
 export class SyncCardsInfo {
 
 	newCards: Card[];
-	updatedCards: Card[];
-	deletedCards: Card[];
-	triggerCd: boolean;
+	newReplace: Card[];
+	reset: Card[]
+	updated: Card[];
+	deleted: Card[];
+	appointmentDays: AppointmentDay[];
 
-	constructor(newCards: Card[], updatedCards: Card[], deletedCards: Card[]) {
+	constructor(
+		newCards: Card[],
+		newReplace: Card[],
+		reset: Card[],
+		updated: Card[],
+		deleted: Card[],
+		appointmentDays: AppointmentDay[]
+	) {
 		this.newCards = newCards;
-		this.updatedCards = updatedCards;
-		this.deletedCards = deletedCards;
-		this.triggerCd = this.newCards.length != 0 || this.updatedCards.length != 0 || this.deletedCards.length != 0
+		this.newReplace = newReplace;
+		this.reset = reset;
+		this.updated = updated;
+		this.deleted = deleted;
+		this.appointmentDays = appointmentDays;
 	}
 
 }

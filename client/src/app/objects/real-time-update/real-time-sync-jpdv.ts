@@ -2,6 +2,7 @@ import {RealTimeUpdate} from "./real-time-update";
 import {Card} from "../card";
 import {RealTimeService} from "../../services/real-time.service";
 import {SyncCardsInfo} from "../sync-cards-info";
+import {AppointmentDay} from "../appointments/appointment-day";
 
 export class RealTimeSyncJpdv extends RealTimeUpdate {
 
@@ -12,9 +13,12 @@ export class RealTimeSyncJpdv extends RealTimeUpdate {
 		super();
 		this.realTimeService = realTimeService;
 		this.syncCardsInfo = new SyncCardsInfo(
-			updateInfo.newCards ? updateInfo.newCards.map(card => new Card(card, false)) : [],
-			updateInfo.updatedCards ? updateInfo.updatedCards.map(card => new Card(card, false)) : [],
-			updateInfo.deletedCards ? updateInfo.deletedCards.map(card => new Card(card, false)) : []
+			updateInfo.newCards ? updateInfo.newCards.map(card => new Card(card, false)): [],
+			updateInfo.newReplace ? updateInfo.newReplace.map(card => new Card(card, false)): [],
+			updateInfo.reset ? updateInfo.reset.map(card => new Card(card, false)): [],
+			updateInfo.updated ? updateInfo.updated.map(card => new Card(card, false)): [],
+			updateInfo.deleted ? updateInfo.deleted.map(card => new Card(card, false)): [],
+			updateInfo.appointmentDays ? updateInfo.appointmentDays.map(appointmentDay => new AppointmentDay(appointmentDay)) : []
 		);
 	}
 

@@ -248,8 +248,8 @@ export class NotificationService {
 		}
 	}
 
-	static notifyAppointmentDay(day: Dayjs, appointmentDay: AppointmentDay): void {
-		const dayAppointmentDayUpdate = new DayAppointmentDayUpdate(day, appointmentDay);
+	static notifyAppointmentDay(appointmentDay: AppointmentDay): void {
+		const dayAppointmentDayUpdate = new DayAppointmentDayUpdate(appointmentDay.day, appointmentDay);
 		this.updateArray.push(dayAppointmentDayUpdate);
 	}
 

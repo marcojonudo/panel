@@ -27,7 +27,7 @@ export class AppointmentsService {
 	private static _dragSchedulesAppointmentType: AppointmentType;
 
 	private static _appointmentTypes: AppointmentType[];
-	private appointmentDays: AppointmentDay[];
+	private static appointmentDays: AppointmentDay[];
 
 	private _daysAppointmentsCounter: DaysAppointmentsCounter;
 	private _appointmentDaysToUpdate: AppointmentDay[];
@@ -89,7 +89,7 @@ export class AppointmentsService {
 		return this.appointmentTypes.find((appointmentType: AppointmentType) => appointmentType.code == code);
 	}
 
-	findAppointmentDay(
+	static findAppointmentDay(
 		day: Dayjs,
 		appointmentDays: AppointmentDay[] = this.appointmentDays
 	): AppointmentDay {
@@ -100,12 +100,12 @@ export class AppointmentsService {
 
 	// region Init
 
-	initAppointmentTypes(appointmentTypes: AppointmentType[]): void {
+	static initAppointmentTypes(appointmentTypes: AppointmentType[]): void {
 		AppointmentsService.appointmentTypes = appointmentTypes;
 		console.log('Appointment types', AppointmentsService.appointmentTypes);
 	}
 
-	init(appointmentDays: any[]): void {
+	static init(appointmentDays: any[]): void {
 		this.appointmentDays = appointmentDays.map(appointmentDay => new AppointmentDay(appointmentDay));
 		console.log('Appointment types', AppointmentsService.appointmentTypes);
 		console.log('Appointment days', this.appointmentDays);
@@ -136,6 +136,8 @@ export class AppointmentsService {
 		const percentage = Math.round(appointments / maxAppointments * 100);
 		return percentage > 100 ? 100 : percentage;
 	}
+
+	// endregion
 
 	// region Update max
 
@@ -237,6 +239,10 @@ export class AppointmentsService {
 		NotificationService.notifyMainCursor(
 			this.dragSchedulesMode ? Constants.MAIN_CURSOR.DRAGGING_SCHEDULES : Constants.MAIN_CURSOR.DEFAULT
 		);
+	}
+
+	static updateAppointmentDays(appointmentDays: AppointmentDay[]): void {
+		this.appointmentDays = appointmentDays;
 	}
 
 }

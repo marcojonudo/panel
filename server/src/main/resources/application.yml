@@ -38,6 +38,7 @@ host.ip: ${HOST_IP:localhost}
 
 cron:
     sync-jpdv-orders: '0 0 0 1 1 ?'
+#    sync-jpdv-orders: '0/30 * * * * ?'
 
 
 #endpoints:

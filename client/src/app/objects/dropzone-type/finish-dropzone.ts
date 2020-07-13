@@ -5,14 +5,11 @@ import {Dropzone} from "./dropzone";
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
-import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
-import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
-import {Card} from "../card";
 
 export class FinishDropzone implements Dropzone {
 
@@ -43,7 +40,7 @@ export class FinishDropzone implements Dropzone {
 		CardsService.updateFinishedGroup(groups[0]);
 	}
 
-	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone): void {
+	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToFinished(group);
 		CardPositionService.setHelperGroup(undefined);

@@ -1,18 +1,28 @@
 package panel.pogos.firstLoad
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
+import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.cards.Card
 
 @CompileStatic
 class UpdateCards {
 
+	@JsonInclude
 	List<Card> newCards
+	@JsonInclude
 	List<Card> newReplace
+	@JsonInclude
 	List<Card> reset
+	@JsonInclude
 	List<Card> updated
 	List<Card> same
+	@JsonInclude
 	List<Card> deleted
 	List<Card> auxiliary
+
+	@JsonInclude
+	List<AppointmentDay> appointmentDays
 
 	UpdateCards(List<Card> same = [], List<Card> auxiliary = []) {
 		newCards = []
@@ -37,15 +47,18 @@ class UpdateCards {
 	}
 
 	boolean updated() {
-		return newCards || updated || deleted
+		return newCards || newReplace || reset || updated || deleted
 	}
 
-	LinkedHashMap<String, List<Card>> getSyncInfo() {
+	Map<String, List<Object>> getSyncInfo() {
 		return [
 			newCards: newCards,
-			updatedCards: updated,
-			deletedCards: deleted
-		]
+			newReplace: newReplace,
+			reset: reset,
+			updated: updated,
+			deletedCards: deleted,
+			appointmentDays: appointmentDays
+		] as Map<String, List<Object>>
 	}
 
 }

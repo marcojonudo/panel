@@ -38,16 +38,13 @@ export class AuxiliaryDropzone implements Dropzone {
 		return new OverlappedGroupsInfo();
 	}
 
-	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {}
+	removeGroup(group: CardsGroup): void {}
 
 	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
 		CardsService.resetCardsGroup(groups[0]);
 	}
 
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup
-	): void {
+	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToUnassigned(group);
 

@@ -5,9 +5,7 @@ import {Dropzone} from "./dropzone";
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
-import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
-import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
@@ -38,7 +36,7 @@ export class UnassignedFinishedDropzone implements Dropzone {
 		return new OverlappedGroupsInfo();
 	}
 
-	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
+	removeGroup(group: CardsGroup): void {
 		CardsService.removeFromUnassigned(group);
 	}
 
@@ -46,10 +44,7 @@ export class UnassignedFinishedDropzone implements Dropzone {
 		CardsService.resetCardsGroup(groups[0]);
 	}
 
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup
-	): void {
+	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToUnassigned(group);
 

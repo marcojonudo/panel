@@ -44,7 +44,7 @@ export class AppComponent implements AfterViewInit {
 			.subscribe((data: any) => {
 				console.log('Received data', data);
 
-				this.appointmentsService.initAppointmentTypes(data.appointmentTypes);
+				AppointmentsService.initAppointmentTypes(data.appointmentTypes);
 
 				MechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
 
@@ -53,7 +53,7 @@ export class AppComponent implements AfterViewInit {
 					MechanicsService.daysMechanics
 				);
 
-				this.appointmentsService.init(data.appointmentDays);
+				AppointmentsService.init(data.appointmentDays);
 
 				DimensionsService.init(MechanicsService.daysMechanics, MechanicsService.todaySchedules);
 

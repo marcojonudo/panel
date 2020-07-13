@@ -7,10 +7,8 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
-import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
-import * as dayjs from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {Dayjs} from "dayjs";
 
@@ -39,7 +37,7 @@ export class UnassignedDropzone implements Dropzone {
 		return new OverlappedGroupsInfo();
 	}
 
-	removeGroup(group: CardsGroup, destinyDropzone: Dropzone): void {
+	removeGroup(group: CardsGroup): void {
 		CardsService.removeFromUnassigned(group);
 	}
 

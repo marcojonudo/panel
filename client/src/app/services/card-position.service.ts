@@ -206,12 +206,12 @@ export class CardPositionService {
 			/* Se valida si el grupo encaja en la posición de destino (podría no caber en el horario, por ejemplo) */
 			const validatedInfo = this.destinyDropzone.validate(coordinates, helperGroup);
 			if (validatedInfo != undefined) {
-				this.originDropzone.removeGroup(helperGroup, this.destinyDropzone);
+				this.originDropzone.removeGroup(helperGroup);
 				const allGroups = [helperGroup].concat(validatedInfo.groups);
 				this.destinyDropzone.updateProperties(
 					allGroups, validatedInfo.newStart, coordinates.line, this.destinyDropzone.mechanic
 				);
-				this.destinyDropzone.addGroup(allGroups, helperGroup, this.originDropzone);
+				this.destinyDropzone.addGroup(allGroups, helperGroup);
 				return this.destinyDropzone.findLastCoordinates(helperGroup, coordinates);
 			} else {
 				this.originDropzone.handleNotValidatedMovement(helperGroup);

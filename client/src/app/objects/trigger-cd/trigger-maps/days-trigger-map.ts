@@ -8,11 +8,11 @@ export class DaysTriggerMap implements TriggerMap {
 
 	[key: number]: DayTriggerTypes;
 
-	constructor(days: Dayjs[], appointmentsService: AppointmentsService) {
+	constructor(days: Dayjs[]) {
 		days.forEach((day: Dayjs) => {
 			this[day.valueOf()] = new DayTriggerTypes(
 				CardsService.buildDaySaturation(day),
-				appointmentsService.findAppointmentDay(day)
+				AppointmentsService.findAppointmentDay(day)
 			);
 		});
 	}
