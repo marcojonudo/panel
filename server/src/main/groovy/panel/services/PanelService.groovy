@@ -655,6 +655,8 @@ class PanelService {
 		List<AppointmentDay> existentAppointmentDays,
 		List<Card> cards
 	) {
+		/* Se recorre un bucle aparte para rellenar el campo max, que no depende del número de órdenes sino de lo que
+		*  se haya introducido desde panel */
 		appointmentDays.each { AppointmentDay appointmentDay ->
 			AppointmentDay existent = existentAppointmentDays.find { it.day == appointmentDay.day }
 			if (existent) {
@@ -666,14 +668,16 @@ class PanelService {
 		cards.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
 			LocalDate day = orderCards[0].order.day
 			AppointmentDay appointmentDay = appointmentDays.find { it.day == day }
-			List<AppointmentTypeCode> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)
-			appointmentTypeCodes.each { AppointmentTypeCode code ->
-				fillScheduleTypeAppointmentValues(
-					appointmentDay.values.find { it.appointmentType.code == code },
-					orderCards[0].order.created,
-					(int) orderCards.duration.sum(),
-					1
-				)
+			if (appointmentDay) {
+				List<AppointmentTypeCode> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)
+				appointmentTypeCodes.each { AppointmentTypeCode code ->
+					fillScheduleTypeAppointmentValues(
+						appointmentDay.values.find { it.appointmentType.code == code },
+						orderCards[0].order.created,
+						(int) orderCards.duration.sum(),
+						1
+					)
+				}
 			}
 		}
 		return appointmentDays
