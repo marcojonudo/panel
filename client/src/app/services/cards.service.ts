@@ -897,8 +897,7 @@ export class CardsService {
 		return [];
 	}
 
-	private static findClickedCard(cards: Card[], groupX: number, x: number): Card {
-		const xLeft = CardPositionService.absolutePositionToLeft(x) + Constants.VALUE.MECHANIC_INFO_WIDTH;
+	private static findClickedCard(cards: Card[], groupX: number, xLeft: number): Card {
 		return cards.find((card: Card, index: number) => {
 			const leftCardsDuration = CardsService.findCardsDuration(cards.slice(0, index+1));
 			const leftCardsWidth = DimensionsService.calcWidthFromDuration(leftCardsDuration);
@@ -918,7 +917,7 @@ export class CardsService {
 		translatedGroups: CardsGroup[] = [],
 		updateDb: boolean = true
 	): void {
-		CardsService.updateCard(card, rightCardDuration);
+		CardsService.updateCard(card, leftCardDuration);
 		const newRightCard = CardsService.createCard(card, card.end, rightCardDuration);
 		const dividedCards = this.updateDividedCards(card, newRightCard);
 		this.updateGroups(group, card, newRightCard);
