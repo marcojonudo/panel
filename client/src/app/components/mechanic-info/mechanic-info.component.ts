@@ -80,12 +80,14 @@ export class MechanicInfoComponent {
 		if (assignedCardsGroups.length) {
 			this.modalService.open(content, {centered: true}).result.then(
 				() => {
+					let resetCards = [];
 					assignedCardsGroups.forEach(group => {
 						CardsService.removeFromAssigned(group, this.day, this.mechanic.code);
 						CardsService.resetCardsGroup(group);
-						this.cardsService.updateDbCardsPosition(group.cards);
+						resetCards = resetCards.concat(group.cards);
 						CardsService.addToUnassigned(group);
 					});
+					this.cardsService.updateDbCardsPosition(resetCards);
 					this.mechanicsService.removeMechanic(this.day, this.mechanic);
 				},
 				() => {});

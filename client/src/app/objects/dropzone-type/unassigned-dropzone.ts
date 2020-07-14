@@ -46,7 +46,10 @@ export class UnassignedDropzone implements Dropzone {
 	}
 
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
-		this.cardsService.updateDbCardsPosition(group.cards);
+		/* En la sincro en tiempo real, no se pasan grupos, por lo que sirve para determinar si actualizar la BD */
+		if (groups.length) {
+			this.cardsService.updateDbCardsPosition(group.cards);
+		}
 		CardsService.addToUnassigned(group);
 
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */

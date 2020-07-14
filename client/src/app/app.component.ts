@@ -43,6 +43,7 @@ export class AppComponent implements AfterViewInit {
 		this.http.get(Url.initialData())
 			.subscribe((data: any) => {
 				console.log('Received data', data);
+				console.log('Session ID', this.realTimeService.sessionId);
 
 				AppointmentsService.initAppointmentTypes(data.appointmentTypes);
 
