@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {Coordinates} from "../objects/coordinates";
 import {Card} from "../objects/card";
 import {CardsGroup} from "../objects/cards-group";
-import {UtilsService} from "./utils.service";
 import {Constants} from "../objects/constants";
 import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {UnassignedSection} from "../objects/unassigned-sections/unassigned-section";
@@ -11,10 +10,10 @@ import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {NotificationService} from "./notification.service";
 import {Position} from "../objects/position";
 import {CardsService} from "./cards.service";
-import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../objects/groups-translation/overlapped-groups-info";
 import {ValidateCoordinatesInfo} from "../objects/groups-translation/validate-coordinates-info";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Injectable({
 	providedIn: 'root'
@@ -266,9 +265,11 @@ export class CardPositionService {
 	): ValidateCoordinatesInfo {
 		/* La posición se redondea a los múltiplos de 5 minutos */
 		coordinates = this.roundLastPosition(coordinates, dropzone.position, dropzone.mechanic.lines);
+		const duration = helperGroup.findDuration();
 		let newStart = DimensionsService.calcStartFromLeft(
 			this.absolutePositionToLeft(coordinates.x), dropzone.mechanic.day
-		)
+		);
+		newStart = this.findInsideDropzoneStart(newStart, duration, dropzone.interval);
 		const lineGroups = dayMechanicGroups.filter((g: CardsGroup) =>
 			g.id != helperGroup.id && g.line == coordinates.line
 		);
@@ -286,16 +287,6 @@ export class CardPositionService {
 		}
 		const newEnd = newStart.add(helperGroup.findDuration(), Constants.DAY_JS.m);
 		return new ValidateCoordinatesInfo(coordinates.line, newStart, newEnd);
-
-		// /* Para validar si la posición es correcta, se deben tener en cuenta los grupos solapados. Estos grupos sólo
-		// *  pueden ser aquellos que no sean el que se está moviendo (si este parte desde la derecha), y los que estén
-		// *  en la misma línea más tarde que el nuevo start */
-		// const lineRightGroups = dayMechanicGroups.filter((g: CardsGroup) =>
-		// 	g.id != helperGroup.id && g.line == coordinates.line && g.end.isAfter(newStart)
-		// );
-		// const overlappedGroupsInfo = this.handleOverlappedMovements(newEnd, lineRightGroups).setNewStart(newStart);
-		// return newStart >= dropzone.interval.start && overlappedGroupsInfo.newEnd <= dropzone.interval.end ?
-		// 	overlappedGroupsInfo : undefined;
 	}
 
 	private static roundLastPosition(
@@ -317,6 +308,15 @@ export class CardPositionService {
 		const y = this.dropzoneTopToAbsolutePosition(dropzonePosition.top) + line * DimensionsService.lineHeight;
 		[coordinates.x, coordinates.y, coordinates.line] = [x, y, line];
 		return coordinates;
+	}
+
+	static findInsideDropzoneStart(newStart: Dayjs, duration: number, schedule: ScheduleInterval): Dayjs {
+		if (newStart.isBefore(schedule.start)) {
+			return schedule.start;
+		} else if (newStart.add(duration, Constants.DAY_JS.m).isAfter(schedule.end)) {
+			return schedule.end.subtract(duration, Constants.DAY_JS.m);
+		}
+		return newStart;
 	}
 
 	static handleOverlappedMovements(
@@ -359,7 +359,7 @@ export class CardPositionService {
 		return value - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	private static leftToAbsolutePosition(value: number, scrollLeft: number = this.scrollLeft): number {
+	static leftToAbsolutePosition(value: number, scrollLeft: number = this.scrollLeft): number {
 		return value - scrollLeft + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 

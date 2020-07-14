@@ -102,6 +102,7 @@ export class AssignedDropzone implements Dropzone {
 	}
 
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
+		coordinates.x = CardPositionService.leftToAbsolutePosition(group.left);
 		return coordinates;
 	}
 
