@@ -576,7 +576,8 @@ export class CardsService {
 		if (widthIncrease < 0) {
 			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
 			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
-				return handler.updateDuration(card, group, durationIncrease, widthIncrease, []);
+				const updatedGroups = handler.validateDurationUpdate(group, card, mechanic);
+				return handler.updateDuration(card, group, durationIncrease, widthIncrease, updatedGroups);
 			}
 			return []
 		}

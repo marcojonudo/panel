@@ -115,10 +115,7 @@ class PanelController {
 	}
 
 	@Put("/appointment/type")
-	void updateAppointmentType(
-		@Header String sessionId,
-		@Body Map<String, Object> appointment
-	) {
+	void updateAppointmentType(@Header String sessionId, @Body Map<String, Object> appointment) {
 		cuboDatabaseClient.updateAppointmentType(sessionId, appointment)
 	}
 
