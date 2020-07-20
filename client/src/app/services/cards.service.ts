@@ -312,7 +312,7 @@ export class CardsService {
 		this.handleRemoveUnassignedGroup(group, notify);
 	}
 
-	static addToUnassigned(group: CardsGroup, notify: boolean = true): void {
+	static addToUnassigned(group: CardsGroup, notify: boolean = false): void {
 		this.handleUnassignedMovementGroupsLinks(group.cards[0].order.number, group.type, group.status);
 		this.handleAddUnassignedGroup(group, undefined, notify);
 	}
@@ -555,6 +555,11 @@ export class CardsService {
 
 		/* Además de actualizar los elementos de los grupos, se actualiza su posición */
 		CardPositionService.updateUnassignedGroupsLeft(groups);
+	}
+
+	static getAddGroupDelay(group: CardsGroup): number {
+		return group.mode == Constants.GROUP_MODE.DRAG
+			? Constants.VALUE.CARD_MOVEMENT_DURATION - Constants.VALUE.CARD_MOVEMENT_DURATION_OFFSET : 0;
 	}
 
 	// endregion

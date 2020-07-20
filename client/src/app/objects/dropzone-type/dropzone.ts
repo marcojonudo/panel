@@ -25,8 +25,12 @@ export interface Dropzone {
 
 	addGroup(groups: CardsGroup[], group: CardsGroup): void;
 
+	addRealTimeGroup(group: CardsGroup): void;
+
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
+
+	notify(): void;
 
 }

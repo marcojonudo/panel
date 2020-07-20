@@ -49,6 +49,8 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	groups: CardsGroup[];
 
+	hiddenGroupId: string;
+
 	constructor(
 		private cardPositionService: CardPositionService,
 		private cardsService: CardsService,
@@ -188,13 +190,17 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	setHiddenCardsGroup(group: CardsGroup): void {
-		CardPositionService.hiddenGroup = group;
+		this.hiddenGroupId = group.id;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(sectionName: string, groupId: string): boolean {
-		return sectionName != Constants.CARD_TYPE.AUXILIARY
-			&& CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
+		const hideGroup = sectionName != Constants.CARD_TYPE.AUXILIARY
+			&& this.hiddenGroupId ? this.hiddenGroupId == groupId : false;
+		if (hideGroup) {
+			this.hiddenGroupId = undefined;
+		}
+		return hideGroup;
 	}
 
 	check() {

@@ -10,6 +10,8 @@ import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {NotificationService} from "../../services/notification.service";
+import {WarningToast} from "../toasts/warning-toast";
 
 export class FinishDropzone implements Dropzone {
 
@@ -43,7 +45,15 @@ export class FinishDropzone implements Dropzone {
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToFinished(group);
-		CardPositionService.setHelperGroup(undefined);
+		this.notify();
+	}
+
+	addRealTimeGroup(group: CardsGroup): void {
+		CardsService.addToFinished(group);
+		if (CardPositionService.checkDraggingGroup(group.id)) {
+			CardPositionService.resetDragAction();
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
 	}
 
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
@@ -51,5 +61,12 @@ export class FinishDropzone implements Dropzone {
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {}
+
+	notify(resetHelperGroup: boolean = true): void {
+		NotificationService.notifyBand();
+		if (resetHelperGroup) {
+			CardPositionService.setHelperGroup(undefined);
+		}
+	}
 
 }

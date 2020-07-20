@@ -113,7 +113,8 @@ export class MainComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.assignedDaysCardsGroups = CardsService.assignedDaysCardsGroups;
 
-		this.updateArraySubscription = NotificationService.updateArray$.subscribe((updateArray: DayTriggerMapUpdate[]) => {
+		this.updateArraySubscription = NotificationService.updateArray$
+				.subscribe((updateArray: DayTriggerMapUpdate[]) => {
 			updateArray.forEach((triggerMapUpdate: DayTriggerMapUpdate) => {
 				triggerMapUpdate.updateTriggerMap(
 					this.daysTriggerMap,

@@ -7,7 +7,6 @@
 		'transition': (dragging ? 'none' : 'transform') + ' ' + translateDuration + 'ms'
 	}"
 	[group]="helperGroup"
-	[coordinates]="coordinates"
-	(transitionend)="updateCard()">
+	[coordinates]="coordinates">
 </app-draggable-group>
 <div>{{check()}}</div>

@@ -157,13 +157,12 @@ export class ClickableDirective implements OnInit, AfterViewChecked {
 				/* Se emite la última posición ya redondeada */
 				NotificationService.notifyCoordinates(this.coordinates);
 			} else {
+				console.log('setting undefined');
 				CardPositionService.setHelperGroup(undefined);
 			}
 			/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
 			 * de su posición de origen */
 			CardPositionService.setDragging(false);
-
-			CardPositionService.hiddenGroup = undefined;
 			CardPositionService.originDropzone = undefined;
 		}
 

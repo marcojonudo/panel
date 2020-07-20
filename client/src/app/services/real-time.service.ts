@@ -36,6 +36,7 @@ import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-h
 import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-divide";
 import {DropzoneService} from "./dropzone.service";
 import {AppointmentDay} from "../objects/appointments/appointment-day";
+import {WarningToast} from "../objects/toasts/warning-toast";
 
 @Injectable({
 	providedIn: 'root'
@@ -123,6 +124,7 @@ export class RealTimeService {
 
 	updatePosition(cards: Card[]): void {
 		const processedGroups = [];
+		let destinyDropzone = undefined;
 		cards.forEach((card: Card) => {
 			/* Para saber si el grupo estaba asignado antes de moverlo en otro terminal, se recorren primero los grupos
 			*  no asignados (la mayoría de las veces habrá muchos menos, por lo que será más eficiente). No se puede
@@ -136,17 +138,29 @@ export class RealTimeService {
 				/* El grupo existente en panel antes de actualizar está en la posición de origen (la que tenía antes de
 				*  actualizarse en otro terminal) */
 				const originDropzone = DropzoneService.findDropzone(group.cards[0]);
-				const destinyDropzone = DropzoneService.findDropzone(card);
+				destinyDropzone = DropzoneService.findDropzone(card);
 
 				originDropzone.removeGroup(group);
 				destinyDropzone.updateProperties(
 					[group], card.start, card.line, destinyDropzone.mechanic
 				);
-				destinyDropzone.addGroup([], group);
+				destinyDropzone.addRealTimeGroup(group);
 				processedGroups.push(group);
 			}
 		});
-		NotificationService.notifyUpdateArray();
+		destinyDropzone.notify();
+	}
+
+	checkDraggedHelperGroup(groupId: string): void {
+		/* Si se cumple esta condición, se actualizó en otro terminal el grupo que se está desplazando en este mismo
+		*  instante */
+		console.log('***', groupId, CardPositionService.helperGroup);
+		if (CardPositionService.helperGroup && CardPositionService.helperGroup.id == groupId) {
+			// CardPositionService.hiddenGroup = undefined;
+			CardPositionService.setHelperGroup(undefined);
+			CardPositionService.setDragging(false);
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
 	}
 
 	updateDuration(cards: Card[]): void {

@@ -12,6 +12,7 @@ import {Card} from "../card";
 import {NotificationService} from "../../services/notification.service";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {WarningToast} from "../toasts/warning-toast";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -77,24 +78,27 @@ export class AssignedDropzone implements Dropzone {
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
 
-		/* Si se está actualizando en tiempo real, no hay fichas para actualizar en BD (ya se actualizaron al realizar
-		*  el movimiento en el terminal original) */
-		if (cardsToUpdate.length) {
-			/* Si se acaba de soltar en panel una ficha auxiliar nueva, esta debe crearse en BD, no actualizarse */
-			this.checkNewAuxiliaryCard(cardsToUpdate[0])
-				? this.cardsService.createDbCards(cardsToUpdate)
-				: this.cardsService.updateDbCardsPosition(cardsToUpdate);
-		}
-
 		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
+		/* Si se acaba de soltar en panel una ficha auxiliar nueva, esta debe crearse en BD, no actualizarse */
+		this.checkNewAuxiliaryCard(cardsToUpdate[0])
+			? this.cardsService.createDbCards(cardsToUpdate)
+			: this.cardsService.updateDbCardsPosition(cardsToUpdate);
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
 		*  desplazamiento */
 		setTimeout(
-			() => NotificationService.notifyUpdateArray(),
-			CardPositionService.getAddGroupDelay(group)
+			() => this.notify(),
+			CardsService.getAddGroupDelay(group)
 		);
+	}
+
+	addRealTimeGroup(group: CardsGroup): void {
+		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
+		if (CardPositionService.checkDraggingGroup(group.id)) {
+			CardPositionService.resetDragAction();
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
 	}
 
 	checkNewAuxiliaryCard(card: Card): boolean {
@@ -111,8 +115,18 @@ export class AssignedDropzone implements Dropzone {
 		*  actualizar propiedades, ni el panel de citas) */
 		setTimeout(
 			() => NotificationService.notifyGroups([group], true),
-			CardPositionService.getAddGroupDelay(group)
+			CardsService.getAddGroupDelay(group)
 		);
+	}
+
+	notify(resetHelperGroup: boolean = true): void {
+		NotificationService.notifyUpdateArray();
+		if (resetHelperGroup) {
+			/* Además de notificar los grupos de las líneas, se elimina el helper group del overlay. Se hace
+			*  aquí (antes se hacía en la directive clickeable) para contemplar también los casos de
+			*  actualización en tiempo real */
+			CardPositionService.setHelperGroup(undefined);
+		}
 	}
 
 }

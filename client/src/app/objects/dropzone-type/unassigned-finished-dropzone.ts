@@ -10,6 +10,8 @@ import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {Dayjs} from "dayjs";
+import {NotificationService} from "../../services/notification.service";
+import {WarningToast} from "../toasts/warning-toast";
 
 export class UnassignedFinishedDropzone implements Dropzone {
 
@@ -47,10 +49,15 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToUnassigned(group);
+		this.notify();
+	}
 
-		/* Se notifica el helper group para que desaparezca del overlay. No hace falta notificar a la cinta, ya que se
-		*  actualizará su contenido cuando se salga de la zona de finalizadas */
-		CardPositionService.setHelperGroup(undefined);
+	addRealTimeGroup(group: CardsGroup): void {
+		CardsService.addToUnassigned(group);
+		if (CardPositionService.checkDraggingGroup(group.id)) {
+			CardPositionService.resetDragAction();
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
 	}
 
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
@@ -60,8 +67,16 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
 			() => CardsService.addToUnassigned(group),
-			CardPositionService.getAddGroupDelay(group)
+			CardsService.getAddGroupDelay(group)
 		);
+	}
+
+	notify(resetHelperGroup: boolean = true): void {
+		if (resetHelperGroup) {
+			/* Se notifica el helper group para que desaparezca del overlay. No hace falta notificar a la cinta, ya que se
+			*  actualizará su contenido cuando se salga de la zona de finalizadas */
+			CardPositionService.setHelperGroup(undefined);
+		}
 	}
 
 }

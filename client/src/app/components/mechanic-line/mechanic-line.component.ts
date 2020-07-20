@@ -45,6 +45,8 @@ export class MechanicLineComponent implements OnInit {
 	dropzonesTriggerMap: DropzonesTriggerMap;
 	groupsTriggerMap: GroupsTriggerMap;
 
+	hiddenGroupId: string;
+
 	constructor(
 		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,
@@ -172,12 +174,16 @@ export class MechanicLineComponent implements OnInit {
 	}
 
 	setHiddenCardsGroup(group: CardsGroup): void {
-		CardPositionService.hiddenGroup = group;
+		this.hiddenGroupId = group.id;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(groupId: string): boolean {
-		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
+		const hideGroup = this.hiddenGroupId ? this.hiddenGroupId == groupId : false;
+		if (hideGroup) {
+			this.hiddenGroupId = undefined;
+		}
+		return hideGroup;
 	}
 
 	checkUpdateDropzone(

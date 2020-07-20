@@ -139,6 +139,11 @@ export class CardPositionService {
 
 	// region Emitters
 
+	static resetDragAction(): void {
+		this.setHelperGroup(undefined);
+		this.setDragging(false);
+	}
+
 	static setHelperGroup(cardsGroup: CardsGroup) {
 		this.helperGroup = cardsGroup;
 		NotificationService.notifyHelperGroup(this.helperGroup);
@@ -341,6 +346,10 @@ export class CardPositionService {
 		return rightLineGroups.filter((group: CardsGroup) => group.start.isBefore(newEnd));
 	}
 
+	static checkDraggingGroup(groupId: string): boolean {
+		return this.helperGroup && this.helperGroup.id == groupId;
+	}
+
 	// endregion
 
 	// region Absolute / relative positions
@@ -376,10 +385,5 @@ export class CardPositionService {
 	}
 
 	// endregion
-
-	static getAddGroupDelay(group: CardsGroup): number {
-		return group.mode == Constants.GROUP_MODE.DRAG
-			? Constants.VALUE.CARD_MOVEMENT_DURATION - Constants.VALUE.CARD_MOVEMENT_DURATION_OFFSET : 0;
-	}
 
 }

@@ -11,7 +11,7 @@ import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
-import {Card} from "../card";
+import {WarningToast} from "../toasts/warning-toast";
 
 export class AuxiliaryDropzone implements Dropzone {
 
@@ -47,12 +47,15 @@ export class AuxiliaryDropzone implements Dropzone {
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToUnassigned(group);
+		this.notify();
+	}
 
-		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
-		setTimeout(
-			() => NotificationService.notifyBand(),
-			CardPositionService.getAddGroupDelay(group)
-		);
+	addRealTimeGroup(group: CardsGroup): void {
+		CardsService.addToUnassigned(group);
+		if (CardPositionService.checkDraggingGroup(group.id)) {
+			CardPositionService.resetDragAction();
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
 	}
 
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
@@ -60,5 +63,12 @@ export class AuxiliaryDropzone implements Dropzone {
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {}
+
+	notify(resetHelperGroup: boolean = true): void {
+		NotificationService.notifyBand();
+		if (resetHelperGroup) {
+			CardPositionService.setHelperGroup(undefined);
+		}
+	}
 
 }

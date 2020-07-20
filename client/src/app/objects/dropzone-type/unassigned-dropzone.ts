@@ -11,6 +11,7 @@ import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {Dayjs} from "dayjs";
+import {WarningToast} from "../toasts/warning-toast";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -46,17 +47,23 @@ export class UnassignedDropzone implements Dropzone {
 	}
 
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
-		/* En la sincro en tiempo real, no se pasan grupos, por lo que sirve para determinar si actualizar la BD */
-		if (groups.length) {
-			this.cardsService.updateDbCardsPosition(group.cards);
-		}
 		CardsService.addToUnassigned(group);
+
+		this.cardsService.updateDbCardsPosition(group.cards);
 
 		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
 		setTimeout(
-			() => NotificationService.notifyBand(),
-			CardPositionService.getAddGroupDelay(group)
+			() => this.notify(),
+			CardsService.getAddGroupDelay(group)
 		);
+	}
+
+	addRealTimeGroup(group: CardsGroup): void {
+		CardsService.addToUnassigned(group);
+		if (CardPositionService.checkDraggingGroup(group.id)) {
+			CardPositionService.resetDragAction();
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
 	}
 
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
@@ -66,8 +73,15 @@ export class UnassignedDropzone implements Dropzone {
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
 			() => NotificationService.notifyBand(undefined, [group]),
-			CardPositionService.getAddGroupDelay(group)
+			CardsService.getAddGroupDelay(group)
 		);
+	}
+
+	notify(resetHelperGroup: boolean = true): void {
+		NotificationService.notifyBand();
+		if (resetHelperGroup) {
+			CardPositionService.setHelperGroup(undefined);
+		}
 	}
 
 }
