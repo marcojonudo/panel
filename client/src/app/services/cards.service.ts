@@ -52,7 +52,7 @@ export class CardsService {
 	private static _assignedDaysCardsGroups: DaysAssignedGroups;
 	private static _assignedGroups: CardsGroup[];
 	private static _unassignedAuxiliaryCardsGroups: CardsGroup[];
-	private static _finishedCardsGroups: CardsGroup[];
+	private static _finishedGroups: CardsGroup[];
 	private static _unassignedGroups: CardsGroup[];
 	private static _unassignedTypesCardsGroups: GroupedTypeCards;
 
@@ -97,12 +97,12 @@ export class CardsService {
 		this._unassignedAuxiliaryCardsGroups = value;
 	}
 
-	static get finishedCardsGroups(): CardsGroup[] {
-		return this._finishedCardsGroups;
+	static get finishedGroups(): CardsGroup[] {
+		return this._finishedGroups;
 	}
 
-	static set finishedCardsGroups(value: CardsGroup[]) {
-		this._finishedCardsGroups = value;
+	static set finishedGroups(value: CardsGroup[]) {
+		this._finishedGroups = value;
 	}
 
 	static get unassignedTypesCardsGroups(): GroupedTypeCards {
@@ -180,7 +180,7 @@ export class CardsService {
 		);
 
 		this.unassignedAuxiliaryCardsGroups = this.initUnassignedCardsGroups(unassignedAuxiliaryCards);
-		this.finishedCardsGroups = this.initAssignedCardsGroups(finishedCards);
+		this.finishedGroups = this.initAssignedCardsGroups(finishedCards);
 
 		this.unassignedCards = notFinishedCards.filter(card => !card.day);
 		this.unassignedGroups = this.initUnassignedCardsGroups(this.unassignedCards);
@@ -192,7 +192,7 @@ export class CardsService {
 
 		console.log('Cards', this.cards);
 		console.log('Auxiliary cards groups', this.unassignedAuxiliaryCardsGroups);
-		console.log('Finished cards groups', this.finishedCardsGroups);
+		console.log('Finished cards groups', this.finishedGroups);
 		console.log('Unassigned cards groups', this.unassignedGroups);
 		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
 		console.log('Assigned cards groups', this.assignedGroups);
@@ -269,17 +269,6 @@ export class CardsService {
 	// endregion
 
 	// region Translate card
-
-	static addToFinished(group: CardsGroup): void {
-		// this.handleAssignedMovementGroupsLinks(
-		// 	day,
-		// 	newMechanicCode,
-		// 	cardsGroup.line,
-		// 	cardsGroup.start,
-		// 	cardsGroup.end
-		// );
-		this.handleAddFinishedGroup(group);
-	}
 
 	static removeFromAssigned(cardsGroup: CardsGroup, day: Dayjs, mechanicCode: string): any {
 		this.handleAssignedMovementGroupsLinks(
@@ -410,11 +399,6 @@ export class CardsService {
 		return `${card.order.code}-${card.group.code}-${card.divisionIndex}`;
 	}
 
-	static handleAddFinishedGroup(group: CardsGroup): void {
-		this.addFinishedGroup(group);
-		NotificationService.notifyBand(undefined, [group]);
-	}
-
 	static handleAddAssignedGroup(
 		day: Dayjs,
 		mechanicCode: string,
@@ -492,15 +476,17 @@ export class CardsService {
 		}
 	}
 
-	private static addFinishedGroup(group: CardsGroup): void {
-		this.finishedCardsGroups.push(group);
-		CardPositionService.sortUnassignedGroups(this.finishedCardsGroups);
-		CardPositionService.updateUnassignedGroupsLeft(this.finishedCardsGroups);
+	static addFinishedGroup(group: CardsGroup): void {
+		this.finishedGroups.push(group);
+		CardPositionService.sortUnassignedGroups(this.finishedGroups);
+		CardPositionService.updateUnassignedGroupsLeft(this.finishedGroups);
 	}
 
-	private static removeFinishedCardsGroup(group: CardsGroup): void {
-		const index = this.finishedCardsGroups.findIndex(g => g.id == group.id);
-		this.finishedCardsGroups.splice(index, 1);
+	static removeFinishedCardsGroup(group: CardsGroup): void {
+		const index = this.finishedGroups.findIndex(g => g.id == group.id);
+		this.finishedGroups.splice(index, 1);
+		CardPositionService.sortUnassignedGroups(this.finishedGroups);
+		CardPositionService.updateUnassignedGroupsLeft(this.finishedGroups);
 	}
 
 	private static addAssignedGroup(day: Dayjs, mechanicCode: string, group: CardsGroup): void {

@@ -71,7 +71,7 @@ export class DropzoneService {
 		}
 	}
 
-	static findDropzone(card: Card): Dropzone {
+	static findDropzone(card: Card, destiny: boolean = false): Dropzone {
 		if (card.mechanicCode) {
 			/* Podría haber 2 dropzones para un mismo mecánico (mañana y tarde); no obstante, sólo interesa saber el
 			*  tipo para poder ejecutar los métodos asociados, por lo que se obtiene una de ellas */
@@ -81,8 +81,12 @@ export class DropzoneService {
 			);
 		} else {
 			if (card.status == Constants.CARD_STATUS.FINISHED) {
+				/* Si la ficha está finalizada, pueden darse dos casos: que se esté sacando de la dropzone
+				*  UNASSIGNED_FINISHED, o que esté entrando en FINISH. Por tanto, si destiny es true (se está buscando
+				*  la dropzone de destino), se buscará la dropzone FINISH, y UNASSIGNED_FINISHED en otro caso */
 				return this.dropzones.find((dropzone: Dropzone) =>
-					dropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED
+					destiny ? dropzone.type == Constants.DROPZONE_TYPE.FINISH
+						: dropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED
 				)
 			} else if (card.type == Constants.CARD_TYPE.AUXILIARY) {
 				return this.dropzones.find((dropzone: Dropzone) =>

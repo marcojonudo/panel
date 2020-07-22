@@ -24,6 +24,8 @@ export class FinishDropzone implements Dropzone {
 	interval: ScheduleInterval;
 	position: Position;
 
+	g: CardsGroup;
+
 	constructor(
 		cardsService: CardsService,
 		appointmentsService: AppointmentsService
@@ -44,12 +46,12 @@ export class FinishDropzone implements Dropzone {
 
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
-		CardsService.addToFinished(group);
+		CardsService.addFinishedGroup(group);
 		this.notify();
 	}
 
 	addRealTimeGroup(group: CardsGroup): void {
-		CardsService.addToFinished(group);
+		CardsService.addFinishedGroup(group);
 		if (CardPositionService.checkDraggingGroup(group.id)) {
 			CardPositionService.resetDragAction();
 			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
@@ -63,6 +65,10 @@ export class FinishDropzone implements Dropzone {
 	handleNotValidatedMovement(group: CardsGroup): void {}
 
 	notify(resetHelperGroup: boolean = true): void {
+		/* Se elimina el hiddenGroup aquí, en lugar de en la directiva clickeable, porque el evento de esta última
+		*  se lanza después de pasar por este código. En ese caso, cuando se ejecuta el CD de la cinta sigue estando
+		*  el grupo qeu se soltó como hidden */
+		CardPositionService.hiddenGroup = undefined;
 		NotificationService.notifyBand();
 		if (resetHelperGroup) {
 			CardPositionService.setHelperGroup(undefined);

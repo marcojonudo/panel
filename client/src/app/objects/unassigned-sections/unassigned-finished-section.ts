@@ -14,7 +14,7 @@ export class UnassignedFinishedSection implements UnassignedSection {
 	}
 
 	findGroups(): CardsGroup[] {
-		return CardsService.finishedCardsGroups;
+		return CardsService.finishedGroups;
 	}
 
 }

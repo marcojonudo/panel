@@ -162,6 +162,7 @@ export class ClickableDirective implements OnInit, AfterViewChecked {
 			}
 			/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
 			 * de su posición de origen */
+			CardPositionService.hiddenGroup = undefined;
 			CardPositionService.setDragging(false);
 			CardPositionService.originDropzone = undefined;
 		}

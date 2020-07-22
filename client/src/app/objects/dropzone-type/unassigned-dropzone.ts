@@ -47,15 +47,20 @@ export class UnassignedDropzone implements Dropzone {
 	}
 
 	addGroup(groups: CardsGroup[], group: CardsGroup): void {
-		CardsService.addToUnassigned(group);
-
+		const visibleSection = group.cards[0].type == this.subType;
+		/* Si la ficha es del tipo abierto en la cinta, se ejecuta el CD para que, antes de completar la transición,
+		*  el resto de fichas se desplacen para dejarle hueco a esta */
+		CardsService.addToUnassigned(group, visibleSection);
 		this.cardsService.updateDbCardsPosition(group.cards);
-
-		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
-		setTimeout(
-			() => this.notify(),
-			CardsService.getAddGroupDelay(group)
-		);
+		/* Sólo se ejecuta la transición está abierta la sección de la cinta correspondiente al tipo de ficha */
+		if (visibleSection) {
+			setTimeout(
+				() => this.notify(),
+				CardsService.getAddGroupDelay(group)
+			);
+		} else {
+			this.notify();
+		}
 	}
 
 	addRealTimeGroup(group: CardsGroup): void {

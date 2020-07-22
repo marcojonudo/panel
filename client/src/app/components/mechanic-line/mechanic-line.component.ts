@@ -174,16 +174,12 @@ export class MechanicLineComponent implements OnInit {
 	}
 
 	setHiddenCardsGroup(group: CardsGroup): void {
-		this.hiddenGroupId = group.id;
+		CardPositionService.hiddenGroup = group;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(groupId: string): boolean {
-		const hideGroup = this.hiddenGroupId ? this.hiddenGroupId == groupId : false;
-		if (hideGroup) {
-			this.hiddenGroupId = undefined;
-		}
-		return hideGroup;
+		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 
 	checkUpdateDropzone(

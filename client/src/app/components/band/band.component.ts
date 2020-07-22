@@ -1,4 +1,10 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit,} from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	OnDestroy,
+	OnInit,
+} from '@angular/core';
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {CardsGroup} from "../../objects/cards-group";
@@ -15,25 +21,6 @@ import {BandUpdate} from "../../objects/trigger-cd/update-objects/band/band-upda
 	selector: 'app-band',
 	templateUrl: './band.component.html',
 	styleUrls: ['./band.component.css'],
-	// animations: [
-	// 	trigger('unassigned-cards-container', [
-	// 		transition(':enter', [
-	// 			query('@unassigned-card', stagger(100, animateChild()))
-	// 		]),
-	// 	]),
-	// 	trigger('unassigned-card', [
-	// 		transition(':enter', [
-	// 			style({ transform: 'scale(0.5)', opacity: 0 }),  // initial
-	// 			animate(200,
-	// 				style({ transform: 'scale(1)', opacity: 1 }))  // final
-	// 		]),
-	// 		transition(':leave', [
-	// 			style({ transform: 'scale(1)', opacity: 1, width: '*'}),  // initial
-	// 			animate(200,
-	// 				style({ transform: 'scale(0.5)', opacity: 0, width: 0, margin: 0}))  // final
-	// 		])
-	// 	])
-	// ],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BandComponent implements OnInit, OnDestroy {
@@ -181,7 +168,7 @@ export class BandComponent implements OnInit, OnDestroy {
 
 	setSection(type: string): void {
 		this.section = this.findSection(type);
-		this.setGroups()
+		this.setGroups();
 		this.cdRef.detectChanges();
 	}
 
@@ -190,17 +177,13 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	setHiddenCardsGroup(group: CardsGroup): void {
-		this.hiddenGroupId = group.id;
+		CardPositionService.hiddenGroup = group;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(sectionName: string, groupId: string): boolean {
-		const hideGroup = sectionName != Constants.CARD_TYPE.AUXILIARY
-			&& this.hiddenGroupId ? this.hiddenGroupId == groupId : false;
-		if (hideGroup) {
-			this.hiddenGroupId = undefined;
-		}
-		return hideGroup;
+		return sectionName != Constants.CARD_TYPE.AUXILIARY
+			&& CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 
 	check() {

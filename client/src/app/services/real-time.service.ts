@@ -119,11 +119,13 @@ export class RealTimeService {
 
 	findPanelCardGroup(cardId: string): CardsGroup {
 		let group = CardsService.findCardGroup(CardsService.unassignedGroups, cardId);
+		group = group ? group : CardsService.findCardGroup(CardsService.finishedGroups, cardId);
 		return group ? group : CardsService.findCardGroup(CardsService.assignedGroups, cardId);
 	}
 
 	updatePosition(cards: Card[]): void {
 		const processedGroups = [];
+		let originDropzone = undefined;
 		let destinyDropzone = undefined;
 		cards.forEach((card: Card) => {
 			/* Para saber si el grupo estaba asignado antes de moverlo en otro terminal, se recorren primero los grupos
@@ -137,8 +139,8 @@ export class RealTimeService {
 			if (!processedGroup) {
 				/* El grupo existente en panel antes de actualizar está en la posición de origen (la que tenía antes de
 				*  actualizarse en otro terminal) */
-				const originDropzone = DropzoneService.findDropzone(group.cards[0]);
-				destinyDropzone = DropzoneService.findDropzone(card);
+				originDropzone = DropzoneService.findDropzone(group.cards[0]);
+				destinyDropzone = DropzoneService.findDropzone(card, true);
 
 				originDropzone.removeGroup(group);
 				destinyDropzone.updateProperties(
@@ -148,19 +150,8 @@ export class RealTimeService {
 				processedGroups.push(group);
 			}
 		});
+		originDropzone.notify();
 		destinyDropzone.notify();
-	}
-
-	checkDraggedHelperGroup(groupId: string): void {
-		/* Si se cumple esta condición, se actualizó en otro terminal el grupo que se está desplazando en este mismo
-		*  instante */
-		console.log('***', groupId, CardPositionService.helperGroup);
-		if (CardPositionService.helperGroup && CardPositionService.helperGroup.id == groupId) {
-			// CardPositionService.hiddenGroup = undefined;
-			CardPositionService.setHelperGroup(undefined);
-			CardPositionService.setDragging(false);
-			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
-		}
 	}
 
 	updateDuration(cards: Card[]): void {
