@@ -45,8 +45,6 @@ export class MechanicLineComponent implements OnInit {
 	dropzonesTriggerMap: DropzonesTriggerMap;
 	groupsTriggerMap: GroupsTriggerMap;
 
-	hiddenGroupId: string;
-
 	constructor(
 		private mechanicsService: MechanicsService,
 		private cardPositionService: CardPositionService,

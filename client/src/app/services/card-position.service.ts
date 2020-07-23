@@ -20,7 +20,6 @@ import {ScheduleInterval} from "../objects/schedule-interval";
 })
 export class CardPositionService {
 
-	private static readonly GROUP_ROUND_POSITION_OFFSET: number = 5;
 	private static _dragging: boolean;
 	private static _hiddenGroup: CardsGroup;
 	private static _destinyDropzone: Dropzone;
@@ -34,6 +33,9 @@ export class CardPositionService {
 
 	private static _coordinates: Coordinates;
 	private static _helperGroup: CardsGroup;
+
+	static helperGroupPointerMoveListener: () => void;
+	static helperGroupPointerUpListener: () => void;
 
 	// region Getters / setters
 
@@ -140,6 +142,7 @@ export class CardPositionService {
 	// region Emitters
 
 	static resetDragAction(): void {
+		this.hiddenGroup = undefined;
 		this.setHelperGroup(undefined);
 		this.setDragging(false);
 	}

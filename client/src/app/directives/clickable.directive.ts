@@ -3,7 +3,7 @@ import {
 	ChangeDetectorRef,
 	Directive,
 	ElementRef, EventEmitter,
-	Input,
+	Input, OnDestroy,
 	OnInit, Output,
 	Renderer2,
 } from '@angular/core';
@@ -21,7 +21,7 @@ import {UtilsService} from "../services/utils.service";
 	selector: '[appClickable]',
 	exportAs: 'appDraggable'
 })
-export class ClickableDirective implements OnInit, AfterViewChecked {
+export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 
 	private readonly AVOID_DRAG_ID: string = 'link-handler';
 
@@ -36,8 +36,6 @@ export class ClickableDirective implements OnInit, AfterViewChecked {
 	private coordinates: Coordinates;
 
 	private pointerDownListener: () => void;
-	private pointerMoveListener: () => void;
-	private pointerUpListener: () => void;
 	private contextMenuListener: () => void;
 
 	private init: boolean;
@@ -72,6 +70,13 @@ export class ClickableDirective implements OnInit, AfterViewChecked {
 		this.cardRect = this.element.nativeElement.getBoundingClientRect();
 	}
 
+	ngOnDestroy(): void {
+		/* En caso de actualizar una ficha que se está arrastrando desde otro terminal, se actualizará su posición
+		*  en tiempo real sin llegar a soltarse nunca. En ese caso, se eliminan los listeners aquí */
+		CardPositionService.helperGroupPointerMoveListener();
+		CardPositionService.helperGroupPointerUpListener();
+	}
+
 	private handleRightClick(event: PointerEvent): void {
 		event.preventDefault();
 		this.cardBehaviour.handleRightClick(this.group, new Coordinates(event.clientX, event.clientY));
@@ -89,12 +94,12 @@ export class ClickableDirective implements OnInit, AfterViewChecked {
 		/* Si el modo es DRAG, se llevan a cabo las acciones necesarias para conseguir el desplazamiento del grupo */
 		if (this.group.mode == Constants.GROUP_MODE.DRAG) {
 			this.init = true;
-			this.pointerMoveListener = this.renderer.listen(
+			CardPositionService.helperGroupPointerMoveListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
 				Constants.EVENT.POINTER_MOVE,
 				this.onPointerMove.bind(this)
 			);
-			this.pointerUpListener = this.renderer.listen(
+			CardPositionService.helperGroupPointerUpListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
 				Constants.EVENT.POINTER_UP,
 				this.onPointerUp.bind(this)
@@ -160,15 +165,15 @@ export class ClickableDirective implements OnInit, AfterViewChecked {
 				console.log('setting undefined');
 				CardPositionService.setHelperGroup(undefined);
 			}
+			CardPositionService.hiddenGroup = undefined;
 			/* Evento emitido para forzar una última vez el CD, una vez establecida la nueva posición, y eliminar la ficha
 			 * de su posición de origen */
-			CardPositionService.hiddenGroup = undefined;
 			CardPositionService.setDragging(false);
 			CardPositionService.originDropzone = undefined;
 		}
 
-		this.pointerMoveListener();
-		this.pointerUpListener();
+		CardPositionService.helperGroupPointerMoveListener();
+		CardPositionService.helperGroupPointerUpListener();
 	}
 
 }

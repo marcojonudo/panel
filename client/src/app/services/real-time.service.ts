@@ -150,8 +150,10 @@ export class RealTimeService {
 				processedGroups.push(group);
 			}
 		});
-		originDropzone.notify();
-		destinyDropzone.notify();
+		originDropzone.notify(false);
+		if (destinyDropzone.type != originDropzone.type) {
+			destinyDropzone.notify(false);
+		}
 	}
 
 	updateDuration(cards: Card[]): void {
