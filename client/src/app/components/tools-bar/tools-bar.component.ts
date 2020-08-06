@@ -127,6 +127,7 @@ export class ToolsBarComponent {
 		const section = this.showingFinished ? CardsService.unassignedSections[0].name : Constants.CARD_STATUS.FINISHED;
 		NotificationService.notifyBand(section);
 		this.showingFinished = !this.showingFinished;
+		this.cdRef.detectChanges();
 	}
 
 	// endregion
