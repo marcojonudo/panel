@@ -165,17 +165,27 @@ export class RealTimeService {
 			updatedDurationCard = group.cards.find((c: Card) => c.duration != card.duration);
 			return updatedDurationCard != undefined;
 		});
-		const widthIncrease = DimensionsService.calcWidthFromDuration(
-			card.duration - updatedDurationCard.duration
-		);
-		let mechanic, handler;
-		if (updatedDurationCard.day) {
-			mechanic = MechanicsService.findMechanic(updatedDurationCard.day, updatedDurationCard.mechanicCode);
-			handler = new AssignedCardDurationHandler();
-		} else {
-			handler = new UnassignedCardDurationHandler();
+		/* Si después de modificar la duración en el terminal original se deja como estaba, no habrá ninguna ficha con
+		*  la duración actualizada, por lo que no es necesario hacer nada*/
+		if (card) {
+			/* Si hay más de una ficha, la primera será la que tenga la duración actualizada, y el resto habrán sido
+			*  desplazadas. En ese caso, se actualiza su posición */
+			if (cards.length > 1) {
+				this.updatePosition(cards.slice(1));
+			}
+
+			const widthIncrease = DimensionsService.calcWidthFromDuration(
+				card.duration - updatedDurationCard.duration
+			);
+			let mechanic, handler;
+			if (updatedDurationCard.day) {
+				mechanic = MechanicsService.findMechanic(updatedDurationCard.day, updatedDurationCard.mechanicCode);
+				handler = new AssignedCardDurationHandler();
+			} else {
+				handler = new UnassignedCardDurationHandler();
+			}
+			CardsService.handleCardDurationUpdate(updatedDurationCard, widthIncrease, mechanic, handler, false);
 		}
-		CardsService.handleCardDurationUpdate(updatedDurationCard, widthIncrease, mechanic, handler);
 	}
 
 	updateLinks(cards: Card[]): void {

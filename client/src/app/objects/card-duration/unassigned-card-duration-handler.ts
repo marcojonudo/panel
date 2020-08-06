@@ -3,10 +3,9 @@ import {CardsService} from "../../services/cards.service";
 import {Card} from "../card";
 import {DimensionsService} from "../../services/dimensions.service";
 import {CardDurationHandler} from "./card-duration-handler";
-import {Constants} from "../constants";
-import {ScheduleInterval} from "../schedule-interval";
 import {NotificationService} from "../../services/notification.service";
 import {Mechanic} from "../mechanic";
+import {UpdateDurationInfo} from "./update-duration-info";
 
 export class UnassignedCardDurationHandler implements CardDurationHandler {
 
@@ -17,7 +16,7 @@ export class UnassignedCardDurationHandler implements CardDurationHandler {
 		return this.groups;
 	}
 
-	updateDuration(card: Card, group: CardsGroup, durationIncrease: number, widthIncrease: number): Card[] {
+	updateDuration(card: Card, group: CardsGroup, durationIncrease: number, widthIncrease: number): UpdateDurationInfo {
 		/* En grupos no asignados, al actualizar la duración se deben desplazar todos los grupos de la cinta que estén
 		*  a su derecha */
 		const groupIndex = this.groups.findIndex((g: CardsGroup) => g.id == group.id);
@@ -26,7 +25,7 @@ export class UnassignedCardDurationHandler implements CardDurationHandler {
 
 		card.setDuration(card.duration + durationIncrease, card.width + widthIncrease);
 		NotificationService.notifyBand(undefined, [group]);
-		return group.cards;
+		return new UpdateDurationInfo(group.cards, false);
 	}
 
 	updateNextGroupsPosition(groups: CardsGroup[], widthStep: number): Card[] {

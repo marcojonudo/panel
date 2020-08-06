@@ -1,6 +1,7 @@
 import {CardsGroup} from "../cards-group";
 import {Card} from "../card";
 import {Mechanic} from "../mechanic";
+import {UpdateDurationInfo} from "./update-duration-info";
 
 export interface CardDurationHandler {
 
@@ -12,7 +13,7 @@ export interface CardDurationHandler {
 		durationIncrease: number,
 		widthIncrease: number,
 		updatedGroups: CardsGroup[]
-	): Card[];
+	): UpdateDurationInfo;
 
 	updateNextGroupsPosition(groups: CardsGroup[], widthStep: number, durationStep: number): Card[];
 

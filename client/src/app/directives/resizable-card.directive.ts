@@ -22,6 +22,7 @@ export class ResizableCardDirective {
 	private lastX: number;
 
 	private handler: CardDurationHandler;
+	private dragWhenReducing: boolean;
 
 	constructor(
 		private element: ElementRef,
@@ -29,7 +30,7 @@ export class ResizableCardDirective {
 		private cdRef: ChangeDetectorRef,
 		private cardsService: CardsService
 	) {
-		this.updatedCards = []
+		this.reset();
 	}
 
 	ngOnInit(): void {
@@ -49,14 +50,21 @@ export class ResizableCardDirective {
 		const diff = event.clientX - this.lastX;
 		if (Math.abs(diff) >= DimensionsService.intervalWidth &&
 			!(diff < 0 && this.card.width == DimensionsService.intervalWidth)) {
-			this.updatedCards = this.updatedCards.concat(
-				CardsService.handleCardDurationUpdate(
-					this.card,
-					DimensionsService.intervalWidth * Math.sign(diff),
-					this.card.day ? MechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined,
-					this.handler
-				)
-			).filter((card, i, self) => self.indexOf(card) === i);
+			const updateDurationInfo = CardsService.handleCardDurationUpdate(
+				this.card,
+				DimensionsService.intervalWidth * Math.sign(diff),
+				this.card.day ? MechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined,
+				this.handler,
+				this.dragWhenReducing
+			);
+			/* Sólo se actualiza el valor si era falso; si era positivo, significa que se desplazaron grupos colindantes
+			*  hacia la derecha, por lo que a partir de ese momento deben desplazarse también si se reduce la duración
+			*  de la ficha */
+			if (!this.dragWhenReducing) {
+				this.dragWhenReducing = updateDurationInfo.dragWhenReducing;
+			}
+			this.updatedCards = this.updatedCards.concat(updateDurationInfo.cards)
+				.filter((card, i, self) => self.indexOf(card) === i);
 			this.lastX = event.clientX;
 		}
 	}
@@ -66,6 +74,12 @@ export class ResizableCardDirective {
 		this.pointerUpListener();
 
 		this.cardsService.updateDbCardsDuration(this.updatedCards);
+		this.reset();
+	}
+
+	reset(): void {
+		this.updatedCards = [];
+		this.dragWhenReducing = false;
 	}
 
 }

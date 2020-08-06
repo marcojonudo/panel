@@ -6,6 +6,7 @@ import {Constants} from "../constants";
 import {ScheduleInterval} from "../schedule-interval";
 import {Mechanic} from "../mechanic";
 import {NotificationService} from "../../services/notification.service";
+import {UpdateDurationInfo} from "./update-duration-info";
 
 export class AssignedCardDurationHandler implements CardDurationHandler {
 
@@ -19,7 +20,7 @@ export class AssignedCardDurationHandler implements CardDurationHandler {
 		durationIncrease: number,
 		widthIncrease: number,
 		updatedGroups: CardsGroup[]
-	): Card[] {
+	): UpdateDurationInfo {
 		/* Se actualiza la duración de la ficha*/
 		card.setDuration(card.duration + durationIncrease, card.width + widthIncrease);
 		/* Se actualiza la posición de las fichas ubicadas a continuación de la anterior */
@@ -35,7 +36,10 @@ export class AssignedCardDurationHandler implements CardDurationHandler {
 			cardsToUpdate = this.updateNextGroupsPosition(updatedGroups, widthIncrease, durationIncrease);
 		}
 		NotificationService.notifyGroups(updatedGroups.concat(group), true);
-		return cardsToUpdate.concat(group.cards);
+		return new UpdateDurationInfo(
+			cardsToUpdate.concat(group.cards),
+			widthIncrease > 0 && updatedGroups.length > 0
+		);
 	}
 
 	updateNextGroupsPosition(groups: CardsGroup[], widthStep: number, durationStep: number): Card[] {

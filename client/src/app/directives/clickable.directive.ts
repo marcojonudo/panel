@@ -73,8 +73,10 @@ export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 	ngOnDestroy(): void {
 		/* En caso de actualizar una ficha que se está arrastrando desde otro terminal, se actualizará su posición
 		*  en tiempo real sin llegar a soltarse nunca. En ese caso, se eliminan los listeners aquí */
-		CardPositionService.helperGroupPointerMoveListener();
-		CardPositionService.helperGroupPointerUpListener();
+		if (CardPositionService.helperGroupPointerMoveListener) {
+			CardPositionService.helperGroupPointerMoveListener();
+			CardPositionService.helperGroupPointerUpListener();
+		}
 	}
 
 	private handleRightClick(event: PointerEvent): void {

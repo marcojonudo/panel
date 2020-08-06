@@ -39,6 +39,7 @@ import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-car
 import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
 import {Vehicle} from "../objects/vehicle";
 import {Order} from "../objects/order";
+import {UpdateDurationInfo} from "../objects/card-duration/update-duration-info";
 
 @Injectable({
 	providedIn: 'root'
@@ -556,8 +557,9 @@ export class CardsService {
 		card: Card,
 		widthIncrease: number,
 		mechanic: Mechanic,
-		handler: CardDurationHandler
-	): Card[] {
+		handler: CardDurationHandler,
+		dragWhenReducing: boolean
+	): UpdateDurationInfo {
 		const durationIncrease = DimensionsService.calcDurationFromWidth(widthIncrease);
 		const groups = handler.findGroups(card);
 		const group = this.findCardGroup(groups, card.panelId);
@@ -567,17 +569,17 @@ export class CardsService {
 		if (widthIncrease < 0) {
 			/* Se actualiza la duración sólo si la ficha supera el valor mínimo */
 			if (card.duration > Constants.VALUE.CARD_MIN_DURATION) {
-				const updatedGroups = handler.validateDurationUpdate(group, card, mechanic);
+				const updatedGroups = dragWhenReducing ? handler.validateDurationUpdate(group, card, mechanic) : [];
 				return handler.updateDuration(card, group, durationIncrease, widthIncrease, updatedGroups);
 			}
-			return []
+			return new UpdateDurationInfo();
 		}
 
 		/* Si se está aumentando el tamaño de una ficha, se debe comprobar si este sobresale del horario en el que
 		*  está asignada */
 		const updatedGroups = handler.validateDurationUpdate(group, card, mechanic);
 		if (updatedGroups == undefined) {
-			return [];
+			return new UpdateDurationInfo();
 		}
 
 		return handler.updateDuration(card, group, durationIncrease, widthIncrease, updatedGroups);
