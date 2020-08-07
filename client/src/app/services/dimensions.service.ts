@@ -157,44 +157,55 @@ export class DimensionsService {
 
 	// region Init
 
-	static init(daysMechanics: DaysMechanics, todaySchedules: boolean) {
-		const today = dayjs().startOf(Constants.DAY_JS.d);
-
+	static init(baseDay: Dayjs, daysMechanics: DaysMechanics, todaySchedules: boolean, scrollTopDaysOffset: number) {
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
-		this.oneDayMode = true;
 		this.maxTodayScheduleHoursQuarter = [];
+		this.oneDayMode = this.oneDayMode != undefined ? this.oneDayMode : true;
 
 		/* Al cargar el panel, siempre aparece barra de scroll al tener el zoom al máximo */
 		this.gridContainerHeight = this.calcGridHeight();
 
-		const dayMechanics = MechanicsService.findDayMechanics(today);
-		this.displayVerticalScrollbar = todaySchedules ? this.checkDisplayScrollbar(
-			this.oneDayMode, dayMechanics, this.gridContainerHeight
-		) : false;
+		this.displayVerticalScrollbar = this.checkDisplayScrollbar(baseDay, this.oneDayMode, this.gridContainerHeight);
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, this.oneDayMode);
+
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;
 
-		this.initSchedulesHours(daysMechanics, today);
-		if (todaySchedules) {
-			this.initMaxSchedule(today);
+		this.initSchedulesHours(daysMechanics, baseDay);
+		if (!this.oneDayMode || todaySchedules) {
+			this.initMaxSchedule(this.oneDayMode);
+		}
+
+		if (scrollTopDaysOffset > 0) {
+			CardPositionService.scrollTop = this.calcScrollTopOffset(daysMechanics, scrollTopDaysOffset);
 		}
 	}
 
+	private static calcScrollTopOffset(daysMechanics: DaysMechanics, scrollTopDaysOffset: number): number {
+		const keys = Object.keys(daysMechanics);
+		let scrollTop = 0;
+		for (let i = 0; i < scrollTopDaysOffset; i++) {
+			const mechanicsHeight = this.calcGridCompleteHeight(daysMechanics[keys[i]]);
+			scrollTop += Constants.VALUE.TIMELINE_HEIGHT + mechanicsHeight;
+		}
+		return scrollTop;
+	}
+
 	private static checkDisplayScrollbar(
+		baseDay: Dayjs,
 		oneDayMode: boolean,
-		dayMechanics: Mechanic[],
 		gridContainerHeight: number
 	): boolean {
-		if (!oneDayMode) {
-			/* Si está habilitada la vista de varios días, siempre se muestra la barra de scroll */
+		if (oneDayMode) {
+			const dayMechanics = MechanicsService.findDayMechanics(baseDay);
+			if (dayMechanics.length) {
+				const mechanicsHeight = this.calcGridCompleteHeight(dayMechanics);
+				return gridContainerHeight < mechanicsHeight;
+			}
+			return false;
+		} else {
 			return true;
 		}
-		if (dayMechanics.length) {
-			const mechanicsHeight = this.calcGridCompleteHeight(dayMechanics);
-			return gridContainerHeight < mechanicsHeight;
-		}
-		return false;
 	}
 
 	/**
@@ -256,8 +267,8 @@ export class DimensionsService {
 	/**
 	 * Se definen los valores por defecto para las horas del horario y los anchos de horario, máximo y horas
 	 */
-	private static initMaxSchedule(today: Dayjs): void {
-		this.updateMaxSchedule(true);
+	private static initMaxSchedule(oneDayMode: boolean): void {
+		this.updateMaxSchedule(oneDayMode);
 		this.defaultHourWidth = this.hourWidth;
 	}
 
@@ -309,7 +320,7 @@ export class DimensionsService {
 	private static calcWidthValuesFromHoursInGrid(hoursInGrid: number): void {
 		/* Se calculan los anchos a partir del número de horas que encajan en pantalla; sabiendo que a zoom máximo,
 		*  en todoo el ancho de la pantalla caben 4 horas, se hacen las cuentas correspondientes */
-		this.quarterWidth = this.calcQuarterWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
+		this.quarterWidth = this.calcQuarterWidthFromHoursInGrid(hoursInGrid);
 		this.hourWidth = this.calcHourWidthFromQuarterWidth(this.quarterWidth);
 		/* Se calcula el ancho de un bloque de 5 minutos (unidad mínima de ancho en panel) */
 		this.intervalWidth = this.calcIntervalWidthFromQuarterWidth(this.quarterWidth);
@@ -388,11 +399,10 @@ export class DimensionsService {
 	 */
 	static updateMaxSchedule(oneDayMode: boolean): void {
 		const today = dayjs().startOf(Constants.DAY_JS.d);
-		const dayMechanics = MechanicsService.findDayMechanics(today);
-		this.displayVerticalScrollbar = this.checkDisplayScrollbar(
-			oneDayMode, dayMechanics, this.gridContainerHeight
-		);
+
+		this.displayVerticalScrollbar = this.checkDisplayScrollbar(today, oneDayMode, this.gridContainerHeight);
 		this.gridWidth = this.calcGridWidth(this.displayVerticalScrollbar, oneDayMode);
+
 		const maxQuarterWidth = this.calcQuarterWidthFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		/* Se actualiza el número de horas. Un horario de otro día puede tener más horas y, por tanto, necesitasr un
 		*  mayor ancho del contenedor para albergarlo */
@@ -540,6 +550,7 @@ export class DimensionsService {
 	// endregion
 
 	static toggleDayMode(): void {
+		// NotificationService.notifyLoading(true);
 		this.oneDayMode = !this.oneDayMode;
 		DimensionsService.updateMaxSchedule(this.oneDayMode);
 		NotificationService.notifyOneDayMode(this.oneDayMode);
@@ -547,6 +558,7 @@ export class DimensionsService {
 			undefined, undefined, true, new DropzoneUpdate()
 		);
 		NotificationService.notifyBand(undefined, CardsService.unassignedGroups);
+		// NotificationService.notifyLoading(false);
 	}
 
 }

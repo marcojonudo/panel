@@ -11,11 +11,9 @@ import {UtilsService} from "../../services/utils.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
-import {CardPositionService} from "../../services/card-position.service";
 import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {interval} from "rxjs/internal/observable/interval";
-import {AppointmentsService} from "../../services/appointments.service";
 import {Toast} from "../../objects/toasts/toast";
 import {DomSanitizer} from "@angular/platform-browser";
 import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
@@ -81,9 +79,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	private pointerDownListener: () => void;
 
 	constructor(
-		private cardsService: CardsService,
-		private mechanicsService: MechanicsService,
-		private cardPositionService: CardPositionService,
 		private cdRef: ChangeDetectorRef,
 		private sanitizer: DomSanitizer,
 		private element: ElementRef,
@@ -92,8 +87,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.days = MechanicsService.days;
 		this.daysTriggerMap = new DaysTriggerMap(this.days);
 
-		this.today = dayjs().startOf(Constants.DAY_JS.d);
-		this.oneDayMode = true;
+		this.today = this.days[0];
+		this.oneDayMode = DimensionsService.oneDayMode;
 		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;

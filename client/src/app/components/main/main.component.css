@@ -50,7 +50,7 @@ app-day-panel:not(:first-child):not(:last-child) {
 .toast-position {
 	position: absolute;
 	top: 50px;
-	right: 100px;
+	right: 150px;
 }
 
 .appointments-summary {

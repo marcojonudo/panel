@@ -81,15 +81,15 @@ export class RealTimeService {
 		this.connectUpdatePublisher();
 	}
 
-	private _sessionId: string;
+	private static _sessionId: string;
 
 	// region Getters / setters
 
-	get sessionId(): string {
+	static get sessionId(): string {
 		return this._sessionId;
 	}
 
-	set sessionId(value: string) {
+	static set sessionId(value: string) {
 		this._sessionId = value;
 	}
 
@@ -98,7 +98,7 @@ export class RealTimeService {
 	connectUpdatePublisher(): void {
 		const eventSource = new EventSource(Url.publisher());
 		eventSource.onmessage = event => {
-			if (event.lastEventId != this.sessionId) {
+			if (event.lastEventId != RealTimeService.sessionId) {
 				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);
 				const updateType = this.UPDATE_TYPE[updateInfo.action](updateInfo.content);

@@ -34,9 +34,12 @@ class PanelController {
 	@Inject CuboDatabaseClient cuboDatabaseClient
 	@Inject JpdvOrdersJob jpdvOrdersJob
 
-	@Get("/get")
-	CompleteInfo get() {
-		return panelService.getPanelInfo()
+	@Get
+	CompleteInfo get(
+		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
+		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
+	) {
+		return panelService.getPanelInfo(from, to)
 	}
 
 	@Get("/publisher")

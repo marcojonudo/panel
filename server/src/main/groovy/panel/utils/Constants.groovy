@@ -58,5 +58,6 @@ class Constants {
 	static final List<String> ECOMMERCE_APPOINTMENT_TYPE_CODES = ['ECO', 'TP']
 	static final List<String> RESET_NEW_CARDS_PROPERTIES = ['day', 'created']
 	static final String SPAIN_TIMEZONE = "Europe/Madrid"
+	static final int DAYS_LOAD = 7
 
 }

@@ -23,12 +23,7 @@ export class MechanicsService {
 	private static _onlyAppointmentsMode: boolean;
 	private static _showAppointmentsName: boolean = true;
 
-	constructor(private http: HttpClient) {
-		MechanicsService.days = [];
-		MechanicsService.daysMechanics = {};
-		MechanicsService.todaySchedules = false;
-		MechanicsService.futureSchedules = false;
-	}
+	constructor(private http: HttpClient) {}
 
 	// region Getters / setters
 
@@ -118,6 +113,11 @@ export class MechanicsService {
 				return +day == today.valueOf() && mechanics.length > 0
 			}) != undefined;
 			this.futureSchedules = this.todaySchedules ? this.todaySchedules : Object.keys(this.daysMechanics).length > 0;
+		} else {
+			this.days = [];
+			this.daysMechanics = {};
+			this.todaySchedules = false;
+			this.futureSchedules = false;
 		}
 
 		console.log('Days', this.days);

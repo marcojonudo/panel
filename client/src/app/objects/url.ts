@@ -3,7 +3,7 @@ import {environment} from "../../environments/environment";
 export class Url {
 
 	public static initialData(): string {
-		return `${environment.serverUrl}/panel/get`;
+		return `${environment.serverUrl}/panel`;
 	}
 
 	public static mechanicsPosition(): string {

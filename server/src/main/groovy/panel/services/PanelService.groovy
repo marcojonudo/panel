@@ -1,5 +1,6 @@
 package panel.services
 
+
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -47,18 +48,20 @@ class PanelService {
 
 	static LocalDate lastScheduleDay
 
-	CompleteInfo getPanelInfo(LocalDate day = LocalDate.now()) {
+	CompleteInfo getPanelInfo(LocalDate from, LocalDate to = null) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
-		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(day)
-		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(LocalDate.now())
+		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(from)
+		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(
+			from, to ?: from.plusDays(Constants.DAYS_LOAD)
+		)
 
-		deletePendingCards(day)
+		deletePendingCards(from)
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
-		UpdateCards updateCards = syncJpdvOrders(day, lastScheduleDay, appointmentDays, appointmentTypes)
+		UpdateCards updateCards = syncJpdvOrders(from, lastScheduleDay, appointmentDays, appointmentTypes)
 
 		return new CompleteInfo(
 			daysMechanics,
@@ -81,8 +84,8 @@ class PanelService {
 	 * @param date Day to get mechanics
 	 * @return List of mechanic employees
 	 */
-	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from) {
-		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(from, null, true)
+	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from, LocalDate to) {
+		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(from, to, true)
 		lastScheduleDay = mechanics.day.max()
 		return integrateFixedMechanics(mechanics)
 	}
@@ -299,18 +302,16 @@ class PanelService {
 				updateCards = syncOrders(orders, notAuxiliaryCards)
 				updateCards.auxiliary = auxiliaryCards
 
-				if (updateCards.getAppointments()) {
-					List<LocalDate> days = []
-					for (LocalDate day = from; day <= to; day = day.plusDays(1)) {
-						days << day
-					}
-					updateCards.appointmentDays = syncAppointmentDays(
-						days,
-						appointmentDays ?: panelDatabaseClient.getAppointmentDays(from),
-						(appointmentTypes ?: panelDatabaseClient.getAppointmentTypes()).findAll { it.counter },
-						updateCards.getAll().findAll { it.type == Card.CardType.APPOINTMENT }
-					)
+				List<LocalDate> days = []
+				for (LocalDate day = from; day <= to; day = day.plusDays(1)) {
+					days << day
 				}
+				updateCards.appointmentDays = syncAppointmentDays(
+					days,
+					appointmentDays ?: panelDatabaseClient.getAppointmentDays(from),
+					(appointmentTypes ?: panelDatabaseClient.getAppointmentTypes()).findAll { it.counter },
+					updateCards.getAll().findAll { it.type == Card.CardType.APPOINTMENT }
+				)
 
 				saveCards(updateCards)
 			} catch(all) {

@@ -70,6 +70,9 @@ export class NotificationService {
 	private static mainCursorSubject: Subject<string>;
 	private static _mainCursor$: Observable<string>;
 
+	private static loadingSubject: Subject<boolean>;
+	private static _loading$: Observable<boolean>;
+
 	// region Init
 
 	static init(): void {
@@ -107,6 +110,9 @@ export class NotificationService {
 
 		this.mainCursorSubject = new Subject<string>();
 		this.mainCursor$ = this.mainCursorSubject.asObservable();
+
+		this.loadingSubject = new Subject<boolean>();
+		this.loading$ = this.loadingSubject.asObservable();
 	}
 
 	// endregion
@@ -207,6 +213,14 @@ export class NotificationService {
 
 	static set updateArray$(value: Observable<any>) {
 		this._updateArray$ = value;
+	}
+
+	static get loading$(): Observable<boolean> {
+		return this._loading$;
+	}
+
+	static set loading$(value: Observable<boolean>) {
+		this._loading$ = value;
 	}
 
 	// endregion
@@ -347,6 +361,10 @@ export class NotificationService {
 		if (notifyImmediately) {
 			this.notifyUpdateArray();
 		}
+	}
+
+	static notifyLoading(loading: boolean): void {
+		this.loadingSubject.next(loading);
 	}
 
 }
