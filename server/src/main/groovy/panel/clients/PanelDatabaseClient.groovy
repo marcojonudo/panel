@@ -1,4 +1,4 @@
-package panel.clients.panel
+package panel.clients
 
 import groovy.transform.CompileStatic
 import io.micronaut.core.convert.format.Format

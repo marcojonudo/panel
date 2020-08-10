@@ -1,13 +1,11 @@
 package panel.services
 
-
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import panel.clients.cubo.CuboDatabaseClient
-import panel.clients.fviberi.FviberiDatabaseClient
-import panel.clients.panel.PanelDatabaseClient
-import panel.clients.skills.SkillsDatabaseClient
+import panel.clients.CuboDatabaseClient
+import panel.clients.FviberiDatabaseClient
+import panel.clients.PanelDatabaseClient
 import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.appointmentDays.AppointmentType
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
@@ -43,14 +41,13 @@ class PanelService {
 
 	@Inject private PanelDatabaseClient panelDatabaseClient
 	@Inject private FviberiDatabaseClient fviberiDatabaseClient
-	@Inject private SkillsDatabaseClient skillsDatabaseClient
 	@Inject private CuboDatabaseClient cuboDatabaseClient
 
 	static LocalDate lastScheduleDay
 
 	CompleteInfo getPanelInfo(LocalDate from, LocalDate to) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
-		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
+		List<Skill> skills = cuboDatabaseClient.getMechanicsSkills()
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
 		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(from)
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
@@ -711,108 +708,6 @@ class PanelService {
 	}
 
 	/**
-	 * Se crean appointment days asociados a nuevos días de horarios
-	 * @param daysMechanics
-	 * @param appointmentDays
-	 * @param appointmentTypes
-	 * @param createdCards
-	 * @return
-	 */
-//	static UpdateAppointmentDays findUpdateAppointmentDaysInfo(
-//		Map<String, List<EmployeeSchedule>> daysMechanics,
-//		List<AppointmentDay> existentAppointmentDays,
-//		List<AppointmentType> appointmentTypes,
-//		List<Card> existentCards,
-//		List<Card> createdCards
-//	) {
-//		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
-//		/* Sólo se tienen en cuenta aquellos horarios con día (los horarios fijos de taller y tienda, cuyo day es null,
-//		*  se omiten) */
-//		daysMechanics.findAll {	it.key }.each { String formattedDay, List<EmployeeSchedule> mechanics ->
-//			LocalDate day = LocalDate.parse(formattedDay)
-//			AppointmentDay appointmentDay = existentAppointmentDays.find { it.day == day }
-//			boolean newAppointmentDay = false
-//			if (!appointmentDay) {
-//				appointmentDay = new AppointmentDay(day, appointmentTypes)
-//				updateInfo.created << appointmentDay
-//				newAppointmentDay = true
-//			}
-//			boolean updated = handleAppointmentDayUpdate(appointmentDay, day, existentCards, createdCards)
-//			/* Sólo se actualizan las citas actuales si alguna ha cambiado. Si todas permanecen igual, se evita este
-//			*  paso para no hacer la petición a base de datos */
-//			if (updated && !newAppointmentDay) {
-//				updateInfo.updated << appointmentDay
-//			}
-//		}
-//		return updateInfo
-//	}
-//
-//	static boolean handleAppointmentDayUpdate(
-//		AppointmentDay appointmentDay, LocalDate day, List<Card> sameCards, List<Card> updatedCards, List<Card> createdCards
-//	) {
-//		/* Se usa la variable para determinar si se ha actualizado algún valor. Si no, se omite la petición a base de
-//		*  datos */
-//		boolean updated = false
-//		List<OrderAppointmentInfo> ordersAppointmentTypes = findOrderAppointmentInfo([], [], createdCards, day)
-//		ordersAppointmentTypes.each { OrderAppointmentInfo orderAppointmentInfo ->
-//			boolean updatedAppointmentTypes = orderAppointmentInfo.previousCodes != orderAppointmentInfo.newCodes
-//			updated = updated ?: updatedAppointmentTypes
-//			if (updatedAppointmentTypes) {
-//				orderAppointmentInfo.previousCodes.each { AppointmentTypeCode code ->
-//					fillScheduleTypeAppointmentValues(
-//						appointmentDay.values.find { it.appointmentType.code == code },
-//						orderAppointmentInfo.start,
-//						orderAppointmentInfo.duration,
-//						-1
-//					)
-//				}
-//				orderAppointmentInfo.newCodes.each { AppointmentTypeCode code ->
-//					fillScheduleTypeAppointmentValues(
-//						appointmentDay.values.find { it.appointmentType.code == code },
-//						orderAppointmentInfo.start,
-//						orderAppointmentInfo.duration,
-//						1
-//					)
-//				}
-//			}
-//		}
-//		return updated
-//	}
-//
-//	static List<OrderAppointmentInfo> findOrderAppointmentInfo(
-//		List<Card> sameCards, List<Card> updatedCards, List<Card> createdCards, LocalDate orderDay
-//	) {
-//		/* Se buscan aquellas fichas recién creadas cuya fecha de orden sea la del bucle. Esa orden contará para citas
-//		*  en el día actual */
-//		List<Card> createdDayCards = createdCards.findAll { it.order.day == orderDay }
-//		List<OrderAppointmentInfo> orderAppointmentInfo = createdDayCards.groupBy {
-//			it.order.number
-//		}.collect { int orderNumber, List<Card> createdOrderDayCards ->
-//			/* Para la ficha de la orden recién creada, se buscan todas las fichas de esa orden que ya existieran en
-//			*  panel. De esta forma, se puede saber qué tipo de cita tenía asignada */
-//			List<Card> currentOrderCards = (sameCards + updatedCards).findAll { it.order.number == orderNumber }
-//			/* Si ya había fichas de esta orden, se obtiene los tipos de citas que tenía asigandos. De esta forma, se
-//			*  podrán restar las unidades si estos han cambiado al añadir las nuevas fichas */
-//			List<AppointmentTypeCode> currentAppointmentTypeCodes = currentOrderCards ?
-//				findOrderCardsAppointmentTypes(currentOrderCards) : []
-//
-//			List<Card> allNewCards = createdCards.findAll { it.order.number == orderNumber }
-//			/* Se obtiene el tipo de cita final, resultante de las fichas que ya había asignadas más las nuevas; es
-//			*  decir, de la orden completa */
-//			List<Card> allOrderCards = (currentOrderCards + allNewCards).findAll { it.order.number == orderNumber }
-//			List<AppointmentTypeCode> newAppointmentTypeCodes = findOrderCardsAppointmentTypes(allOrderCards)
-//			return new OrderAppointmentInfo(
-//				orderNumber,
-//				allOrderCards[0].order.created,
-//				(int) allOrderCards.duration.sum(),
-//				currentAppointmentTypeCodes,
-//				newAppointmentTypeCodes
-//			)
-//		}
-//		return orderAppointmentInfo
-//	}
-
-	/**
 	 * Devuelve los tipos de cita asociados a una orden
 	 * @param cards Fichas de la orden
 	 * @return Lista de códigos de cita
@@ -830,45 +725,6 @@ class PanelService {
 			}
 		}
 	}
-
-//	static UpdateAppointmentDays syncCardsAppointmentDays(
-//			Map<String, List<EmployeeSchedule>> daysMechanics,
-//			List<AppointmentDay> appointmentDays,
-//			List<AppointmentDay> newAppointmentDays,
-//			List<Card> createdCards
-//	) {
-//		UpdateAppointmentDays updateInfo = new UpdateAppointmentDays()
-//
-//		LocalDate maxDay = daysMechanics.collect { it.value[0] }.day.max()
-//		List<Card> futureScheduleCards = createdCards.findAll { it.order.day > maxDay }
-//		futureScheduleCards.groupBy { it.order.day }.each { LocalDate orderDay, List<Card> cards ->
-//			List<AppointmentDay> appointmentDayTypes = appointmentDays.findAll { it.day == orderDay }
-//			if (appointmentDayTypes) {
-//				updateInfo.updated += updateAppointmentDays(appointmentDayTypes, cards)
-//			} else {
-//				updateInfo.created += createAppointmentDays(orderDay, appointmentTypes, cards)
-//			}
-//		}
-//		return updateInfo
-//	}
-//
-//	static List<AppointmentDay> updateAppointmentDays(List<AppointmentDay> appointmentDayTypes, List<Card> dayOrderCards) {
-//		List<AppointmentDay> updatedAppointmentDayTypes = []
-//		appointmentDayTypes.each { AppointmentDay appointmentDay ->
-//			List<Card> typeCards = dayOrderCards.findAll {
-//				it.group.appointmentType.code == appointmentDay.appointmentType.code
-//			}
-//			if (typeCards) {
-//				typeCards.each { fillScheduleTypeAppointmentDay(appointmentDay, it) }
-//				updatedAppointmentDayTypes << appointmentDay
-//			}
-//		}
-//		return updatedAppointmentDayTypes
-//	}
-//
-//	static List<AppointmentDay> createAppointmentDays(LocalDate day, List<AppointmentType> appointmentTypes) {
-//		return appointmentTypes.collect { new AppointmentDay(day: day, appointmentType: it) }
-//	}
 
 	static boolean checkMorningType(LocalTime start, int duration) {
 		LocalTime threshold = LocalTime.of(15, 0)

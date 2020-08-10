@@ -8,6 +8,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
+import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
 import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.EcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.GetEcommerceScheduleError
@@ -56,15 +57,15 @@ class EcommerceControllerSpec extends Specification {
 		time15 = LocalTime.of(15, 0)
 		time20 = LocalTime.of(20, 0)
 		daysEcommerceSchedules = [
-				new DayEcommerceSchedule(
-						today,
-						[
-								new EcommerceSchedule(
-										[new ScheduleInterval(start: time8, end: time15)],
-										AppointmentType.Code.ECO
-								)
-						]
-				)
+			new DayEcommerceSchedule(
+				today,
+				[
+					new EcommerceSchedule(
+						[new ScheduleInterval(start: time8, end: time15)],
+						AppointmentTypeCode.ECO
+					)
+				]
+			)
 		]
 	}
 
@@ -73,11 +74,11 @@ class EcommerceControllerSpec extends Specification {
 	void "test get schedules no schedules"() {
 		given:
 		ecommerceService.findSchedules(today, today) >>
-				new GetEcommerceSchedulesInfo([], GetEcommerceScheduleError.NO_SCHEDULES)
+			new GetEcommerceSchedulesInfo([], GetEcommerceScheduleError.NO_SCHEDULES)
 
 		when:
 		httpClient.toBlocking().exchange(
-				HttpRequest.GET("/eCommerce/schedules?from=${today.toString()}&to=${today.toString()}")
+			HttpRequest.GET("/eCommerce/schedules?from=${today.toString()}&to=${today.toString()}")
 		)
 
 		then:
@@ -91,8 +92,8 @@ class EcommerceControllerSpec extends Specification {
 
 		when:
 		HttpResponse<DayEcommerceSchedule[]> response = httpClient.toBlocking().exchange(
-				HttpRequest.GET("/eCommerce/schedules?from=${today.toString()}&to=${today.toString()}"),
-				DayEcommerceSchedule[]
+			HttpRequest.GET("/eCommerce/schedules?from=${today.toString()}&to=${today.toString()}"),
+			DayEcommerceSchedule[]
 		)
 
 		then:
@@ -107,12 +108,12 @@ class EcommerceControllerSpec extends Specification {
 	void "test get schedules not existent appointment schedules existent mechanics"() {
 		given:
 		ecommerceService.findSchedules(today, today) >>
-				new GetEcommerceSchedulesInfo(daysEcommerceSchedules, GetEcommerceScheduleError.NO_APPOINTMENTS)
+			new GetEcommerceSchedulesInfo(daysEcommerceSchedules, GetEcommerceScheduleError.NO_APPOINTMENTS)
 
 		when:
 		HttpResponse<DayEcommerceSchedule[]> response = httpClient.toBlocking().exchange(
-				HttpRequest.GET("/eCommerce/schedules?from=${today.toString()}&to=${today.toString()}"),
-				DayEcommerceSchedule[]
+			HttpRequest.GET("/eCommerce/schedules?from=${today.toString()}&to=${today.toString()}"),
+			DayEcommerceSchedule[]
 		)
 
 		then:

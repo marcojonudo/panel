@@ -1,7 +1,7 @@
 package panel.services
 
 import groovy.transform.CompileStatic
-import panel.clients.cubo.CuboDatabaseClient
+import panel.clients.CuboDatabaseClient
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
 import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.EcommerceSchedule

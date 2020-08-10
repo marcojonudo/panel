@@ -1,4 +1,4 @@
-package panel.clients.cubo
+package panel.clients
 
 import groovy.transform.CompileStatic
 import io.micronaut.core.convert.format.Format
@@ -7,6 +7,7 @@ import io.micronaut.http.client.annotation.Client
 import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.EmployeeScheduleAppointment
 import panel.pogos.schedules.MechanicAppointment
+import panel.pogos.skills.Skill
 import panel.utils.Constants
 
 import javax.annotation.Nullable
@@ -87,5 +88,8 @@ interface CuboDatabaseClient {
 		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to,
 		@QueryValue List<String> codes
 	)
+
+	@Get("/mechanicsSkills")
+	List<Skill> getMechanicsSkills()
 
 }

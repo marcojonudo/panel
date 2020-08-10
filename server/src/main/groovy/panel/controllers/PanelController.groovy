@@ -6,8 +6,8 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
-import panel.clients.cubo.CuboDatabaseClient
-import panel.clients.panel.PanelDatabaseClient
+import panel.clients.CuboDatabaseClient
+import panel.clients.PanelDatabaseClient
 import panel.jobs.JpdvOrdersJob
 import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.appointments.MechanicAppointment

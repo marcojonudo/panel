@@ -2,12 +2,13 @@ package panel.services
 
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
-import panel.clients.cubo.CuboDatabaseApi
-import panel.clients.cubo.CuboDatabaseClient
-import panel.clients.fviberi.FviberiDatabaseClient
-import panel.clients.panel.PanelDatabaseClient
-import panel.pogos.appointmentDays.*
+import panel.clients.CuboDatabaseClient
+import panel.clients.PanelDatabaseClient
+import panel.pogos.appointmentDays.AppointmentDay
+import panel.pogos.appointmentDays.AppointmentType
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
+import panel.pogos.appointmentDays.AppointmentTypeValues
+import panel.pogos.appointmentDays.UpdateAppointmentDays
 import panel.pogos.cards.Card
 import panel.pogos.cards.Group
 import panel.pogos.cards.GroupUnits
@@ -42,12 +43,12 @@ class PanelServiceSpec extends Specification {
 		Mock(PanelDatabaseClient)
 	}
 
-	@MockBean(FviberiDatabaseClient)
-	FviberiDatabaseClient fviberiDatabaseClient() {
-		Mock(FviberiDatabaseClient)
-	}
+//	@MockBean(FviberiDatabaseClient)
+//	FviberiDatabaseClient fviberiDatabaseClient() {
+//		Mock(FviberiDatabaseClient)
+//	}
 
-	@MockBean(CuboDatabaseApi)
+	@MockBean(CuboDatabaseClient)
 	CuboDatabaseClient cuboDatabaseClient() {
 		Mock(CuboDatabaseClient)
 	}
@@ -2090,7 +2091,7 @@ class PanelServiceSpec extends Specification {
 		then:
 		updateOrderInfo
 		updateOrderInfo.size() == 1
-		updateOrderInfo['vehicle'] == 'FV'
+		updateOrderInfo['brand'] == 'FV'
 	}
 
 	void "test check updated card updated order appointment start"() {
@@ -3154,486 +3155,24 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
-//	// region Update appointment days
-//
-//	void "test update appointment days different card appointment type"() {
-//		given:
-//		List<AppointmentDay> appointmentDayTypes = [
-//		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
-//		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP'), total: 1),
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: today],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: today],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'TP')]
-//				)
-//		]
-//
-//		when:
-//		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
-//
-//		then:
-//		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 1
-//		AppointmentDay tpAppointmentDay = appointmentDays.find { it.appointmentType.code == 'TP' }
-//		tpAppointmentDay.total == 2
-//	}
-//
-//	void "test update appointment days same card appointment type"() {
-//		given:
-//		List<AppointmentDay> appointmentDayTypes = [
-//		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'RAP')),
-//		        new AppointmentDay(day: today, appointmentType: new AppointmentType(code: 'TP')),
-//		]
-//		List<Card> cards = [
-//				new Card(
-//						order: [number: 1, code: 'C1', day: today],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				),
-//				new Card(
-//						order: [number: 1, code: 'C1', day: today],
-//						duration: 20,
-//						vehicle: [brand: 'FV'],
-//						group: [appointmentType: new AppointmentType(code: 'RAP')]
-//				)
-//		]
-//
-//		when:
-//		List<AppointmentDay> appointmentDays = panelService.updateAppointmentDays(appointmentDayTypes, cards)
-//
-//		then:
-//		AppointmentDay rapAppointmentDay = appointmentDays.find { it.appointmentType.code == 'RAP' }
-//		rapAppointmentDay.total == 2
-//		!appointmentDays.find { it.appointmentType.code == 'TP' }
-//	}
-//
-//	// endregion
-
-//	// region Find created cards appointment type codes
-//
-//	void "test find created cards appointment type codes no existent cards, new cards"() {
-//		given:
-//		LocalTime orderStart = LocalTime.of(10, 0)
-//		List<Card> cards = [
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today.minusDays(1), created: orderStart.toString()],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			]),
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			]),
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today.plusDays(1)],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			])
-//		]
-//
-//		when:
-//		List<OrderAppointmentInfo> orderAppointmentInfo = panelService.findOrderAppointmentInfo(
-//			[], cards, today
-//		)
-//
-//		then:
-//		orderAppointmentInfo
-//		orderAppointmentInfo.size() == 1
-//		orderAppointmentInfo[0].orderNumber == 1
-//		!orderAppointmentInfo[0].previousCodes
-//		orderAppointmentInfo[0].newCodes == [AppointmentTypeCode.RAP]
-//		orderAppointmentInfo[0].start == orderStart
-//		orderAppointmentInfo[0].duration == 60
-//	}
-//
-//	void "test find created cards appointment type codes existent cards, new cards same appointment type codes"() {
-//		given:
-//		List<Card> existentCards = [
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			]),
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			])
-//		]
-//		List<Card> cards = [
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			])
-//		]
-//
-//		when:
-//		List<OrderAppointmentInfo> orderAppointmentInfo = panelService.findOrderAppointmentInfo(
-//			existentCards, cards, today
-//		)
-//
-//		then:
-//		orderAppointmentInfo
-//		orderAppointmentInfo.size() == 1
-//		orderAppointmentInfo[0].orderNumber == 1
-//		orderAppointmentInfo[0].previousCodes == [AppointmentTypeCode.RAP]
-//		orderAppointmentInfo[0].newCodes == [AppointmentTypeCode.RAP]
-//	}
-//
-//	void "test find created cards appointment type codes existent cards, new cards different appointment type codes"() {
-//		given:
-//		List<Card> existentCards = [
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			]),
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-//			])
-//		]
-//		List<Card> cards = [
-//			new Card([
-//				order: [number: 1, code: 'C1', day: today],
-//				duration: 20,
-//				vehicle: [brand: 'FV'],
-//				divisionIndex: 0,
-//				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
-//			])
-//		]
-//
-//		when:
-//		List<OrderAppointmentInfo> orderAppointmentInfo = panelService.findOrderAppointmentInfo(
-//			existentCards, cards, today
-//		)
-//
-//		then:
-//		orderAppointmentInfo
-//		orderAppointmentInfo.size() == 1
-//		orderAppointmentInfo[0].orderNumber == 1
-//		orderAppointmentInfo[0].previousCodes == [AppointmentTypeCode.RAP]
-//		orderAppointmentInfo[0].newCodes == [AppointmentTypeCode.TP]
-//	}
-//
-//	// endregion
-
-	// region Handle Appointment day update
-
-	void "test handle appointment day update new cards"() {
-		given:
-		LocalTime orderStart = LocalTime.of(16, 0)
-		AppointmentDay appointmentDay = new AppointmentDay(today, appointmentTypes)
-		List<Card> cards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			]),
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			]),
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
-			])
-		]
-
-		when:
-		boolean updated = panelService.handleAppointmentDayUpdate(appointmentDay, today, [], cards)
-
-		then:
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.TP }.afternoon == 1
-		updated
-	}
-
-	void "test handle appointment day update same new appointment type codes"() {
-		given:
-		LocalTime orderStart = LocalTime.of(16, 0)
-		AppointmentDay appointmentDay = new AppointmentDay(today, appointmentTypes)
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.afternoon = 1
-		List<Card> existentCards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			])
-		]
-		List<Card> newCards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			])
-		]
-
-		when:
-		boolean updated = panelService.handleAppointmentDayUpdate(appointmentDay, today, existentCards, newCards)
-
-		then:
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.afternoon == 1
-		!updated
-	}
-
-	void "test handle appointment day update existent and new cards different appointment type codes"() {
-		given:
-		LocalTime orderStart = LocalTime.of(16, 0)
-		AppointmentDay appointmentDay = new AppointmentDay(today, appointmentTypes)
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.afternoon = 1
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.INT }.afternoon = 1
-		List<Card> existentCards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			]),
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.INT)]
-			])
-		]
-		List<Card> newCards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
-			])
-		]
-
-		when:
-		boolean updated = panelService.handleAppointmentDayUpdate(appointmentDay, today, existentCards, newCards)
-
-		then:
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.afternoon == 0
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.INT }.afternoon == 0
-		appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.TP }.afternoon == 1
-		updated
-	}
-
-	// endregion
-
-	// region Find update appointment days info
-
-	void "test find update appointment days info create new appointment days one order"() {
-		given:
-		Map<String, List<EmployeeSchedule>> daysMechanics = [
-			(today.toString()): [new EmployeeSchedule(day: today.minusDays(1))],
-			(today.toString()): [new EmployeeSchedule(day: today)],
-			(today.toString()): [new EmployeeSchedule(day: today.plusDays(1))]
-		]
-		LocalTime orderStart = LocalTime.of(12, 0)
-		List<Card> cards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			]),
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			]),
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			])
-		]
-
-		when:
-		UpdateAppointmentDays updateInfo = panelService.findUpdateAppointmentDaysInfo(
-			daysMechanics, [], appointmentTypes, [], cards
-		)
-
-		then:
-		updateInfo.created.size() == 1
-		updateInfo.updated.size() == 0
-		AppointmentDay appointmentDay = updateInfo.created[0]
-		AppointmentTypeValues rapValues = appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.RAP }
-		rapValues.morning == 1
-		rapValues.afternoon == 0
-		rapValues.total == 1
-	}
-
-	void "test find update appointment days info create new appointment days several orders same day"() {
-		given:
-		Map<String, List<EmployeeSchedule>> daysMechanics = [
-			(today.toString()): [new EmployeeSchedule(day: today.minusDays(1))],
-			(today.toString()): [new EmployeeSchedule(day: today)],
-			(today.toString()): [new EmployeeSchedule(day: today.plusDays(1))]
-		]
-		LocalTime orderStart = LocalTime.of(12, 0)
-		List<Card> cards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			]),
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
-			]),
-			new Card([
-				order: [number: 2, code: 'C1', day: today, created: orderStart.plusMinutes(240).toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			])
-		]
-
-		when:
-		UpdateAppointmentDays updateInfo = panelService.findUpdateAppointmentDaysInfo(
-			daysMechanics, [], appointmentTypes, [], cards
-		)
-
-		then:
-		updateInfo.created.size() == 1
-		updateInfo.updated.size() == 0
-		AppointmentDay appointmentDay = updateInfo.created[0]
-		AppointmentTypeValues rapValues = appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.RAP }
-		rapValues.morning == 0
-		rapValues.afternoon == 1
-		rapValues.total == 1
-		AppointmentTypeValues tpValues = appointmentDay.values.find { it.appointmentType.code == AppointmentTypeCode.TP }
-		tpValues.morning == 1
-		tpValues.afternoon == 0
-		tpValues.total == 1
-	}
-
-	void "test find update appointment days info create new appointment days several orders different day"() {
-		given:
-		Map<String, List<EmployeeSchedule>> daysMechanics = [
-			(today.toString()): [new EmployeeSchedule(day: today)],
-			(today.plusDays(1).toString()): [new EmployeeSchedule(day: today.plusDays(1))]
-		]
-		LocalTime orderStart = LocalTime.of(12, 0)
-		List<Card> cards = [
-			new Card([
-				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			]),
-			new Card([
-				order: [number: 1, code: 'C1', day: today],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
-			]),
-			new Card([
-				order: [number: 2, code: 'C1', day: today.plusDays(1), created: orderStart.plusMinutes(240).toString()],
-				duration: 20,
-				vehicle: [brand: 'FV'],
-				divisionIndex: 0,
-				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			])
-		]
-
-		when:
-		UpdateAppointmentDays updateInfo = panelService.findUpdateAppointmentDaysInfo(
-			daysMechanics, [], appointmentTypes, [], cards
-		)
-
-		then:
-		updateInfo.created.size() == 2
-		updateInfo.updated.size() == 0
-		AppointmentTypeValues tpValues = updateInfo.created[0].values.find { it.appointmentType.code == AppointmentTypeCode.TP }
-		tpValues.morning == 1
-		tpValues.afternoon == 0
-		tpValues.total == 1
-		AppointmentTypeValues rapValues = updateInfo.created[1].values.find { it.appointmentType.code == AppointmentTypeCode.RAP }
-		rapValues.morning == 0
-		rapValues.afternoon == 1
-		rapValues.total == 1
-	}
-
-	// endregion
-
 	// region Sync appointments days
 
 	void "test sync appointment days updated appointment day"() {
 		given:
-		Map<String, List<EmployeeSchedule>> daysMechanics = [
-			(today.toString()): [new EmployeeSchedule(day: today)]
-		]
+		List<LocalDate> days = [today]
 		LocalTime orderStart = LocalTime.of(12, 0)
 		List<AppointmentDay> appointmentDays = [new AppointmentDay(today, appointmentTypes)]
 		appointmentDays[0].values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.morning = 1
 		appointmentDays[0].values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.total = 1
 
-		List<Card> existentCards = [
+		List<Card> cards = [
 			new Card([
 				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
-			])
-		]
-		List<Card> newCards = [
+			]),
 			new Card([
 				order: [number: 1, code: 'C1', day: today],
 				duration: 20,
@@ -3645,7 +3184,7 @@ class PanelServiceSpec extends Specification {
 
 		when:
 		List<AppointmentDay> updatedAppointmentDays = panelService.syncAppointmentDays(
-			daysMechanics, appointmentDays, appointmentTypes, existentCards, newCards
+			days, appointmentDays, appointmentTypes, cards
 		)
 
 		then:
