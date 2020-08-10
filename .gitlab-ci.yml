@@ -7,13 +7,12 @@ stages:
     - deploy
 
 .fetch_ci_scripts: &fetch_ci_scripts
-    - apk update && apk add git
     - export SCRIPTS_DIR=$(mktemp -d)
     - git clone -q --depth 1 "$SCRIPTS_REPO" "$SCRIPTS_DIR"
-    - chmod +x $SCRIPTS_DIR/shell/docker.sh
-    - 'find $SCRIPTS_DIR/shell -type f -iname "*.sh" -exec chmod +x {} \;'
+    - chmod -R +x $SCRIPTS_DIR
 
 .gradle_template: &gradle_template
+    image: registry.gitlab.com/marco_fv/ci-scripts:gradle
     tags:
         - sidesman2
     variables:
@@ -28,6 +27,7 @@ stages:
 .get_version_template: &get_version_template
     tags:
         - gitlab-org
+    image: registry.gitlab.com/marco_fv/ci-scripts:groovy
     before_script:
         - *fetch_ci_scripts
     artifacts:
@@ -36,6 +36,8 @@ stages:
         expire_in: 1 year
 
 .deploy_template: &deploy_template
+    stage: deploy
+    image: registry.gitlab.com/marco_fv/ci-scripts:groovy
     tags:
         - sidesman2
     dependencies:
@@ -43,16 +45,13 @@ stages:
         - get-version:merge-request
     before_script:
         - *fetch_ci_scripts
-        - apk upgrade --update && apk add openssh sshpass bash
     script:
-        - $SCRIPTS_DIR/shell/deploy.sh
-    when: manual
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/deploy.groovy
     only:
         - branches
 
 build:backend:
     stage: build
-    image: gradle:alpine
     <<: *gradle_template
     script:
         - gradle --build-cache :server:build
@@ -76,7 +75,6 @@ build:frontend:
 
 assemble:jar:
     stage: assemble
-    image: gradle:alpine
     <<: *gradle_template
     dependencies:
         - build:frontend
@@ -93,8 +91,7 @@ get-version:dev:
     stage: versioning
     <<: *get_version_template
     script:
-        - echo $CURRENT_VERSION
-        - $SCRIPTS_DIR/shell/getDevVersion.sh > version
+        - groovy $SCRIPTS_DIR/groovy/getDevVersion.groovy
     only:
         - branches
     except:
@@ -105,10 +102,11 @@ get-version:merge-request:
     stage: versioning
     <<: *get_version_template
     script:
-        - echo $CURRENT_VERSION
-        - $SCRIPTS_DIR/shell/getMergeRequestVersion.sh > version
+        - groovy $SCRIPTS_DIR/groovy/getMergeRequestVersion.groovy
     only:
         - merge_requests
+    except:
+        - master
 
 tagging:git:
     stage: tagging
@@ -130,13 +128,12 @@ tagging:git:
 
 build:docker:
     stage: docker
-    image: docker:latest
+    image: registry.gitlab.com/marco_fv/ci-scripts:docker
     services:
         - docker:dind
     dependencies:
         - assemble:jar
         - get-version:dev
-        - get-version:merge-request
     before_script:
         - *fetch_ci_scripts
     script:
@@ -144,14 +141,36 @@ build:docker:
     only:
         - branches
 
-deploy:sta:
-    stage: deploy
+deploy:manual:sta:
     <<: *deploy_template
+    only:
+        - branches
+    except:
+        - schedules
+    variables:
+        ENVIRONMENT: sta
+    when: manual
+
+deploy:manual:prod:
+    <<: *deploy_template
+    only:
+        - branches
+    except:
+        - schedules
+    variables:
+        ENVIRONMENT: prod
+    when: manual
+
+deploy:scheduled:sta:
+    <<: *deploy_template
+    only:
+        - schedules
     variables:
         ENVIRONMENT: sta
 
-deploy:prod:
-    stage: deploy
+deploy:scheduled:prod:
     <<: *deploy_template
+    only:
+        - schedules
     variables:
         ENVIRONMENT: prod
