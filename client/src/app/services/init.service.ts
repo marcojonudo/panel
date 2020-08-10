@@ -27,6 +27,7 @@ export class InitService {
 	constructor(
 		private cardsService: CardsService,
 		private appointmentsService: AppointmentsService,
+		private realTimeService: RealTimeService,
 		private http: HttpClient
 	) {
 		InitService.loading = false;

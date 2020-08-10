@@ -36,8 +36,12 @@ export class AssignedCardDurationHandler implements CardDurationHandler {
 			cardsToUpdate = this.updateNextGroupsPosition(updatedGroups, widthIncrease, durationIncrease);
 		}
 		NotificationService.notifyGroups(updatedGroups.concat(group), true);
+
+		/* Sólo se actualizan las fichas posteriores a aquella cuya duración se está actualizando; en las anteriores
+		*  del mismo grupo, no cambia ni la posición ni la duración */
+		const cardIndex = group.cards.findIndex((c: Card) => c.panelId == card.panelId);
 		return new UpdateDurationInfo(
-			cardsToUpdate.concat(group.cards),
+			group.cards.slice(cardIndex).concat(cardsToUpdate),
 			widthIncrease > 0 && updatedGroups.length > 0
 		);
 	}

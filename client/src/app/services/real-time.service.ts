@@ -1,11 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Card} from "../objects/card";
 import {CardsService} from "./cards.service";
-import {environment} from "../../environments/environment";
 import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-card-update-position";
 import {RealTimeCardUpdateDuration} from "../objects/real-time-update/real-time-card-update-duration";
 import {RealTimeCardUpdateLinks} from "../objects/real-time-update/real-time-card-update-links";
-import {Constants} from "../objects/constants";
 import {RealTimeMechanicUpdateLines} from "../objects/real-time-update/real-time-mechanic-update-lines";
 import {Mechanic} from "../objects/mechanic";
 import {RealTimeMechanicUpdatePosition} from "../objects/real-time-update/real-time-mechanic-update-position";
@@ -162,7 +160,7 @@ export class RealTimeService {
 		let updatedDurationCard = undefined;
 		const card = cards.find((card: Card) => {
 			const group = CardsService.findCardGroup(allGroups, card.panelId);
-			updatedDurationCard = group.cards.find((c: Card) => c.duration != card.duration);
+			updatedDurationCard = group.cards.find((c: Card) => c.panelId == card.panelId);
 			return updatedDurationCard != undefined;
 		});
 		/* Si después de modificar la duración en el terminal original se deja como estaba, no habrá ninguna ficha con
@@ -171,14 +169,17 @@ export class RealTimeService {
 			/* Si hay más de una ficha, la primera será la que tenga la duración actualizada, y el resto habrán sido
 			*  desplazadas. En ese caso, se actualiza su posición */
 			if (cards.length > 1) {
-				this.updatePosition(cards.slice(1));
+				const updatePositionIndex = cards.slice(1).findIndex((c: Card) => !c.linkedPrevious);
+				if (updatePositionIndex != -1) {
+					this.updatePosition(cards.slice(1 + updatePositionIndex));
+				}
 			}
 
 			const widthIncrease = DimensionsService.calcWidthFromDuration(
 				card.duration - updatedDurationCard.duration
 			);
 			let mechanic, handler;
-			if (updatedDurationCard.day) {
+			if (updatedDurationCard.mechanicCode) {
 				mechanic = MechanicsService.findMechanic(updatedDurationCard.day, updatedDurationCard.mechanicCode);
 				handler = new AssignedCardDurationHandler();
 			} else {

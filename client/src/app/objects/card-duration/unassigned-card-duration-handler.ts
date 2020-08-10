@@ -1,7 +1,6 @@
 import {CardsGroup} from "../cards-group";
 import {CardsService} from "../../services/cards.service";
 import {Card} from "../card";
-import {DimensionsService} from "../../services/dimensions.service";
 import {CardDurationHandler} from "./card-duration-handler";
 import {NotificationService} from "../../services/notification.service";
 import {Mechanic} from "../mechanic";
@@ -24,8 +23,9 @@ export class UnassignedCardDurationHandler implements CardDurationHandler {
 		this.updateNextGroupsPosition(updatedGroups, widthIncrease);
 
 		card.setDuration(card.duration + durationIncrease, card.width + widthIncrease);
+		const cardIndex = group.cards.findIndex((c: Card) => c.panelId == card.panelId);
 		NotificationService.notifyBand(undefined, [group]);
-		return new UpdateDurationInfo(group.cards, false);
+		return new UpdateDurationInfo(group.cards.slice(cardIndex), false);
 	}
 
 	updateNextGroupsPosition(groups: CardsGroup[], widthStep: number): Card[] {
