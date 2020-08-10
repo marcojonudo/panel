@@ -17,6 +17,7 @@ import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line
 export class MechanicsService {
 
 	private static _days: Dayjs[];
+	private static _lastScheduleDay: Dayjs;
 	private static _daysMechanics: DaysMechanics;
 	private static _todaySchedules: boolean;
 	private static _futureSchedules: boolean;
@@ -33,6 +34,14 @@ export class MechanicsService {
 
 	static set days(value: Dayjs[]) {
 		this._days = value;
+	}
+
+	static get lastScheduleDay(): Dayjs {
+		return this._lastScheduleDay;
+	}
+
+	static set lastScheduleDay(value: Dayjs) {
+		this._lastScheduleDay = value;
 	}
 
 	static get daysMechanics(): DaysMechanics {
@@ -103,7 +112,9 @@ export class MechanicsService {
 
 	// region Init
 
-	static init(daysMechanics: { [key: string]: any[] }, skills: any[], highlightedSkills: Skill[]) {
+	static init(
+		daysMechanics: { [key: string]: any[] }, lastScheduleDay: Dayjs, skills: any[], highlightedSkills: Skill[]
+	) {
 		if (daysMechanics) {
 			this.days = this.initDays(daysMechanics);
 			this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
@@ -119,6 +130,7 @@ export class MechanicsService {
 			this.todaySchedules = false;
 			this.futureSchedules = false;
 		}
+		this.lastScheduleDay = lastScheduleDay;
 
 		console.log('Days', this.days);
 		console.log('Days mechanics', this.daysMechanics);

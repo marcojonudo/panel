@@ -36,8 +36,8 @@ class PanelController {
 
 	@Get
 	CompleteInfo get(
-		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
-		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
+		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
+		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
 	) {
 		return panelService.getPanelInfo(from, to)
 	}

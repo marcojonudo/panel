@@ -58,7 +58,9 @@ export class InitService {
 
 			AppointmentsService.initAppointmentTypes(data.appointmentTypes);
 
-			MechanicsService.init(data.daysMechanics, data.skills, SkillsService.highlightedSkills);
+			MechanicsService.init(
+				data.daysMechanics, dayjs(data.lastScheduleDay), data.skills, SkillsService.highlightedSkills
+			);
 
 			CardsService.init(
 				data.cards.map(card => new Card(card)),
@@ -91,7 +93,8 @@ export class InitService {
 	static checkRequestNextDaysInitialData(): boolean {
 		/* Se solicitan nuevos días sólo sí el número de días cargado es igual al total de días máximos. Si no (por
 		*  ejemplo, si el total son 7 pero sólo hay cargados 3), significa que ya se alcanzo el límite de horarios */
-		return !DimensionsService.oneDayMode && MechanicsService.days.length == Constants.VALUE.DAYS_LOAD;
+		return !DimensionsService.oneDayMode &&
+			MechanicsService.days[MechanicsService.days.length - 1].isBefore(MechanicsService.lastScheduleDay)
 	}
 
 	requestNextDaysInitialData(): void {

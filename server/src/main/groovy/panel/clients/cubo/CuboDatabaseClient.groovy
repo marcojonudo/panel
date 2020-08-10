@@ -27,6 +27,9 @@ interface CuboDatabaseClient {
 		@QueryValue boolean fixedSchedules
 	)
 
+	@Get("/lastScheduleDay")
+	LocalDate getLastScheduleDay()
+
 	@Put("/mechanic/position")
 	void updateMechanicsPosition(
 		@Header String sessionId,

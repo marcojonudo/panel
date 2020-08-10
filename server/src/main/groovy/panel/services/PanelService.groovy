@@ -48,28 +48,28 @@ class PanelService {
 
 	static LocalDate lastScheduleDay
 
-	CompleteInfo getPanelInfo(LocalDate from, LocalDate to = null) {
+	CompleteInfo getPanelInfo(LocalDate from, LocalDate to) {
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = skillsDatabaseClient.getMechanicsSkills()
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
 		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(from)
-		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(
-			from, to ?: from.plusDays(Constants.DAYS_LOAD)
-		)
+		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
 
-		deletePendingCards(from)
+//		deletePendingCards(from)
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
-		UpdateCards updateCards = syncJpdvOrders(from, lastScheduleDay, appointmentDays, appointmentTypes)
+		UpdateCards updateCards = syncJpdvOrders(LocalDate.now(), lastScheduleDay, appointmentDays, appointmentTypes)
+		List<Card> cards = updateCards.getAll().findAll { !it.day || (it.day >= from && it.day <= to) }
 
 		return new CompleteInfo(
 			daysMechanics,
 			skills,
 			jobLineTypes,
 			appointmentTypes,
+			lastScheduleDay,
 			updateCards.appointmentDays ?: appointmentDays,
-			updateCards.getAll() + updateCards.auxiliary
+			cards + updateCards.auxiliary
 		)
 	}
 
@@ -86,7 +86,7 @@ class PanelService {
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from, LocalDate to) {
 		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(from, to, true)
-		lastScheduleDay = mechanics.day.max()
+		lastScheduleDay = cuboDatabaseClient.getLastScheduleDay()
 		return integrateFixedMechanics(mechanics)
 	}
 
@@ -285,7 +285,7 @@ class PanelService {
 
 	UpdateCards syncJpdvOrders(
 		LocalDate from,
-		LocalDate to,
+		LocalDate lastScheduleDay,
 		List<AppointmentDay> appointmentDays = [],
 		List<AppointmentType> appointmentTypes = []
 	) {
@@ -293,7 +293,7 @@ class PanelService {
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
 				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-				List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES, to)
+				List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES, lastScheduleDay)
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 				List<Card> dbCards = panelDatabaseClient.getCards(from, null)
 				List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
@@ -303,7 +303,7 @@ class PanelService {
 				updateCards.auxiliary = auxiliaryCards
 
 				List<LocalDate> days = []
-				for (LocalDate day = from; day <= to; day = day.plusDays(1)) {
+				for (LocalDate day = from; day <= lastScheduleDay; day = day.plusDays(1)) {
 					days << day
 				}
 				updateCards.appointmentDays = syncAppointmentDays(
