@@ -77,7 +77,7 @@ export class UnassignedDropzone implements Dropzone {
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
-			() => NotificationService.notifyBand(undefined, [group]),
+			() => this.notify(),
 			CardsService.getAddGroupDelay(group)
 		);
 	}

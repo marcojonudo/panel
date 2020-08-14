@@ -119,8 +119,9 @@ export class AssignedDropzone implements Dropzone {
 	handleNotValidatedMovement(group: CardsGroup): void {
 		/* Si el movimiento no valida, lo único que hay que hacer es añadir el grupo a su dropzone original (no hay que
 		*  actualizar propiedades, ni el panel de citas) */
+		NotificationService.notifyGroups([group]);
 		setTimeout(
-			() => NotificationService.notifyGroups([group], true),
+			() => this.notify(true),
 			CardsService.getAddGroupDelay(group)
 		);
 	}
