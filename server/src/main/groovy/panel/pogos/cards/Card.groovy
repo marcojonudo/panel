@@ -92,7 +92,7 @@ class Card {
 
 	/* Constructor para la creación de nuevas fichas a partir de la orden y la agrupación */
 	Card(Order order, Group group, float units, int duration) {
-		code = "${group.unitsInShortName ? units : ''}$group.shortName"
+		code = "${group.unitsInShortName ? units as int : ''}$group.shortName"
 		this.group = group
 		this.duration = duration
 		status = Status.DEFAULT

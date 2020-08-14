@@ -192,17 +192,23 @@ export class CardComponent implements OnInit {
 	// region Link handlers
 
 	checkShowLeftLinkHandler(card: Card, handler: CardLinkHandler = this.linkHandler): boolean {
-		return card.linkedPrevious ? true : CardsService.checkShowHandler(
-			card,
-			handler.findNextGroup(card, new LeftCardLinkHandler())
-		);
+		if (card.linkedPrevious) {
+			return true;
+		}
+		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
+			return false;
+		}
+		return CardsService.checkShowHandler(card, handler.findNextGroup(card, new LeftCardLinkHandler()));
 	}
 
 	checkShowRightLinkHandler(card: Card, handler: CardLinkHandler = this.linkHandler): boolean {
-		return card.linkedNext ? true: CardsService.checkShowHandler(
-			card,
-			handler.findNextGroup(card, new RightCardLinkHandler())
-		);
+		if (card.linkedNext) {
+			return true;
+		}
+		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
+			return false;
+		}
+		return CardsService.checkShowHandler(card, handler.findNextGroup(card, new RightCardLinkHandler()));
 	}
 
 	findLinkImage(linkedCard: Card): string {
