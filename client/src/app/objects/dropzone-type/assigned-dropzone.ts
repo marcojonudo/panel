@@ -70,6 +70,12 @@ export class AssignedDropzone implements Dropzone {
 	}
 
 	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+		const day = newStart.startOf(Constants.DAY_JS.d);
+		if (!groups[0].mechanicCode && !day.isSame(groups[0].cards[0].order.day)) {
+			NotificationService.notifyToast(
+				new WarningToast(Constants.MESSAGE.DIFFERENT_CARD_DAY(day, groups[0].cards[0].order.day))
+			);
+		}
 		CardsService.updatePositionProperties(
 			groups, newStart.startOf(Constants.DAY_JS.d), mechanic.code, line, newStart
 		);
