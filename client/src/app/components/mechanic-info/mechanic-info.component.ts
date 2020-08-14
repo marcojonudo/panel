@@ -9,6 +9,10 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {NotificationService} from "../../services/notification.service";
 import {JobLineTypeService} from "../../services/job-line-type.service";
 import {Dayjs} from "dayjs";
+import {DropzoneService} from "../../services/dropzone.service";
+import {Dropzone} from "../../objects/dropzone-type/dropzone";
+import {CardsGroup} from "../../objects/cards-group";
+import {UnassignedDropzone} from "../../objects/dropzone-type/unassigned-dropzone";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -76,18 +80,21 @@ export class MechanicInfoComponent {
 	}
 
 	checkRemoveMechanic(content): void {
-		const assignedCardsGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		if (assignedCardsGroups.length) {
+		const assignedGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		if (assignedGroups.length) {
 			this.modalService.open(content, {centered: true}).result.then(
 				() => {
-					let resetCards = [];
-					assignedCardsGroups.forEach(group => {
-						CardsService.removeFromAssigned(group, this.day, this.mechanic.code);
-						CardsService.resetCardsGroup(group);
-						resetCards = resetCards.concat(group.cards);
-						CardsService.addToUnassigned(group);
+					const originDropzone = DropzoneService.findDropzone(assignedGroups[0].cards[0]);
+					const destinyDropzone: UnassignedDropzone =
+						<UnassignedDropzone> DropzoneService.dropzones.find((dropzone: Dropzone) =>
+							dropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED
+					);
+					assignedGroups.map((g: CardsGroup) => g.id).forEach((groupId: string) => {
+						const group = assignedGroups.find((g: CardsGroup) => g.id == groupId);
+						originDropzone.removeGroup(group);
+						destinyDropzone.updateProperties([group]);
+						destinyDropzone.addGroup(group);
 					});
-					this.cardsService.updateDbCardsPosition(resetCards);
 					this.mechanicsService.removeMechanic(this.day, this.mechanic);
 				},
 				() => {});

@@ -23,7 +23,7 @@ export interface Dropzone {
 
 	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void;
 
-	addGroup(groups: CardsGroup[], group: CardsGroup): void;
+	addGroup(group: CardsGroup, groups: CardsGroup[]): void;
 
 	addRealTimeGroup(group: CardsGroup): void;
 

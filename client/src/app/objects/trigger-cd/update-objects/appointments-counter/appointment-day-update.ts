@@ -1,4 +1,3 @@
-import {AppointmentsCounter} from "../../../appointments-counter";
 import {Constants} from "../../../constants";
 import {TriggerMapUpdate} from "../trigger-map-update/trigger-map-update";
 import {AppointmentDay} from "../../../appointments/appointment-day";

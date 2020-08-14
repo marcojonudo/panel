@@ -218,7 +218,7 @@ export class CardPositionService {
 				this.destinyDropzone.updateProperties(
 					allGroups, validatedInfo.newStart, coordinates.line, this.destinyDropzone.mechanic
 				);
-				this.destinyDropzone.addGroup(allGroups, helperGroup);
+				this.destinyDropzone.addGroup(helperGroup, allGroups);
 				return this.destinyDropzone.findLastCoordinates(helperGroup, coordinates);
 			} else {
 				this.originDropzone.handleNotValidatedMovement(helperGroup);

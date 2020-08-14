@@ -44,7 +44,7 @@ export class FinishDropzone implements Dropzone {
 		CardsService.updateFinishedGroup(groups[0]);
 	}
 
-	addGroup(groups: CardsGroup[], group: CardsGroup): void {
+	addGroup(group: CardsGroup, groups: CardsGroup[]): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addFinishedGroup(group);
 		this.notify();

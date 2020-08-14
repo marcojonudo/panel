@@ -1040,7 +1040,7 @@ export class CardsService {
 		originDropzone.removeGroup(group);
 		const allGroups = [group].concat(groups);
 		destinyDropzone.updateProperties(allGroups, newStart, line, destinyDropzone.mechanic);
-		destinyDropzone.addGroup(allGroups, group);
+		destinyDropzone.addGroup(group, allGroups);
 	}
 
 	deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {

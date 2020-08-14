@@ -42,11 +42,11 @@ export class UnassignedDropzone implements Dropzone {
 		CardsService.removeFromUnassigned(group);
 	}
 
-	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+	updateProperties(groups: CardsGroup[]): void {
 		CardsService.resetCardsGroup(groups[0]);
 	}
 
-	addGroup(groups: CardsGroup[], group: CardsGroup): void {
+	addGroup(group: CardsGroup): void {
 		const visibleSection = group.cards[0].type == this.subType;
 		/* Si la ficha es del tipo abierto en la cinta, se ejecuta el CD para que, antes de completar la transición,
 		*  el resto de fichas se desplacen para dejarle hueco a esta */

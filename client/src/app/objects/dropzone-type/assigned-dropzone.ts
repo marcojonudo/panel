@@ -75,7 +75,7 @@ export class AssignedDropzone implements Dropzone {
 		);
 	}
 
-	addGroup(groups: CardsGroup[], group: CardsGroup): void {
+	addGroup(group: CardsGroup, groups: CardsGroup[]): void {
 		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
 
 		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);

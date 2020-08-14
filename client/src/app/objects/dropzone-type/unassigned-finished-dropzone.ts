@@ -47,7 +47,7 @@ export class UnassignedFinishedDropzone implements Dropzone {
 		CardsService.resetCardsGroup(groups[0]);
 	}
 
-	addGroup(groups: CardsGroup[], group: CardsGroup): void {
+	addGroup(group: CardsGroup): void {
 		this.cardsService.updateDbCardsPosition(group.cards);
 		CardsService.addToUnassigned(group);
 		this.notify();
