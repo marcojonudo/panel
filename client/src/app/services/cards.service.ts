@@ -55,7 +55,7 @@ export class CardsService {
 	private static _unassignedAuxiliaryCardsGroups: CardsGroup[];
 	private static _finishedGroups: CardsGroup[];
 	private static _unassignedGroups: CardsGroup[];
-	private static _unassignedTypesCardsGroups: GroupedTypeCards;
+	private static _unassignedTypesGroups: GroupedTypeCards;
 
 	private static _unassignedSections: UnassignedSection[];
 	private static _cardTypeBehaviour: {[key: string]: CardTypeBehaviour};
@@ -78,6 +78,8 @@ export class CardsService {
 		CardsService.cardModeAction = {};
 		CardsService.cardModeAction[Constants.GROUP_MODE.CUT] = new CutCardModeAction(this);
 		CardsService.cardModeAction[Constants.GROUP_MODE.REPLACE] = new ReplaceCardModeAction(this);
+
+		CardsService.unassignedTypesGroups = {};
 	}
 
 	// region Getters / setters
@@ -106,12 +108,12 @@ export class CardsService {
 		this._finishedGroups = value;
 	}
 
-	static get unassignedTypesCardsGroups(): GroupedTypeCards {
-		return this._unassignedTypesCardsGroups;
+	static get unassignedTypesGroups(): GroupedTypeCards {
+		return this._unassignedTypesGroups;
 	}
 
-	static set unassignedTypesCardsGroups(value: GroupedTypeCards) {
-		this._unassignedTypesCardsGroups = value;
+	static set unassignedTypesGroups(value: GroupedTypeCards) {
+		this._unassignedTypesGroups = value;
 	}
 
 	static get assignedGroups(): CardsGroup[] {
@@ -180,27 +182,27 @@ export class CardsService {
 				&& (card.type != Constants.CARD_TYPE.AUXILIARY || card.type == Constants.CARD_TYPE.AUXILIARY && card.day)
 		);
 
-		this.unassignedAuxiliaryCardsGroups = this.initUnassignedCardsGroups(unassignedAuxiliaryCards);
-		this.finishedGroups = this.initAssignedCardsGroups(finishedCards);
+		this.unassignedAuxiliaryCardsGroups = this.initUnassignedGroups(unassignedAuxiliaryCards);
+		this.finishedGroups = this.initAssignedGroups(finishedCards);
 
 		this.unassignedCards = notFinishedCards.filter(card => !card.day);
-		this.unassignedGroups = this.initUnassignedCardsGroups(this.unassignedCards);
-		this.unassignedTypesCardsGroups = this.initUnassignedTypesCardsGroups(this.unassignedGroups);
+		this.unassignedGroups = this.initUnassignedGroups(this.unassignedCards);
+		this.unassignedTypesGroups = this.initUnassignedTypesGroups(this.unassignedGroups);
 
 		this.assignedCards = notFinishedCards.filter(card => card.day);
-		this.assignedGroups = this.initAssignedCardsGroups(this.assignedCards);
+		this.assignedGroups = this.initAssignedGroups(this.assignedCards);
 		this.initAssignedDaysCardsObjects(this.assignedGroups, daysMechanics);
 
 		console.log('Cards', this.cards);
 		console.log('Auxiliary cards groups', this.unassignedAuxiliaryCardsGroups);
 		console.log('Finished cards groups', this.finishedGroups);
 		console.log('Unassigned cards groups', this.unassignedGroups);
-		console.log('Unassigned types cards groups', this.unassignedTypesCardsGroups);
+		console.log('Unassigned types cards groups', this.unassignedTypesGroups);
 		console.log('Assigned cards groups', this.assignedGroups);
 		console.log('Assigned days cards groups', this.assignedDaysCardsGroups);
 	}
 
-	private static initUnassignedCardsGroups(unassignedCards: Card[]): CardsGroup[] {
+	private static initUnassignedGroups(unassignedCards: Card[]): CardsGroup[] {
 		let groups = [];
 		let processedCards = [];
 		for (let card of unassignedCards) {
@@ -217,7 +219,7 @@ export class CardsService {
 		return groups;
 	}
 
-	private static initUnassignedTypesCardsGroups(groups: CardsGroup[]): any {
+	private static initUnassignedTypesGroups(groups: CardsGroup[]): any {
 		const unassignedTypesCardsGroups = {};
 
 		groups.forEach((group: CardsGroup) => {
@@ -230,7 +232,7 @@ export class CardsService {
 		return unassignedTypesCardsGroups;
 	}
 
-	private static initAssignedCardsGroups(assignedCards: Card[]) {
+	private static initAssignedGroups(assignedCards: Card[]) {
 		let groups: CardsGroup[] = [];
 		let processedCards = [];
 		for (let card of assignedCards) {

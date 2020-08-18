@@ -159,27 +159,10 @@ export class CardsGroup {
 		if (this.start) {
 			this.left = DimensionsService.calcLeftFromStart(this.start);
 			this.end = this.start.add(this.findDuration(), Constants.DAY_JS.m);
-			// this.cards.forEach((card: Card, i: number) => {
-			// 	if (i == 0) {
-			// 		card.setStart(this.start);
-			// 	} else {
-			// 		card.setStart(this.cards[i-1].end);
-			// 	}
-			// });
 		} else {
 			this.left = undefined;
 			this.end = undefined;
-			// this.cards.forEach((card: Card) => {
-			// 	card.setStart(undefined);
-			// });
 		}
-	}
-
-	setStatus(status: string): void {
-		this.status = status;
-		this.cards.forEach((card: Card) => {
-			card.setStatus(status);
-		});
 	}
 
 	addCards(cards: Card[]): void {
@@ -196,13 +179,6 @@ export class CardsGroup {
 			newCardsGroup.cards = this.cards.map((card: Card) => card.clone());
 		}
 		return newCardsGroup;
-	}
-
-	removeCard(cardId: string): void {
-		this.cards = this.cards.filter((card: Card) => card.panelId != cardId);
-		this.id = this.cards[0].panelId;
-		this.setStart(this.cards[0].start);
-		this.end = this.cards[this.cards.length-1].end;
 	}
 
 	removeCards(fromIndex: number, toIndex: number): void {

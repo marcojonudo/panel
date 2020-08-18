@@ -41,8 +41,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private _days: Dayjs[];
 	private _today: Dayjs;
-	private itemSize: number;
-	private _existentTodaySchedules: boolean;
 	private _dayContainerWidth: number;
 
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
@@ -92,16 +90,14 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-		// this.itemSize = MechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
 
 		this.relativeContainer = true;
 		this.scrollLeft = 0;
 		this.scrollTop = 0;
 
-		this.existentTodaySchedules = this.checkDaySchedulesExist();
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 
-		this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
+		this.timeIndicatorLeft = MechanicsService.todaySchedules ? this.calcTimeIndicatorLeft() : undefined;
 		this.cursor = Constants.MAIN_CURSOR.DEFAULT;
 	}
 
@@ -143,7 +139,6 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-			this.existentTodaySchedules = this.oneDayMode && this.checkDaySchedulesExist();
 		});
 
 		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$
@@ -152,7 +147,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
 			*  del slider */
 			this.maxScheduleWidth = update.maxScheduleWidth;
-			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
+			this.timeIndicatorLeft = MechanicsService.todaySchedules ? this.calcTimeIndicatorLeft() : undefined;
 			if (update.trigger) {
 				this.cdRef.detectChanges();
 			}
@@ -182,12 +177,15 @@ export class MainComponent implements OnInit, OnDestroy {
 			this.cdRef.detectChanges();
 		});
 
-		interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
-			this.timeIndicatorLeft = this.existentTodaySchedules ? this.calcTimeIndicatorLeft() : undefined;
-			this.cdRef.detectChanges();
-		});
+		/* Sólo se define la barra del reloj si hay horarios hoy */
+		if (MechanicsService.todaySchedules) {
+			interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
+				this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+				this.cdRef.detectChanges();
+			});
+		}
 
-		this.initialScrollLeft = this.existentTodaySchedules
+		this.initialScrollLeft = MechanicsService.todaySchedules
 			? this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2 : 0;
 	}
 
@@ -231,12 +229,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		return DimensionsService.displayVerticalScrollbar;
 	}
 
-	get existentTodaySchedules(): boolean {
-		return this._existentTodaySchedules;
-	}
-
-	set existentTodaySchedules(value: boolean) {
-		this._existentTodaySchedules = value;
+	get todaySchedules(): boolean {
+		return MechanicsService.todaySchedules;
 	}
 
 	get oneDayMode(): boolean {
@@ -337,6 +331,10 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	// endregion
 
+	checkExistentSchedules(day: Dayjs = undefined): boolean {
+		return (day ? MechanicsService.findDayMechanics(day).length : MechanicsService.days.length) != 0;
+	}
+
 	findDayMechanics(day: Dayjs): Mechanic[] {
 		return MechanicsService.findDayMechanics(day);
 	}
@@ -391,11 +389,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
 		return contextMenuInfo != undefined;
-	}
-
-	private checkDaySchedulesExist(day: Dayjs = this.today): boolean {
-		const mechanics = MechanicsService.findDayMechanics(day, false);
-		return mechanics != undefined && mechanics.length != 0;
 	}
 
 	calcTimeIndicatorLeft(time: Dayjs = dayjs()): number {

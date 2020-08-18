@@ -32,9 +32,7 @@ app-day-panel:not(:first-child):not(:last-child) {
 }
 
 .nonexistent-today-schedules-container {
-	position: absolute;
-	top: 0;
-	left: 0;
+	position: relative;
 	font-size: 1.5em;
 	background-color: #ebebeb;
 }

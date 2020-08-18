@@ -57,24 +57,25 @@ export class InitService {
 		).subscribe((data: any) => {
 			console.log('Received data', data);
 
-			AppointmentsService.initAppointmentTypes(data.appointmentTypes);
-
+			/* Los mecánicos se cargan, independientemente de que data.daysMechanics sea null, porque podrían cargarse
+			*  las líneas fijas desde localStorage */
 			MechanicsService.init(
-				data.daysMechanics, dayjs(data.lastScheduleDay), data.skills, SkillsService.highlightedSkills
+				data.daysMechanics, data.firstScheduleDay, data.lastScheduleDay, data.skills, SkillsService.highlightedSkills
 			);
+			/* Sólo se carga la info de panel si hay horarios */
+			if (MechanicsService.days.length) {
+				AppointmentsService.initAppointmentTypes(data.appointmentTypes);
 
-			CardsService.init(
-				data.cards.map(card => new Card(card)),
-				MechanicsService.daysMechanics
-			);
+				CardsService.init(data.cards.map(card => new Card(card)), MechanicsService.daysMechanics);
 
-			AppointmentsService.init(data.appointmentDays);
+				AppointmentsService.init(data.appointmentDays);
 
-			DimensionsService.init(
-				MechanicsService.days[0], MechanicsService.daysMechanics, MechanicsService.todaySchedules, scrollTopDaysOffset
-			);
+				JobLineTypeService.init(data.jobLineTypes);
 
-			JobLineTypeService.init(data.jobLineTypes);
+				DimensionsService.init(
+					MechanicsService.days[0], MechanicsService.daysMechanics, MechanicsService.todaySchedules, scrollTopDaysOffset
+				);
+			}
 
 			InitService.loading = false;
 			NotificationService.notifyLoading(InitService.loading);
@@ -82,8 +83,9 @@ export class InitService {
 	}
 
 	static checkRequestPreviousDaysInitialData(): boolean {
-		/* Se solicitan nuevos días sólo si el primer día es distinto a today */
-		return !DimensionsService.oneDayMode && !MechanicsService.days[0].isSame(dayjs().startOf(Constants.DAY_JS.d));
+		/* Se solicitan nuevos días sólo si el primer día es distinto al primero existente en los horarios. No se
+		*  compara con today porque podría ser festivo, y no haber horarios para hoy */
+		return !DimensionsService.oneDayMode && !MechanicsService.days[0].isSame(MechanicsService.firstScheduleDay);
 	}
 
 	requestPreviousDaysInitialData(): void {

@@ -21,6 +21,8 @@ class CompleteInfo {
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
 	@JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
+	LocalDate firstScheduleDay
+	@JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
 	LocalDate lastScheduleDay
 	@JsonInclude
 	List<AppointmentDay> appointmentDays
@@ -32,6 +34,7 @@ class CompleteInfo {
 		List<Skill> skills,
 		List<JobLineType> jobLineTypes,
 		List<AppointmentType> appointmentTypes,
+		LocalDate firstScheduleDay,
 		LocalDate lastScheduleDay,
 		List<AppointmentDay> appointmentDays,
 		List<Card> cards
@@ -40,6 +43,7 @@ class CompleteInfo {
 		this.skills = skills
 		this.jobLineTypes = jobLineTypes
 		this.appointmentTypes = appointmentTypes
+		this.firstScheduleDay = firstScheduleDay
 		this.lastScheduleDay = lastScheduleDay
 		this.appointmentDays = appointmentDays
 		this.cards = cards

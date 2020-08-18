@@ -172,9 +172,7 @@ export class DimensionsService {
 		this.defaultHourWidth = this.hourWidth;
 
 		this.initSchedulesHours(daysMechanics, baseDay);
-		if (!this.oneDayMode || todaySchedules) {
-			this.initMaxSchedule(this.oneDayMode);
-		}
+		this.initMaxSchedule(this.oneDayMode);
 
 		if (scrollTopDaysOffset > 0) {
 			CardPositionService.scrollTop = this.calcScrollTopOffset(daysMechanics, scrollTopDaysOffset);
@@ -197,7 +195,7 @@ export class DimensionsService {
 		gridContainerHeight: number
 	): boolean {
 		if (oneDayMode) {
-			const dayMechanics = MechanicsService.findDayMechanics(baseDay);
+			const dayMechanics = baseDay ? MechanicsService.findDayMechanics(baseDay) : [];
 			if (dayMechanics.length) {
 				const mechanicsHeight = this.calcGridCompleteHeight(dayMechanics);
 				return gridContainerHeight < mechanicsHeight;
@@ -216,8 +214,7 @@ export class DimensionsService {
 	 */
 	private static initSchedulesHours(daysMechanics: DaysMechanics, today: Dayjs): void {
 		let [minDaysSchedule, maxDaysSchedule] = [undefined, undefined];
-		for (const day in daysMechanics) {
-			const dayMechanics = daysMechanics[day].filter((mechanic: Mechanic) => !mechanic.fixed);
+		for (const [day, dayMechanics] of Object.entries(daysMechanics)) {
 			if (dayMechanics.length) {
 				const [minSchedule, maxSchedule] = this.getScheduleLimits(dayMechanics, today);
 				if (+day == today.valueOf()) {

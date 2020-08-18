@@ -14,7 +14,7 @@ export class UnassignedTypeSection implements UnassignedSection {
 	}
 
 	findGroups(): CardsGroup[] {
-		return CardsService.unassignedTypesCardsGroups[this.name] || [];
+		return CardsService.unassignedTypesGroups[this.name] || [];
 	}
 
 }

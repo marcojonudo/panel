@@ -1,17 +1,19 @@
 <div
+	*ngIf="checkExistentSchedules(); else emptyPanel"
 	class="container-fluid d-flex flex-column w-100 h-100"
 	[style.cursor]="findCursor()">
 	<div
 		class="row assigned-orders-container">
 		<div *ngIf="oneDayMode" class="col h-100 padding-0 d-flex">
 			<div
+				*ngIf="todaySchedules; else emptyDay"
 				appScrollable
 				[initialScrollLeft]="initialScrollLeft"
 				class="flex-grow-1 h-100 panel-container padding-0"
 				[ngClass]="{
 					'width-0-scrollbar': !displayVerticalScrollbar,
-					'overflow-scroll': existentTodaySchedules,
-					'overflow-hidden': !existentTodaySchedules
+					'overflow-scroll': todaySchedules,
+					'overflow-hidden': !todaySchedules
 				}">
 				<div
 					class="h-100"
@@ -30,12 +32,12 @@
 						[mechanicGroupUpdates]="findGroupsUpdate(today)">
 					</app-day-panel>
 				</div>
-				<div
-					*ngIf="!existentTodaySchedules"
-					class="w-100 h-100 align-center nonexistent-today-schedules-container">
+			</div>
+			<ng-template #emptyDay>
+				<div class="flex-grow-1 h-100 align-center nonexistent-today-schedules-container">
 					No hay horarios definidos para hoy. ¡Puedes tomarte el día libre!
 				</div>
-			</div>
+			</ng-template>
 			<app-lateral-panel
 				[day]="today"
 				[info]="findLateralPanelInfo(today)"
@@ -97,6 +99,11 @@
 		</div>
 	</div>
 </div>
+<ng-template #emptyPanel>
+	<div class="w-100 h-100 align-center nonexistent-today-schedules-container">
+		No hay horarios definidos. Por favor, cárgalos antes de acceder a panel.
+	</div>
+</ng-template>
 <app-context-menu
 	*ngIf="checkShowContextMenu()"
 	[contextMenuInfo]="contextMenuInfo">

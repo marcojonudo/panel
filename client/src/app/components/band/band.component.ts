@@ -50,7 +50,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.unassignedTypesCardsGroups = CardsService.unassignedTypesCardsGroups;
+		this.unassignedTypesCardsGroups = CardsService.unassignedTypesGroups;
 		this.bandSubscription = NotificationService.band$.subscribe((bandUpdate: BandUpdate) => {
 			if (bandUpdate.section) {
 				this.setSection(bandUpdate.section);

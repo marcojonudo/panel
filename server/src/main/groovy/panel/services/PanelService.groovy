@@ -46,17 +46,19 @@ class PanelService {
 	static LocalDate lastScheduleDay
 
 	CompleteInfo getPanelInfo(LocalDate from, LocalDate to) {
+		LocalDate today = LocalDate.now()
 		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
 		List<Skill> skills = cuboDatabaseClient.getMechanicsSkills()
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
 		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(from)
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
+		LocalDate firstScheduleDay = cuboDatabaseClient.getFirstScheduleDay(today)
 
 //		deletePendingCards(from)
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
-		UpdateCards updateCards = syncJpdvOrders(LocalDate.now(), lastScheduleDay, appointmentDays, appointmentTypes)
+		UpdateCards updateCards = syncJpdvOrders(today, lastScheduleDay, appointmentDays, appointmentTypes)
 		List<Card> cards = updateCards.getAll().findAll { !it.day || (it.day >= from && it.day <= to) }
 
 		return new CompleteInfo(
@@ -64,6 +66,7 @@ class PanelService {
 			skills,
 			jobLineTypes,
 			appointmentTypes,
+			firstScheduleDay,
 			lastScheduleDay,
 			updateCards.appointmentDays ?: appointmentDays,
 			cards + updateCards.auxiliary

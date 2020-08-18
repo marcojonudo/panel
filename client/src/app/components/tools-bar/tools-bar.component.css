@@ -5,7 +5,7 @@
 
 .disabled {
 	pointer-events: none;
-	color: grey;
+	color: #929292 !important;
 }
 
 .tools-bar-button {

@@ -28,6 +28,9 @@ interface CuboDatabaseClient {
 		@QueryValue boolean fixedSchedules
 	)
 
+	@Get("/firstScheduleDay")
+	LocalDate getFirstScheduleDay(@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from)
+
 	@Get("/lastScheduleDay")
 	LocalDate getLastScheduleDay()
 

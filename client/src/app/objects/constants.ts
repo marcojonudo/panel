@@ -224,5 +224,6 @@ export class Constants {
 	public static readonly MORNING_AFTERNOON_THRESHOLD_TIME: string = "15:00";
 	public static readonly LEFT_CLICK_BUTTON_ID: number = 0;
 	public static readonly CONTEXT_MENU: string = 'context-menu';
+	public static readonly FIXED_SCHEDULES: string = 'fixedSchedules';
 
 }
