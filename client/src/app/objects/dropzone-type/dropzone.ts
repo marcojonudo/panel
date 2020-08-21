@@ -31,6 +31,6 @@ export interface Dropzone {
 
 	handleNotValidatedMovement(group: CardsGroup): void;
 
-	notify(): void;
+	notify(resetHelperGroup: boolean): void;
 
 }

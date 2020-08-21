@@ -52,7 +52,8 @@ class Constants {
 		UPDATE_VEHICLE_POSITION: 'updateVehiclePosition',
 		UPDATE_PENDING_CALL: 'updatePendingCall',
 		UPDATE_PENDING_BUDGET: 'updatePendingBudget',
-		DIVIDE_CARDS: 'divideCards'
+		DIVIDE_CARDS: 'divideCards',
+		CREATE_CARDS: 'createCards',
 	]
 
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']
@@ -68,5 +69,6 @@ class Constants {
 	static final String IFV_GET_CENTRE_SCHEDULE_SERVICE = "HorariosCentroJsonController"
 	static final String NON_EXISTENT_CARD = "Ficha no encontrada: "
 	static final String OPERATION_SUCCESS = "Operación completada con éxito"
+	static final String ECOMMERCE_USER_CODE = "9999997"
 
 }

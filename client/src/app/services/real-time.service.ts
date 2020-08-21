@@ -23,7 +23,6 @@ import {RealTimeMechanicUpdateJobLineType} from "../objects/real-time-update/rea
 import {RealTimeAppointmentDelete} from "../objects/real-time-update/real-time-appointment-delete";
 import {SyncCardsInfo} from "../objects/sync-cards-info";
 import {RealTimeSyncJpdv} from "../objects/real-time-update/real-time-sync-jpdv";
-import {CardPositionService} from "./card-position.service";
 import {RealTimeCardUpdateVehiclePosition} from "../objects/real-time-update/real-time-card-update-vehicle-position";
 import {RealTimeCardUpdatePendingCall} from "../objects/real-time-update/real-time-card-update-pending-call";
 import {RealTimeCardUpdatePendingBudget} from "../objects/real-time-update/real-time-card-update-pending-budget";
@@ -34,7 +33,7 @@ import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-h
 import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-divide";
 import {DropzoneService} from "./dropzone.service";
 import {AppointmentDay} from "../objects/appointments/appointment-day";
-import {WarningToast} from "../objects/toasts/warning-toast";
+import {RealTimeCardCreate} from "../objects/real-time-update/real-time-card-create";
 
 @Injectable({
 	providedIn: 'root'
@@ -50,6 +49,8 @@ export class RealTimeService {
 			new RealTimeCardUpdateLinks(this, cards),
 		divideCards: (cards: any[]) =>
 			new RealTimeCardDivide(this, cards),
+		createCards: (cards: any[]) =>
+			new RealTimeCardCreate(this, cards),
 		updateMechanicJobLineType: (mechanic: any) =>
 			new RealTimeMechanicUpdateJobLineType(mechanic),
 		updateMechanicLines: (mechanics: any[]) =>
@@ -217,6 +218,23 @@ export class RealTimeService {
 
 		this.cardsService.divideCard(card, group, cards[0].duration, cards[1].duration, [], false);
 		NotificationService.notifyGroups([group], true)
+	}
+
+	createCards(cards: Card[]): void {
+		let processed = [];
+		cards.forEach((card: Card) => {
+			const alreadyProcessed = processed.find((c: Card) => c.order.code == card.order.code);
+			if (!alreadyProcessed) {
+				const orderCards = cards.filter((c: Card) => c.order.code == card.order.code);
+				const group = new CardsGroup(orderCards, DimensionsService.calcLeftFromStart(orderCards[0].start));
+
+				const destinyDropzone = DropzoneService.findDropzone(card, true);
+				destinyDropzone.addRealTimeGroup(group);
+				destinyDropzone.notify(false);
+
+				processed = processed.concat(orderCards);
+			}
+		})
 	}
 
 	updateVehiclePosition(card: Card): void {

@@ -428,33 +428,6 @@ export class CardsService {
 		}
 	}
 
-	static findDividedGroups(cards: Card[]): CardsGroup[] {
-		const dividedCards = [];
-		cards.forEach((c: Card) => {
-			if (c.dividedPrevious) {
-				dividedCards.push(c.dividedPrevious);
-			}
-			if (c.dividedNext) {
-				dividedCards.push(c.dividedNext);
-			}
-		});
-		if (!dividedCards.length) {
-			return dividedCards;
-		}
-
-		const orderGroups = CardsService.findOrderGroups(CardsService.assignedGroups, cards[0].order.number);
-		const dividedOrderGroups = [];
-		orderGroups.forEach((g: CardsGroup) => {
-			const dividedCard = g.cards.find((card: Card) =>
-				dividedCards.find((c: Card) => c.panelId == card.panelId) != undefined
-			);
-			if (dividedCard) {
-				dividedOrderGroups.push(g);
-			}
-		});
-		return dividedOrderGroups;
-	}
-
 	static handleRemoveAssignedGroup(
 		day: Dayjs,
 		mechanicCode: string,

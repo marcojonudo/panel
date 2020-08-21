@@ -48,6 +48,7 @@ interface PanelDatabaseClient {
 	@Post("/cards")
 	List<Card> createCards(
 		@Header String sessionId,
+		@Header @Nullable String realTimeAction,
 		@Body List<Map<String, Object>> cards,
 		@QueryValue @Nullable Boolean updateLinks
 	)

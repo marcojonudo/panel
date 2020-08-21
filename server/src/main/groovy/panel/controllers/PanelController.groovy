@@ -51,7 +51,7 @@ class PanelController {
 	void createCards(
 		@Header String sessionId, @QueryValue @Nullable Boolean updateLinks, @Body List<Map<String, Object>> cards
 	) {
-		panelDatabaseClient.createCards(sessionId, cards, updateLinks)
+		panelDatabaseClient.createCards(sessionId, Constants.REAL_TIME_ACTION.CREATE_CARDS, cards, updateLinks)
 	}
 
 	@Put("/cards/position")
