@@ -49,7 +49,7 @@ interface PanelDatabaseClient {
 	List<Card> createCards(
 		@Header String sessionId,
 		@Header @Nullable String realTimeAction,
-		@Body List<Map<String, Object>> cards,
+		@Body List cards,
 		@QueryValue @Nullable Boolean updateLinks
 	)
 

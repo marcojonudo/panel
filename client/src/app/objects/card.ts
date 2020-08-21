@@ -61,6 +61,7 @@ export class Card {
 		this.day = card.day ? dayjs(card.day) : undefined;
 		this.status = card.status;
 		this.mechanicCode = card.mechanicCode;
+		console.log(card.start, this.day);
 		this.start = card.start ? UtilsService.parseTime(card.start, this.day) : undefined;
 		this.duration = card.duration;
 		this.width = DimensionsService.calcWidthFromDuration(card.duration);

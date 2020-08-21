@@ -612,12 +612,12 @@ class PanelService {
 			/* Las relaciones entre fichas se asignan a la hora de guardar en BD, ya que aquí todavía no tienen un id.
 			*  Por lo tanto, en la respuesta ya figura la información completa */
 			updateCards.newCards = panelDatabaseClient.createCards(
-				"", updateCards.newCards.collect { it.properties }, true
+				"", "", updateCards.newCards.collect { it.properties }, true
 			)
 		}
 		if (updateCards.newReplace) {
 			updateCards.newReplace = panelDatabaseClient.createCards(
-				"", updateCards.newReplace.collect { it.properties }, true
+				"", "", updateCards.newReplace.collect { it.properties }, true
 			)
 		}
 		if (updateCards.getUpdate()) {

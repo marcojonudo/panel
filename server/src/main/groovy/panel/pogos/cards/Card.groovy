@@ -113,7 +113,7 @@ class Card {
 		this.duration = duration
 		this.mechanicCode = mechanicCode
 		this.line = line
-		status = Status.DEFAULT
+		status = Status.ECOMMERCE
 		this.group = group
 		this.order = order
 		pending = new Pending()
@@ -139,6 +139,7 @@ class Card {
 		DEFAULT,
 		FINISHED,
 		AUXILIARY,
+		ECOMMERCE,
 		CONFIRMED
 
 	}

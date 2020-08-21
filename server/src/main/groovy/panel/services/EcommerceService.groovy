@@ -259,7 +259,7 @@ class EcommerceService {
 		Card card = new Card(
 			code, day, start, duration, mechanicCode, 1, group, new OrderInfo(code: code)
 		)
-		panelDatabaseClient.createCards("", [card.properties], false)
+		panelDatabaseClient.createCards("", Constants.REAL_TIME_ACTION.CREATE_CARDS, [card], false)
 		return new SaveEcommerceCardInfo(new EcommerceCard(day, start, end, code, "TEMPORAL"))
 	}
 

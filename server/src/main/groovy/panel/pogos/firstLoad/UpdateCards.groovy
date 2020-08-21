@@ -19,19 +19,19 @@ class UpdateCards {
 	List<Card> same
 	@JsonInclude
 	List<Card> deleted
-	List<Card> auxiliary
+	List<Card> avoidSync
 
 	@JsonInclude
 	List<AppointmentDay> appointmentDays
 
-	UpdateCards(List<Card> same = [], List<Card> auxiliary = []) {
+	UpdateCards(List<Card> same = [], List<Card> avoidSync = []) {
 		newCards = []
 		newReplace = []
 		reset = []
 		updated = []
 		deleted = []
 		this.same = same
-		this.auxiliary = auxiliary
+		this.avoidSync = avoidSync
 	}
 
 	List<Card> getUpdate() {
