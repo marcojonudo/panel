@@ -9,7 +9,7 @@ import panel.pogos.schedules.ScheduleInterval
 @TupleConstructor
 class EcommerceSchedule {
 
-    List<ScheduleInterval> intervals
     AppointmentTypeCode type
+    List<ScheduleInterval> intervals
 
 }

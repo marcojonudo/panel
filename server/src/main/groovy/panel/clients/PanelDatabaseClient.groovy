@@ -8,6 +8,7 @@ import io.micronaut.http.client.annotation.Client
 import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.appointmentDays.AppointmentType
 import panel.pogos.cards.Card
+import panel.pogos.cards.Group
 import panel.pogos.cards.GroupUnits
 import panel.pogos.cards.Task
 import panel.pogos.schedules.JobLineType
@@ -46,12 +47,6 @@ interface PanelDatabaseClient {
 
 	@Post("/cards")
 	List<Card> createCards(
-		@Header String sessionId,
-		@Body List<Map<String, Object>> cards,
-		@QueryValue @Nullable Boolean updateLinks
-	)
-	@Post("/cards")
-	List<Map> createCards2(
 		@Header String sessionId,
 		@Body List<Map<String, Object>> cards,
 		@QueryValue @Nullable Boolean updateLinks
@@ -103,5 +98,23 @@ interface PanelDatabaseClient {
 
 	@Put("/appointmentDays")
 	void updateAppointmentDays(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
+
+	@Get("/lastEcommerceCode")
+	String findLastEcommerceCode()
+
+	@Get("/mechanicsCards")
+	List<Card> findCards(
+		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate day,
+		@QueryValue List<String> mechanicCodes
+	)
+
+	@Get("/group")
+	Group findGroup(@QueryValue int code)
+
+	@Get("/card")
+	Card findCard(@QueryValue String code)
+
+	@Patch("/status")
+	Card updateStatus(@Body Card card)
 
 }

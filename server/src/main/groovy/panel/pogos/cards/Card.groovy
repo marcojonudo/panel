@@ -103,6 +103,22 @@ class Card {
 		type = CardType.values().find { ((Closure<Boolean>) it.condition)(this.order.code, this.order.day) }
 	}
 
+	Card(
+		String code, LocalDate day, LocalTime start, int duration, String mechanicCode, int line, Group group, OrderInfo order
+	) {
+		type = CardType.AUXILIARY
+		this.code = code
+		this.day = day
+		this.start = start
+		this.duration = duration
+		this.mechanicCode = mechanicCode
+		this.line = line
+		status = Status.DEFAULT
+		this.group = group
+		this.order = order
+		pending = new Pending()
+	}
+
 	enum CardType {
 
 		AUXILIARY({ String orderCode, LocalDate day -> !orderCode }),
@@ -122,7 +138,8 @@ class Card {
 
 		DEFAULT,
 		FINISHED,
-		AUXILIARY
+		AUXILIARY,
+		CONFIRMED
 
 	}
 

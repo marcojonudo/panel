@@ -44,3 +44,8 @@ cron:
 #        url: ${host}:${port}
 #    panel:
 #        url: ${endpoints.server-datbase-resolver.url}/panel
+
+ifv:
+    username: PortalIFVuser
+    password: ifvRest18$
+    centre: ABS

@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
+import panel.pogos.appointments.AppointmentSchedule
 import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.EmployeeScheduleAppointment
 import panel.pogos.schedules.MechanicAppointment
@@ -59,14 +60,14 @@ interface CuboDatabaseClient {
 	EmployeeScheduleAppointment createAppointment(
 		@Header String sessionId,
 		@Header String realTimeAction,
-		@Body panel.pogos.appointments.MechanicAppointment mechanicAppointment
+		@Body AppointmentSchedule appointmentSchedule
 	)
 
 	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
 		@Header String sessionId,
 		@Header String realTimeAction,
-		@Body panel.pogos.appointments.MechanicAppointment mechanicAppointment
+		@Body AppointmentSchedule appointmentSchedule
 	)
 
 	@Delete("/appointment")

@@ -6,9 +6,13 @@ import groovy.transform.CompileStatic
 class GetEcommerceSchedulesInfo {
 
     GetEcommerceScheduleError error
-    List<DayEcommerceSchedule> schedules
+    List<List<OldEcommerceSchedule>> schedules
+//    List<DayEcommerceSchedule> schedules
 
-    GetEcommerceSchedulesInfo(List<DayEcommerceSchedule> schedules, GetEcommerceScheduleError error = null) {
+    GetEcommerceSchedulesInfo(
+        List<List<OldEcommerceSchedule>> schedules,
+        GetEcommerceScheduleError error = null
+    ) {
         this.schedules = schedules
         this.error = error
     }

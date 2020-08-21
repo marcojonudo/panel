@@ -10,14 +10,14 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @CompileStatic
-class MechanicAppointment {
+class AppointmentSchedule {
 
 	EmployeeSchedule mechanic
 	String appointmentTypeCode
 	ScheduleInterval schedule
 
 	@JsonCreator
-    MechanicAppointment(Map<String, Object> info) {
+    AppointmentSchedule(Map<String, Object> info) {
 		mechanic = new EmployeeSchedule(
 			day: LocalDate.parse((String) info.day),
 			employee: new Employee(code: (String) info.mechanicCode)

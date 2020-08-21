@@ -10,7 +10,7 @@ import panel.clients.CuboDatabaseClient
 import panel.clients.PanelDatabaseClient
 import panel.jobs.JpdvOrdersJob
 import panel.pogos.appointmentDays.AppointmentDay
-import panel.pogos.appointments.MechanicAppointment
+import panel.pogos.appointments.AppointmentSchedule
 import panel.pogos.cards.Card
 import panel.pogos.firstLoad.CompleteInfo
 import panel.pogos.realTime.RealTimeRequestInfo
@@ -125,24 +125,24 @@ class PanelController {
 	@Post("/appointment")
 	EmployeeScheduleAppointment createAppointment(
 		@Header String sessionId,
-		@Body MechanicAppointment mechanicAppointment
+		@Body AppointmentSchedule appointmentSchedule
 	) {
 		cuboDatabaseClient.createAppointment(
 			sessionId,
 			Constants.REAL_TIME_ACTION.CREATE_APPOINTMENT,
-			mechanicAppointment
+			appointmentSchedule
 		)
 	}
 
 	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
 		@Header String sessionId,
-		@Body MechanicAppointment mechanicAppointment
+		@Body AppointmentSchedule appointmentSchedule
 	) {
 		cuboDatabaseClient.updateAppointmentSchedule(
 			sessionId,
 			Constants.REAL_TIME_ACTION.UPDATE_APPOINTMENT_SCHEDULE,
-			mechanicAppointment
+			appointmentSchedule
 		)
 	}
 
