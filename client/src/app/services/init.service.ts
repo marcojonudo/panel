@@ -57,6 +57,7 @@ export class InitService {
 		).subscribe((data: any) => {
 			console.log('Received data', data);
 
+			AppointmentsService.initAppointmentTypes(data.appointmentTypes);
 			/* Los mecánicos se cargan, independientemente de que data.daysMechanics sea null, porque podrían cargarse
 			*  las líneas fijas desde localStorage */
 			MechanicsService.init(
@@ -64,8 +65,6 @@ export class InitService {
 			);
 			/* Sólo se carga la info de panel si hay horarios */
 			if (MechanicsService.days.length) {
-				AppointmentsService.initAppointmentTypes(data.appointmentTypes);
-
 				CardsService.init(data.cards.map(card => new Card(card)), MechanicsService.daysMechanics);
 
 				AppointmentsService.init(data.appointmentDays);

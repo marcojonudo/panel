@@ -71,7 +71,7 @@ export class AssignedDropzone implements Dropzone {
 
 	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
 		const day = newStart.startOf(Constants.DAY_JS.d);
-		if (!groups[0].mechanicCode && !day.isSame(groups[0].cards[0].order.day)) {
+		if (this.checkNotifyDifferentDay(groups[0].cards[0], day)) {
 			NotificationService.notifyToast(
 				new WarningToast(Constants.MESSAGE.DIFFERENT_CARD_DAY(day, groups[0].cards[0].order.day))
 			);
@@ -79,6 +79,10 @@ export class AssignedDropzone implements Dropzone {
 		CardsService.updatePositionProperties(
 			groups, newStart.startOf(Constants.DAY_JS.d), mechanic.code, line, newStart
 		);
+	}
+
+	checkNotifyDifferentDay(card: Card, day: Dayjs): boolean {
+		return card.type != Constants.CARD_TYPE.AUXILIARY && !card.mechanicCode && !day.isSame(card.order.day);
 	}
 
 	addGroup(group: CardsGroup, groups: CardsGroup[]): void {

@@ -4,18 +4,12 @@ import {Constants} from "../objects/constants";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
 import {AppointmentType} from "../objects/appointments/appointment-type";
-import {Card} from "../objects/card";
 import {AppointmentDay} from "../objects/appointments/appointment-day";
 import {NotificationService} from "./notification.service";
-import {UtilsService} from "./utils.service";
 import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
 import {Url} from "../objects/url";
 import {ScheduleInterval} from "../objects/schedule-interval";
 import {Dayjs} from "dayjs";
-import {AppointmentsCounter} from "../objects/appointments-counter";
-import * as dayjs from "dayjs";
-import {CardsService} from "./cards.service";
-import {CardsGroup} from "../objects/cards-group";
 import {AppointmentTypeValues} from "../objects/appointments/appointment-type-values";
 
 @Injectable({
