@@ -69,12 +69,14 @@ class PanelService {
 			firstScheduleDay,
 			lastScheduleDay,
 			updateCards.appointmentDays ?: appointmentDays,
-			cards + updateCards.auxiliary
+			cards + updateCards.avoidSync
 		)
 	}
 
-	static boolean checkAuxiliaryCard(Card card) {
-		return card.type == Card.CardType.AUXILIARY
+	static boolean checkAvoidSync(Card card) {
+		/* No se sincronizan con JPDV las plantillas de las fichas auxiliares, ni las fichas de eCommerce cuyo status
+		*  no sea ECOMMERCE (si el status es CONFIRMED, se debe esperar a que se sustituya) */
+		return card.type == Card.CardType.AUXILIARY && card.status != Card.Status.ECOMMERCE
 	}
 
 	// region Mechanics
@@ -145,7 +147,10 @@ class PanelService {
 	static List<Card> handleOrdersCards(List<Order> orders, List<Card> dbOrdersCards) {
 		dbOrdersCards.each { Card card ->
 			Order order = orders.find { it.number == card.order.number }
-			card.order.lines = order.lines
+			/* Las fichas auxiliares no tienen orden */
+			if (order) {
+				card.order.lines = order.lines
+			}
 		}
 		return dbOrdersCards
 	}
@@ -296,11 +301,11 @@ class PanelService {
 				List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES, lastScheduleDay)
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 				List<Card> dbCards = panelDatabaseClient.getCards(from, null)
-				List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
-				List<Card> notAuxiliaryCards = handleOrdersCards(orders, dbCards.findAll { !checkAuxiliaryCard(it) })
+				List<Card> avoidSyncCards = dbCards.findAll { checkAvoidSync(it) }
+				List<Card> syncCards = handleOrdersCards(orders, dbCards.findAll { !checkAvoidSync(it) })
 
-				updateCards = syncOrders(orders, notAuxiliaryCards)
-				updateCards.auxiliary = auxiliaryCards
+				updateCards = syncOrders(orders, syncCards)
+				updateCards.avoidSync = avoidSyncCards
 
 				List<LocalDate> days = []
 				for (LocalDate day = from; day <= lastScheduleDay; day = day.plusDays(1)) {
@@ -329,7 +334,7 @@ class PanelService {
 
 	UpdateCards findDbUpdateCards(LocalDate from) {
 		List<Card> dbCards = panelDatabaseClient.getCards(from, null)
-		List<Card> auxiliaryCards = dbCards.findAll { checkAuxiliaryCard(it) }
+		List<Card> auxiliaryCards = dbCards.findAll { checkAvoidSync(it) }
 		return new UpdateCards(dbCards, auxiliaryCards)
 	}
 
@@ -365,7 +370,7 @@ class PanelService {
 	static UpdateCards getCardsToUpdate(List<Order> orders, List<Card> dbCards, List<Card> builtCards) {
 		/* Se obtienen las órdenes cuyas fichas deben ser creadas (número de orden no existe en las fichas actuales) */
 		UpdateCards updateCards = handleCardsUpdate(dbCards, builtCards)
-		updateCards.deleted = getDeletedCards(orders, dbCards, builtCards)
+		updateCards.deleted += getDeletedCards(orders, dbCards, builtCards)
 		fixSameCardsDeletedInfo(updateCards.same, updateCards.deleted)
 		return updateCards
 	}
@@ -378,64 +383,123 @@ class PanelService {
 	 */
 	static UpdateCards handleCardsUpdate(List<Card> dbCards, List<Card> builtCards) {
 		UpdateCards updateCards = new UpdateCards()
-		builtCards.each { Card builtCard ->
-			List<Card> dbOrderCards = dbCards.findAll { it.order.number == builtCard.order.number }
-
-			if (dbOrderCards) {
-				/* Se buscan todas las fichas, y no sólo una, ya que puede haber alguna dividida */
-				List<Card> dbGroupOrderCards = dbOrderCards.findAll { it.group.code == builtCard.group.code }
-				/* Si existe una ficha guardada con la misma agrupación, se comprueba si se ha actualizado algún dato
-				*  de la orden */
-				if (dbGroupOrderCards) {
-					/* Se obtiene el elemento 0, ya que si la ficha estaba dividida, las propiedades de la orden son
-					*  las mismas en todas ellas */
-					Map<String, Object> orderDifferences = checkUpdatedOrderInfo(dbGroupOrderCards[0], builtCard)
-					if (orderDifferences) {
-						/* En estos casos, al ser fichas divididas, se devuelven las de base de datos. Por lo tanto,
-                        *  su contenido debe actualizarse con el nuevo de la ficha recién creada */
-						dbGroupOrderCards = dbGroupOrderCards.collect { updateCardOrderInfo(it, builtCard) }
-						/* Si se actualiza la info de la orden, se debe reflejar en todas las posibles fichas divididas,
-						*  no sólo en builtCard. Por eso se pasa como parámetro dbGroupOrderCards */
-						if (checkResetCards(orderDifferences)) {
-							updateCards.reset += dbGroupOrderCards.collect { updateResetCard(it) }
-						} else {
-							updateCards.updated += dbGroupOrderCards
-						}
-					} else {
-						/* Fichas que no han sufrido ningún cambio, pero deben devolverse para que se carguen en panel.
-						*  Se añaden todas las de la lista, en lugar de sólo builtCard, porque si hay alguna dividida
-						*  nunca va a construirse; se dividen en panel, pero desde JPDV se generará siempre la ficha
-						*  completa original */
-						updateCards.same += dbGroupOrderCards
-					}
-				} else {
-					/* Si el grupo de builtCard no coincide con ninguno de dbOrderCards, se comprueba si ha reemplazado
-                    * a alguno existente o si es una ficha completamente nueva.
-					* La agrupación de la ficha recién construida podría ser muy parecida a alguna de las ya existentes.
-					* Si es así, se tendría que sustituir la ficha ya creada por la nueva */
-					Card replacedCard = findReplacedCard(dbOrderCards, builtCard)
-					if (replacedCard) {
-						Map<String, Object> orderDifferences = checkUpdatedOrderInfo(replacedCard, builtCard)
-						if (orderDifferences && checkResetCards(orderDifferences)) {
-							updateCards.newCards << builtCard
-						} else {
-							/* En caso de que haya que reemplazar una ficha, se actualiza la posición de la que va a
-							*  ocupar su posición. De esta forma, al hacer la carga inicial, ya se asigna
-							*  automáticamente */
-							updateCards.newReplace << updateReplacedCard(replacedCard, builtCard)
-						}
-					} else {
-						/* Si la nueva ficha no está reemplazando a una ya existente, se crea completamente nueva */
-						updateCards.newCards << builtCard
-					}
-				}
-			} else {
-				/* Si no se encuentran fichas asociadas al número de orden, significa que builtCard se ha construido
-				 * con la nueva orden */
-				updateCards.newCards << builtCard
+		builtCards.groupBy { it.order.number }.each { int orderNumber, List<Card> builtOrderCards ->
+			boolean replaceOrderCards = checkReplaceOrderCards(builtOrderCards)
+			boolean handled = false
+			if (replaceOrderCards) {
+				handled = handleOrderCardsReplacement(dbCards, builtOrderCards, updateCards)
+			}
+			/* Si las fichas no han sido reemplazadas, siguen el flujo habitual de actualización */
+			if (!handled) {
+				builtOrderCards.each { handleCardUpdate(dbCards, it, updateCards) }
 			}
 		}
 
+		return updateCards
+	}
+
+	/**
+	 * Se comprueba si las fichas de la orden deben reemplazar otras ya existentes, como en el caso de eCommerce
+	 * @param builtOrderCards Fichas de orden generadas
+	 * @return boolean
+	 */
+	static boolean checkReplaceOrderCards(List<Card> builtOrderCards) {
+		/* Se gestiona el reemplazo sólo si la ficha no está asignada, y si el código de creador de la orden es
+		*  eCommerce */
+		return !builtOrderCards[0].mechanicCode && builtOrderCards[0].order.creatorCode == Constants.ECOMMERCE_USER_CODE
+	}
+
+	/**
+	 * Se gestiona la actualización de fichas recién creadas con información de las existentes (si es necesario)
+	 * @param dbCards Fichas ya creadas en base de datos
+	 * @param builtOrderCards Fichas de la orden recién creadas
+	 * @param updateCards Objecto con información de fichas
+	 * @return Lista de fichas actualizadas
+	 */
+	static boolean handleOrderCardsReplacement(
+		List<Card> dbCards, List<Card> builtOrderCards, UpdateCards updateCards
+	) {
+		/* En el caso de eCommerce, sólo se reemplaza una ficha, ya que es la única que se crea cuando se reserva
+		*  tiempo desde la web.
+		*  La hora de creación de la orden debería coincidir con la hora de comienzo de la ficha temporal ya creada */
+		boolean handled = false
+		Card cardToReplace = dbCards.find {
+			it.type == Card.CardType.AUXILIARY && it.status == Card.Status.ECOMMERCE &&
+				it.start == builtOrderCards[0].order.created
+		}
+		if (cardToReplace) {
+			updateCards.newReplace += updateReplacedCards(cardToReplace, builtOrderCards)
+			updateCards.deleted << cardToReplace
+			handled = true
+		}
+		return handled
+	}
+
+	/**
+	 * Se gestiona la actualización de una sóla ficha recién creada
+	 * @param dbCards Fichas de base de datos
+	 * @param builtCard Ficha recién creada
+	 * @param updateCards Objeto con información sobre las fichas
+	 * @return
+	 */
+	static UpdateCards handleCardUpdate(List<Card> dbCards, Card builtCard, UpdateCards updateCards) {
+		List<Card> dbOrderCards = dbCards.findAll { it.order.number == builtCard.order.number }
+
+		/* Si en base de datos existen fichas asociadas al número de orden, se comprueba si alguna debe ser
+        *  actualizada */
+		if (dbOrderCards) {
+			/* Se buscan todas las fichas, y no sólo una, ya que puede haber alguna dividida */
+			List<Card> dbGroupOrderCards = dbOrderCards.findAll { it.group.code == builtCard.group.code }
+			/* Si existe una ficha guardada con la misma agrupación, se comprueba si se ha actualizado algún dato
+            *  de la orden */
+			if (dbGroupOrderCards) {
+				/* Se obtiene el elemento 0, ya que si la ficha estaba dividida, las propiedades de la orden son
+                *  las mismas en todas ellas */
+				Map<String, Object> orderDifferences = checkUpdatedOrderInfo(dbGroupOrderCards[0], builtCard)
+				if (orderDifferences) {
+					/* En estos casos, al ser fichas divididas, se devuelven las de base de datos. Por lo tanto,
+                    *  su contenido debe actualizarse con el nuevo de la ficha recién creada */
+					dbGroupOrderCards = dbGroupOrderCards.collect { updateCardOrderInfo(it, builtCard) }
+					/* Si se actualiza la info de la orden, se debe reflejar en todas las posibles fichas divididas,
+                    *  no sólo en builtCard. Por eso se pasa como parámetro dbGroupOrderCards */
+					if (checkResetCards(orderDifferences)) {
+						updateCards.reset += dbGroupOrderCards.collect { updateResetCard(it) }
+					} else {
+						updateCards.updated += dbGroupOrderCards
+					}
+				} else {
+					/* Fichas que no han sufrido ningún cambio, pero deben devolverse para que se carguen en panel.
+                    *  Se añaden todas las de la lista, en lugar de sólo builtCard, porque si hay alguna dividida
+                    *  nunca va a construirse; se dividen en panel, pero desde JPDV se generará siempre la ficha
+                    *  completa original */
+					updateCards.same += dbGroupOrderCards
+				}
+			} else {
+				/* Si el grupo de builtCard no coincide con ninguno de dbOrderCards, se comprueba si ha reemplazado
+                * a alguno existente o si es una ficha completamente nueva.
+                * La agrupación de la ficha recién construida podría ser muy parecida a alguna de las ya existentes.
+                * Si es así, se tendría que sustituir la ficha ya creada por la nueva */
+				Card replacedCard = findReplacedCard(dbOrderCards, builtCard)
+				if (replacedCard) {
+					Map<String, Object> orderDifferences = checkUpdatedOrderInfo(replacedCard, builtCard)
+					if (orderDifferences && checkResetCards(orderDifferences)) {
+						updateCards.newCards << builtCard
+					} else {
+						/* En caso de que haya que reemplazar una ficha, se actualiza la posición de la que va a
+                        *  ocupar su posición. De esta forma, al hacer la carga inicial, ya se asigna
+                        *  automáticamente */
+						updateCards.newReplace << updateReplacedCard(replacedCard, builtCard)
+					}
+				} else {
+					/* Si la nueva ficha no está reemplazando a una ya existente, es una completamente nueva */
+					updateCards.newCards << builtCard
+				}
+			}
+		} else {
+			/* Si no se encuentran fichas asociadas al número de orden, significa que builtCard se ha construido
+             * con la nueva orden */
+			updateCards.newCards << builtCard
+		}
 		return updateCards
 	}
 
@@ -518,6 +582,22 @@ class PanelService {
 		builtCard.mechanicCode = dbCard.mechanicCode
 		builtCard.start = dbCard.start
 		return builtCard
+	}
+
+	/**
+	 * Actualiza la posición de varias fichas, sutituyendo a otra ya existente
+	 * @param dbCard Ficha existente en BD
+	 * @param builtCards Fichas recién creada
+	 * @return Fichas actualizadas
+	 */
+	static List<Card> updateReplacedCards(Card dbCard, List<Card> builtCards) {
+		builtCards.eachWithIndex { Card card, int i ->
+			card.day = dbCard.day
+			card.mechanicCode = dbCard.mechanicCode
+			card.line = dbCard.line
+			card.start = i == 0 ? dbCard.start : builtCards[i-1].start.plusMinutes(builtCards[i-1].duration)
+		}
+		return builtCards
 	}
 
 	/**

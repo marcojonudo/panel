@@ -1,4 +1,5 @@
 import {Dayjs} from "dayjs";
+import {CardsGroup} from "./cards-group";
 
 export class Constants {
 
@@ -174,6 +175,7 @@ export class Constants {
 		CREATE_SCHEDULE_TOO_CLOSE: 'Hay otros horarios de citas demasiado próximos. Por favor, escoge otro intervalo de horas',
 		NO_DAYS_SCHEDULES: 'No hay horarios definidos para días posteriores',
 		GROUP_UPDATED_REAL_TIME: 'La ficha se ha actualizado en otro terminal',
+		UNASSIGNED_ECOMMERCE_GROUPS: (groups: CardsGroup[]) => `Fichas de eCommerce sin gestionar: ${groups.map((g: CardsGroup) => g.cards[0].order.code).join(", ")}`,
 		DIFFERENT_CARD_DAY: (cardDay: Dayjs, orderDay: Dayjs) => `Ficha del día ${orderDay.format(Constants.DATE_FORMAT.yyyy_MM_dd)} colocada el día ${cardDay.format(Constants.DATE_FORMAT.yyyy_MM_dd)}`
 	};
 	public static readonly SCHEDULE_BORDER_COLOR: any = {
@@ -225,5 +227,6 @@ export class Constants {
 	public static readonly LEFT_CLICK_BUTTON_ID: number = 0;
 	public static readonly CONTEXT_MENU: string = 'context-menu';
 	public static readonly FIXED_SCHEDULES: string = 'fixedSchedules';
+	public static readonly ECOMMERCE_USER_CODE: string = '9999997';
 
 }

@@ -132,7 +132,6 @@ export class MechanicsService {
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 		this.loadFixedMechanics(daysMechanics, today)
 		if (daysMechanics) {
-			console.log(daysMechanics);
 			this.days = this.initDays(daysMechanics);
 			this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
 

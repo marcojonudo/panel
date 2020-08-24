@@ -187,6 +187,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		this.initialScrollLeft = MechanicsService.todaySchedules
 			? this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2 : 0;
+
+		CardsService.checkNotifyEcommerceCards();
 	}
 
 	ngOnDestroy(): void {

@@ -10,7 +10,6 @@ import panel.clients.PanelDatabaseClient
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
 import panel.pogos.cards.Card
 import panel.pogos.cards.Group
-import panel.pogos.cards.OrderInfo
 import panel.pogos.eCommerce.confirm.ConfirmAppointmentInfo
 import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.EcommerceSchedule
@@ -20,6 +19,7 @@ import panel.pogos.eCommerce.save.EcommerceCard
 import panel.pogos.eCommerce.save.SaveEcommerceCardInfo
 import panel.pogos.ifv.getSchedules.GetSchedulesBody
 import panel.pogos.ifv.getSchedules.GetSchedulesResponse
+import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.MechanicAppointment
 import panel.pogos.schedules.ScheduleInterval
 import panel.utils.Constants
@@ -255,9 +255,9 @@ class EcommerceService {
 		}
 
 		Group group = panelDatabaseClient.findGroup(groupCode)
-		String mechanicCode = availableMechanics[0].mechanic.employee.code
+		EmployeeSchedule mechanic = availableMechanics[0].mechanic
 		Card card = new Card(
-			code, day, start, duration, mechanicCode, 1, group, new OrderInfo(code: code)
+			code, day, start, duration, mechanic.employee.code, mechanic.lines - 1, group
 		)
 		panelDatabaseClient.createCards("", Constants.REAL_TIME_ACTION.CREATE_CARDS, [card], false)
 		return new SaveEcommerceCardInfo(new EcommerceCard(day, start, end, code, "TEMPORAL"))

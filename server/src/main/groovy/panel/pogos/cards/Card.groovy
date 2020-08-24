@@ -104,7 +104,7 @@ class Card {
 	}
 
 	Card(
-		String code, LocalDate day, LocalTime start, int duration, String mechanicCode, int line, Group group, OrderInfo order
+		String code, LocalDate day, LocalTime start, int duration, String mechanicCode, int line, Group group
 	) {
 		type = CardType.AUXILIARY
 		this.code = code
@@ -115,7 +115,7 @@ class Card {
 		this.line = line
 		status = Status.ECOMMERCE
 		this.group = group
-		this.order = order
+		this.order = new OrderInfo(code: code)
 		pending = new Pending()
 	}
 

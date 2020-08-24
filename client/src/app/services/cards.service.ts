@@ -269,6 +269,17 @@ export class CardsService {
 		}
 	}
 
+	static checkNotifyEcommerceCards(unassignedGroups: CardsGroup[] = this.unassignedGroups): void {
+		const ecommerceGroups = unassignedGroups.filter((group: CardsGroup) =>
+			group.cards[0].order.creatorCode == Constants.ECOMMERCE_USER_CODE
+		);
+		if (ecommerceGroups.length) {
+			NotificationService.notifyToast(
+				new WarningToast(Constants.MESSAGE.UNASSIGNED_ECOMMERCE_GROUPS(ecommerceGroups))
+			)
+		}
+	}
+
 	// endregion
 
 	// region Translate card
