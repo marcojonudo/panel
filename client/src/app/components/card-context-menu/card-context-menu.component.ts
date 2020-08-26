@@ -49,7 +49,7 @@ export class CardContextMenuComponent implements OnInit {
 		const translatedGroups = this.cardsService.cutCardByHalf(
 			contextMenuInfo.group,
 			groupX,
-			contextMenuInfo.clickCoordinates.x - leftOffset
+			CardPositionService.absolutePositionToLeft(contextMenuInfo.clickCoordinates.x)
 		);
 		NotificationService.notifyContextMenu(undefined);
 		NotificationService.notifyGroups(translatedGroups.concat([contextMenuInfo.group]), true);
