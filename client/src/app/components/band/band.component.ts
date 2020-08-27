@@ -223,12 +223,16 @@ export class BandComponent implements OnInit, OnDestroy {
 		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
 	}
 
-	addAuxiliaryGroup(group: CardsGroup): void {
+	addAuxiliaryGroup(group: CardsGroup, auxiliaryEmployee: Employee = this.auxiliaryEmployee): void {
 		CardsService.auxiliaryGroup = new CardsGroup(
 			(this.auxiliaryGroup ? this.auxiliaryGroup.cards : []).concat(group.cards.map((c: Card) => c.clone())),
 			10
 		);
 		CardsService.updateCardsLinks(CardsService.auxiliaryGroup.cards);
+		CardsService.auxiliaryGroup.cards.forEach((card: Card) => {
+			card.order.creatorCode = auxiliaryEmployee.code;
+			card.order.creator = auxiliaryEmployee;
+		});
 		CardsService.auxiliaryGroup.cards.forEach((card: Card, i: number) => {
 			CardsService.updateAuxiliaryOrderCode(card, group, i);
 		});

@@ -268,8 +268,8 @@ export class MechanicsService {
 		NotificationService.notifyTriggerCd();
 	}
 
-	static checkExistentDaysMechanics(daysMechanics: DaysMechanics = this.daysMechanics): boolean {
-		return Object.keys(daysMechanics).length > 0;
+	static findEmployee(code: string): Employee {
+		return this.employees.find((e: Employee) => e.code == code);
 	}
 
 }

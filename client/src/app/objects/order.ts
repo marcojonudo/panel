@@ -2,6 +2,8 @@ import {UtilsService} from "../services/utils.service";
 import {OrderLine} from "./order-line";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
+import {Employee} from "./employee";
+import {MechanicsService} from "../services/mechanics.service";
 
 export class Order {
 
@@ -10,6 +12,7 @@ export class Order {
 	state: string;
 	day: Dayjs;
 	creatorCode: string;
+	creator: Employee;
 	created: Dayjs;
 	deadline: Dayjs;
 	lines: OrderLine[];
@@ -20,6 +23,7 @@ export class Order {
 		this.state = order.state;
 		this.day = order.day ? dayjs(order.day) : undefined;
 		this.creatorCode = order.creatorCode;
+		this.creator = MechanicsService.findEmployee(this.creatorCode);
 		this.created = order.created ? UtilsService.parseTime(order.created) : undefined;
 		this.deadline = order.deadline ? UtilsService.parseTime(order.deadline) : undefined;
 		this.lines = order.lines ? order.lines.map(line => new OrderLine(line)) : [];

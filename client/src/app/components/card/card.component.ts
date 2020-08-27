@@ -227,6 +227,10 @@ export class CardComponent implements OnInit {
 		return card.type != Constants.CARD_TYPE.AUXILIARY || card.mechanicCode != undefined;
 	}
 
+	checkShowCreatorCode(card: Card): boolean {
+		return card.type == Constants.CARD_TYPE.AUXILIARY && card.mechanicCode != undefined;
+	}
+
 	// endregion
 
 	check() {
