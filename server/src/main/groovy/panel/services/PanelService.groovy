@@ -20,6 +20,7 @@ import panel.pogos.firstLoad.SyncOrdersSemaphore
 import panel.pogos.firstLoad.UpdateCards
 import panel.pogos.fviberi.Article
 import panel.pogos.fviberi.Order
+import panel.pogos.schedules.Employee
 import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.JobLineType
 import panel.pogos.schedules.Schedule
@@ -52,6 +53,7 @@ class PanelService {
 		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
 		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(from)
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
+		List<Employee> employees = cuboDatabaseClient.getEmployees()
 		LocalDate firstScheduleDay = cuboDatabaseClient.getFirstScheduleDay(today)
 
 //		deletePendingCards(from)
@@ -63,6 +65,7 @@ class PanelService {
 
 		return new CompleteInfo(
 			daysMechanics,
+			employees,
 			skills,
 			jobLineTypes,
 			appointmentTypes,

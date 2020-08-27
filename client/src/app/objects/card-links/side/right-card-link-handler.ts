@@ -8,8 +8,10 @@ export class RightCardLinkHandler implements SideCardLinkHandler {
 		return groups.find((g: CardsGroup) => g.start.isSame(card.end));
 	}
 
-	findUnassignedGroup(groups: CardsGroup[], groupId: string): CardsGroup {
-		const groupIndex = groups.findIndex(g => g.id == groupId);
+	findUnassignedGroup(groups: CardsGroup[], cardId: string): CardsGroup {
+		const groupIndex = groups.findIndex((g: CardsGroup) =>
+			g.cards.find((c: Card) => c.panelId == cardId) != undefined
+		);
 		return groupIndex > -1 && groupIndex < groups.length - 1 ? groups[groupIndex + 1] : undefined;
 	}
 
@@ -23,9 +25,12 @@ export class RightCardLinkHandler implements SideCardLinkHandler {
 	link(group: CardsGroup, rightGroup: CardsGroup, card: Card): CardsGroup[] {
 		card.linkedNext = rightGroup.cards[0].clone();
 		rightGroup.cards[0].linkedPrevious = card.clone();
-
 		group.addCards(rightGroup.cards);
 		return [group, rightGroup];
+	}
+
+	findLinkedCards(group: CardsGroup, cardIndex: number): Card[] {
+		return group.cards.slice(cardIndex, cardIndex + 2);
 	}
 
 }

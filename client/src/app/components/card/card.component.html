@@ -73,6 +73,6 @@
 			(click)="handleNextLink(card)">
 		</div>
 	</div>
-	<div appResizableCard [card]="card" class="h-100 resizable-card-handler cursor-resize ml-auto"></div>
+	<div appResizableCard *ngIf="checkAllowResize()" [card]="card" class="h-100 resizable-card-handler cursor-resize ml-auto"></div>
 </div>
 <div>{{check()}}</div>

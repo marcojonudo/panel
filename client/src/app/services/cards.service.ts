@@ -61,6 +61,7 @@ export class CardsService {
 	private static _cardTypeBehaviour: {[key: string]: CardTypeBehaviour};
 	private static _cardModeAction: {[key: string]: any};
 
+	private static _auxiliaryGroup: CardsGroup;
 	private static _auxiliaryGroupToReplace: CardsGroup;
 
 	constructor(private http: HttpClient) {
@@ -154,6 +155,14 @@ export class CardsService {
 
 	static set cardModeAction(value: { [p: string]: any }) {
 		this._cardModeAction = value;
+	}
+
+	static get auxiliaryGroup(): CardsGroup {
+		return this._auxiliaryGroup;
+	}
+
+	static set auxiliaryGroup(value: CardsGroup) {
+		this._auxiliaryGroup = value;
 	}
 
 	static get auxiliaryGroupToReplace(): CardsGroup {
@@ -321,7 +330,7 @@ export class CardsService {
 	}
 
 	createDbCards(cards: Card[]): void {
-		this.http.post(Url.cards(), cards).subscribe();
+		this.http.post(Url.cards(), cards, {params: {updateLinks: "true"}}).subscribe();
 	}
 
 	updateDbCardsPosition(cards: Card[]): void {
@@ -333,7 +342,7 @@ export class CardsService {
 	}
 
 	updateDbCardsLinks(cards: Card[]): void {
-		this.http.put(Url.cardsLinks(), cards).subscribe();
+		this.http.patch(Url.cardsLinks(), cards).subscribe();
 	}
 
 	static updateFinishedGroup(group: CardsGroup) {
@@ -377,40 +386,42 @@ export class CardsService {
 				card.setLine(line);
 				card.setStart(i == 0 ? group.start : group.cards[i-1].end);
 				card.setStatus(status);
-				CardsService.updateOrderCode(card, group, i);
 			})
 			group.setId();
 		});
 	}
 
-	static updateOrderCode(card: Card, group: CardsGroup, index: number): void {
-		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
-			if (card.order.code == Constants.AUXILIARY_DEFAULT_ORDER_CODE) {
-				const assignedAuxiliaryGroups = this.assignedGroups.filter((group: CardsGroup) =>
-					group.cards[0].type == Constants.CARD_TYPE.AUXILIARY
-				);
-				let currentIndex = 0;
-				assignedAuxiliaryGroups.forEach((group: CardsGroup) => {
-					const index = +group.cards[0].order.code.substring(1);
-					if (index > currentIndex) {
-						currentIndex = index;
-					}
-				});
-				card.order.code = `${card.order.code.substring(0, 1)}${currentIndex+1}`;
-				card.order.number = currentIndex + 1;
-				card.panelId = CardsService.buildPanelId(card);
+	static updateAuxiliaryOrderCode(card: Card, group: CardsGroup, linkedIndex: number): void {
+		let currentIndex = this.findCurrentAuxiliaryIndex();
+		card.order.code = `${card.order.code.substring(0, 1)}${currentIndex+1}`;
+		card.order.number = currentIndex + 1;
+		card.linkedIndex = linkedIndex;
+		card.panelId = CardsService.buildPanelId(card);
 
-				/* Si el índice es 0 (primera ficha del grupo), se actualiza tambíen su id para reflejar el cambio de
-				*  numeración */
-				if (index == 0) {
-					group.id = card.panelId;
-				}
-			}
+		/* Si el índice es 0 (primera ficha del grupo), se actualiza también su id para reflejar el cambio de
+		*  numeración */
+		if (linkedIndex == 0) {
+			group.id = card.panelId;
 		}
 	}
 
+	private static findCurrentAuxiliaryIndex(groups: CardsGroup[] = this.assignedGroups): number {
+		const assignedAuxiliaryGroups = groups.filter((group: CardsGroup) =>
+			group.cards[0].type == Constants.CARD_TYPE.AUXILIARY
+		);
+
+		let currentIndex = 0;
+		assignedAuxiliaryGroups.forEach((group: CardsGroup) => {
+			const index = +group.cards[0].order.code.substring(1);
+			if (index > currentIndex) {
+				currentIndex = index;
+			}
+		});
+		return currentIndex;
+	}
+
 	public static buildPanelId(card: Card): string {
-		return `${card.order.code}-${card.group.code}-${card.divisionIndex}`;
+		return `${card.order.code}-${card.group.code}-${card.linkedIndex}-${card.divisionIndex}`;
 	}
 
 	static handleAddAssignedGroup(
@@ -576,7 +587,11 @@ export class CardsService {
 	// region Link handlers
 
 	static checkShowHandler(card: Card, nextGroup: CardsGroup): boolean {
-		/* Si no hay ningún grupo justo a la izquierda de la ficha, no se muestra el icono para unir*/
+		/* En las fichas auxiliares no asignadas, no se muestra el handler */
+		if (card.type == Constants.CARD_TYPE.AUXILIARY && !card.mechanicCode) {
+			return false
+		}
+		/* Si no hay ningún grupo justo a la izquierda de la ficha, no se muestra el icono para unir */
 		if (!nextGroup) {
 			return false;
 		}
@@ -900,7 +915,8 @@ export class CardsService {
 		CardsService.updateCard(card, leftCardDuration);
 		const newRightCard = CardsService.createCard(card, card.end, rightCardDuration);
 		const dividedCards = this.updateDividedCards(card, newRightCard);
-		this.updateGroups(group, card, newRightCard);
+		const groupTranslatedCards = this.updateGroups(group, card, newRightCard);
+		const allUpdatedCards = dividedCards.concat(groupTranslatedCards);
 
 		const translatedCards = [];
 		translatedGroups.forEach((g: CardsGroup) => {
@@ -909,9 +925,9 @@ export class CardsService {
 				translatedCards.push(c);
 			});
 			g.setStart(g.start.add(5, Constants.DAY_JS.m));
-		})
+		});
 		if (updateDb) {
-			this.updateDividedDbCards(dividedCards, translatedCards);
+			this.updateDividedDbCards(allUpdatedCards, translatedCards);
 		}
 	}
 
@@ -941,25 +957,42 @@ export class CardsService {
 			const dividedNextCard = allDividedCards.find((c: Card) => c.panelId == card.dividedNext.panelId);
 			dividedCards.push(dividedNextCard);
 		}
-		CardsService.updateCardsLinks(dividedCards, 'divided');
+
+		CardsService.updateDivisionCardsLinks(dividedCards);
+		dividedCards.splice(0, 0, dividedCards.splice(1, 1)[0]);
 		return dividedCards;
 	}
 
-	private static updateCardsLinks(cards: Card[], property: string): void {
+	private static updateDivisionCardsLinks(cards: Card[]): void {
 		cards.forEach((card: Card, i: number) => {
 			if (i != 0) {
-				card[`${property}Previous`] = cards[i-1].clone();
+				card.dividedPrevious = cards[i-1].clone();
 			}
 			if (i != cards.length - 1) {
-				card[`${property}Next`] = cards[i+1].clone();
+				card.dividedNext = cards[i+1].clone();
 			}
 		});
 	}
 
-	private updateGroups(group: CardsGroup, card: Card, newRightCard: Card): void {
+	static updateCardsLinks(cards: Card[]): void {
+		cards.forEach((card: Card, i: number) => {
+			if (i != 0) {
+				card.linkedPrevious = cards[i-1].clone();
+			}
+			if (i != cards.length - 1) {
+				card.linkedNext = cards[i+1].clone();
+			}
+		});
+	}
+
+	private updateGroups(group: CardsGroup, card: Card, newRightCard: Card): Card[] {
 		const cardGroupIndex = group.cards.findIndex((c: Card) => c.panelId == card.panelId);
-		const rightDividedCards = group.cards.slice(cardGroupIndex+1, group.cards.length);
-		group.removeCards(0, cardGroupIndex+1);
+		const rightDividedCards = group.cards.slice(cardGroupIndex + 1);
+		group.removeCards(0, cardGroupIndex + 1);
+
+		/* Si se amplía la duración de las fichas, puede tener que actualizarse el comienzo de otras del nuevo grupo */
+		const groupTranslatedCards = rightDividedCards.length
+			? CardsService.updateRightGroupCardsOffset(newRightCard, rightDividedCards) : [];
 		const newGroup = new CardsGroup(
 			[newRightCard].concat(rightDividedCards),
 			DimensionsService.calcLeftFromStart(group.end)
@@ -970,15 +1003,30 @@ export class CardsService {
 		} else {
 			CardsService.handleAddUnassignedGroup(newGroup);
 		}
+		return groupTranslatedCards;
+	}
+
+	private static updateRightGroupCardsOffset(newRightCard: Card, rightDividedCards: Card[]): Card[] {
+		/* Esta condición se cumple si al desplazar una ficha central (con otras agrupadas a su derecha) se divide a
+		*  la mitad, y al redondear su duración es 5 minutos mayor. Estas fichas de la derecha deben corregir su inicio
+		*  con esos 5 minutos de retraso */
+		const offset = newRightCard.end.diff(rightDividedCards[0].start, Constants.DAY_JS.m);
+		if (offset > 0) {
+			rightDividedCards.forEach((card: Card) => {
+				card.setStart(card.start.add(offset, Constants.DAY_JS.m));
+			});
+			return rightDividedCards;
+		}
+		return [];
 	}
 
 	private static updateLinkedLinks(newGroup: CardsGroup, group: CardsGroup): void {
-		this.updateCardsLinks(newGroup.cards, 'linked');
-		this.updateCardsLinks(group.cards, 'linked');
+		this.updateCardsLinks(newGroup.cards);
+		this.updateCardsLinks(group.cards);
 	}
 
-	private updateDividedDbCards(dividedCards: Card[], translatedCards: Card[]): void {
-		this.http.post(Url.cardsDivision(), dividedCards).subscribe();
+	private updateDividedDbCards(allUpdatedCards: Card[], translatedCards: Card[]): void {
+		this.http.post(Url.cardsDivision(), allUpdatedCards).subscribe();
 		if (translatedCards.length) {
 			this.updateDbCardsPosition(translatedCards);
 		}

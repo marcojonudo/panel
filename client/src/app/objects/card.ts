@@ -45,6 +45,7 @@ export class Card {
 
 	linkedPrevious: Card;
 	linkedNext: Card;
+	linkedIndex: number;
 
 	dividedPrevious: Card;
 	dividedNext: Card;
@@ -73,6 +74,7 @@ export class Card {
 		this.vehicle = card.vehicle ? new Vehicle(card.vehicle) : undefined;
 		this.linkedPrevious = card.linkedPrevious ? new Card(card.linkedPrevious) : undefined;
 		this.linkedNext = card.linkedNext ? new Card(card.linkedNext) : undefined;
+		this.linkedIndex = card.linkedIndex;
 		this.dividedPrevious = card.dividedPrevious ? new Card(card.dividedPrevious) : undefined;
 		this.dividedNext = card.dividedNext ? new Card(card.dividedNext) : undefined;
 		this.divisionIndex = card.divisionIndex;
@@ -121,6 +123,11 @@ export class Card {
 		this.panelId = CardsService.buildPanelId(this);
 	}
 
+	setLinkedIndex(linkedIndex: number): void {
+		this.linkedIndex = linkedIndex;
+		this.panelId = CardsService.buildPanelId(this);
+	}
+
 	setStatus(status: string): void {
 		this.lastStatus = this.status;
 		this.status = status;
@@ -136,6 +143,7 @@ export class Card {
 			mechanicCode: this.mechanicCode,
 			lastMechanicCode: this.lastMechanicCode,
 			duration: this.duration,
+			linkedIndex: this.linkedIndex,
 			divisionIndex: this.divisionIndex,
 			vehiclePosition: this.vehiclePosition
 		});

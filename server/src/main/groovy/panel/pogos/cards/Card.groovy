@@ -37,6 +37,8 @@ class Card {
 	@JsonSerialize(using = CardMinSerializer)
     Card linkedNext
 
+	int linkedIndex
+
 	@JsonSerialize(using = CardMinSerializer)
     Card dividedPrevious
 
@@ -74,6 +76,7 @@ class Card {
 		status = (Status) card.status
 		linkedPrevious = card.linkedPrevious ? (Card) card.linkedPrevious : null
 		linkedNext = card.linkedNext ? (Card) card.linkedNext : null
+		linkedIndex = (int) card.linkedIndex
 		dividedPrevious = card.dividedPrevious ? (Card) card.dividedPrevious : null
 		dividedNext = card.dividedNext ? (Card) card.dividedNext : null
 		divisionIndex = card.divisionIndex ? (int) card.divisionIndex : 0
@@ -149,6 +152,7 @@ class Card {
 		card = (Card) card
 		return this.order.number == card.order.number &&
 				this.group.code == card.group.code &&
+				this.linkedIndex == card.linkedIndex &&
 				this.divisionIndex == card.divisionIndex
 	}
 

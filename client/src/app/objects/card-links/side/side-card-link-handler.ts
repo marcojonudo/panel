@@ -11,4 +11,6 @@ export interface SideCardLinkHandler {
 
 	link(group: CardsGroup, leftGroup: CardsGroup, card: Card): CardsGroup[];
 
+	findLinkedCards(group: CardsGroup, cardIndex: number): Card[];
+
 }

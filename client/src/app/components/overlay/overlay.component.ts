@@ -19,7 +19,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
 	private coordinatesSubscription: Subscription;
 	private draggingSubscription: Subscription;
-	private helperCardsGroupSubscription: Subscription;
+	private helperGroupSubscription: Subscription;
 
 	private _helperGroup: CardsGroup;
 	dragging: boolean;
@@ -44,7 +44,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		});
 
 		/* Permite mostrar o eliminar la ficha auxiliar en pantalla */
-		this.helperCardsGroupSubscription = NotificationService.helperCardsGroup$.subscribe(helperCardsGroup => {
+		this.helperGroupSubscription = NotificationService.helperCardsGroup$.subscribe(helperCardsGroup => {
 			this.helperGroup = helperCardsGroup;
 			this.cdRef.detectChanges();
 		});
@@ -53,7 +53,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.coordinatesSubscription.unsubscribe();
 		this.draggingSubscription.unsubscribe();
-		this.helperCardsGroupSubscription.unsubscribe();
+		this.helperGroupSubscription.unsubscribe();
 	}
 
 	// region Getters / setters

@@ -11,6 +11,7 @@ import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
 import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 import {LocalStorageService} from "./local-storage.service";
+import {Employee} from "../objects/employee";
 
 @Injectable({
 	providedIn: 'root'
@@ -18,6 +19,7 @@ import {LocalStorageService} from "./local-storage.service";
 export class MechanicsService {
 
 	private static _days: Dayjs[];
+	private static _employees: Employee[];
 	private static _firstScheduleDay: Dayjs;
 	private static _lastScheduleDay: Dayjs;
 	private static _daysMechanics: DaysMechanics;
@@ -36,6 +38,14 @@ export class MechanicsService {
 
 	static set days(value: Dayjs[]) {
 		this._days = value;
+	}
+
+	static get employees(): Employee[] {
+		return this._employees;
+	}
+
+	static set employees(value: Employee[]) {
+		this._employees = value;
 	}
 
 	static get firstScheduleDay(): dayjs.Dayjs {
@@ -124,11 +134,13 @@ export class MechanicsService {
 
 	static init(
 		daysMechanics: { [key: string]: any[] },
+		employees: any[],
 		firstScheduleDay: string,
 		lastScheduleDay: string,
 		skills: any[],
 		highlightedSkills: Skill[]
 	) {
+		this.employees = employees.map((employee: any) => new Employee(employee));
 		const today = dayjs().startOf(Constants.DAY_JS.d);
 		this.loadFixedMechanics(daysMechanics, today)
 		if (daysMechanics) {
@@ -153,6 +165,7 @@ export class MechanicsService {
 
 		console.log('Days', this.days);
 		console.log('Days mechanics', this.daysMechanics);
+		console.log('Employees', this.employees);
 	}
 
 	static loadFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs) {

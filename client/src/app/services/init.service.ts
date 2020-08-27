@@ -61,7 +61,12 @@ export class InitService {
 			/* Los mecánicos se cargan, independientemente de que data.daysMechanics sea null, porque podrían cargarse
 			*  las líneas fijas desde localStorage */
 			MechanicsService.init(
-				data.daysMechanics, data.firstScheduleDay, data.lastScheduleDay, data.skills, SkillsService.highlightedSkills
+				data.daysMechanics,
+				data.employees,
+				data.firstScheduleDay,
+				data.lastScheduleDay,
+				data.skills,
+				SkillsService.highlightedSkills
 			);
 			/* Sólo se carga la info de panel si hay horarios */
 			if (MechanicsService.days.length) {

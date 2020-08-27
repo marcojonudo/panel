@@ -36,18 +36,21 @@
 	overflow-x: auto;
 }
 
-.not-finished-groups-container {
+.unassigned-band-background {
 	background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #FFDB70 5px, #FFDB70 12px);
-}
-
-.finished-groups-container {
-	background: repeating-linear-gradient(45deg, #9E9E9E, #9E9E9E 5px, #F9F9F9 5px, #F9F9F9 12px);
 }
 
 .unassigned-card {
 	position: absolute;
+	cursor: pointer;
 }
 
 .hidden {
 	z-index: -1;
+}
+
+.auxiliary-user-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
 }

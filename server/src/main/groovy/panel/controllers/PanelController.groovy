@@ -69,7 +69,7 @@ class PanelController {
 		panelDatabaseClient.updateCardsDivision(sessionId, Constants.REAL_TIME_ACTION.DIVIDE_CARDS, cards)
 	}
 
-	@Put("/cards/links")
+	@Patch("/cards/links")
 	void updateLinks(@Header String sessionId, @Body List<Card> cards) {
 		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_LINKS, cards)
 	}

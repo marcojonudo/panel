@@ -17,6 +17,7 @@ import panel.pogos.firstLoad.UpdateCards
 import panel.pogos.fviberi.*
 import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.Schedule
+import panel.utils.Constants
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -2242,6 +2243,40 @@ class PanelServiceSpec extends Specification {
 
 	// endregion
 
+	// region Test check replace order cards
+
+	void "test check replace order cards no replacement"() {
+		given:
+		List<Card> builtCards = [
+			new Card([order: [number: 1, creatorCode: '123'], group: [code: 1]]),
+			new Card([order: [number: 1], group: [code: 2]]),
+			new Card([order: [number: 2], group: [code: 1]])
+		]
+
+		when:
+		boolean replace = panelService.checkReplaceOrderCards(builtCards)
+
+		then:
+		!replace
+	}
+
+	void "test check replace order cards replace eCommerce cards"() {
+		given:
+		List<Card> builtCards = [
+			new Card([order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], group: [code: 1]]),
+			new Card([order: [number: 1], group: [code: 2]]),
+			new Card([order: [number: 2], group: [code: 1]])
+		]
+
+		when:
+		boolean replace = panelService.checkReplaceOrderCards(builtCards)
+
+		then:
+		replace
+	}
+
+	// endregion
+
 	// region Handle cards update
 
 	void "test handle cards update no existent cards"() {
@@ -2413,6 +2448,57 @@ class PanelServiceSpec extends Specification {
 		updateCards.updated.size() == 2
 		!updateCards.newReplace
 		!updateCards.same
+		!updateCards.reset
+		!updateCards.deleted
+	}
+
+	void "test handle cards update order replace eCommerce found cards"() {
+		given:
+		List<Card> dbCards = [
+			new Card([start: time8.toString(), order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+		]
+		List<Card> builtCards = [
+			new Card([duration: 30, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE, created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+			new Card([duration: 20, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
+			new Card([duration: 10, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
+		]
+
+		when:
+		UpdateCards updateCards = panelService.handleCardsUpdate(dbCards, builtCards)
+
+		then:
+		updateCards.newReplace
+		updateCards.newReplace.size() == 3
+		updateCards.newReplace[0].start == time8
+		updateCards.newReplace[1].start == time8.plusMinutes(30)
+		updateCards.newReplace[2].start == time8.plusMinutes(50)
+		!updateCards.updated
+		!updateCards.newCards
+		!updateCards.same
+		!updateCards.reset
+		!updateCards.deleted
+	}
+
+	void "test handle cards update order replace eCommerce not found cards"() {
+		given:
+		List<Card> dbCards = [
+			new Card([order: [number: 2, creatorCode: '123', created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+		]
+		List<Card> builtCards = [
+			new Card([duration: 30, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE, created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+			new Card([duration: 20, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
+			new Card([duration: 10, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
+		]
+
+		when:
+		UpdateCards updateCards = panelService.handleCardsUpdate(dbCards, builtCards)
+
+		then:
+		updateCards.newCards
+		updateCards.newCards.size() == 3
+		!updateCards.newReplace
+		!updateCards.same
+		!updateCards.updated
 		!updateCards.reset
 		!updateCards.deleted
 	}

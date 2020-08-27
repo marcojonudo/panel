@@ -195,18 +195,12 @@ export class CardComponent implements OnInit {
 		if (card.linkedPrevious) {
 			return true;
 		}
-		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
-			return false;
-		}
 		return CardsService.checkShowHandler(card, handler.findNextGroup(card, new LeftCardLinkHandler()));
 	}
 
 	checkShowRightLinkHandler(card: Card, handler: CardLinkHandler = this.linkHandler): boolean {
 		if (card.linkedNext) {
 			return true;
-		}
-		if (card.type == Constants.CARD_TYPE.AUXILIARY) {
-			return false;
 		}
 		return CardsService.checkShowHandler(card, handler.findNextGroup(card, new RightCardLinkHandler()));
 	}
@@ -226,7 +220,11 @@ export class CardComponent implements OnInit {
 		const sideLinkHandler = new RightCardLinkHandler();
 		const cardsToUpdate = card.linkedNext
 			? handler.unlink(card, sideLinkHandler) : handler.link(card, sideLinkHandler);
-		this.cardsService.updateDbCardsLinks(cardsToUpdate)
+		this.cardsService.updateDbCardsLinks(cardsToUpdate);
+	}
+
+	checkAllowResize(card: Card = this.card): boolean {
+		return card.type != Constants.CARD_TYPE.AUXILIARY || card.mechanicCode != undefined;
 	}
 
 	// endregion

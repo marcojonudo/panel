@@ -1,4 +1,4 @@
-<div class="d-flex h-25 unassigned-orders-buttons-container blank-background">
+<div class="d-flex h-25 unassigned-orders-buttons-container">
 	<div *ngIf="!checkFinishedSection()" class="d-flex align-items-end">
 		<button
 			class="btn align-center padding-0 border-right-0 border-bottom-0"
@@ -20,8 +20,8 @@
 		</button>
 		<button
 			class="btn align-center padding-0 border-bottom-0 border-left-0"
-			[ngClass]="checkSelectedSection(temporalType) ? 'h-100 btn-warning' : 'h-75 btn-outline-warning not-selected-button'"
-			(click)="setSection(temporalType)">
+			[ngClass]="checkSelectedSection(auxiliaryType) ? 'h-100 btn-warning' : 'h-75 btn-outline-warning not-selected-button'"
+			(click)="setSection(auxiliaryType)">
 			Auxiliares
 		</button>
 	</div>
@@ -32,24 +32,80 @@
 	</div>
 </div>
 <div
-	*ngFor="let section of cardSections | cardSection: section"
+	*ngIf="checkAuxiliarySection(section.name); else sectionTemplate"
+	class="flex-grow-1 position-relative d-flex align-items-center"
 	appDropzone
-	appHorizontalScrollable
 	[type]="section.dropzoneType"
-	[subType]="section.name"
-	class="flex-grow-1 unassigned-orders-cards-container not-finished-groups-container"
-	[style.height.px]="unassignedBarHeight">
-	<app-draggable-group
-		*ngFor="let group of groups"
-		class="unassigned-card"
-		[ngClass]="{'hidden': checkHideGroup(section.name, group.id)}"
-		[ngStyle]="{
-			'height.px': lineDefaultHeight,
-			'transform': 'translateX(' + group.left + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
-		}"
-		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
-		[group]="group"
-		[groupUpdate]="checkUpdateGroup(group.id)">
-	</app-draggable-group>
+	[subType]="section.name">
+	<div class="w-75 h-100" [style.opacity]="auxiliaryEmployee ? '1' : '.5'">
+		<div
+			appHorizontalScrollable
+			class="flex-grow-1 unassigned-orders-cards-container unassigned-band-background"
+			[style.height.px]="unassignedBarHeight">
+			<app-card
+				*ngFor="let group of groups"
+				class="unassigned-card"
+				[card]="group.cards[0]"
+				[width]="group.cards[0].width"
+				[ngStyle]="{
+					'height.px': lineDefaultHeight,
+					'transform': 'translateX(' + group.left + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
+				}"
+				(click)="addAuxiliaryGroup(group)">
+			</app-card>
+		</div>
+	</div>
+	<div *ngIf="!auxiliaryEmployee; else auxiliaryGroupTemplate" class="w-100 h-100 d-flex justify-content-end auxiliary-user-overlay">
+		<div class="w-25 d-flex flex-column align-items-center justify-content-center">
+			<input
+				type="text"
+				maxLength="7"
+				[placeholder]="auxiliaryUserPlaceholder"
+				tabindex="-1"
+				(input)="checkIntroducedAuxiliaryUser($event.target.value)"
+				class="w-50 form-control ml-3 text-center"
+				[ngClass]="{'is-invalid': checkInvalidAuxiliaryUser()}">
+			<div *ngIf="checkInvalidAuxiliaryUser()" class="ml-1 invalid-feedback text-center">Empleado no encontrado</div>
+		</div>
+	</div>
+	<ng-template #auxiliaryGroupTemplate>
+		<div class="w-25 h-100 unassigned-orders-cards-container">
+			<app-draggable-group
+				*ngIf="auxiliaryGroup"
+				class="unassigned-card"
+				[ngClass]="{'hidden': checkHideGroup(section.name, auxiliaryGroup.id)}"
+				[ngStyle]="{
+					'height.px': lineDefaultHeight,
+					'transform': 'translateX(' + auxiliaryGroup.left + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
+				}"
+				(hiddenCardsGroup)="setHiddenCardsGroup($event)"
+				[group]="auxiliaryGroup"
+				[groupUpdate]="checkUpdateGroup(auxiliaryGroup.id)">
+			</app-draggable-group>
+		</div>
+	</ng-template>
 </div>
+<ng-template #sectionTemplate>
+	<div
+		*ngFor="let section of cardSections | cardSection: section"
+		appDropzone
+		appHorizontalScrollable
+		[type]="section.dropzoneType"
+		[subType]="section.name"
+		class="flex-grow-1 unassigned-orders-cards-container unassigned-band-background"
+		[style.height.px]="unassignedBarHeight">
+		<app-draggable-group
+			*ngFor="let group of groups"
+			class="unassigned-card"
+			[ngClass]="{'hidden': checkHideGroup(section.name, group.id)}"
+			[ngStyle]="{
+				'height.px': lineDefaultHeight,
+				'transform': 'translateX(' + group.left + 'px) translateY(' + unassignedCardRelativeTop + 'px)'
+			}"
+			(hiddenCardsGroup)="setHiddenCardsGroup($event)"
+			[group]="group"
+			[groupUpdate]="checkUpdateGroup(group.id)">
+		</app-draggable-group>
+	</div>
+</ng-template>
 <div>{{check()}}</div>

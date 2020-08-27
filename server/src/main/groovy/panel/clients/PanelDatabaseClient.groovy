@@ -56,7 +56,7 @@ interface PanelDatabaseClient {
 	@Put("/cards")
 	List<Card> updateCards(@Body List<Card> cards)
 
-	@Put("/cards/links")
+	@Patch("/cards/links")
 	void updateCardsLinks(
 		@Header @Nullable String sessionId,
 		@Header @Nullable String realTimeAction,

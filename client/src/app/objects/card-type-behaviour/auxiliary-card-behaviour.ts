@@ -8,7 +8,7 @@ import {GroupContextMenuInfo} from "../context-menu/group-context-menu-info";
 export class AuxiliaryCardBehaviour implements CardTypeBehaviour {
 
 	findHelperGroup(group: CardsGroup): CardsGroup {
-		return group.start ? group : group.clone(true);
+		return group;
 	}
 
 	handleLeftClick(group: CardsGroup, x: number): void {

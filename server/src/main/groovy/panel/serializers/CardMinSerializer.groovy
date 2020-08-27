@@ -29,6 +29,7 @@ class CardMinSerializer extends StdSerializer<Card> {
 		jsonGenerator.writeObjectField("code", card.group.code)
 		jsonGenerator.writeEndObject()
 		jsonGenerator.writeNumberField("divisionIndex", card.divisionIndex)
+		jsonGenerator.writeNumberField("linkedIndex", card.linkedIndex)
 		jsonGenerator.writeStringField("mechanicCode", card.mechanicCode)
 		jsonGenerator.writeNumberField("duration", card.duration)
 		if (card.day) {

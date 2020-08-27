@@ -47,7 +47,8 @@ export class Constants {
 		APPOINTMENT_SUMMARY_ITEM_HEIGHT: 60,
 		DEFAULT_TOAST_DELAY: 10000,
 		DAYS_LOAD_OFFSET: 2,
-		DAYS_LOAD: 7
+		DAYS_LOAD: 7,
+		EMPLOYEE_CODE_LENGTH: 7
 	};
 	public static ID: any = {
 		MECHANIC_LINE: 'mechanic-line',
@@ -228,5 +229,6 @@ export class Constants {
 	public static readonly CONTEXT_MENU: string = 'context-menu';
 	public static readonly FIXED_SCHEDULES: string = 'fixedSchedules';
 	public static readonly ECOMMERCE_USER_CODE: string = '9999997';
+	public static readonly AUXILIARY_USER_PLACEHOLDER: string = 'Código de usuario';
 
 }

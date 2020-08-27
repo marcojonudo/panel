@@ -5,6 +5,7 @@ import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import panel.pogos.appointments.AppointmentSchedule
+import panel.pogos.schedules.Employee
 import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.EmployeeScheduleAppointment
 import panel.pogos.schedules.MechanicAppointment
@@ -34,6 +35,9 @@ interface CuboDatabaseClient {
 
 	@Get("/lastScheduleDay")
 	LocalDate getLastScheduleDay()
+
+	@Get("/employees")
+	List<Employee> getEmployees()
 
 	@Put("/mechanic/position")
 	void updateMechanicsPosition(

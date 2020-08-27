@@ -3,6 +3,7 @@ import {CardLinkHandler} from "./card-link-handler";
 import {CardsService} from "../../services/cards.service";
 import {Card} from "../card";
 import {SideCardLinkHandler} from "./side/side-card-link-handler";
+import {NotificationService} from "../../services/notification.service";
 
 export class UnassignedCardLinkHandler implements CardLinkHandler {
 
@@ -37,10 +38,12 @@ export class UnassignedCardLinkHandler implements CardLinkHandler {
 		const group = CardsService.findCardGroup(lineGroups, card.panelId);
 		const nextGroup = sideLinkHandler.findUnassignedGroup(lineGroups, card.panelId);
 
-		const groupCardsOriginalLength = group.cards.length;
 		const [groupToUpdate, groupToRemove] = sideLinkHandler.link(group, nextGroup, card);
-		CardsService.handleRemoveUnassignedGroup(groupToRemove);
-		return groupToUpdate.cards.slice(groupCardsOriginalLength - 1, groupCardsOriginalLength + 1);
+		CardsService.handleRemoveUnassignedGroup(groupToRemove, false);
+		NotificationService.notifyBand(undefined, [groupToUpdate, groupToRemove]);
+
+		const cardIndex = group.cards.findIndex((c: Card) => c.panelId == card.panelId);
+		return groupToUpdate.cards.slice(cardIndex, cardIndex + 2);
 	}
 
 }

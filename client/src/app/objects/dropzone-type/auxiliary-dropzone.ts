@@ -38,7 +38,9 @@ export class AuxiliaryDropzone implements Dropzone {
 		return new OverlappedGroupsInfo();
 	}
 
-	removeGroup(group: CardsGroup): void {}
+	removeGroup(group: CardsGroup): void {
+		CardsService.auxiliaryGroup = undefined;
+	}
 
 	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
 		CardsService.resetCardsGroup(groups[0]);

@@ -6,6 +6,7 @@ import groovy.transform.CompileStatic
 import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.appointmentDays.AppointmentType
 import panel.pogos.cards.Card
+import panel.pogos.schedules.Employee
 import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.JobLineType
 import panel.pogos.skills.Skill
@@ -17,6 +18,7 @@ import java.time.LocalDate
 class CompleteInfo {
 
 	Map<String, List<EmployeeSchedule>> daysMechanics
+	List<Employee> employees
 	List<Skill> skills
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
@@ -31,6 +33,7 @@ class CompleteInfo {
 
 	CompleteInfo(
 		Map<String, List<EmployeeSchedule>> daysMechanics,
+		List<Employee> employees,
 		List<Skill> skills,
 		List<JobLineType> jobLineTypes,
 		List<AppointmentType> appointmentTypes,
@@ -40,6 +43,7 @@ class CompleteInfo {
 		List<Card> cards
 	) {
 		this.daysMechanics = daysMechanics
+		this.employees = employees
 		this.skills = skills
 		this.jobLineTypes = jobLineTypes
 		this.appointmentTypes = appointmentTypes

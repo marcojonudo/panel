@@ -1,9 +1,9 @@
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
-	Component,
+	Component, ElementRef,
 	OnDestroy,
-	OnInit,
+	OnInit, ViewChild,
 } from '@angular/core';
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
@@ -16,6 +16,9 @@ import {NotificationService} from "../../services/notification.service";
 import {GroupsTriggerMap} from "../../objects/trigger-cd/trigger-maps/groups-trigger-map";
 import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
 import {BandUpdate} from "../../objects/trigger-cd/update-objects/band/band-update";
+import {MechanicsService} from "../../services/mechanics.service";
+import {Employee} from "../../objects/employee";
+import {Card} from "../../objects/card";
 
 @Component({
 	selector: 'app-band',
@@ -35,8 +38,8 @@ export class BandComponent implements OnInit, OnDestroy {
 	private bandSubscription: Subscription;
 
 	groups: CardsGroup[];
-
-	hiddenGroupId: string;
+	validatedAuxiliaryEmployee: boolean;
+	auxiliaryEmployee: Employee;
 
 	constructor(
 		private cardPositionService: CardPositionService,
@@ -118,8 +121,16 @@ export class BandComponent implements OnInit, OnDestroy {
 		return Constants.CARD_TYPE.PENDING;
 	}
 
-	get temporalType(): string {
+	get auxiliaryType(): string {
 		return Constants.CARD_TYPE.AUXILIARY;
+	}
+
+	get auxiliaryUserPlaceholder(): string {
+		return Constants.AUXILIARY_USER_PLACEHOLDER;
+	}
+
+	get auxiliaryGroup(): CardsGroup {
+		return CardsService.auxiliaryGroup;
 	}
 
 	// endregion
@@ -167,6 +178,7 @@ export class BandComponent implements OnInit, OnDestroy {
 	}
 
 	setSection(type: string): void {
+		this.resetAuxiliaryUser();
 		this.section = this.findSection(type);
 		this.setGroups();
 		this.cdRef.detectChanges();
@@ -176,14 +188,51 @@ export class BandComponent implements OnInit, OnDestroy {
 		return selectedSection.name == type;
 	}
 
+	checkAuxiliarySection(name: string): boolean {
+		return name == this.auxiliaryType;
+	}
+
+	checkIntroducedAuxiliaryUser(code: string, employees: Employee[] = MechanicsService.employees): void {
+		if (code.length == Constants.VALUE.EMPLOYEE_CODE_LENGTH) {
+			this.validatedAuxiliaryEmployee = true;
+			this.auxiliaryEmployee = employees.find((e: Employee) => e.code == code);
+		} else {
+			this.validatedAuxiliaryEmployee = false;
+		}
+		this.cdRef.detectChanges();
+	}
+
+	checkInvalidAuxiliaryUser(
+		validated: boolean = this.validatedAuxiliaryEmployee,
+		auxiliaryUser: Employee = this.auxiliaryEmployee
+	): boolean {
+		return validated && auxiliaryUser == undefined;
+	}
+
+	resetAuxiliaryUser(): void {
+		this.validatedAuxiliaryEmployee = false;
+		this.auxiliaryEmployee = undefined;
+	}
+
 	setHiddenCardsGroup(group: CardsGroup): void {
 		CardPositionService.hiddenGroup = group;
 		this.cdRef.detectChanges();
 	}
 
 	checkHideGroup(sectionName: string, groupId: string): boolean {
-		return sectionName != Constants.CARD_TYPE.AUXILIARY
-			&& CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
+		return CardPositionService.hiddenGroup ? CardPositionService.hiddenGroup.id == groupId : false;
+	}
+
+	addAuxiliaryGroup(group: CardsGroup): void {
+		CardsService.auxiliaryGroup = new CardsGroup(
+			(this.auxiliaryGroup ? this.auxiliaryGroup.cards : []).concat(group.cards.map((c: Card) => c.clone())),
+			10
+		);
+		CardsService.updateCardsLinks(CardsService.auxiliaryGroup.cards);
+		CardsService.auxiliaryGroup.cards.forEach((card: Card, i: number) => {
+			CardsService.updateAuxiliaryOrderCode(card, group, i);
+		});
+		this.cdRef.detectChanges();
 	}
 
 	check() {

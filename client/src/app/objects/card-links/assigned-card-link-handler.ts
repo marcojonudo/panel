@@ -40,7 +40,6 @@ export class AssignedCardLinkHandler implements CardLinkHandler {
 		const group = CardsService.findCardGroup(lineGroups, card.panelId);
 		const nextGroup = sideLinkHandler.findAssignedGroup(lineGroups, card);
 
-		const groupCardsOriginalLength = group.cards.length;
 		const [groupToUpdate, groupToRemove] = sideLinkHandler.link(group, nextGroup, card);
 		CardsService.handleRemoveAssignedGroup(card.day, card.mechanicCode, groupToRemove);
 
@@ -50,9 +49,9 @@ export class AssignedCardLinkHandler implements CardLinkHandler {
 		groupToUpdate.highlight = false;
 		NotificationService.notifyGroups([groupToUpdate], true);
 
-		/* Una vez actualizado el grupo, se obtienen las dos fichas de los extremos para actualizar su información de
-		*  enlaces */
-		return groupToUpdate.cards.slice(groupCardsOriginalLength - 1, groupCardsOriginalLength + 1);
+		return sideLinkHandler.findLinkedCards(
+			groupToUpdate, groupToUpdate.cards.findIndex((c: Card) => c.panelId == card.panelId)
+		);
 	}
 
 }

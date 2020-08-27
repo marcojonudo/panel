@@ -10,7 +10,6 @@ import {AppointmentsService} from "../../services/appointments.service";
 import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
-import {Dayjs} from "dayjs";
 import {WarningToast} from "../toasts/warning-toast";
 
 export class UnassignedDropzone implements Dropzone {

@@ -11,7 +11,7 @@ class PanelPublisher {
 	private static PublishSubject<Event<RealTimeRequestInfo>> processor
 
 	static void create() {
-		processor = processor ?: (PublishSubject<Event<RealTimeRequestInfo>>) PublishSubject.create()
+		processor = processor ?: PublishSubject.create() as PublishSubject<Event<RealTimeRequestInfo>>
 	}
 
 	static PublishSubject<Event<RealTimeRequestInfo>> get() {
