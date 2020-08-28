@@ -76,7 +76,7 @@ class Card {
 		status = (Status) card.status
 		linkedPrevious = card.linkedPrevious ? (Card) card.linkedPrevious : null
 		linkedNext = card.linkedNext ? (Card) card.linkedNext : null
-		linkedIndex = (int) card.linkedIndex
+		linkedIndex = card.linkedIndex ? (int) card.linkedIndex : 0
 		dividedPrevious = card.dividedPrevious ? (Card) card.dividedPrevious : null
 		dividedNext = card.dividedNext ? (Card) card.dividedNext : null
 		divisionIndex = card.divisionIndex ? (int) card.divisionIndex : 0

@@ -749,8 +749,9 @@ class PanelService {
 				}
 			}
 		}
+		LocalDate today = LocalDate.now()
 		cards.groupBy { it.order.number }.each { int orderNumber, List<Card> orderCards ->
-			LocalDate day = orderCards[0].order.day
+			LocalDate day = orderCards[0].order.day.isBefore(today) ? today : orderCards[0].order.day
 			AppointmentDay appointmentDay = appointmentDays.find { it.day == day }
 			if (appointmentDay) {
 				List<AppointmentTypeCode> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)

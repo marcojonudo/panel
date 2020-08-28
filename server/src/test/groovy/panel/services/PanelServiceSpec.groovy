@@ -3106,6 +3106,32 @@ class PanelServiceSpec extends Specification {
 		values.afternoon == 0
 	}
 
+	void "test fill appointment days yesterday order cards"() {
+		given:
+		List<AppointmentDay> appointmentDays = [
+			new AppointmentDay([day: today, values: [[appointmentType: [code: 'TP'], morning: 0, afternoon: 0, total: 0, max: 0]]]),
+		]
+		List<Card> cards = [
+			new Card([
+				order: [number: 1, code: 'C1', day: today.minusDays(1), created: '10:00'],
+				duration: 20,
+				vehicle: [brand: 'FV'],
+				divisionIndex: 0,
+				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
+			])
+		]
+		when:
+		appointmentDays = panelService.fillAppointmentDays(appointmentDays, [], cards)
+
+		then:
+		AppointmentTypeValues values = appointmentDays[0].values.find {
+			it.appointmentType.code == AppointmentTypeCode.TP
+		}
+		values
+		values.morning == 1
+		values.afternoon == 0
+	}
+
 	void "test fill appointment days several day order cards"() {
 		given:
 		List<AppointmentDay> appointmentDays = [
