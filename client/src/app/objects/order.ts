@@ -36,6 +36,7 @@ export class Order {
 		order.state = this.state;
 		order.day = this.day;
 		order.creatorCode = this.creatorCode;
+		order.creator = this.creator;
 		order.created = this.created;
 		order.deadline = this.deadline;
 		order.lines = this.lines;

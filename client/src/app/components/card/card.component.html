@@ -19,11 +19,13 @@
 			</div>
 			<div class="flex-grow-1 flex-basis-0 align-center">
 				<span *ngIf="checkLastCard(card.linkedNext)">
-					<span *ngIf="checkShowCreatorCode(card); else deadlineTemplate">
+					<span
+						*ngIf="checkShowCreatorCode(card); else deadlineTemplate"
+						class="creator-code">
 						{{card.order.creator.personalData.completeName}}
 					</span>
 					<ng-template #deadlineTemplate>
-						<span *ngIf="checkShowCreatorCode(card)">{{card.order.deadline | date: 'HH:mm'}}</span>
+						<span>{{card.order.deadline | date: 'HH:mm'}}</span>
 					</ng-template>
 				</span>
 			</div>
