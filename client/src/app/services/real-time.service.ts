@@ -209,14 +209,14 @@ export class RealTimeService {
 	}
 
 	divideCards(cards: Card[]): void {
-		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
-		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
-		const group = CardsService.findCardGroup(allGroups, cards[0].panelId);
-		const card = group.cards.find((c: Card) => {
-			return c.panelId == cards[0].panelId
-		});
+		/* En el array de fichas, la primera es la dividida recién creada, y la segunda aquella en la que se hizo
+		*  click */
+		const [newCard, dividedCard] = cards;
+		const allGroups = this.findGroups(dividedCard, dividedCard.day, dividedCard.mechanicCode);
+		const group = CardsService.findCardGroup(allGroups, dividedCard.panelId);
+		const card = group.cards.find((c: Card) => c.panelId == dividedCard.panelId);
 
-		this.cardsService.divideCard(card, group, cards[0].duration, cards[1].duration, [], false);
+		this.cardsService.divideCard(card, group, dividedCard.duration, newCard.duration, [], false);
 		NotificationService.notifyGroups([group], true)
 	}
 
