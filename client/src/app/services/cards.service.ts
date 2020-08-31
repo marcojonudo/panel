@@ -1068,8 +1068,8 @@ export class CardsService {
 			console.log('Not validated auxiliary replacements', notValidatedAuxReplacements);
 			notValidatedAuxReplacements.forEach((auxReplacement: AuxiliaryReplacement) => {
 				const message = auxReplacement.validationInfo
-					? Constants.MESSAGE.NO_REPLACEMENT_SPACE(auxReplacement.group)
-					: Constants.MESSAGE.NOT_REPLACED_ALL_CARDS(auxReplacement.differentCards)
+					? Constants.MESSAGE.NOT_REPLACED_ALL_CARDS(auxReplacement.differentCards)
+					: Constants.MESSAGE.NO_REPLACEMENT_SPACE(auxReplacement.group)
 				NotificationService.notifyToast(new WarningToast(message));
 			});
 		}
