@@ -54,9 +54,11 @@ class PanelController {
 		panelDatabaseClient.createCards(sessionId, Constants.REAL_TIME_ACTION.CREATE_CARDS, cards, updateLinks)
 	}
 
-	@Put("/cards/position")
-	void updatePosition(@Header String sessionId, @Body List<Card> cards) {
-		panelDatabaseClient.updateCardsPosition(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_POSITION, cards)
+	@Patch("/cards/position")
+	void updatePosition(@Header String sessionId, @Body List<Card> cards, @QueryValue boolean updateLinks) {
+		panelDatabaseClient.updateCardsPosition(
+			sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_POSITION, cards, updateLinks
+		)
 	}
 
 	@Put("/cards/duration")
@@ -74,9 +76,14 @@ class PanelController {
 		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_LINKS, cards)
 	}
 
+	@Patch("/cards/resetLinks")
+	void updateAllLinks(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.RESET_CARDS_LINKS, cards)
+	}
+
 	@Put("/cards/delete")
 	void deleteCards(@Header String sessionId, @Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.deleteCards(sessionId, cards)
+		panelDatabaseClient.deleteCards(sessionId, Constants.REAL_TIME_ACTION.DELETE_CARDS, cards)
 	}
 
 	@Patch("/cards/vehiclePosition")

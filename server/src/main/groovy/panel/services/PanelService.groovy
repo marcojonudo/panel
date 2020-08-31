@@ -56,8 +56,6 @@ class PanelService {
 		List<Employee> employees = cuboDatabaseClient.getEmployees()
 		LocalDate firstScheduleDay = cuboDatabaseClient.getFirstScheduleDay(today)
 
-//		deletePendingCards(from)
-
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
 		UpdateCards updateCards = syncJpdvOrders(today, lastScheduleDay, appointmentDays, appointmentTypes)
@@ -139,13 +137,6 @@ class PanelService {
 	// endregion
 
 	// region Get cards
-
-	void deletePendingCards(LocalDate day) {
-		List<Card> pendingCards = panelDatabaseClient.getCards(null, day)
-		if (pendingCards) {
-			panelDatabaseClient.deleteCards("", pendingCards.collect { it.properties })
-		}
-	}
 
 	static List<Card> handleOrdersCards(List<Order> orders, List<Card> dbOrdersCards) {
 		dbOrdersCards.each { Card card ->
@@ -707,7 +698,7 @@ class PanelService {
 			panelDatabaseClient.updateCards(updateCards.getUpdate())
 		}
 		if (updateCards.deleted) {
-			panelDatabaseClient.deleteCards("", updateCards.deleted.collect { it.properties })
+			panelDatabaseClient.deleteCards("", "", updateCards.deleted.collect { it.properties })
 		}
 	}
 

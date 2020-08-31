@@ -38,6 +38,10 @@ export class Url {
 		return `${environment.serverUrl}/panel/cards/links`;
 	}
 
+	public static resetCardsLinks(): string {
+		return `${environment.serverUrl}/panel/cards/resetLinks`;
+	}
+
 	public static cardsDeletion(): string {
 		return `${environment.serverUrl}/panel/cards/delete`;
 	}

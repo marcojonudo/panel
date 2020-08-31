@@ -2,6 +2,7 @@ package panel.pogos.fviberi
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import groovy.transform.CompileStatic
+import panel.utils.Constants
 
 @CompileStatic
 class Article {
@@ -15,6 +16,7 @@ class Article {
 	String rangeCode
 	Integer units
 	Float price
+	Boolean spv
 
 	@JsonCreator
     Article(Map article) {
@@ -28,6 +30,7 @@ class Article {
 		rangeCode = article.rangeCode
 		units = (Integer) article.units
 		price = (Float) article.price
+		spv = code ? ((String) article.code).startsWith(Constants.SPV_ID) : null
 	}
 
 }

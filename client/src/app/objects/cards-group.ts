@@ -188,6 +188,15 @@ export class CardsGroup {
 		this.end = this.cards[this.cards.length-1].end;
 	}
 
+	removeGroupCards(cards: Card[]): void {
+		this.cards = this.cards.filter((card: Card) =>
+			cards.find((c: Card) => c.panelId == card.panelId) == undefined
+		);
+		this.id = this.cards[0].panelId;
+		this.setStart(this.cards[0].start);
+		this.end = this.cards[this.cards.length-1].end;
+	}
+
 	findDuration(): number {
 		return UtilsService.sum(this.cards, Constants.PROPERTY.DURATION);
 	}

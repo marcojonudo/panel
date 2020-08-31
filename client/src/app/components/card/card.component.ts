@@ -14,6 +14,7 @@ import {UtilsService} from "../../services/utils.service";
 import {CardLinkHandler} from "../../objects/card-links/card-link-handler";
 import {LeftCardLinkHandler} from "../../objects/card-links/side/left-card-link-handler";
 import {RightCardLinkHandler} from "../../objects/card-links/side/right-card-link-handler";
+import {OrderLine} from "../../objects/order-line";
 
 @Component({
 	selector: 'app-card',
@@ -177,8 +178,12 @@ export class CardComponent implements OnInit {
 		}
 	}
 
-	findBackground(type: string): string {
-		return Constants.CARD_TYPE_BACKGROUND[type] || Constants.CARD_TYPE_BACKGROUND['DEFAULT'];
+	findBackground(orderLines: OrderLine[], type: string): string {
+		const spv = orderLines.find((line: OrderLine) => line.article.spv);
+		if (spv) {
+			return Constants.CARD_BACKGROUND.SPV;
+		}
+		return Constants.CARD_BACKGROUND[type] || Constants.CARD_BACKGROUND['DEFAULT'];
 	}
 
 	findBottomSectionBackground(divisionIndex: number, color: string) {

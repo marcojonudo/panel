@@ -31,15 +31,6 @@ export class UtilsService {
 
 	// endregion
 
-	public static createMinutesArray(from: number, to: number): number[] {
-		const length = (to - from) / 5;
-		let array = [];
-		for (let i = 0; i < length+1; i++) {
-			array.push(from + i * 5);
-		}
-		return array;
-	}
-
 	public static sort(array: any[], property: any): any[] {
 		return array.sort((a, b) => {
 			if (property(a) < property(b)) {

@@ -36,10 +36,12 @@ import {Observable} from "rxjs/internal/Observable";
 import {HourQuarter} from "../objects/hour-quarter";
 import {CardDurationHandler} from "../objects/card-duration/card-duration-handler";
 import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
-import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
 import {Vehicle} from "../objects/vehicle";
 import {Order} from "../objects/order";
 import {UpdateDurationInfo} from "../objects/card-duration/update-duration-info";
+import {AuxiliaryReplacement} from "../objects/auxiliary-replacement";
+import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
+import {UnassignedDropzone} from "../objects/dropzone-type/unassigned-dropzone";
 
 @Injectable({
 	providedIn: 'root'
@@ -241,7 +243,7 @@ export class CardsService {
 		return unassignedTypesCardsGroups;
 	}
 
-	private static initAssignedGroups(assignedCards: Card[]) {
+	static initAssignedGroups(assignedCards: Card[]) {
 		let groups: CardsGroup[] = [];
 		let processedCards = [];
 		for (let card of assignedCards) {
@@ -333,8 +335,8 @@ export class CardsService {
 		this.http.post(Url.cards(), cards, {params: {updateLinks: "true"}}).subscribe();
 	}
 
-	updateDbCardsPosition(cards: Card[]): void {
-		this.http.put(Url.cardsPosition(), cards).subscribe();
+	updateDbCardsPosition(cards: Card[], updateLinks = false): void {
+		this.http.patch(Url.cardsPosition(), cards, {params: {updateLinks: `${updateLinks}`}}).subscribe();
 	}
 
 	updateDbCardsDuration(cards: Card[]): void {
@@ -343,6 +345,10 @@ export class CardsService {
 
 	updateDbCardsLinks(cards: Card[]): void {
 		this.http.patch(Url.cardsLinks(), cards).subscribe();
+	}
+
+	resetDbCardsLinks(cards: Card[]): Observable<any> {
+		return this.http.patch(Url.resetCardsLinks(), cards);
 	}
 
 	static updateFinishedGroup(group: CardsGroup) {
@@ -963,6 +969,13 @@ export class CardsService {
 		return dividedCards;
 	}
 
+	static resetCardsLinks(cards: Card[]): void {
+		cards.forEach((card: Card, i: number) => {
+			card.linkedPrevious = undefined;
+			card.linkedNext = undefined;
+		});
+	}
+
 	private static updateDivisionCardsLinks(cards: Card[]): void {
 		cards.forEach((card: Card, i: number) => {
 			if (i != 0) {
@@ -1037,30 +1050,135 @@ export class CardsService {
 	// region Auxiliary replacement
 
 	replaceGroup(group: CardsGroup, auxiliaryGroup: CardsGroup = CardsService.auxiliaryGroupToReplace): void {
-		const originDropzone = DropzoneService.findDropzone(group.cards[0]);
-		const destinyDropzone = DropzoneService.findDropzone(auxiliaryGroup.cards[0]);
+		/* Los reemplazos siempre son de fichas auxiliares ya asignadas, por fichas no asignadas */
+		const originDropzone: UnassignedDropzone = <UnassignedDropzone> DropzoneService.findDropzone(group.cards[0]);
+		const destinyDropzone: AssignedDropzone = <AssignedDropzone> DropzoneService.findDropzone(auxiliaryGroup.cards[0]);
 
-		const validateInfo = (<AssignedDropzone> destinyDropzone).validateOverlappedGroups(
-			auxiliaryGroup,
-			CardsService.findDayMechanicGroups(auxiliaryGroup.day, auxiliaryGroup.mechanicCode),
-			auxiliaryGroup.line,
-			auxiliaryGroup.start,
-			auxiliaryGroup.start.add(group.findDuration(), Constants.DAY_JS.m),
-			destinyDropzone.interval
+		const auxiliaryGroups = CardsService.findAuxiliaryGroups(auxiliaryGroup.cards[0].order.code);
+		const groups = CardsService.unassignedGroups.filter((g: CardsGroup) =>
+			g.cards[0].order.code == group.cards[0].order.code
 		);
-		if (validateInfo) {
-			this.deleteReplacedGroup(auxiliaryGroup, destinyDropzone);
-			CardsService.updateReplacementGroup(
-				group,
-				validateInfo.groups,
-				auxiliaryGroup.line,
-				validateInfo.newStart,
-				originDropzone,
-				destinyDropzone
-			);
-		} else {
-			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_REPLACEMENT_SPACE));
+		const auxiliaryReplacements = CardsService.findAuxiliaryReplacement(auxiliaryGroups, groups);
+		console.log('Auxiliary replacements', auxiliaryReplacements);
+		const notValidatedAuxReplacements = this.handleAuxiliaryReplacements(
+			auxiliaryReplacements, originDropzone, destinyDropzone
+		);
+
+		if (notValidatedAuxReplacements.length) {
+			console.log('Not validated auxiliary replacements', notValidatedAuxReplacements);
+			notValidatedAuxReplacements.forEach((auxReplacement: AuxiliaryReplacement) => {
+				const message = auxReplacement.validationInfo
+					? Constants.MESSAGE.NO_REPLACEMENT_SPACE(auxReplacement.group)
+					: Constants.MESSAGE.NOT_REPLACED_ALL_CARDS(auxReplacement.differentCards)
+				NotificationService.notifyToast(new WarningToast(message));
+			});
 		}
+	}
+
+	private handleAuxiliaryReplacements(
+		auxiliaryReplacements: AuxiliaryReplacement[],
+		originDropzone: UnassignedDropzone,
+		destinyDropzone: AssignedDropzone
+	): AuxiliaryReplacement[] {
+		const notValidatedAuxReplacements = [];
+		auxiliaryReplacements.forEach((auxiliaryReplacement: AuxiliaryReplacement) => {
+			const auxGroup = auxiliaryReplacement.auxiliaryGroup;
+			const duration = CardsService.findCardsDuration(auxiliaryReplacement.coincidentCards);
+			const validateInfo = destinyDropzone.validateOverlappedGroups(
+				auxGroup,
+				CardsService.findDayMechanicGroups(auxGroup.day, auxGroup.mechanicCode),
+				auxGroup.line,
+				auxGroup.start,
+				auxGroup.start.add(duration, Constants.DAY_JS.m),
+				destinyDropzone.interval
+			);
+			if (validateInfo) {
+				/* Si el número de fichas coincide, el grupo al completo reemplaza el auxiliar */
+				if (auxiliaryReplacement.coincidentCards.length == auxiliaryReplacement.group.cards.length) {
+					this.deleteReplacedGroup(auxGroup, destinyDropzone);
+					CardsService.updateReplacementGroup(
+						auxiliaryReplacement.group,
+						validateInfo.groups,
+						auxGroup.line,
+						validateInfo.newStart,
+						originDropzone,
+						destinyDropzone
+					);
+				} else {
+					/* Si no coincide el número de fichas, hay que formar nuevos grupos con las fichas que sustituirán
+					*  a las auxiliares */
+					const [group, newGroup] = CardsService.buildNewReplacementGroups(auxiliaryReplacement);
+					this.deleteReplacedGroup(auxGroup, destinyDropzone);
+					this.resetDbCardsLinks(group.cards.concat(newGroup.cards)).subscribe(() => {
+						CardsService.updateReplacementGroup(
+							newGroup,
+							validateInfo.groups,
+							auxGroup.line,
+							validateInfo.newStart,
+							originDropzone,
+							destinyDropzone
+						);
+					});
+					notValidatedAuxReplacements.push(auxiliaryReplacement);
+				}
+			} else {
+				auxiliaryReplacement.validationInfo = validateInfo;
+				notValidatedAuxReplacements.push(auxiliaryReplacement);
+			}
+		});
+		return notValidatedAuxReplacements;
+	}
+
+	private static findAuxiliaryGroups(orderCode: string, groups: CardsGroup[] = this.assignedGroups): CardsGroup[] {
+		return groups.filter((group: CardsGroup) => group.cards[0].order.code == orderCode);
+	}
+
+	private static findAuxiliaryReplacement(
+		auxiliaryGroups: CardsGroup[], groups: CardsGroup[]
+	): AuxiliaryReplacement[] {
+		return auxiliaryGroups.map((auxGroup: CardsGroup) => {
+			const auxColors = auxGroup.cards.map((c: Card) => c.group.color.code);
+			const coincidentGroup = groups.find((group: CardsGroup) =>
+				group.cards.find((c: Card) => auxColors.indexOf(c.group.color.code) != -1) != undefined
+			);
+			const coincidentCards = [];
+			if (coincidentGroup) {
+				auxColors.forEach((color: string) => {
+					const card = coincidentGroup.cards.find((c: Card) => c.group.color.code == color);
+					if (card) {
+						coincidentCards.push(card);
+					}
+				});
+			}
+			return new AuxiliaryReplacement(auxGroup, coincidentGroup, coincidentCards);
+		})
+	}
+
+	private static buildNewReplacementGroups(auxiliaryReplacement: AuxiliaryReplacement): CardsGroup[] {
+		/* Se gestionan las acciones relacionadas con la actualización del grupo no asignado */
+		const group = this.handleReplacementGroupUpdate(
+			auxiliaryReplacement.group, auxiliaryReplacement.coincidentCards
+		);
+		const newGroup = this.handleReplacementGroupCreation(auxiliaryReplacement.coincidentCards);
+		return [group, newGroup];
+	}
+
+	static handleReplacementGroupUpdate(group: CardsGroup, coincidentCards: Card[]): CardsGroup {
+		CardsService.resetCardsLinks(group.cards);
+		group.removeGroupCards(coincidentCards);
+		CardsService.updateCardsLinks(group.cards);
+		/* Al quitar fichas de agrupaciones no asignadas, es necesario actualizar la propiedad 'left' para
+		*  los de su derecha se coloquen en la posición correcta */
+		CardPositionService.updateUnassignedGroupsLeft(
+			CardsService.findUnassignedGroups(group.cards[0].type, group.cards[0].status)
+		);
+		return group;
+	}
+
+	static handleReplacementGroupCreation(coincidentCards: Card[]): CardsGroup {
+		const newGroup = new CardsGroup(coincidentCards);
+		CardsService.updateCardsLinks(newGroup.cards);
+		return newGroup;
 	}
 
 	static updateReplacementGroup(
@@ -1068,8 +1186,8 @@ export class CardsService {
 		groups: CardsGroup[],
 		line: number,
 		newStart: Dayjs,
-		originDropzone: Dropzone,
-		destinyDropzone: Dropzone
+		originDropzone: UnassignedDropzone,
+		destinyDropzone: AssignedDropzone
 	): void {
 		originDropzone.removeGroup(group);
 		const allGroups = [group].concat(groups);
@@ -1077,7 +1195,7 @@ export class CardsService {
 		destinyDropzone.addGroup(group, allGroups);
 	}
 
-	deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {
+	private deleteReplacedGroup(groupToReplace: CardsGroup, destinyDropzone: Dropzone): void {
 		destinyDropzone.removeGroup(groupToReplace);
 		this.http.put(Url.cardsDeletion(), groupToReplace.cards).subscribe();
 	}

@@ -78,6 +78,7 @@ export class DropzoneService {
 			return this.dropzones.find((dropzone: Dropzone) =>
 				dropzone.mechanic && dropzone.mechanic.code == card.mechanicCode
 					&& dropzone.mechanic.day.isSame(card.day)
+					&& dropzone.interval.start <= card.start && card.start < dropzone.interval.end
 			);
 		} else {
 			if (card.status == Constants.CARD_STATUS.FINISHED) {

@@ -1,5 +1,6 @@
 import {Dayjs} from "dayjs";
 import {CardsGroup} from "./cards-group";
+import {Card} from "./card";
 
 export class Constants {
 
@@ -106,9 +107,10 @@ export class Constants {
 		FINISH: 'FINISH',
 		AUXILIARY: 'AUXILIARY'
 	};
-	public static readonly CARD_TYPE_BACKGROUND: any = {
+	public static readonly CARD_BACKGROUND: any = {
 		DEFAULT: '#FFFFFF',
-		AUXILIARY: '#FFE4AA'
+		AUXILIARY: '#FFE4AA',
+		SPV: '#F3FF00'
 	};
 	public static readonly GROUP_MODE: any = {
 		DRAG: 'DRAG',
@@ -172,12 +174,13 @@ export class Constants {
 	};
 	public static readonly MESSAGE: any = {
 		NO_UNASSIGNED_GROUPS_TO_REPLACE: 'No quedan fichas sin asignar para sustituir la auxiliar',
-		NO_REPLACEMENT_SPACE: 'No hay espacio suficiente para reemplazar la ficha auxiliar con la agrupación seleccionada',
 		CREATE_SCHEDULE_TOO_CLOSE: 'Hay otros horarios de citas demasiado próximos. Por favor, escoge otro intervalo de horas',
 		NO_DAYS_SCHEDULES: 'No hay horarios definidos para días posteriores',
 		GROUP_UPDATED_REAL_TIME: 'La ficha se ha actualizado en otro terminal',
 		UNASSIGNED_ECOMMERCE_GROUPS: (groups: CardsGroup[]) => `Fichas de eCommerce sin gestionar: ${groups.map((g: CardsGroup) => g.cards[0].order.code).join(", ")}`,
-		DIFFERENT_CARD_DAY: (cardDay: Dayjs, orderDay: Dayjs) => `Ficha del día ${orderDay.format(Constants.DATE_FORMAT.yyyy_MM_dd)} colocada el día ${cardDay.format(Constants.DATE_FORMAT.yyyy_MM_dd)}`
+		DIFFERENT_CARD_DAY: (cardDay: Dayjs, orderDay: Dayjs) => `Ficha del día ${orderDay.format(Constants.DATE_FORMAT.yyyy_MM_dd)} colocada el día ${cardDay.format(Constants.DATE_FORMAT.yyyy_MM_dd)}`,
+		NO_REPLACEMENT_SPACE: (group: CardsGroup) => `No hay espacio suficiente para reemplazar la ficha auxiliar con la OR ${group.cards[0].order.code} y agrupaciones ${group.cards.map((c: Card) => c.code).join(", ")}`,
+		NOT_REPLACED_ALL_CARDS: (cards: Card[]) => `Las fichas ${cards.map((c: Card) => c.code).join(", ")} no se han asignado, al no coincidir la agrupación con las auxiliares`
 	};
 	public static readonly SCHEDULE_BORDER_COLOR: any = {
 		'#c5e0b4': '#38a83d',

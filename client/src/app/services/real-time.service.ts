@@ -34,6 +34,8 @@ import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-div
 import {DropzoneService} from "./dropzone.service";
 import {AppointmentDay} from "../objects/appointments/appointment-day";
 import {RealTimeCardCreate} from "../objects/real-time-update/real-time-card-create";
+import {RealTimeCardResetLinks} from "../objects/real-time-update/real-time-card-reset-links";
+import {RealTimeCardDelete} from "../objects/real-time-update/real-time-card-delete";
 
 @Injectable({
 	providedIn: 'root'
@@ -47,6 +49,10 @@ export class RealTimeService {
 			new RealTimeCardUpdateDuration(this, cards),
 		updateCardsLinks: (cards: any[]) =>
 			new RealTimeCardUpdateLinks(this, cards),
+		resetCardsLinks: (cards: any[]) =>
+			new RealTimeCardResetLinks(this, cards),
+		deleteCards: (cards: any[]) =>
+			new RealTimeCardDelete(this, cards),
 		divideCards: (cards: any[]) =>
 			new RealTimeCardDivide(this, cards),
 		createCards: (cards: any[]) =>
@@ -206,6 +212,33 @@ export class RealTimeService {
 		} else {
 			linkHandler.unlink(leftCard, sideLinkHandler);
 		}
+	}
+
+	resetLinks(cards: Card[]): void {
+		const linkedGroups = CardsService.initAssignedGroups(cards);
+		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
+		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
+		const group = CardsService.findCardGroup(allGroups, cards[0].panelId);
+		const cardsToRemove = [];
+		/* La posición 1 corresponde a aquel grupo que ha reemplazado fichas auxiliares */
+		linkedGroups[1].cards.forEach((card: Card) => {
+			cardsToRemove.push(group.cards.find((c: Card) => c.panelId == card.panelId));
+		});
+		CardsService.handleReplacementGroupUpdate(group, cardsToRemove);
+		const newGroup = CardsService.handleReplacementGroupCreation(cardsToRemove);
+		CardsService.addToUnassigned(newGroup, true);
+	}
+
+	deleteCards(cards: Card[]): void {
+		let originDropzone = undefined;
+		cards.forEach((card: Card) => {
+			const group = this.findPanelCardGroup(card.panelId);
+			if (group) {
+				originDropzone = DropzoneService.findDropzone(group.cards[0]);
+				originDropzone.removeGroup(group);
+			}
+		});
+		originDropzone.notify(false);
 	}
 
 	divideCards(cards: Card[]): void {

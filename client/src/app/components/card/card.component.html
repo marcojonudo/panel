@@ -2,7 +2,7 @@
 	class="h-100 panel-card resizable"
 	[ngStyle]="{
 		'width.px': card.width,
-		'background-color': findBackground(card.type)
+		'background-color': findBackground(card.order.lines, card.type)
 	}">
 	<div class="h-100 d-flex flex-column">
 		<div class="d-flex">

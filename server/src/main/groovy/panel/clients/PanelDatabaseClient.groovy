@@ -58,19 +58,18 @@ interface PanelDatabaseClient {
 
 	@Patch("/cards/links")
 	void updateCardsLinks(
-		@Header @Nullable String sessionId,
-		@Header @Nullable String realTimeAction,
-		@Body List<Card> cards
+		@Header @Nullable String sessionId, @Header @Nullable String realTimeAction, @Body List<Card> cards
 	)
 
 	@Post("/cards/delete")
-	void deleteCards(@Header String sessionId, @Body List<Map<String, Object>> cards)
+	void deleteCards(@Header String sessionId, @Header String realTimeAction, @Body List<Map<String, Object>> cards)
 
-	@Put("/cards/position")
+	@Patch("/cards/position")
 	HttpResponse<Void> updateCardsPosition(
 		@Header String sessionId,
 		@Header String realTimeAction,
-		@Body List<Card> cards
+		@Body List<Card> cards,
+		@QueryValue boolean updateLinks
 	)
 
 	@Put("/cards/duration")

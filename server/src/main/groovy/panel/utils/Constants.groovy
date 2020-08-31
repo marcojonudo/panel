@@ -42,6 +42,8 @@ class Constants {
 		UPDATE_CARDS_POSITION: 'updateCardsPosition',
 		UPDATE_CARDS_DURATION: 'updateCardsDuration',
 		UPDATE_CARDS_LINKS: 'updateCardsLinks',
+		RESET_CARDS_LINKS: 'resetCardsLinks',
+		DELETE_CARDS: 'deleteCards',
 		UPDATE_MECHANIC_JOB_LINE_TYPE: 'updateMechanicJobLineType',
 		UPDATE_MECHANICS_POSITION: 'updateMechanicsPosition',
 		UPDATE_MECHANIC_LINES: 'updateMechanicLines',
@@ -57,9 +59,6 @@ class Constants {
 	]
 
 	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']
-	static final List<AppointmentTypeCode> ECOMMERCE_SCHEDULES_APPOINTMENT_TYPE_CODES = [
-		AppointmentTypeCode.ECO, AppointmentTypeCode.TP
-	]
 	static final List<AppointmentTypeCode> ECOMMERCE_CARD_APPOINTMENT_TYPE_CODES = [
 		AppointmentTypeCode.ECO, AppointmentTypeCode.TP, AppointmentTypeCode.RAP_CRF
 	]
@@ -70,5 +69,6 @@ class Constants {
 	static final String NON_EXISTENT_CARD = "Ficha no encontrada: "
 	static final String OPERATION_SUCCESS = "Operación completada con éxito"
 	static final String ECOMMERCE_USER_CODE = "9999997"
+	static final String SPV_ID = "799"
 
 }
