@@ -2,7 +2,6 @@ stages:
     - build
     - assemble
     - versioning
-    - tagging
     - docker
     - deploy
 
@@ -12,9 +11,9 @@ stages:
     - chmod -R +x $SCRIPTS_DIR
 
 .gradle_template: &gradle_template
-    image: registry.gitlab.com/marco_fv/ci-scripts:gradle
     tags:
         - sidesman2
+    image: registry.gitlab.com/marco_fv/ci-scripts:gradle
     variables:
         GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     cache:
@@ -23,6 +22,10 @@ stages:
         paths:
             - build
             - .gradle
+    artifacts:
+        paths:
+            - build/libs/*.jar
+        expire_in: 1 hour
 
 .get_version_template: &get_version_template
     tags:
@@ -41,8 +44,8 @@ stages:
     tags:
         - sidesman2
     dependencies:
-        - get-version:dev
-        - get-version:merge-request
+        - get-version:hash
+        - get-version:semantic:push
     before_script:
         - *fetch_ci_scripts
     script:
@@ -66,7 +69,7 @@ build:frontend:
     artifacts:
         paths:
             - server/build/resources/client/static
-        expire_in: 1 hour
+        expire_in: 1 day
     cache:
         paths:
             - node_modules/
@@ -87,44 +90,33 @@ assemble:jar:
     only:
         - branches
 
-get-version:dev:
+get-version:hash:
     stage: versioning
     <<: *get_version_template
     script:
-        - groovy $SCRIPTS_DIR/groovy/getDevVersion.groovy
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/getHashVersion.groovy
     only:
         - branches
     except:
         - master
-#        - development
+        - development
 
-get-version:merge-request:
+get-version:semantic:push:
     stage: versioning
     <<: *get_version_template
     script:
-        - groovy $SCRIPTS_DIR/groovy/getMergeRequestVersion.groovy
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/getSemanticPushVersion.groovy
     only:
-        - merge_requests
-    except:
         - master
+        - development
 
-tagging:git:
-    stage: tagging
-    tags:
-        - gitlab-org
-    dependencies:
-        - get-version:dev
-        - get-version:merge-request
-    before_script:
-        - *fetch_ci_scripts
-        - CURRENT_VERSION=$(git describe --tags)
-        - PROJECT_VERSION=$(cat ./version)
-        - echo Updating from $CURRENT_VERSION to $PROJECT_VERSION
+get-version:semantic:merge_request:
+    stage: versioning
+    <<: *get_version_template
     script:
-        - $SCRIPTS_DIR/shell/gitTag.sh
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/getSemanticVersion.groovy
     only:
         - merge_requests
-        - branches
 
 build:docker:
     stage: docker
@@ -133,7 +125,8 @@ build:docker:
         - docker:dind
     dependencies:
         - assemble:jar
-        - get-version:dev
+        - get-version:hash
+        - get-version:semantic:push
     before_script:
         - *fetch_ci_scripts
     script:
