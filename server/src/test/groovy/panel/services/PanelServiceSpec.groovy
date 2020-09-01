@@ -2455,7 +2455,7 @@ class PanelServiceSpec extends Specification {
 	void "test handle cards update order replace eCommerce found cards"() {
 		given:
 		List<Card> dbCards = [
-			new Card([start: time8.toString(), order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+			new Card([start: time8.toString(), type: Card.CardType.AUXILIARY, status: Card.Status.ECOMMERCE, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
 		]
 		List<Card> builtCards = [
 			new Card([duration: 30, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE, created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
@@ -2472,11 +2472,13 @@ class PanelServiceSpec extends Specification {
 		updateCards.newReplace[0].start == time8
 		updateCards.newReplace[1].start == time8.plusMinutes(30)
 		updateCards.newReplace[2].start == time8.plusMinutes(50)
+		updateCards.deleted
+		updateCards.deleted.size() == 1
+		updateCards.deleted[0].status == Card.Status.ECOMMERCE
 		!updateCards.updated
 		!updateCards.newCards
 		!updateCards.same
 		!updateCards.reset
-		!updateCards.deleted
 	}
 
 	void "test handle cards update order replace eCommerce not found cards"() {
