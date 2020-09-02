@@ -41,8 +41,9 @@ export class UnassignedDropzone implements Dropzone {
 		CardsService.removeFromUnassigned(group);
 	}
 
-	updateProperties(groups: CardsGroup[]): void {
+	updateProperties(groups: CardsGroup[]): boolean {
 		CardsService.resetCardsGroup(groups[0]);
+		return false;
 	}
 
 	addGroup(group: CardsGroup): void {

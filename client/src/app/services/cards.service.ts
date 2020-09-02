@@ -354,7 +354,7 @@ export class CardsService {
 	static updateFinishedGroup(group: CardsGroup) {
 		group.status = Constants.CARD_STATUS.FINISHED;
 		for (const card of group.cards) {
-			card.setStatus(Constants.CARD_STATUS.FINISHED);
+			card.status = Constants.CARD_STATUS.FINISHED;
 			/* Se definen las propiedades last para poder manejar los contadores de citas */
 			card.setMechanicCode(undefined);
 		}
@@ -375,23 +375,23 @@ export class CardsService {
 		card.line = undefined;
 	}
 
+	static checkNewCard(groups: CardsGroup[]): boolean {
+		return groups[0].cards[0].type == Constants.CARD_TYPE.AUXILIARY && !groups[0].mechanicCode;
+	}
+
 	static updatePositionProperties(
 		groups: CardsGroup[], day: Dayjs, mechanicCode: string, line: number, start: Dayjs
-	) {
-		const status = groups[0].cards[0].type == Constants.CARD_TYPE.AUXILIARY
-			? Constants.CARD_STATUS.AUXILIARY : Constants.CARD_STATUS.DEFAULT;
+	): void {
 		groups.forEach((group: CardsGroup, i: number) => {
 			group.day = day;
 			group.mechanicCode = mechanicCode;
 			group.line = line;
 			group.setStart(i == 0 ? start : groups[i-1].end);
-			group.status = status;
 			group.cards.forEach((card: Card, i: number) => {
 				card.setDay(day);
 				card.setMechanicCode(mechanicCode);
 				card.setLine(line);
 				card.setStart(i == 0 ? group.start : group.cards[i-1].end);
-				card.setStatus(status);
 			})
 			group.setId();
 		});

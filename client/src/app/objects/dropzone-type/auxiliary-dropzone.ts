@@ -42,8 +42,9 @@ export class AuxiliaryDropzone implements Dropzone {
 		CardsService.auxiliaryGroup = undefined;
 	}
 
-	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): boolean {
 		CardsService.resetCardsGroup(groups[0]);
+		return false;
 	}
 
 	addGroup(group: CardsGroup): void {

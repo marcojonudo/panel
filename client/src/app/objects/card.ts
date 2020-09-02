@@ -18,7 +18,6 @@ export class Card {
 	mechanicCode: string;
 	lastMechanicCode: string;
 	status: string;
-	lastStatus: string;
 
 	start: Dayjs;
 	lastStart: Dayjs;
@@ -121,16 +120,6 @@ export class Card {
 	setDivisionIndex(divisionIndex: number): void {
 		this.divisionIndex = divisionIndex;
 		this.panelId = CardsService.buildPanelId(this);
-	}
-
-	setLinkedIndex(linkedIndex: number): void {
-		this.linkedIndex = linkedIndex;
-		this.panelId = CardsService.buildPanelId(this);
-	}
-
-	setStatus(status: string): void {
-		this.lastStatus = this.status;
-		this.status = status;
 	}
 
 	clone(): Card {

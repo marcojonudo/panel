@@ -215,10 +215,10 @@ export class CardPositionService {
 			if (validatedInfo != undefined) {
 				this.originDropzone.removeGroup(helperGroup);
 				const allGroups = [helperGroup].concat(validatedInfo.groups);
-				this.destinyDropzone.updateProperties(
+				const newCard = this.destinyDropzone.updateProperties(
 					allGroups, validatedInfo.newStart, coordinates.line, this.destinyDropzone.mechanic
 				);
-				this.destinyDropzone.addGroup(helperGroup, allGroups);
+				this.destinyDropzone.addGroup(helperGroup, allGroups, newCard);
 				return this.destinyDropzone.findLastCoordinates(helperGroup, coordinates);
 			} else {
 				this.originDropzone.handleNotValidatedMovement(helperGroup);

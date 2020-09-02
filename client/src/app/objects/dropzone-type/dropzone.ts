@@ -21,9 +21,9 @@ export interface Dropzone {
 
 	removeGroup(group: CardsGroup): void;
 
-	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void;
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): boolean;
 
-	addGroup(group: CardsGroup, groups: CardsGroup[]): void;
+	addGroup(group: CardsGroup, groups: CardsGroup[], newCard: boolean): void;
 
 	addRealTimeGroup(group: CardsGroup): void;
 

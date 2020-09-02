@@ -40,8 +40,9 @@ export class FinishDropzone implements Dropzone {
 
 	removeGroup(group: CardsGroup): void {}
 
-	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): boolean {
 		CardsService.updateFinishedGroup(groups[0]);
+		return false;
 	}
 
 	addGroup(group: CardsGroup, groups: CardsGroup[]): void {

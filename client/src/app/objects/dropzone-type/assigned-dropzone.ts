@@ -69,30 +69,35 @@ export class AssignedDropzone implements Dropzone {
 		CardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
 	}
 
-	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): void {
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): boolean {
 		const day = newStart.startOf(Constants.DAY_JS.d);
 		if (this.checkNotifyDifferentDay(groups[0].cards[0], day)) {
 			NotificationService.notifyToast(
 				new WarningToast(Constants.MESSAGE.DIFFERENT_CARD_DAY(day, groups[0].cards[0].order.day))
 			);
 		}
+		const newCard = CardsService.checkNewCard(groups);
 		CardsService.updatePositionProperties(
 			groups, newStart.startOf(Constants.DAY_JS.d), mechanic.code, line, newStart
 		);
+		return newCard;
 	}
 
 	checkNotifyDifferentDay(card: Card, day: Dayjs): boolean {
 		return card.type != Constants.CARD_TYPE.AUXILIARY && !card.mechanicCode && !day.isSame(card.order.day);
 	}
 
-	addGroup(group: CardsGroup, groups: CardsGroup[]): void {
+	addGroup(group: CardsGroup, groups: CardsGroup[], newCard: boolean = false): void {
 		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
 
 		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
 		/* Si se acaba de soltar en panel una ficha auxiliar nueva, esta debe crearse en BD, no actualizarse */
-		this.checkNewAuxiliaryCard(cardsToUpdate[0])
-			? this.cardsService.createDbCards(cardsToUpdate)
-			: this.cardsService.updateDbCardsPosition(cardsToUpdate);
+		console.log('cardsToUpdat', cardsToUpdate[0]);
+		if (newCard) {
+			this.cardsService.createDbCards(cardsToUpdate)
+		} else {
+			this.cardsService.updateDbCardsPosition(cardsToUpdate);
+		}
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
@@ -109,10 +114,6 @@ export class AssignedDropzone implements Dropzone {
 			CardPositionService.resetDragAction();
 			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
 		}
-	}
-
-	checkNewAuxiliaryCard(card: Card): boolean {
-		return card.type == Constants.CARD_TYPE.AUXILIARY && card.lastStatus == Constants.CARD_STATUS.DEFAULT;
 	}
 
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
