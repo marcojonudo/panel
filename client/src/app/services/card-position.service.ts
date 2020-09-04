@@ -14,6 +14,7 @@ import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../objects/groups-translation/overlapped-groups-info";
 import {ValidateCoordinatesInfo} from "../objects/groups-translation/validate-coordinates-info";
 import {ScheduleInterval} from "../objects/schedule-interval";
+import {Scroll} from "../objects/scroll";
 
 @Injectable({
 	providedIn: 'root'
@@ -27,8 +28,8 @@ export class CardPositionService {
 
 	private static _unassignedCardTop: number;
 
-	private static _scrollLeft: number;
-	private static _scrollTop: number;
+	private static _scroll: Scroll;
+	private static _initialScroll: Scroll;
 	private static _barScrollLeft: number;
 
 	private static _coordinates: Coordinates;
@@ -87,20 +88,20 @@ export class CardPositionService {
 		this._helperGroup = value;
 	}
 
-	static get scrollLeft(): number {
-		return this._scrollLeft;
+	static get scroll(): Scroll {
+		return this._scroll;
 	}
 
-	static set scrollLeft(value: number) {
-		this._scrollLeft = value;
+	static set scroll(value: Scroll) {
+		this._scroll = value;
 	}
 
-	static get scrollTop(): number {
-		return this._scrollTop;
+	static get initialScroll(): Scroll {
+		return this._initialScroll;
 	}
 
-	static set scrollTop(value: number) {
-		this._scrollTop = value;
+	static set initialScroll(value: Scroll) {
+		this._initialScroll = value;
 	}
 
 	static get unassignedCardTop(): number {
@@ -130,8 +131,7 @@ export class CardPositionService {
 		const unassignedCardRelativeTop = (Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2;
 		this.unassignedCardTop = window.innerHeight - unassignedCardRelativeTop - Constants.VALUE.LINE_HEIGHT_DEFAULT;
 
-		this.scrollLeft = 0;
-		this.scrollTop = 0;
+		this.scroll = new Scroll()
 		this.barScrollLeft = 0;
 
 		this.dragging = false;
@@ -226,16 +226,9 @@ export class CardPositionService {
 		} else {
 			this.originDropzone.handleNotValidatedMovement(helperGroup);
 		}
-		return startPosition;
-	}
-
-	static handleUnassignedPosition(
-		group: CardsGroup,
-		groups: CardsGroup[]
-	): Coordinates {
-		const allGroups = CardPositionService.sortUnassignedGroups(groups.concat(group));
-		this.updateUnassignedGroupsLeft(allGroups);
-		return new Coordinates(group.left, this.unassignedCardTop);
+		return this.originDropzone.fixNotValidatedMovementScroll(
+			startPosition, CardPositionService.initialScroll, CardPositionService.scroll
+		);
 	}
 
 	static sortUnassignedGroups(groups: CardsGroup[]): CardsGroup[] {
@@ -362,7 +355,7 @@ export class CardPositionService {
 	 * mecánico */
 	static absolutePositionToLeft(
 		value: number,
-		scrollLeft: number = this.scrollLeft
+		scrollLeft: number = this.scroll.left
 	): number {
 		return value + scrollLeft - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
@@ -371,15 +364,15 @@ export class CardPositionService {
 		return value - Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	static leftToAbsolutePosition(value: number, scrollLeft: number = this.scrollLeft): number {
+	static leftToAbsolutePosition(value: number, scrollLeft: number = this.scroll.left): number {
 		return value - scrollLeft + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	static absolutePositionToTop(value: number, scrollTop: number = this.scrollTop): number {
+	static absolutePositionToTop(value: number, scrollTop: number = this.scroll.top): number {
 		return value + scrollTop;
 	}
 
-	private static dropzoneTopToAbsolutePosition(top: number, scrollTop: number = this.scrollTop): number {
+	private static dropzoneTopToAbsolutePosition(top: number, scrollTop: number = this.scroll.top): number {
 		return top - scrollTop;
 	}
 

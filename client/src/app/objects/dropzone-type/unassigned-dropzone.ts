@@ -11,6 +11,7 @@ import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {WarningToast} from "../toasts/warning-toast";
+import {Scroll} from "../scroll";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -34,7 +35,7 @@ export class UnassignedDropzone implements Dropzone {
 	}
 
 	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
-		return new OverlappedGroupsInfo();
+		return group.cards[0].type == Constants.CARD_TYPE.AUXILIARY ? undefined : new OverlappedGroupsInfo();
 	}
 
 	removeGroup(group: CardsGroup): void {
@@ -81,6 +82,11 @@ export class UnassignedDropzone implements Dropzone {
 			CardsService.getAddGroupDelay(group)
 		);
 	}
+
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates {
+		return startPosition;
+	}
+
 
 	notify(resetHelperGroup: boolean = true): void {
 		NotificationService.notifyBand();

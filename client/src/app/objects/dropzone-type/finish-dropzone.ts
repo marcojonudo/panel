@@ -12,6 +12,7 @@ import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {NotificationService} from "../../services/notification.service";
 import {WarningToast} from "../toasts/warning-toast";
+import {Scroll} from "../scroll";
 
 export class FinishDropzone implements Dropzone {
 
@@ -64,6 +65,11 @@ export class FinishDropzone implements Dropzone {
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {}
+
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates {
+		return undefined;
+	}
+
 
 	notify(resetHelperGroup: boolean = true): void {
 		/* Se elimina el hiddenGroup aquí, en lugar de en la directiva clickeable, porque el evento de esta última

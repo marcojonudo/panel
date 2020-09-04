@@ -13,6 +13,7 @@ import {NotificationService} from "../../services/notification.service";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {WarningToast} from "../toasts/warning-toast";
+import {Scroll} from "../scroll";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -92,7 +93,6 @@ export class AssignedDropzone implements Dropzone {
 
 		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
 		/* Si se acaba de soltar en panel una ficha auxiliar nueva, esta debe crearse en BD, no actualizarse */
-		console.log('cardsToUpdat', cardsToUpdate[0]);
 		if (newCard) {
 			this.cardsService.createDbCards(cardsToUpdate)
 		} else {
@@ -129,6 +129,12 @@ export class AssignedDropzone implements Dropzone {
 			() => this.notify(true),
 			CardsService.getAddGroupDelay(group)
 		);
+	}
+
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates {
+		startPosition.y = startPosition.y + initialScroll.top - scroll.top;
+		startPosition.x = startPosition.x + initialScroll.left - scroll.left;
+		return startPosition;
 	}
 
 	notify(resetHelperGroup: boolean = true): void {

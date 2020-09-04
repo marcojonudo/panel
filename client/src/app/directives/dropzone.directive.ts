@@ -59,8 +59,8 @@ export class DropzoneDirective implements OnInit, OnChanges {
 				this.dropzone.position =
 					DimensionsService.createPosition(
 						this.element.nativeElement.getBoundingClientRect(),
-						CardPositionService.scrollLeft,
-						CardPositionService.scrollTop
+						CardPositionService.scroll.left,
+						CardPositionService.scroll.top
 					);
 			}, 150)
 		}

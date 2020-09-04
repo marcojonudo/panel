@@ -12,6 +12,7 @@ import {ScheduleInterval} from "../schedule-interval";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {WarningToast} from "../toasts/warning-toast";
+import {Scroll} from "../scroll";
 
 export class AuxiliaryDropzone implements Dropzone {
 
@@ -66,6 +67,10 @@ export class AuxiliaryDropzone implements Dropzone {
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {}
+
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates {
+		return undefined;
+	}
 
 	notify(resetHelperGroup: boolean = true): void {
 		NotificationService.notifyBand();

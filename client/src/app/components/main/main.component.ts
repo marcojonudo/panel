@@ -62,8 +62,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _initialScrollLeft: number;
 
 	private relativeContainer: boolean;
-	private scrollLeft: number;
-	private scrollTop: number;
 
 	private updateArraySubscription: Subscription;
 	private oneDayModeSubscription: Subscription;
@@ -92,8 +90,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
 
 		this.relativeContainer = true;
-		this.scrollLeft = 0;
-		this.scrollTop = 0;
 
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 

@@ -175,7 +175,7 @@ export class DimensionsService {
 		this.initMaxSchedule(this.oneDayMode);
 
 		if (scrollTopDaysOffset > 0) {
-			CardPositionService.scrollTop = this.calcScrollTopOffset(daysMechanics, scrollTopDaysOffset);
+			CardPositionService.scroll.top = this.calcScrollTopOffset(daysMechanics, scrollTopDaysOffset);
 		}
 	}
 
@@ -416,7 +416,7 @@ export class DimensionsService {
 		CardPositionService.updateDimensions();
 
 		if (!oneDayMode) {
-			CardPositionService.scrollLeft = 0;
+			CardPositionService.scroll.left = 0;
 		}
 	}
 

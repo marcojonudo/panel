@@ -4,8 +4,8 @@ import {CardPositionService} from "../services/card-position.service";
 import {DimensionsService} from "../services/dimensions.service";
 import {InitService} from "../services/init.service";
 import {NotificationService} from "../services/notification.service";
-import {WarningToast} from "../objects/toasts/warning-toast";
 import {StandardToast} from "../objects/toasts/standard-toast";
+import {Scroll} from "../objects/scroll";
 
 @Directive({
 	selector: '[appScrollable]'
@@ -22,8 +22,7 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	private top: number;
 	private bottom: number;
 
-	private scrollTop: number;
-	private scrollLeft: number;
+	private scroll: Scroll;
 
 	private maxScrollTop: number;
 
@@ -43,8 +42,7 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 		this.scrollTopTimeout = 2000;
 		this.consumingTimeout = false;
 
-		this.scrollTop = 0;
-		this.scrollLeft = 0;
+		this.scroll = new Scroll();
 	}
 
 	ngOnInit() {
@@ -52,7 +50,7 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 			const rect = this.element.nativeElement.getBoundingClientRect();
 			this.maxScrollTop = this.element.nativeElement.scrollHeight - rect.height;
 			this.setPositionValues(rect);
-			this.setScrollTop(CardPositionService.scrollTop);
+			this.setScrollTop(CardPositionService.scroll.top);
 		}, 1);
 		this.renderer.listen(
 			this.element.nativeElement,
@@ -75,15 +73,15 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	onPointerMove(event: PointerEvent): void {
 		if (CardPositionService.dragging) {
 			if (event.clientX > this.right) {
-				this.setScrollLeft(this.scrollLeft + this.step);
+				this.setScrollLeft(this.scroll.left + this.step);
 			} else if (event.clientX < this.left) {
-				this.setScrollLeft(this.scrollLeft - this.step);
+				this.setScrollLeft(this.scroll.left - this.step);
 			}
 
 			if (event.clientY > this.bottom) {
-				this.setScrollTop(this.scrollTop + this.step);
+				this.setScrollTop(this.scroll.top + this.step);
 			} else if (event.clientY < this.top) {
-				this.setScrollTop(this.scrollTop - this.step);
+				this.setScrollTop(this.scroll.top - this.step);
 			}
 		}
 	}
@@ -111,17 +109,17 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	}
 
 	setPositionScrollLeft(scrollLeft: number) {
-		this.scrollLeft = scrollLeft;
-		CardPositionService.scrollLeft = this.scrollLeft;
+		this.scroll.left = scrollLeft;
+		CardPositionService.scroll.left = this.scroll.left;
 	}
 
 	setPositionScrollTop(scrollTop: number) {
-		this.scrollTop = scrollTop;
-		CardPositionService.scrollTop = this.scrollTop;
+		this.scroll.top = scrollTop;
+		CardPositionService.scroll.top = this.scroll.top;
 		if (!DimensionsService.oneDayMode) {
-			if (this.scrollTop == 0 && InitService.checkRequestPreviousDaysInitialData()) {
+			if (this.scroll.top == 0 && InitService.checkRequestPreviousDaysInitialData()) {
 				this.handleMinScrollTop();
-			} else if (this.scrollTop == this.maxScrollTop && InitService.checkRequestNextDaysInitialData()) {
+			} else if (this.scroll.top == this.maxScrollTop && InitService.checkRequestNextDaysInitialData()) {
 				this.handleMaxScrollTop();
 			} else if (this.consumingTimeout) {
 				NotificationService.notifyToast(undefined);
@@ -138,7 +136,7 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 		this.minScrollTimeout = setTimeout(
 			() => {
 				this.consumingTimeout = false;
-				if (this.scrollTop == 0) {
+				if (this.scroll.top == 0) {
 					this.initService.requestPreviousDaysInitialData();
 				}
 			},
@@ -152,7 +150,7 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 		this.maxScrollTimeout = setTimeout(
 			() => {
 				this.consumingTimeout = false;
-				if (this.scrollTop == this.maxScrollTop) {
+				if (this.scroll.top == this.maxScrollTop) {
 					this.initService.requestNextDaysInitialData();
 				}
 			},

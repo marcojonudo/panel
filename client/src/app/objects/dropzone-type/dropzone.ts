@@ -6,6 +6,7 @@ import {Position} from "../position";
 import {ScheduleInterval} from "../schedule-interval";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {Scroll} from "../scroll";
 
 export interface Dropzone {
 
@@ -30,6 +31,8 @@ export interface Dropzone {
 	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
+
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates;
 
 	notify(resetHelperGroup: boolean): void;
 

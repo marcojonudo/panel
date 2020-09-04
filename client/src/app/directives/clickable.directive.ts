@@ -16,6 +16,7 @@ import {Constants} from "../objects/constants";
 import {CardTypeBehaviour} from "../objects/card-type-behaviour/card-type-behaviour";
 import {DropzoneService} from "../services/dropzone.service";
 import {UtilsService} from "../services/utils.service";
+import {Scroll} from "../objects/scroll";
 
 @Directive({
 	selector: '[appClickable]',
@@ -127,6 +128,7 @@ export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 	}
 
 	private initDragging(event: PointerEvent): void {
+		CardPositionService.initialScroll = new Scroll(CardPositionService.scroll.top, CardPositionService.scroll.left);
 		/* Se emite el grupo arrastrado, para poder asignarle la clase hidden, que lo ubica detrás de las líneas
 		*  mientras se mueve el auxiliar. Debe hacerse desde mechanic-line.component, por eso se use le emitter */
 		this.hiddenCardsGroup.emit(this.group);

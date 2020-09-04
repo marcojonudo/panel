@@ -12,6 +12,7 @@ import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info
 import {Dayjs} from "dayjs";
 import {NotificationService} from "../../services/notification.service";
 import {WarningToast} from "../toasts/warning-toast";
+import {Scroll} from "../scroll";
 
 export class UnassignedFinishedDropzone implements Dropzone {
 
@@ -35,7 +36,7 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	}
 
 	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
-		return new OverlappedGroupsInfo();
+		return group.cards[0].type == Constants.CARD_TYPE.AUXILIARY ? undefined : new OverlappedGroupsInfo();
 	}
 
 	removeGroup(group: CardsGroup): void {
@@ -72,6 +73,11 @@ export class UnassignedFinishedDropzone implements Dropzone {
 			CardsService.getAddGroupDelay(group)
 		);
 	}
+
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates {
+		return startPosition;
+	}
+
 
 	notify(resetHelperGroup: boolean = true): void {
 		CardPositionService.hiddenGroup = undefined;
