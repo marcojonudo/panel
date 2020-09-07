@@ -44,8 +44,8 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		});
 
 		/* Permite mostrar o eliminar la ficha auxiliar en pantalla */
-		this.helperGroupSubscription = NotificationService.helperCardsGroup$.subscribe(helperCardsGroup => {
-			this.helperGroup = helperCardsGroup;
+		this.helperGroupSubscription = NotificationService.helperGroup$.subscribe(helperGroup => {
+			this.helperGroup = helperGroup;
 			this.cdRef.detectChanges();
 		});
 	}

@@ -53,7 +53,7 @@ export class NotificationService {
 	private static _coordinates$: Observable<Coordinates>;
 
 	private static helperCardsGroupSubject: Subject<CardsGroup>;
-	private static _helperCardsGroup$: Observable<CardsGroup>;
+	private static _helperGroup$: Observable<CardsGroup>;
 
 	private static draggingSubject: Subject<boolean>;
 	private static _dragging$: Observable<boolean>;
@@ -94,7 +94,7 @@ export class NotificationService {
 		this.coordinates$ = this.coordinatesSubject.asObservable();
 
 		this.helperCardsGroupSubject = new BehaviorSubject<CardsGroup>(undefined);
-		this.helperCardsGroup$ = this.helperCardsGroupSubject.asObservable();
+		this.helperGroup$ = this.helperCardsGroupSubject.asObservable();
 
 		this.draggingSubject = new BehaviorSubject<boolean>(false);
 		this.dragging$ = this.draggingSubject.asObservable();
@@ -159,12 +159,12 @@ export class NotificationService {
 		this._dragging$ = value;
 	}
 
-	static get helperCardsGroup$(): Observable<CardsGroup> {
-		return this._helperCardsGroup$;
+	static get helperGroup$(): Observable<CardsGroup> {
+		return this._helperGroup$;
 	}
 
-	static set helperCardsGroup$(value: Observable<CardsGroup>) {
-		this._helperCardsGroup$ = value;
+	static set helperGroup$(value: Observable<CardsGroup>) {
+		this._helperGroup$ = value;
 	}
 
 	static get coordinates$(): Observable<Coordinates> {

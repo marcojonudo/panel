@@ -37,6 +37,8 @@ export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 	private coordinates: Coordinates;
 
 	private pointerDownListener: () => void;
+	private pointerMoveListener: () => void;
+	private pointerUpListener: () => void;
 	private contextMenuListener: () => void;
 
 	private init: boolean;
@@ -74,9 +76,9 @@ export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 	ngOnDestroy(): void {
 		/* En caso de actualizar una ficha que se está arrastrando desde otro terminal, se actualizará su posición
 		*  en tiempo real sin llegar a soltarse nunca. En ese caso, se eliminan los listeners aquí */
-		if (CardPositionService.helperGroupPointerMoveListener) {
-			CardPositionService.helperGroupPointerMoveListener();
-			CardPositionService.helperGroupPointerUpListener();
+		if (this.pointerMoveListener) {
+			this.pointerMoveListener();
+			this.pointerUpListener();
 		}
 	}
 
@@ -97,12 +99,12 @@ export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 		/* Si el modo es DRAG, se llevan a cabo las acciones necesarias para conseguir el desplazamiento del grupo */
 		if (this.group.mode == Constants.GROUP_MODE.DRAG) {
 			this.init = true;
-			CardPositionService.helperGroupPointerMoveListener = this.renderer.listen(
+			this.pointerMoveListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
 				Constants.EVENT.POINTER_MOVE,
 				this.onPointerMove.bind(this)
 			);
-			CardPositionService.helperGroupPointerUpListener = this.renderer.listen(
+			this.pointerUpListener = this.renderer.listen(
 				Constants.ELEMENT.DOCUMENT,
 				Constants.EVENT.POINTER_UP,
 				this.onPointerUp.bind(this)
@@ -176,8 +178,8 @@ export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 			CardPositionService.originDropzone = undefined;
 		}
 
-		CardPositionService.helperGroupPointerMoveListener();
-		CardPositionService.helperGroupPointerUpListener();
+		this.pointerMoveListener();
+		this.pointerUpListener();
 	}
 
 }

@@ -36,7 +36,7 @@ export class AuxiliaryDropzone implements Dropzone {
 	}
 
 	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
-		return new OverlappedGroupsInfo();
+		return group.cards[0].type == Constants.CARD_TYPE.AUXILIARY ? undefined : new OverlappedGroupsInfo();
 	}
 
 	removeGroup(group: CardsGroup): void {
