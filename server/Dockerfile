@@ -6,4 +6,4 @@ ARG LOCALHOST=localhost
 ENV HOST_IP=$LOCALHOST
 RUN apk --no-cache add curl
 COPY build/libs/*.jar panel.jar
-CMD java -Dmicronaut.environments=${ENV} -jar panel.jar
+CMD java -Dcom.sun.management.jmxremote -Dmicronaut.environments=$ENV -Xmx256m -jar panel.jar
