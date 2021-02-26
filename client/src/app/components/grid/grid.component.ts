@@ -1,12 +1,26 @@
-import {ChangeDetectionStrategy, Component, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	ElementRef,
+	Input, OnChanges,
+	OnInit,
+	Renderer2, SimpleChanges
+} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Mechanic} from "../../objects/mechanic";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
 import {Constants} from "../../objects/constants";
 import {MechanicsService} from "../../services/mechanics.service";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {NotificationService} from "../../services/notification.service";
-import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
+import {CardsService} from "../../services/cards.service";
+import {Dayjs} from "dayjs";
+import {MechanicSkills} from "../../objects/mechanic-skills";
+import {CardsGroup} from "../../objects/cards-group";
+import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
+import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/mechanic-skills-update";
+import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
+import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
+import {MechanicsTriggerMap} from "../../objects/trigger-cd/trigger-maps/mechanics-trigger-map";
 
 @Component({
 	selector: 'app-grid',
@@ -16,22 +30,26 @@ import {DayCardDetails} from "../../objects/card-details-update/day-card-details
 })
 export class GridComponent implements OnInit {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() mechanics: Mechanic[];
-	@Input() mechanicLineUpdate: MechanicUpdate;
-	@Input() dayMechanicSkills: DayMechanicSkills;
+	@Input() mechanicLineUpdates: MechanicLineUpdate[];
+	@Input() mechanicSkillsUpdate: MechanicSkillsUpdate;
 	@Input() showAppointmentsName: boolean;
-	@Input() maxScheduleWidth: number;
+	@Input() mechanicGroupUpdates: MechanicGroupUpdate[];
 
 	private pointerDownListener: () => void;
 
+	mechanicsTriggerMap: MechanicsTriggerMap;
+
 	constructor(
 		private mechanicsService: MechanicsService,
+		private cardsService: CardsService,
 		private element: ElementRef,
-		private renderer: Renderer2,
+		private renderer: Renderer2
 	) {}
 
 	ngOnInit(): void {
+		this.mechanicsTriggerMap = new MechanicsTriggerMap(this.mechanics);
 		this.pointerDownListener = this.renderer.listen(
 			this.element.nativeElement,
 			Constants.EVENT.POINTER_DOWN,
@@ -47,23 +65,51 @@ export class GridComponent implements OnInit {
 
 	// endregion
 
-	onPointerDown(): void {
-		NotificationService.notifyContextMenu(undefined);
-		NotificationService.notifyCardDetails(new DayCardDetails(this.day, undefined));
+	onPointerDown(event: PointerEvent): void {
+		if ((<HTMLElement> event.target).id == Constants.ID.MECHANIC_LINE) {
+			NotificationService.notifyLateralInfo(this.day, undefined, true);
+		}
 	}
 
-	checkTriggerMechanicLineCd(
-		mechanicCode: string,
-		mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate
-	): MechanicUpdate {
-		return mechanicLineUpdate && mechanicCode == mechanicLineUpdate.mechanicCode ? mechanicLineUpdate : undefined;
+	findMechanicGroups(mechanicCode: string, day: Dayjs = this.day): CardsGroup[] {
+		return CardsService.findDayMechanicGroups(day, mechanicCode);
 	}
 
-	checkTriggerMechanicInfoCd(
+	findMechanicLineUpdates(
 		mechanicCode: string,
-		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
-	): MechanicUpdate {
-		return dayMechanicSkills && mechanicCode == dayMechanicSkills.mechanicCode ? dayMechanicSkills : undefined;
+		mechanicsTriggerMap: MechanicsTriggerMap = this.mechanicsTriggerMap,
+		mechanicLineUpdates: MechanicLineUpdate[] = this.mechanicLineUpdates
+	): MechanicLineUpdate {
+		const mechanicLineUpdate = mechanicLineUpdates.find((update: MechanicLineUpdate) =>
+			update.mechanicCode == mechanicCode || !update.mechanicCode
+		);
+		if (mechanicLineUpdate) {
+			mechanicLineUpdate.updateTriggerMap(mechanicsTriggerMap, mechanicCode);
+		}
+		return mechanicsTriggerMap[mechanicCode][mechanicLineUpdates[0].type];
+	}
+
+	findGroupsUpdate(
+		mechanicCode: string,
+		mechanicsTriggerMap: MechanicsTriggerMap = this.mechanicsTriggerMap,
+		mechanicGroupUpdates: MechanicGroupUpdate[] = this.mechanicGroupUpdates
+	): GroupUpdate[] {
+		const mechanicGroupUpdate = mechanicGroupUpdates.find((update: MechanicGroupUpdate) =>
+			update.mechanicCode == mechanicCode
+		)
+		if (mechanicGroupUpdate) {
+			mechanicGroupUpdate.updateTriggerMap(mechanicsTriggerMap, mechanicCode);
+		}
+		return mechanicsTriggerMap[mechanicCode][mechanicGroupUpdates[0].type];
+	}
+
+	findMechanicSkills(
+		mechanicCode: string,
+		mechanicsTriggerMap: MechanicsTriggerMap = this.mechanicsTriggerMap,
+		mechanicSkillsUpdate: MechanicSkillsUpdate = this.mechanicSkillsUpdate
+	): MechanicSkills {
+		mechanicSkillsUpdate.updateTriggerMap(mechanicsTriggerMap, mechanicCode);
+		return mechanicsTriggerMap[mechanicCode][mechanicSkillsUpdate.type];
 	}
 
 	drop(event: CdkDragDrop<string[]>) {
@@ -72,7 +118,7 @@ export class GridComponent implements OnInit {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking grid', this.mechanicLineUpdate, this.day);
+			console.log('checking grid', this.mechanicLineUpdates, this.day);
 		}
 	}
 

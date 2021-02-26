@@ -4,19 +4,17 @@ import {AppointmentSchedule} from "../appointment-schedule";
 
 export class RealTimeAppointmentUpdateType extends RealTimeUpdate {
 
+	private realTimeService: RealTimeService;
 	private readonly appointment: AppointmentSchedule;
 
-	constructor(appointment: any) {
+	constructor(realTimeService: RealTimeService, appointment: any) {
 		super();
-		this.appointment = new AppointmentSchedule(
-			parseInt(appointment.mechanicId),
-			parseInt(appointment.index),
-			appointment
-		);
+		this.realTimeService = realTimeService
+		// this.appointment = new AppointmentSchedule(undefined, appointment.appointmentType, start, end);
 	}
 
-	update(realTimeService: RealTimeService): void {
-		realTimeService.updateAppointmentType(this.appointment);
+	update(): void {
+		// this.realTimeService.updateAppointmentType(this.appointment);
 	}
 
 }

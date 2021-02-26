@@ -1,5 +1,5 @@
 import {GroupColor} from "./group-color";
-import {AppointmentType} from "./appointment-type";
+import {AppointmentType} from "./appointments/appointment-type";
 
 export class Group {
 

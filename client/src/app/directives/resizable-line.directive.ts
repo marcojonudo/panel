@@ -3,6 +3,8 @@ import {Mechanic} from "../objects/mechanic";
 import {CardsService} from "../services/cards.service";
 import {MechanicsService} from "../services/mechanics.service";
 import {DimensionsService} from "../services/dimensions.service";
+import {NotificationService} from "../services/notification.service";
+import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 
 @Directive({
   selector: '[appResizableLine]'
@@ -21,9 +23,8 @@ export class ResizableLineDirective implements OnInit {
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
-		private mechanicsService: MechanicsService,
-		private cardsService: CardsService
-	) { }
+		private mechanicsService: MechanicsService
+	) {}
 
 	ngOnInit(): void {
 		this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
@@ -45,12 +46,12 @@ export class ResizableLineDirective implements OnInit {
 		if (Math.abs(diff) >= DimensionsService.lineHeight &&
 			!(diff < 0 && this.mechanic.height == DimensionsService.lineHeight*2)) {
 			const nextLine = this.line + Math.sign(diff);
-			const lineGroups = this.cardsService.findLineGroups(this.mechanic.day, this.mechanic.code, nextLine);
+			const lineGroups = CardsService.findLineGroups(this.mechanic.day, this.mechanic.code, nextLine);
 
 			/* Sólo se actualiza la altura si no hay fichas asignadas para la línea */
 			if (!lineGroups.length) {
 				this.line = this.line + Math.sign(diff);
-				this.mechanicsService.updateMechanicLines(this.mechanic, this.line);
+				MechanicsService.updateMechanicLines(this.mechanic, this.line);
 				this.lastY = event.clientY;
 			}
 		}
@@ -61,6 +62,7 @@ export class ResizableLineDirective implements OnInit {
 		this.pointerUpListener();
 
 		this.mechanicsService.updateDbMechanicLines(this.mechanic);
+		NotificationService.notifyMechanicLine(undefined, undefined, true, new DropzoneUpdate());
 	}
 
 }

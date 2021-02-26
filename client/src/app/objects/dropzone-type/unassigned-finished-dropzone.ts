@@ -5,9 +5,14 @@ import {Dropzone} from "./dropzone";
 import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
-import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
-import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
+import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {Dayjs} from "dayjs";
+import {NotificationService} from "../../services/notification.service";
+import {WarningToast} from "../toasts/warning-toast";
+import {Scroll} from "../scroll";
 
 export class UnassignedFinishedDropzone implements Dropzone {
 
@@ -17,7 +22,8 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED;
 	subType: string;
 	mechanic: Mechanic;
-	rect: any;
+	interval: ScheduleInterval;
+	position: Position;
 
 	constructor(
 		cardsService: CardsService,
@@ -29,61 +35,58 @@ export class UnassignedFinishedDropzone implements Dropzone {
 		this.subType = subType;
 	}
 
-	validateMovement(): CardsGroup[] {
-		/* Si el destino es la cita, no hace falta validar ya que siempre es un movimiento válido. Por tanto, se
-		*  devuelve una lista vacía en lugar de undefined */
-		return [];
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
+		return group.cards[0].type == Constants.CARD_TYPE.AUXILIARY ? undefined : new OverlappedGroupsInfo();
 	}
 
-	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
-		/* Si el movimiento se ha validado, es necesario ejectuar el CD para que se actualice la posición de los grupos
-		*  no asignados. En caso contrario no, ya que la el grupo retornará a su posición original */
-		this.updateAppointmentsCounterSubtract(group, destinyDropzone);
-		this.cardsService.removeFromUnassigned(group, validated);
+	removeGroup(group: CardsGroup): void {
+		CardsService.removeFinishedCardsGroup(group);
+		this.notify(false);
 	}
 
-	findLastPosition(groups: CardsGroup[], group): Coordinates {
-		return CardPositionService.handleUnassignedPosition(group, this.cardsService.unassignedTypesCardsGroups);
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): boolean {
+		CardsService.resetCardsGroup(groups[0]);
+		return false;
 	}
 
-	addGroup(
-		groups: CardsGroup[],
-		group: CardsGroup
-	): void {
-		this.cardsService.resetCardsGroup(group);
-		this.cardsService.addToUnassigned(group);
+	addGroup(group: CardsGroup): void {
+		this.cardsService.updateDbCardsPosition(group.cards);
+		CardsService.addToUnassigned(group);
+		this.notify();
+	}
 
-		/* Terminada la transición, se ejecuta el CD para que se elimine el hidden del grupo añadido */
-		setTimeout(
-			() => NotificationService.notifyBand(),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
-		);
+	addRealTimeGroup(group: CardsGroup): void {
+		CardsService.addToUnassigned(group);
+		if (CardPositionService.checkDraggingGroup(group.id)) {
+			CardPositionService.resetDragAction();
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
+	}
+
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
+		return new Coordinates(group.left, CardPositionService.unassignedCardTop);
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		setTimeout(
-			() => this.cardsService.addToUnassigned(group),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
+			() => this.notify(),
+			CardsService.getAddGroupDelay(group)
 		);
 	}
 
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
-		/* Si las fichas se están asignado (destinyDropzone = ASSIGNED) entre días, puede ser necesario restar del
-		*  contador de citas del día de origen */
-		if (destinyDropzone.type == Constants.DROPZONE_TYPE.ASSIGNED) {
-			/* Si la ficha estaba finalizada, se debe actualizar la info del último día en el que estuvo asignada
-			*  (tanto morning o afternoon, como total, ya que en este caso sí se había contado la ficha según el
-			*  tipo de horario */
-			const originDay = group.cards[0].lastDay;
-			this.appointmentsService.updateAppointment(
-				originDay,
-				group.cards,
-				false,
-				new UpdateAppointmentDayParams(true, true)
-			)
-		}
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates {
+		return startPosition;
 	}
 
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {}
+
+	notify(resetHelperGroup: boolean = true): void {
+		CardPositionService.hiddenGroup = undefined;
+		NotificationService.notifyBand();
+		if (resetHelperGroup) {
+			/* Se notifica el helper group para que desaparezca del overlay. No hace falta notificar a la cinta, ya que se
+			*  actualizará su contenido cuando se salga de la zona de finalizadas */
+			CardPositionService.setHelperGroup(undefined);
+		}
+	}
 
 }

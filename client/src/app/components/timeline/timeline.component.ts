@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {HourQuarter} from "../../objects/hour-quarter";
+import {CardsService} from "../../services/cards.service";
+import {Dayjs} from "dayjs";
 import {Constants} from "../../objects/constants";
-import {DimensionsService} from "../../services/dimensions.service";
-import {QuartersSaturation} from "../../objects/quarters-saturation";
-import {UtilsService} from "../../services/utils.service";
 
 @Component({
 	selector: 'app-timeline',
@@ -10,39 +10,29 @@ import {UtilsService} from "../../services/utils.service";
 	styleUrls: ['./timeline.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent {
+export class TimelineComponent implements OnInit {
 
-	@Input() day: Date;
-	@Input() quartersSaturation: QuartersSaturation;
-	@Input() maxScheduleHours: number[];
+	@Input() day: Dayjs;
+	@Input() maxScheduleHoursQuarter: HourQuarter[];
+	@Input() saturatedQuarters: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 
-	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 3000;
-	private readonly QUARTERS: string[] = ['00', '15', '30', '45'];
+	private readonly MAX_SCHEDULE_WIDTH_THRESHOLD: number = 3500;
 
-	// region Getters / setters
-
-	get quarters(): string[] {
-		return this.QUARTERS;
+	ngOnInit() {
+		this.saturatedQuarters = CardsService.buildDaySaturation(this.day);
 	}
 
-	get quarterWidth(): number {
-		return parseFloat((DimensionsService.intervalWidth * 3).toFixed(2));
-	}
-
-	// endregion
-
-	findQuarterBackground(
+	checkHighlightQuarter(
 		hour: number,
 		quarter: number,
-		quartersSaturation: QuartersSaturation = this.quartersSaturation,
-		mechanicsSaturationPercentage: number = Constants.VALUE.MECHANICS_SATURATION_PERCENTAGE
+		saturatedQuarters: HourQuarter[] = this.saturatedQuarters
 	): boolean {
-		const quarterSaturation = quartersSaturation[UtilsService.calcMinutes(hour, quarter)];
-		if (!quarterSaturation) {
-			return false;
-		}
-		return quarterSaturation.cards > quarterSaturation.mechanics * mechanicsSaturationPercentage/100;
+		return saturatedQuarters.find((q: HourQuarter) => q.hour == hour && q.quarter == quarter) != undefined
+	}
+
+	checkDisplayHours(quarter: number): boolean {
+		return quarter == 0;
 	}
 
 	checkDisplayMinutes(): boolean {
@@ -51,7 +41,7 @@ export class TimelineComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking timeline', this.maxScheduleHours);
+			console.log('checking timeline', this.maxScheduleHoursQuarter);
 		}
 	}
 

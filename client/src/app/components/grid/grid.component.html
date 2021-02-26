@@ -7,12 +7,13 @@
 		[style.margin-bottom.px]="mechanicBottomMargin"
 		[day]="day"
 		[mechanic]="mechanic"
-		[maxScheduleWidth]="maxScheduleWidth"
-		[mechanicLineUpdate]="checkTriggerMechanicLineCd(mechanic.code)"
-		[dayMechanicSkills]="checkTriggerMechanicInfoCd(mechanic.code)"
+		[groups]="findMechanicGroups(mechanic.code)"
+		[mechanicLineUpdate]="findMechanicLineUpdates(mechanic.code)"
+		[mechanicSkills]="findMechanicSkills(mechanic.code)"
 		[showAppointmentsName]="showAppointmentsName"
 		[appointments]="mechanic.appointments"
-		[position]="mechanic.panelPosition">
+		[position]="mechanic.panelPosition"
+		[groupUpdates]="findGroupsUpdate(mechanic.code)">
 	</app-mechanic-line-container>
 </div>
 <div>{{check()}}</div>

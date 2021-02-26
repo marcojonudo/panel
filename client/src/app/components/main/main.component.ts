@@ -1,32 +1,35 @@
 import {
 	ChangeDetectionStrategy, ChangeDetectorRef,
-	Component,
-	OnDestroy, OnInit,
+	Component, ElementRef,
+	OnDestroy, OnInit, Renderer2,
 } from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {Subscription} from "rxjs/internal/Subscription";
 import {CardsService} from "../../services/cards.service";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
-import {Skill} from "../../objects/skill";
 import {NotificationService} from "../../services/notification.service";
 import {UtilsService} from "../../services/utils.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
-import {CardPositionService} from "../../services/card-position.service";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
-import {MechanicInfoUpdate} from "../../objects/update-days-cards/mechanic-info-update";
-import {DaysMechanicSkills} from "../../objects/days-mechanic-skills";
-import {DaysCardDetails} from "../../objects/days-card-details";
-import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
-import {Card} from "../../objects/card";
-import {QuartersSaturation} from "../../objects/quarters-saturation";
-import {DaysQuartersSaturation} from "../../objects/quarters-saturation-update/days-quarters-saturation";
-import {DayQuartersSaturation} from "../../objects/quarters-saturation-update/day-quarters-saturation";
-import {DaysContextMenu} from "../../objects/context-menu-update/days-context-menu";
-import {ContextMenuInfo} from "../../objects/context-menu-info";
+import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
 import {Mechanic} from "../../objects/mechanic";
 import {interval} from "rxjs/internal/observable/interval";
+import {Toast} from "../../objects/toasts/toast";
+import {DomSanitizer} from "@angular/platform-browser";
+import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
+import {Coordinates} from "../../objects/coordinates";
+import {Dayjs} from "dayjs";
+import * as dayjs from "dayjs";
+import {HourQuarter} from "../../objects/hour-quarter";
+import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/mechanic-skills-update";
+import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
+import {DayTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
+import { DaysTriggerMap } from 'src/app/objects/trigger-cd/trigger-maps/days-trigger-map';
+import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
+import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
+import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
+import {MaxScheduleWidthUpdate} from "../../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
+import {ContextMenuUpdate} from "../../objects/trigger-cd/update-objects/generic/context-menu-update";
 
 @Component({
 	selector: 'app-main',
@@ -36,28 +39,22 @@ import {interval} from "rxjs/internal/observable/interval";
 })
 export class MainComponent implements OnInit, OnDestroy {
 
-	private _days: Date[];
-	private _today: Date;
-	private itemSize: number;
-	private _displayScrollbar: boolean;
-	private _showNonexistentScheduleMessage: boolean;
+	private _days: Dayjs[];
+	private _today: Dayjs;
 	private _dayContainerWidth: number;
 
 	private _assignedDaysCardsGroups: DaysAssignedGroups;
 
-	private _daysMechanicSkills: DaysMechanicSkills;
-	private _daysCardDetails: DaysCardDetails;
-	private _daysQuartersSaturation: DaysQuartersSaturation;
-
-	private _daysContextMenu: DaysContextMenu;
+	private daysTriggerMap: DaysTriggerMap;
 
 	private _oneDayMode: boolean;
-	private _maxScheduleHours: number[];
+	private _maxScheduleHoursQuarter: HourQuarter[];
 	private _maxScheduleWidth: number;
 	private _maxScheduleMaxWidth: number;
 
-	private _mechanicLineUpdate: MechanicUpdate;
-	private _mechanicInfoUpdate: MechanicUpdate;
+	private _toast: Toast;
+
+	private _cursor: string;
 
 	private _contextMenuInfo: ContextMenuInfo;
 
@@ -65,164 +62,156 @@ export class MainComponent implements OnInit, OnDestroy {
 	private _initialScrollLeft: number;
 
 	private relativeContainer: boolean;
-	private scrollLeft: number;
-	private scrollTop: number;
 
+	private updateArraySubscription: Subscription;
 	private oneDayModeSubscription: Subscription;
 	private maxScheduleWidthSubscription: Subscription;
-	private mechanicLineSubscription: Subscription;
-	private skillsSubscription: Subscription;
-	private cardDetailsSubscription: Subscription;
-	private quartersSaturationSubscription: Subscription;
 	private contextMenuSubscription: Subscription;
-	private onlyAppointmentsModeSubscription: Subscription;
+	private triggerCdSubscription: Subscription;
+	private toastSubscription: Subscription;
+	private mainCursorSubscription: Subscription;
+
+	private appointmentsTypesContextMenuListener: () => void;
+	private pointerDownListener: () => void;
 
 	constructor(
-		private cardsService: CardsService,
-		private mechanicsService: MechanicsService,
-		private cardPositionService: CardPositionService,
-		private cdRef: ChangeDetectorRef
+		private cdRef: ChangeDetectorRef,
+		private sanitizer: DomSanitizer,
+		private element: ElementRef,
+		private renderer: Renderer2
 	) {
-		this.days = this.mechanicsService.days;
-		this.initDaysUpdateObjects();
+		this.days = MechanicsService.days;
+		this.daysTriggerMap = new DaysTriggerMap(this.days);
 
-		const today = UtilsService.clearTime(new Date()).getTime();
-		this.today = this.days.find(day => day.getTime() == today);
-		this.oneDayMode = true;
-		// this.maxScheduleHours = this.timeService.updateMaxSchedule(this.oneDayMode);
-		this.maxScheduleHours = DimensionsService.maxScheduleHours;
+		this.today = this.days[0];
+		this.oneDayMode = DimensionsService.oneDayMode;
+		this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 		this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 		this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-		// this.itemSize = this.mechanicsService.mechanics.length * (Constants.VALUE.LINE_HEIGHT_DEFAULT + 10);
 
 		this.relativeContainer = true;
-		this.scrollLeft = 0;
-		this.scrollTop = 0;
 
-		this.showNonexistentScheduleMessage = !this.checkTodayScheduleExists();
 		this.dayContainerWidth = window.innerWidth - Constants.VALUE.TOOLS_BAR_WIDTH;
 
-		this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+		this.timeIndicatorLeft = MechanicsService.todaySchedules ? this.calcTimeIndicatorLeft() : undefined;
+		this.cursor = Constants.MAIN_CURSOR.DEFAULT;
 	}
 
 	ngOnInit(): void {
-		this.assignedDaysCardsGroups = this.cardsService.assignedDaysCardsGroups;
-		this.mechanicLineSubscription = NotificationService.mechanicLine$
-				.subscribe((mechanicLineUpdate: MechanicUpdate) => {
-			this.mechanicLineUpdate = mechanicLineUpdate;
-			this.cdRef.detectChanges();
-		});
+		this.assignedDaysCardsGroups = CardsService.assignedDaysCardsGroups;
 
-		// this.daysQuartersSaturation[this.today.getTime()].quartersSaturation = this.cardsService.quartersSaturation;
-		this.quartersSaturationSubscription = NotificationService.quartersSaturation$
-				.subscribe((dayQuartersSaturation: DayQuartersSaturation) => {
-			this.daysQuartersSaturation[dayQuartersSaturation.day.getTime()] = dayQuartersSaturation;
+		this.updateArraySubscription = NotificationService.updateArray$
+				.subscribe((updateArray: DayTriggerMapUpdate[]) => {
+			updateArray.forEach((triggerMapUpdate: DayTriggerMapUpdate) => {
+				triggerMapUpdate.updateTriggerMap(
+					this.daysTriggerMap,
+					triggerMapUpdate.day,
+					triggerMapUpdate.type,
+					triggerMapUpdate.value
+				);
+			});
 			this.cdRef.detectChanges();
 		});
 
 		this.contextMenuSubscription = NotificationService.contextMenu$
-				.subscribe((contextMenuInfo: ContextMenuInfo) => {
-			this.contextMenuInfo = contextMenuInfo;
-			this.cdRef.detectChanges();
+				.subscribe((update: ContextMenuUpdate) => {
+			this.contextMenuInfo = update.contextMenuInfo;
+			if (this.contextMenuInfo) {
+				this.pointerDownListener = this.renderer.listen(
+					this.element.nativeElement,
+					Constants.EVENT.POINTER_DOWN,
+					this.onPointerDown.bind(this)
+				);
+			} else {
+				this.pointerDownListener();
+			}
+			if (update.trigger) {
+				this.cdRef.detectChanges();
+			}
 		});
 
 		this.oneDayModeSubscription = NotificationService.oneDayMode$.subscribe((oneDayMode: boolean) => {
 			this.oneDayMode = oneDayMode;
-			DimensionsService.updateMaxSchedule(this.oneDayMode);
-			this.maxScheduleHours = DimensionsService.maxScheduleHours;
+			this.maxScheduleHoursQuarter = DimensionsService.maxScheduleHoursQuarter;
 			this.maxScheduleWidth = DimensionsService.maxScheduleWidth;
 			this.maxScheduleMaxWidth = DimensionsService.maxScheduleMaxWidth;
-			CardPositionService.updateDimensions(
-				this.cardsService.unassignedSections,
-				this.cardsService.assignedDaysCardsGroups
-			);
-			this.showNonexistentScheduleMessage = this.oneDayMode && !this.checkTodayScheduleExists();
-			this.cdRef.detectChanges();
 		});
-		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$.subscribe(maxScheduleWidth => {
+
+		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$
+				.subscribe((update: MaxScheduleWidthUpdate) => {
 			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
 			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
 			*  del slider */
-			this.maxScheduleWidth = maxScheduleWidth;
-			CardPositionService.updateDimensions(
-				this.cardsService.unassignedSections,
-				this.cardsService.assignedDaysCardsGroups
-			);
-			NotificationService.notifyAll();
+			this.maxScheduleWidth = update.maxScheduleWidth;
+			this.timeIndicatorLeft = MechanicsService.todaySchedules ? this.calcTimeIndicatorLeft() : undefined;
+			if (update.trigger) {
+				this.cdRef.detectChanges();
+			}
+		});
+
+		this.triggerCdSubscription = NotificationService.triggerCd$.subscribe(() => {
 			this.cdRef.detectChanges();
 		});
 
-		// /* Observer utilizado para determinar si es necesario mostrar o no la scrollbar */
-		// this.daysService.lineHeight$.subscribe((lineHeight: number) => {
-		// 	this.displayScrollbar = this.daysService.checkDisplayScrollbar(
-		// 		//TODO Modificar comparación de maxScheduleWidth
-		// 		this.timeService.gridHeight - (this.maxScheduleWidth == 100 ? 0 : 7),
-		// 		this.timeService.today,
-		// 		lineHeight
-		// 	);
-		// 	this.cdRef.detectChanges();
-		// });
-
-		this.skillsSubscription = NotificationService.skills$.subscribe((dayMechanicSkills: DayMechanicSkills) => {
-			dayMechanicSkills.skills = this.buildAllSkillsArray(dayMechanicSkills.skills);
-			this.daysMechanicSkills[dayMechanicSkills.day.getTime()] = dayMechanicSkills;
-			this.mechanicInfoUpdate = new MechanicInfoUpdate(dayMechanicSkills.day, dayMechanicSkills.mechanicCode);
-			this.cdRef.detectChanges();
-		});
-		this.cardDetailsSubscription = NotificationService.cardDetails$.subscribe((dayCardDetails: DayCardDetails) => {
-			dayCardDetails.card = this.daysCardDetails[dayCardDetails.day.getTime()].card ? undefined : dayCardDetails.card;
-			this.daysCardDetails[dayCardDetails.day.getTime()] = dayCardDetails;
+		this.toastSubscription = NotificationService.toast$.subscribe((toast: Toast) => {
+			this.toast = toast;
 			this.cdRef.detectChanges();
 		});
 
-		this.onlyAppointmentsModeSubscription = NotificationService.onlyAppointmentsMode$.subscribe(() => {
+		this.mainCursorSubscription = NotificationService.mainCursor$.subscribe((cursor: string) => {
+			this.cursor = cursor;
+
+			if (this.cursor == Constants.MAIN_CURSOR.DRAGGING_SCHEDULES) {
+				this.appointmentsTypesContextMenuListener = this.renderer.listen(
+					this.element.nativeElement,
+					Constants.EVENT.CONTEXT_MENU,
+					this.openContextMenu.bind(this)
+				);
+			} else {
+				this.appointmentsTypesContextMenuListener();
+			}
 			this.cdRef.detectChanges();
 		});
 
-		interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
-			this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
-			this.cdRef.detectChanges();
-		});
-
-		this.initialScrollLeft = this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2;
-	}
-
-	private buildAllSkillsArray(parentSkills: Skill[]): Skill[] {
-		const skills = [];
-		parentSkills.forEach((parent: Skill) => {
-			skills.push(parent);
-			parent.children.forEach((child: Skill) => {
-				skills.push(child);
+		/* Sólo se define la barra del reloj si hay horarios hoy */
+		if (MechanicsService.todaySchedules) {
+			interval(Constants.VALUE.TIME_INDICATOR_INTERVAL).subscribe(() => {
+				this.timeIndicatorLeft = this.calcTimeIndicatorLeft();
+				this.cdRef.detectChanges();
 			});
-		});
-		return skills;
+		}
+
+		this.initialScrollLeft = MechanicsService.todaySchedules
+			? this.calcTimeIndicatorLeft() - Constants.VALUE.MECHANIC_INFO_WIDTH * 2 : 0;
+
+		CardsService.checkNotifyEcommerceCards();
 	}
 
 	ngOnDestroy(): void {
+		this.updateArraySubscription.unsubscribe();
 		this.oneDayModeSubscription.unsubscribe();
 		this.maxScheduleWidthSubscription.unsubscribe();
-		this.mechanicLineSubscription.unsubscribe();
-		this.skillsSubscription.unsubscribe();
-		this.cardDetailsSubscription.unsubscribe();
-		this.quartersSaturationSubscription.unsubscribe();
-		this.onlyAppointmentsModeSubscription.unsubscribe();
+		this.triggerCdSubscription.unsubscribe();
+		this.mainCursorSubscription.unsubscribe();
+		this.toastSubscription.unsubscribe();
+		this.contextMenuSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
 
-	get days(): Date[] {
+	get days(): Dayjs[] {
 		return this._days;
 	}
 
-	set days(value: Date[]) {
+	set days(value: Dayjs[]) {
 		this._days = value;
 	}
 
-	get today(): Date {
+	get today(): Dayjs {
 		return this._today;
 	}
 
-	set today(value: Date) {
+	set today(value: Dayjs) {
 		this._today = value;
 	}
 
@@ -234,20 +223,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._assignedDaysCardsGroups = value;
 	}
 
-	get displayScrollbar(): boolean {
-		return this._displayScrollbar;
+	get displayVerticalScrollbar(): boolean {
+		return DimensionsService.displayVerticalScrollbar;
 	}
 
-	set displayScrollbar(value: boolean) {
-		this._displayScrollbar = value;
-	}
-
-	get showNonexistentScheduleMessage(): boolean {
-		return this._showNonexistentScheduleMessage;
-	}
-
-	set showNonexistentScheduleMessage(value: boolean) {
-		this._showNonexistentScheduleMessage = value;
+	get todaySchedules(): boolean {
+		return MechanicsService.todaySchedules;
 	}
 
 	get oneDayMode(): boolean {
@@ -274,16 +255,12 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._maxScheduleMaxWidth = value;
 	}
 
-	get maxScheduleHours(): number[] {
-		return this._maxScheduleHours;
+	get maxScheduleHoursQuarter(): HourQuarter[] {
+		return this._maxScheduleHoursQuarter;
 	}
 
-	set maxScheduleHours(value: number[]) {
-		this._maxScheduleHours = value;
-	}
-
-	get dayPanelWidth(): number {
-		return Constants.VALUE.DAY_PANEL_WIDTH;
+	set maxScheduleHoursQuarter(value: HourQuarter[]) {
+		this._maxScheduleHoursQuarter = value;
 	}
 
 	get dayContainerWidth(): number {
@@ -294,56 +271,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._dayContainerWidth = value;
 	}
 
-	get skillsDetailsRight(): number {
-		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.DAY_PANEL_WIDTH;
-	}
-
-	get mechanicLineUpdate(): MechanicUpdate {
-		return this._mechanicLineUpdate;
-	}
-
-	set mechanicLineUpdate(value: MechanicUpdate) {
-		this._mechanicLineUpdate = value;
-	}
-
-	get mechanicInfoUpdate(): MechanicUpdate {
-		return this._mechanicInfoUpdate;
-	}
-
-	set mechanicInfoUpdate(value: MechanicUpdate) {
-		this._mechanicInfoUpdate = value;
-	}
-
-	get daysMechanicSkills(): DaysMechanicSkills {
-		return this._daysMechanicSkills;
-	}
-
-	set daysMechanicSkills(value: DaysMechanicSkills) {
-		this._daysMechanicSkills = value;
-	}
-
-	get daysCardDetails(): DaysCardDetails {
-		return this._daysCardDetails;
-	}
-
-	set daysCardDetails(value: DaysCardDetails) {
-		this._daysCardDetails = value;
-	}
-
-	get daysQuartersSaturation(): DaysQuartersSaturation {
-		return this._daysQuartersSaturation;
-	}
-
-	set daysQuartersSaturation(value: DaysQuartersSaturation) {
-		this._daysQuartersSaturation = value;
-	}
-
-	get daysContextMenu(): DaysContextMenu {
-		return this._daysContextMenu;
-	}
-
-	set daysContextMenu(value: DaysContextMenu) {
-		this._daysContextMenu = value;
+	get lateralPanelRight(): number {
+		return Constants.VALUE.TOOLS_BAR_WIDTH + Constants.VALUE.LATERAL_PANEL_WIDTH;
 	}
 
 	get contextMenuInfo(): ContextMenuInfo {
@@ -378,88 +307,128 @@ export class MainComponent implements OnInit, OnDestroy {
 		this._initialScrollLeft = value;
 	}
 
+	get toolsBarWidth(): number {
+		return Constants.VALUE.TOOLS_BAR_WIDTH;
+	}
+
+	get toast(): Toast {
+		return this._toast;
+	}
+
+	set toast(value: Toast) {
+		this._toast = value;
+	}
+
+	get cursor(): string {
+		return this._cursor;
+	}
+
+	set cursor(value: string) {
+		this._cursor = value;
+	}
+
 	// endregion
 
-	private initDaysUpdateObjects(days: Date[] = this.days): void {
-		this.daysMechanicSkills = {};
-		this.daysCardDetails = {};
-		this.daysQuartersSaturation = {};
-		this.daysContextMenu = {};
-		days.forEach((day: Date) => {
-			this.daysMechanicSkills[day.getTime()] = new DayMechanicSkills();
-			this.daysCardDetails[day.getTime()] = new DayCardDetails();
-			this.daysQuartersSaturation[day.getTime()] = new DayQuartersSaturation(
-				day,
-				this.cardsService.checkQuarterSaturation(day)
-			);
-			this.daysContextMenu[day.getTime()] = undefined;
-		});
+	checkExistentSchedules(day: Dayjs = undefined): boolean {
+		return (day ? MechanicsService.findDayMechanics(day).length : MechanicsService.days.length) != 0;
 	}
 
-	findDayMechanics(day: Date): Mechanic[] {
-		return this.mechanicsService.findDayMechanics(day);
+	findDayMechanics(day: Dayjs): Mechanic[] {
+		return MechanicsService.findDayMechanics(day);
 	}
 
-	checkTriggerLineCd(day: Date, mechanicLineUpdate: MechanicUpdate = this.mechanicLineUpdate): MechanicUpdate {
-		let update = undefined;
-		if (mechanicLineUpdate) {
-			update = !mechanicLineUpdate.day || day.getTime() == mechanicLineUpdate.day.getTime() ? mechanicLineUpdate : undefined;
-		}
-		return update;
+	findGroupsUpdate(
+		day: Dayjs,
+		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
+		type: string = Constants.UPDATE_OBJECT.GROUPS
+	): MechanicGroupUpdate[] {
+		return daysTriggerMap[day.valueOf()][type];
 	}
 
-	findQuartersSaturation(
-		day: Date,
-		daysQuartersSaturation: DaysQuartersSaturation = this.daysQuartersSaturation
-	): QuartersSaturation {
-		return daysQuartersSaturation[day.getTime()].quartersSaturation;
+	findDaySaturatedQuarters(
+		day: Dayjs,
+		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
+		type: string = Constants.UPDATE_OBJECT.SATURATED_QUARTERS
+	): HourQuarter[] {
+		return daysTriggerMap[day.valueOf()][type];
 	}
 
-	findAssignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
-		return contextMenuInfo && contextMenuInfo.group.start ? contextMenuInfo : undefined;
+	findDayMechanicSkillsUpdate(
+		day: Dayjs,
+		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
+		type: string = Constants.UPDATE_OBJECT.MECHANIC_SKILLS
+	): MechanicSkillsUpdate {
+		return daysTriggerMap[day.valueOf()][type];
 	}
 
-	findUnassignedContextMenuInfo(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): ContextMenuInfo {
-		return contextMenuInfo && !contextMenuInfo.group.start ? contextMenuInfo : undefined;
+	findMechanicLineUpdates(
+		day: Dayjs,
+		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
+		type: string = Constants.UPDATE_OBJECT.MECHANIC_LINE
+	): MechanicLineUpdate[] {
+		return daysTriggerMap[day.valueOf()][type];
 	}
 
-	findDayMechanicSkills(
-		day: Date,
-		daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills
-	): DayMechanicSkills {
-		return daysMechanicSkills[day.getTime()];
+	findLateralPanelInfo(
+		day: Dayjs,
+		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
+		type: string = Constants.UPDATE_OBJECT.LATERAL_PANEL
+	): LateralPanelInfo {
+		return daysTriggerMap[day.valueOf()][type];
 	}
 
-	private checkTodayScheduleExists(today: Date = this.today): boolean {
-		return this.mechanicsService.findDayMechanics(today) != undefined;
+	findAppointmentDayUpdate(
+		day: Dayjs,
+		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
+		type: string = Constants.UPDATE_OBJECT.APPOINTMENT_DAY
+	): AppointmentDayUpdate {
+		return daysTriggerMap[day.valueOf()][type];
 	}
 
-	checkShowCardDetails(day: Date, daysCardDetails: DaysCardDetails = this.daysCardDetails): boolean {
-		return daysCardDetails[day.getTime()].card != undefined;
+	checkShowContextMenu(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): boolean {
+		return contextMenuInfo != undefined;
 	}
 
-	findCard(day: Date, daysCardDetails: DaysCardDetails = this.daysCardDetails): Card {
-		return daysCardDetails[day.getTime()].card;
-	}
-
-	checkShowSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): boolean {
-		return daysMechanicSkills[day.getTime()].skills.length != 0;
-	}
-
-	findSkills(day: Date, daysMechanicSkills: DaysMechanicSkills = this.daysMechanicSkills): Skill[] {
-		return daysMechanicSkills[day.getTime()].skills;
-	}
-
-	calcTimeIndicatorLeft(time: Date = new Date()): number {
+	calcTimeIndicatorLeft(time: Dayjs = dayjs()): number {
 		return DimensionsService.calcLeftFromStart(time) + Constants.VALUE.MECHANIC_INFO_WIDTH;
 	}
 
-	calcTimeIndicatorHeight(): number {
-		let height = 0;
-		for (const mechanics of Object.values(this.mechanicsService.daysMechanics)) {
-			height += DimensionsService.calcGridCompleteHeight(mechanics);
+	findCursor(cursorName: string = this.cursor) {
+		return UtilsService.isImage(cursorName)
+			? this.sanitizer.bypassSecurityTrustStyle(`url(../../../assets/img/cursors/${cursorName}), auto`)
+			: cursorName;
+	}
+
+	openContextMenu(event: PointerEvent): void {
+		event.preventDefault();
+		NotificationService.notifyContextMenu(
+			new DragScheduleContextMenuInfo(new Coordinates(event.clientX, event.clientY)),
+			true
+		);
+	}
+
+	onPointerDown(event: PointerEvent): void {
+		if (UtilsService.checkLeftClick(event)) {
+			/* Si se hace clic en el menú contextual, este no se cierra (al menos desde aquí). Puede ser necesario que
+			*  no lo haga directamente, y requerir alguna interacción del usuario, por lo que se gestiona qué hacer con
+			*  él desde el click handler de la opción correspondiente */
+			if (this.contextMenuInfo && !this.checkElementId(<HTMLElement> event.target, Constants.CONTEXT_MENU)) {
+				this.contextMenuInfo.handleRemoval();
+			}
+			if (CardsService.auxiliaryGroupToReplace) {
+				CardsService.updateCardMode(CardsService.unassignedGroups, Constants.GROUP_MODE.DRAG);
+			}
 		}
-		return height;
+	}
+
+	checkElementId(element: HTMLElement, idSubstring: string, level: number = 0): boolean {
+		if (element.id.includes(idSubstring)) {
+			return true;
+		}
+		if (level < 3) {
+			return this.checkElementId(<HTMLElement> element.parentNode, idSubstring, ++level);
+		}
+		return false;
 	}
 
 	trackByDay(index, item) {

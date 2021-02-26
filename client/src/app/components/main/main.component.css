@@ -32,9 +32,7 @@ app-day-panel:not(:first-child):not(:last-child) {
 }
 
 .nonexistent-today-schedules-container {
-	position: absolute;
-	top: 0;
-	left: 0;
+	position: relative;
 	font-size: 1.5em;
 	background-color: #ebebeb;
 }
@@ -45,6 +43,17 @@ app-day-panel:not(:first-child):not(:last-child) {
 	position: sticky;
 	bottom: 0;
 	z-index: 3;
+}
+
+.toast-position {
+	position: absolute;
+	top: 50px;
+	right: 150px;
+}
+
+.appointments-summary {
+	position: sticky;
+	right: 0;
 }
 
 /*.ng-draggable {*/

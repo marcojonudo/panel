@@ -1,0 +1,10 @@
+.appointments-summary-container {
+	cursor: pointer;
+	font-size: .8em;
+	background-color: #00494e;
+}
+
+.disabled {
+	pointer-events: none;
+	color: grey;
+}

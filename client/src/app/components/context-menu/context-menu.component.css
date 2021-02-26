@@ -1,0 +1,11 @@
+#context-menu-container {
+	position: absolute;
+	background-color: #ffffff;
+	z-index: 3;
+	-webkit-box-shadow: 0 0 10px #717171;
+	-moz-box-shadow: 0 0 10px #717171;
+	box-shadow: 0 0 10px #717171;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}

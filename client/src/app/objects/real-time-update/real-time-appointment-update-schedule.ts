@@ -8,11 +8,11 @@ export class RealTimeAppointmentUpdateSchedule extends RealTimeUpdate {
 
 	constructor(appointment: any) {
 		super();
-		this.appointment = new AppointmentSchedule(appointment.mechanicId, appointment.index, appointment);
+		this.appointment = AppointmentSchedule.build(appointment);
 	}
 
-	update(realTimeService: RealTimeService): void {
-		realTimeService.updateAppointmentSchedule(this.appointment);
+	update(): void {
+		RealTimeService.updateAppointmentSchedule(this.appointment);
 	}
 
 }

@@ -1,9 +1,12 @@
 import {CardsGroup} from "../cards-group";
-import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {Mechanic} from "../mechanic";
-import {Constants} from "../constants";
+import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
+import {Dayjs} from "dayjs";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {Scroll} from "../scroll";
 
 export interface Dropzone {
 
@@ -12,20 +15,25 @@ export interface Dropzone {
 	type: string;
 	subType: string;
 	mechanic: Mechanic;
-	rect: any;
+	interval: ScheduleInterval;
+	position: Position;
 
-	validateMovement(position: Coordinates): CardsGroup[];
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo;
 
-	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void;
+	removeGroup(group: CardsGroup): void;
 
-	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates;
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): boolean;
 
-	addGroup(groups: CardsGroup[], group: CardsGroup, originDropzone: Dropzone, lastPosition: Coordinates): void;
+	addGroup(group: CardsGroup, groups: CardsGroup[], newCard: boolean): void;
+
+	addRealTimeGroup(group: CardsGroup): void;
+
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates;
 
 	handleNotValidatedMovement(group: CardsGroup): void;
 
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void;
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates;
 
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void;
+	notify(resetHelperGroup: boolean): void;
 
 }

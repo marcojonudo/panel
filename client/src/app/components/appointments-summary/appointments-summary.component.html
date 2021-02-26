@@ -1,0 +1,28 @@
+<div
+	class="d-flex flex-column appointments-summary-container"
+	[ngClass]="{'disabled': !enabled}"
+	[style.width.px]="width-1"
+	(click)="openAppointmentsDetails()">
+	<span
+		class="align-center text-white"
+		[style.height.px]="timelineHeight">Citas</span>
+	<div
+		*ngFor="let values of findAppointmentDayValues()"
+		class="d-flex flex-column"
+		[ngStyle]="{'background-color': values.appointmentType.color, 'height.px': appointmentSummaryItemHeight}">
+		<span class="align-center flex-grow-1 flex-basis-0">{{values.appointmentType.code}}</span>
+		<span class="align-center flex-grow-1 flex-basis-0">{{findSaturationPercentage(values.total, values.max)}}%</span>
+		<div class="d-flex flex-grow-1 flex-basis-0">
+			<div
+				class="flex-grow-1 flex-basis-0 align-center border border-white"
+				[ngClass]="checkSaturation(values.morning, values.max, morningAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
+				M
+			</div>
+			<div
+				class="flex-grow-1 flex-basis-0 align-center border border-white"
+				[ngClass]="checkSaturation(values.afternoon, values.max, afternoonAppointmentSaturation) ? 'background-color-red' : 'background-color-green'">
+				T
+			</div>
+		</div>
+	</div>
+</div>

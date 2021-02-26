@@ -4,7 +4,8 @@ import {
 	Input,
 } from '@angular/core';
 import {Skill} from "../../objects/skill";
-import {Constants} from "../../objects/constants";
+import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
+import {MechanicSkills} from "../../objects/mechanic-skills";
 
 @Component({
 	selector: 'app-skills-details',
@@ -14,7 +15,7 @@ import {Constants} from "../../objects/constants";
 })
 export class SkillsDetailsComponent {
 
-	@Input() skills: Skill[];
+	@Input() mechanicSkills: MechanicSkills;
 
 	private SKILL_EXPERTISE_COLOR: any = {
 		LOW: '#FF0000',
@@ -22,16 +23,21 @@ export class SkillsDetailsComponent {
 		HIGH: '#008000'
 	};
 
-	// region Getters / setters
-
-	get skillsPanelWidth(): number {
-		return Constants.VALUE.SKILLS_PANEL_WIDTH;
-	}
-
-	// endregion
-
 	getSkillExpertiseColor(skill: Skill) {
 		return this.SKILL_EXPERTISE_COLOR[skill.expertise];
+	}
+
+	buildAllSkillsArray(parentSkills: Skill[] = this.mechanicSkills.skills): Skill[] {
+		const skills = [];
+		if (parentSkills) {
+			parentSkills.forEach((parent: Skill) => {
+				skills.push(parent);
+				parent.children.forEach((child: Skill) => {
+					skills.push(child);
+				});
+			});
+		}
+		return skills;
 	}
 
 }

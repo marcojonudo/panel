@@ -1,113 +1,89 @@
-<div class="container-fluid d-flex flex-column w-100 h-100">
+<div
+	*ngIf="checkExistentSchedules(); else emptyPanel"
+	class="container-fluid d-flex flex-column w-100 h-100"
+	[style.cursor]="findCursor()">
 	<div
 		class="row assigned-orders-container">
 		<div *ngIf="oneDayMode" class="col h-100 padding-0 d-flex">
 			<div
+				*ngIf="todaySchedules; else emptyDay"
 				appScrollable
 				[initialScrollLeft]="initialScrollLeft"
 				class="flex-grow-1 h-100 panel-container padding-0"
 				[ngClass]="{
-					'width-0-scrollbar': !displayScrollbar,
-					'overflow-scroll': !showNonexistentScheduleMessage,
-					'overflow-hidden': showNonexistentScheduleMessage
+					'width-0-scrollbar': !displayVerticalScrollbar,
+					'overflow-scroll': todaySchedules,
+					'overflow-hidden': !todaySchedules
 				}">
 				<div
 					class="h-100"
 					[style.width.px]="maxScheduleWidth">
 					<app-day-panel
-						class="animated slideInRight"
+						class="animated fadeIn"
 						[day]="today"
 						[mechanics]="findDayMechanics(today) | mechanics: onlyAppointmentsMode"
-						[quartersSaturation]="findQuartersSaturation(today)"
-						[mechanicLineUpdate]="checkTriggerLineCd(today)"
-						[dayMechanicSkills]="findDayMechanicSkills(today)"
-						[contextMenuInfo]="findAssignedContextMenuInfo()"
+						[saturatedQuarters]="findDaySaturatedQuarters(today)"
+						[mechanicSkillsUpdate]="findDayMechanicSkillsUpdate(today)"
+						[mechanicLineUpdates]="findMechanicLineUpdates(today)"
 						[showAppointmentsName]="showAppointmentsName"
-						[maxScheduleHours]="maxScheduleHours"
+						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
 						[maxScheduleWidth]="maxScheduleWidth"
-						[timeIndicatorLeft]="timeIndicatorLeft">
+						[timeIndicatorLeft]="timeIndicatorLeft"
+						[mechanicGroupUpdates]="findGroupsUpdate(today)">
 					</app-day-panel>
 				</div>
-				<div
-					*ngIf="showNonexistentScheduleMessage"
-					class="w-100 h-100 align-center nonexistent-today-schedules-container">
+			</div>
+			<ng-template #emptyDay>
+				<div class="flex-grow-1 h-100 align-center nonexistent-today-schedules-container">
 					No hay horarios definidos para hoy. ¡Puedes tomarte el día libre!
 				</div>
-			</div>
-			<app-card-details
-				*ngIf="checkShowCardDetails(today)"
-				[card]="findCard(today)"
-				class="h-100"
-				[style.right.px]="skillsDetailsRight">
-			</app-card-details>
-			<app-skills-details
-				*ngIf="checkShowSkills(today)"
-				[skills]="findSkills(today)"
-				class="h-100"
-				[style.right.px]="skillsDetailsRight">
-			</app-skills-details>
-			<app-day-info-panel
-				class="h-100"
-				[style.min-width.px]="dayPanelWidth"
-				[day]="today">
-			</app-day-info-panel>
+			</ng-template>
+			<app-lateral-panel
+				[day]="today"
+				[info]="findLateralPanelInfo(today)"
+				[style.right.px]="lateralPanelRight">
+			</app-lateral-panel>
 			<app-tools-bar
+				[day]="today"
+				[appointmentDayUpdate]="findAppointmentDayUpdate(today)"
 				[maxScheduleWidth]="maxScheduleWidth"
-				[maxScheduleMaxWidth]="maxScheduleMaxWidth"
-				class="h-100">
+				[maxScheduleMaxWidth]="maxScheduleMaxWidth">
 			</app-tools-bar>
 		</div>
 		<div *ngIf="!oneDayMode" class="col w-100 h-100 padding-0 d-flex parent-sections-container">
 			<div
-				class="d-flex flex-column"
+				class="d-flex flex-column overflow-y-scroll"
 				appScrollable
-				[style.width.px]="dayContainerWidth"
-				[ngClass]="{'overflow-y-scroll': !oneDayMode}">
+				[style.width.px]="dayContainerWidth">
 				<div
 					*ngFor="let day of days | days: oneDayMode; trackBy: trackByDay;"
-					class="w-100 h-auto d-flex"
-					[ngClass]="{'overflow-hidden': oneDayMode}">
-					<div
-						class="h-100 panel-container padding-0"
-						[ngClass]="{
-							'width-0-scrollbar': !oneDayMode || !displayScrollbar,
-							'overflow-scroll': !showNonexistentScheduleMessage,
-							'overflow-hidden': showNonexistentScheduleMessage
-						}">
-						<div
-							class="h-100"
-							[style.width.px]="maxScheduleWidth">
-							<app-day-panel
-								class="animated slideInRight"
-								[day]="day"
-								[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
-								[quartersSaturation]="findQuartersSaturation(day)"
-								[mechanicLineUpdate]="checkTriggerLineCd(day)"
-								[dayMechanicSkills]="findDayMechanicSkills(day)"
-								[contextMenuInfo]="findAssignedContextMenuInfo()"
-								[showAppointmentsName]="showAppointmentsName"
-								[maxScheduleHours]="maxScheduleHours"
-								[maxScheduleWidth]="maxScheduleWidth">
-							</app-day-panel>
-						</div>
-					</div>
-					<app-card-details
-						*ngIf="checkShowCardDetails(day)"
-						[card]="findCard(day)"
-						class="h-100"
-						[style.right.px]="skillsDetailsRight">
-					</app-card-details>
-					<app-skills-details
-						*ngIf="checkShowSkills(day)"
-						[skills]="findSkills(day)"
-						[style.right.px]="skillsDetailsRight"
-						class="h-100">
-					</app-skills-details>
-					<app-day-info-panel
-						class="h-100"
-						[style.min-width.px]="dayPanelWidth"
-						[day]="day">
-					</app-day-info-panel>
+					class="h-auto d-flex"
+					[style.width.px]="maxScheduleWidth + toolsBarWidth">
+					<app-day-panel
+						class="w-100 animated fadeIn"
+						[day]="day"
+						[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
+						[saturatedQuarters]="findDaySaturatedQuarters(day)"
+						[mechanicSkillsUpdate]="findDayMechanicSkillsUpdate(day)"
+						[mechanicLineUpdates]="findMechanicLineUpdates(day)"
+						[showAppointmentsName]="showAppointmentsName"
+						[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
+						[maxScheduleWidth]="maxScheduleWidth"
+						[mechanicGroupUpdates]="findGroupsUpdate(day)">
+					</app-day-panel>
+					<app-lateral-panel
+						[day]="day"
+						[info]="findLateralPanelInfo(day)"
+						[style.right.px]="lateralPanelRight">
+					</app-lateral-panel>
+					<app-appointments-summary
+						class="appointments-summary blank-background border-left border-semi-dark"
+						[style.width.px]="toolsBarWidth"
+						[day]="day"
+						[appointmentDayUpdate]="findAppointmentDayUpdate(day)"
+						[width]="toolsBarWidth"
+						[enabled]="true">
+					</app-appointments-summary>
 				</div>
 			</div>
 			<app-tools-bar
@@ -119,11 +95,21 @@
 	</div>
 	<div class="row unassigned-orders-container">
 		<div class="col padding-0">
-			<app-band
-				class="w-100"
-				[contextMenuInfo]="findUnassignedContextMenuInfo()">
-			</app-band>
+			<app-band class="w-100 blank-background"></app-band>
 		</div>
 	</div>
 </div>
+<ng-template #emptyPanel>
+	<div class="w-100 h-100 align-center nonexistent-today-schedules-container">
+		No hay horarios definidos. Por favor, cárgalos antes de acceder a panel.
+	</div>
+</ng-template>
+<app-context-menu
+	*ngIf="checkShowContextMenu()"
+	[contextMenuInfo]="contextMenuInfo">
+</app-context-menu>
+<app-toasts-container
+	class="toast-position"
+	[toast]="toast">
+</app-toasts-container>
 <div>{{check()}}</div>

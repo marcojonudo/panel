@@ -1,0 +1,13 @@
+:host {
+	z-index: 1;
+}
+
+#bar {
+	animation: dash 2s linear forwards;
+}
+
+@keyframes dash {
+	to {
+		stroke-dashoffset: 0;
+	}
+}

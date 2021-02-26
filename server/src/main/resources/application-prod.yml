@@ -34,6 +34,9 @@ endpoints:
         enabled: true
         sensitive: false
 
+cron:
+    sync-jpdv-orders: '0/30 * * * * ?'
+
 #endpoints:
 #    server-database-resolver:
 #        host: http://localhost
@@ -41,3 +44,8 @@ endpoints:
 #        url: ${host}:${port}
 #    panel:
 #        url: ${endpoints.server-datbase-resolver.url}/panel
+
+ifv:
+    username: PortalIFVuser
+    password: ifvRest18$
+    centre: ABS

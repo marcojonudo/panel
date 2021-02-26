@@ -2,18 +2,19 @@
 	background-color: #ffffff;
 }
 
-.quarter {
+.hour {
 	font-weight: bold;
 }
 
-.red-background {
-	background-color: red;
-}
-
-.quarter-border {
+.quarter {
 	border-left: 1px dotted;
+	transition: background-color .2s;
 }
 
 .hour-border {
 	border-left: 1px solid;
+}
+
+.small-font-size {
+	font-size: .8em;
 }

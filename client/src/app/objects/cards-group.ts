@@ -2,6 +2,7 @@ import {Card} from "./card";
 import {UtilsService} from "../services/utils.service";
 import {Constants} from "./constants";
 import {DimensionsService} from "../services/dimensions.service";
+import {Dayjs} from "dayjs";
 
 export class CardsGroup {
 
@@ -12,28 +13,38 @@ export class CardsGroup {
 	private _type: string;
 	private _status: string;
 
-	private _lastStart: Date;
-	private _start: Date;
+	day: Dayjs;
+	mechanicCode: string;
+
+	private _lastStart: Dayjs;
+	private _start: Dayjs;
 	private _left: number;
-	private _lastEnd: Date;
-	private _end: Date;
+	private _lastEnd: Dayjs;
+	private _end: Dayjs;
 
 	private _lastLine: number;
 	private _line: number;
 
+	private _coordinates: Coordinates;
+
 	cut: boolean;
 	mode: string;
+
+	highlight: boolean;
 
 	constructor(cards: Card[], left: number = undefined) {
 		this.cards = cards;
 		this.id = this.cards[0].panelId;
 		this.type = this.cards[0].type;
 		this.status = this.cards[0].status;
+		this.day = this.cards[0].day;
+		this.mechanicCode = this.cards[0].mechanicCode;
 		this.start = this.cards[0].start;
 		this.end = this.cards[this.cards.length-1].end;
 		this.line = this.cards[0].line;
 		this.left = left;
 		this.mode = Constants.GROUP_MODE.DRAG;
+		this.highlight = false;
 	}
 
 	// region Getters / setters
@@ -70,11 +81,11 @@ export class CardsGroup {
 		this._status = value;
 	}
 
-	get start(): Date {
+	get start(): Dayjs {
 		return this._start;
 	}
 
-	set start(value: Date) {
+	set start(value: Dayjs) {
 		this.lastStart = this.start;
 		this._start = value;
 	}
@@ -96,11 +107,11 @@ export class CardsGroup {
 		this._line = value;
 	}
 
-	get end(): Date {
+	get end(): Dayjs {
 		return this._end;
 	}
 
-	set end(value: Date) {
+	set end(value: Dayjs) {
 		this.lastEnd = this.end;
 		this._end = value;
 	}
@@ -113,27 +124,45 @@ export class CardsGroup {
 		this._lastLine = value;
 	}
 
-	get lastEnd(): Date {
+	get lastEnd(): Dayjs {
 		return this._lastEnd;
 	}
 
-	set lastEnd(value: Date) {
+	set lastEnd(value: Dayjs) {
 		this._lastEnd = value;
 	}
 
-	get lastStart(): Date {
+	get lastStart(): Dayjs {
 		return this._lastStart;
 	}
 
-	set lastStart(value: Date) {
+	set lastStart(value: Dayjs) {
 		this._lastStart = value;
+	}
+
+	get coordinates(): Coordinates {
+		return this._coordinates;
+	}
+
+	set coordinates(value: Coordinates) {
+		this._coordinates = value;
 	}
 
 	// endregion
 
-	setStart(start: Date): void {
+	setId(): void {
+		this.id = this.cards[0].panelId;
+	}
+
+	setStart(start: Dayjs): void {
 		this.start = start;
-		this.left = this.start ? DimensionsService.calcLeftFromStart(this.start) : undefined;
+		if (this.start) {
+			this.left = DimensionsService.calcLeftFromStart(this.start);
+			this.end = this.start.add(this.findDuration(), Constants.DAY_JS.m);
+		} else {
+			this.left = undefined;
+			this.end = undefined;
+		}
 	}
 
 	addCards(cards: Card[]): void {
@@ -152,8 +181,17 @@ export class CardsGroup {
 		return newCardsGroup;
 	}
 
-	removeCards(fromIndex, toIndex): void {
+	removeCards(fromIndex: number, toIndex: number): void {
 		this.cards = this.cards.slice(fromIndex, toIndex);
+		this.id = this.cards[0].panelId;
+		this.setStart(this.cards[0].start);
+		this.end = this.cards[this.cards.length-1].end;
+	}
+
+	removeGroupCards(cards: Card[]): void {
+		this.cards = this.cards.filter((card: Card) =>
+			cards.find((c: Card) => c.panelId == card.panelId) == undefined
+		);
 		this.id = this.cards[0].panelId;
 		this.setStart(this.cards[0].start);
 		this.end = this.cards[this.cards.length-1].end;

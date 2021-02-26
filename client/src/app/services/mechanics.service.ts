@@ -6,15 +6,25 @@ import {Skill} from "../objects/skill";
 import {NotificationService} from "./notification.service";
 import {HttpClient} from "@angular/common/http";
 import {Url} from "../objects/url";
-import {DimensionsService} from "./dimensions.service";
+import {Constants} from "../objects/constants";
+import * as dayjs from "dayjs";
+import {Dayjs} from "dayjs";
+import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
+import {LocalStorageService} from "./local-storage.service";
+import {Employee} from "../objects/employee";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class MechanicsService {
 
-	private _days: Date[];
-	private _daysMechanics: DaysMechanics;
+	private static _days: Dayjs[];
+	private static _employees: Employee[];
+	private static _firstScheduleDay: Dayjs;
+	private static _lastScheduleDay: Dayjs;
+	private static _daysMechanics: DaysMechanics;
+	private static _todaySchedules: boolean;
+	private static _futureSchedules: boolean;
 	private static _onlyAppointmentsMode: boolean;
 	private static _showAppointmentsName: boolean = true;
 
@@ -22,19 +32,43 @@ export class MechanicsService {
 
 	// region Getters / setters
 
-	get days(): Date[] {
+	static get days(): Dayjs[] {
 		return this._days;
 	}
 
-	set days(value: Date[]) {
+	static set days(value: Dayjs[]) {
 		this._days = value;
 	}
 
-	get daysMechanics(): DaysMechanics {
+	static get employees(): Employee[] {
+		return this._employees;
+	}
+
+	static set employees(value: Employee[]) {
+		this._employees = value;
+	}
+
+	static get firstScheduleDay(): dayjs.Dayjs {
+		return this._firstScheduleDay;
+	}
+
+	static set firstScheduleDay(value: dayjs.Dayjs) {
+		this._firstScheduleDay = value;
+	}
+
+	static get lastScheduleDay(): Dayjs {
+		return this._lastScheduleDay;
+	}
+
+	static set lastScheduleDay(value: Dayjs) {
+		this._lastScheduleDay = value;
+	}
+
+	static get daysMechanics(): DaysMechanics {
 		return this._daysMechanics;
 	}
 
-	set daysMechanics(value: DaysMechanics) {
+	static set daysMechanics(value: DaysMechanics) {
 		this._daysMechanics = value;
 	}
 
@@ -54,67 +88,138 @@ export class MechanicsService {
 		this._showAppointmentsName = value;
 	}
 
+	static get futureSchedules(): boolean {
+		return this._futureSchedules;
+	}
+
+	static set futureSchedules(value: boolean) {
+		this._futureSchedules = value;
+	}
+
+	static get todaySchedules(): boolean {
+		return this._todaySchedules;
+	}
+
+	static set todaySchedules(value: boolean) {
+		this._todaySchedules = value;
+	}
+
 	// endregion
 
 	// region Finders
 
-	findDayMechanics(day: Date): Mechanic[] {
-		return this.daysMechanics[day.getTime()];
+	public static findDayMechanics(day: Dayjs, fixed: boolean = undefined): Mechanic[] {
+		const dayMechanics = this.daysMechanics[day.valueOf()];
+		if (dayMechanics) {
+			if (fixed) {
+				return dayMechanics.filter((mechanic: Mechanic) => mechanic.fixed);
+			} else if (fixed == false) {
+				return dayMechanics.filter((mechanic: Mechanic) => !mechanic.fixed);
+			}
+		}
+		return dayMechanics;
 	}
 
-	findMechanic(day: Date, code: string): Mechanic {
-		return this.findDayMechanics(day).find(mechanic => mechanic.code == code);
+	public static findMechanic(day: Dayjs, code: string): Mechanic {
+		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.code == code);
 	}
 
-	findMechanicByPosition(day: Date, position: string): Mechanic {
-		return this.findDayMechanics(day).find(mechanic => mechanic.panelPosition == position);
+	public static findMechanicByPosition(day: Dayjs, position: string): Mechanic {
+		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.panelPosition == position);
 	}
 
 	// endregion
 
 	// region Init
 
-	init(
+	static init(
 		daysMechanics: { [key: string]: any[] },
+		employees: any[],
+		firstScheduleDay: string,
+		lastScheduleDay: string,
 		skills: any[],
 		highlightedSkills: Skill[]
 	) {
-		this.days = this.initDays(daysMechanics);
-		this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
+		this.employees = employees.map((employee: any) => new Employee(employee));
+		const today = dayjs().startOf(Constants.DAY_JS.d);
+		this.loadFixedMechanics(daysMechanics, today)
+		if (daysMechanics) {
+			this.days = this.initDays(daysMechanics);
+			this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
+
+			this.todaySchedules = this.days.find((day: Dayjs) => day.isSame(today)) != undefined;
+			if (this.todaySchedules) {
+				this.futureSchedules = this.todaySchedules;
+				this.storeFixedMechanics(daysMechanics, today);
+			} else {
+				this.futureSchedules = Object.keys(this.daysMechanics).length > 0;
+			}
+			this.firstScheduleDay = dayjs(firstScheduleDay)
+			this.lastScheduleDay = dayjs(lastScheduleDay);
+		} else {
+			this.days = [];
+			this.daysMechanics = {};
+			this.todaySchedules = false;
+			this.futureSchedules = false;
+		}
 
 		console.log('Days', this.days);
 		console.log('Days mechanics', this.daysMechanics);
+		console.log('Employees', this.employees);
 	}
 
-	initDays(daysMechanics: { [key: string]: any[] }): Date[] {
-		return UtilsService.sort(
-			Object.keys(daysMechanics).map(day => UtilsService.parseDateFromString(day)),
-			(elem: Date) => elem.getTime()
+	static loadFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs) {
+		const fixedMechanics = LocalStorageService.getItem(Constants.FIXED_SCHEDULES);
+		const formattedToday = today.format(Constants.DATE_FORMAT.yyyy_MM_dd);
+		if (!daysMechanics[formattedToday] && fixedMechanics) {
+			daysMechanics[formattedToday] = fixedMechanics;
+		}
+	}
+
+	static storeFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs): void {
+		LocalStorageService.setItem(
+			Constants.FIXED_SCHEDULES,
+			daysMechanics[today.format(Constants.DATE_FORMAT.yyyy_MM_dd)].filter(mechanic => mechanic.panelPosition >= "Y")
 		);
 	}
 
-	initDaysMechanics(
+	static initDays(daysMechanics: { [key: string]: any[] }): Dayjs[] {
+		return UtilsService.sort(
+			Object.keys(daysMechanics).map(day => dayjs(day)),
+			(elem: Dayjs) => elem.valueOf()
+		);
+	}
+
+	static initDaysMechanics(
 		daysMechanics: { [key: string]: any[] },
 		skills: any[],
 		highlightedSkills: Skill[]
 	): DaysMechanics {
 		const parsedDaysMechanics = {};
 		for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
-			const day = UtilsService.parseDateFromString(dayString);
-			const parsedMechanics = mechanics.map(mechanic =>
-				new Mechanic(day, mechanic, skills, highlightedSkills)
-			);
-			parsedDaysMechanics[day.getTime()] =
+			const day = dayjs(dayString);
+			const parsedMechanics = mechanics.map(mechanic => new Mechanic(mechanic, skills, highlightedSkills));
+			parsedDaysMechanics[day.valueOf()] =
 				UtilsService.sort(parsedMechanics, (m) => m.panelPosition);
+		}
+		/* Si no hay hay mecánicos para el día actual, se añade una lista vacía. Así se facilitan operaciones
+		*  relacionadas con arrays, evitando tener que comprobar si la entrada del objeto es undefined */
+		const today = dayjs().startOf(Constants.DAY_JS.d);
+		if (!parsedDaysMechanics[today.valueOf()]) {
+			parsedDaysMechanics[today.valueOf()] = [];
 		}
 		return parsedDaysMechanics;
 	}
 
 	// endregion
 
-	updateMechanicLines(mechanic: Mechanic, newLines: number): void {
+	static updateMechanicLines(mechanic: Mechanic, newLines: number): void {
 		mechanic.setLines(newLines);
-		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
+		NotificationService.notifyMechanicLine(
+			mechanic.day,
+			mechanic.code,
+			true
+		);
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {
@@ -122,44 +227,49 @@ export class MechanicsService {
 	}
 
 	removeMechanic(
-		day: Date,
+		day: Dayjs,
 		mechanic: Mechanic,
 		updateDb: boolean = true,
-		mechanics: Mechanic[] = this.findDayMechanics(day)
+		mechanics: Mechanic[] = MechanicsService.findDayMechanics(day)
 	) {
 		mechanic.showInPanel = false;
 
 		const index = mechanics.indexOf(mechanic);
-		this.rearrangeMechanics(mechanics, index);
+		MechanicsService.rearrangeMechanics(mechanics, index);
 
-		NotificationService.notifyMechanicLine(day, mechanic.code);
+		NotificationService.notifyMechanicLine(undefined, undefined, true, new DropzoneUpdate());
 
 		if (updateDb) {
 			this.http.put(Url.mechanicsPosition(), mechanics.concat(mechanic)).subscribe();
 		}
 	}
 
-	private rearrangeMechanics(mechanics: Mechanic[], removedMechanicIndex: number): void {
+	private static rearrangeMechanics(mechanics: Mechanic[], removedMechanicIndex: number): void {
 		let prevPosition = mechanics[removedMechanicIndex].panelPosition;
 		mechanics.splice(removedMechanicIndex, 1);
 
-		for (let i = removedMechanicIndex; i < mechanics.length; i++) {
+		const lastMechanicIndex = mechanics[mechanics.length - 1].fixed ? mechanics.length - 2 : mechanics.length;
+		for (let i = removedMechanicIndex; i < lastMechanicIndex; i++) {
 			const newPosition = mechanics[i].panelPosition;
 			mechanics[i].panelPosition = prevPosition;
 			prevPosition = newPosition;
 		}
 	}
 
-	toggleOnlyAppointmentsMode(): void {
+	static toggleOnlyAppointmentsMode(): void {
 		MechanicsService.onlyAppointmentsMode = !MechanicsService.onlyAppointmentsMode;
-		NotificationService.notifyOnlyAppointmentsMode();
+		NotificationService.notifyTriggerCd();
 	}
 
-	toggleShowAppointmentsName(): void {
+	static toggleShowAppointmentsName(): void {
 		MechanicsService.showAppointmentsName = !MechanicsService.showAppointmentsName;
 		/* Se notifica el Observer de onlyAppointmentsMode ya que una vez actualizada la variable (en este caso,
 		*  showAppointmentsMode), sólo interesa lanzar el CD */
-		NotificationService.notifyOnlyAppointmentsMode();
+		NotificationService.notifyTriggerCd();
+	}
+
+	static findEmployee(code: string): Employee {
+		return this.employees.find((e: Employee) => e.code == code);
 	}
 
 }

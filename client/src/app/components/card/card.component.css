@@ -28,22 +28,45 @@ i {
 }
 
 .card-state-indicator {
-	width: 10px;
-	height: 10px;
+	width: 12px;
+	height: 12px;
 	-webkit-border-radius: 100%;
 	-moz-border-radius: 100%;
 	border-radius: 100%;
+	font-size: 1.2em;
+	color: #fff;
 }
 
 .card-bottom-section {
+	height: 20%;
 	-webkit-border-radius: 0 0 5px 5px;
 	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
+}
+
+.custom-icon {
+	font-size: 1.4em;
 }
 
 .link-cards-container {
 	position: absolute;
 	top: 0;
 	left: 0;
+	overflow: hidden;
+}
+
+.link-handler {
+	width: 10px;
+	height: 10px;
+	background-size: 10px 10px;
+	cursor: pointer;
+}
+
+.linked-arrow {
+	font-size: 1.3em;
+}
+
+.creator-code {
+	white-space: nowrap;
 	overflow: hidden;
 }

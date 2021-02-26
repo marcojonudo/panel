@@ -8,12 +8,11 @@ export class RealTimeMechanicUpdateLines extends RealTimeUpdate {
 
 	constructor(mechanics: any) {
 		super();
-		mechanics[0].day = new Date(mechanics[0].day);
-		this.mechanic = mechanics[0];
+		this.mechanic = new Mechanic(mechanics[0]);
 	}
 
-	update(realTimeService: RealTimeService): void {
-		realTimeService.updateLines(this.mechanic);
+	update(): void {
+		RealTimeService.updateLines(this.mechanic);
 	}
 
 }

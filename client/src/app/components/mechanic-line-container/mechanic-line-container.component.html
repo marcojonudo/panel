@@ -1,22 +1,28 @@
-<div class="d-flex align-items-center mechanic-line-container"
+<div class="d-flex align-items-center mechanic-line-container border-top border-bottom border-light"
 	 [style.height.px]="calcScheduleHeight()">
 	<app-mechanic-info
 		[day]="day"
 		[mechanic]="mechanic"
+		[jobLineType]="mechanic.jobLineType"
 		[position]="position"
-		[dayMechanicSkills]="dayMechanicSkills"
+		[highlight]="checkHighlightMechanic()"
 		class="h-100 mechanic-info-container"
 		[style.width.px]="mechanicInfoWidth">
 	</app-mechanic-info>
 	<app-mechanic-line
 		[day]="day"
 		[mechanic]="mechanic"
+		[groups]="groups"
 		[mechanicLineUpdate]="mechanicLineUpdate"
-		[maxScheduleWidth]="maxScheduleWidth"
 		[appointments]="mechanic.appointments"
 		[showAppointmentsName]="showAppointmentsName"
+		[groupUpdates]="groupUpdates"
 		class="h-100 flex-grow-1">
 	</app-mechanic-line>
-	<div appResizableLine [mechanic]="mechanic" class="w-100 resizable cursor-resize"></div>
+	<div
+		class="w-100 resizable cursor-resize"
+		appResizableLine
+		[mechanic]="mechanic">
+	</div>
 </div>
 <div>{{check()}}</div>

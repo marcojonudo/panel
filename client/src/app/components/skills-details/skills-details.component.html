@@ -1,8 +1,7 @@
 <div
-	class="h-100 d-flex flex-column skills-container border-left-2 border-semi-dark"
-	[style.width.px]="skillsPanelWidth">
+	class="h-100 d-flex flex-column skills-container">
 	<div
-		*ngFor="let skill of skills"
+		*ngFor="let skill of buildAllSkillsArray()"
 		class="flex-grow-1 flex-basis-0 d-flex skill align-items-center border-bottom"
 		[ngClass]="{'parent-skill pl-1': skill.children.length, 'pl-2': !skill.children.length}">
 		<div>{{skill.name}}</div>

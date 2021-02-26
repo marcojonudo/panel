@@ -1,6 +1,6 @@
 export class RealTimeUpdateInfo {
 
-	updateObject: string;
-	updateProperty: string;
+	action: string;
+	content: any;
 
 }

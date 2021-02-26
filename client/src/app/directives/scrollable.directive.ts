@@ -1,7 +1,11 @@
 import {AfterViewInit, Directive, ElementRef, HostListener, Input, OnInit, Renderer2} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {CardPositionService} from "../services/card-position.service";
+import {DimensionsService} from "../services/dimensions.service";
+import {InitService} from "../services/init.service";
 import {NotificationService} from "../services/notification.service";
+import {StandardToast} from "../objects/toasts/standard-toast";
+import {Scroll} from "../objects/scroll";
 
 @Directive({
 	selector: '[appScrollable]'
@@ -18,58 +22,41 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	private top: number;
 	private bottom: number;
 
-	private pointerMoveListener: any;
+	private scroll: Scroll;
 
-	private dragging: boolean;
+	private maxScrollTop: number;
 
-	private updateScrollTop: boolean;
-	private updateScrollLeft: boolean;
+	private scrollTopTimeout: number;
+	private consumingTimeout: boolean;
 
-	private scrollTop: number;
-	private scrollLeft: number;
-	private lastScrollTop: number;
-	private lastScrollLeft: number;
+	private minScrollTimeout: any;
+	private maxScrollTimeout: any;
 
 	constructor(
-		private cardPositionService: CardPositionService,
+		private initService: InitService,
 		private element: ElementRef,
 		private renderer: Renderer2
 	) {
 		this.scrollZoneSize = 50;
-		this.step = 10;
+		this.step = 30;
+		this.scrollTopTimeout = 2000;
+		this.consumingTimeout = false;
 
-		this.scrollTop = 0;
-		this.scrollLeft = 0;
-		this.lastScrollTop = 0;
-		this.lastScrollLeft = 0;
-
-		this.dragging = false;
-
-		this.updateScrollTop = true;
-		this.updateScrollTop = true;
+		this.scroll = new Scroll();
 	}
 
 	ngOnInit() {
-		NotificationService.dragging$.subscribe(dragging => {
-			if (dragging) {
-				if (!this.top) {
-					this.setPositionValues(this.element.nativeElement.getBoundingClientRect());
-				}
-				this.dragging = true;
-				this.lastScrollTop = this.scrollTop;
-				this.lastScrollLeft = this.scrollLeft;
-				CardPositionService.initialScrollTop = this.scrollTop;
-				CardPositionService.initialScrollLeft = this.scrollLeft;
-				this.pointerMoveListener = this.renderer.listen(this.element.nativeElement, 'pointermove', this.onPointerMove.bind(this));
-			} else {
-				this.dragging = false;
-				CardPositionService.relativeScrollTop = 0;
-				CardPositionService.relativeScrollLeft = 0;
-				if (this.pointerMoveListener) {
-					this.pointerMoveListener();
-				}
-			}
-		});
+		setTimeout(() => {
+			const rect = this.element.nativeElement.getBoundingClientRect();
+			this.maxScrollTop = this.element.nativeElement.scrollHeight - rect.height;
+			this.setPositionValues(rect);
+			this.setScrollTop(CardPositionService.scroll.top);
+		}, 1);
+		this.renderer.listen(
+			this.element.nativeElement,
+			Constants.EVENT.POINTER_MOVE,
+			this.onPointerMove.bind(this)
+		);
 	}
 
 	ngAfterViewInit(): void {
@@ -84,21 +71,22 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	}
 
 	onPointerMove(event: PointerEvent): void {
-		if (event.clientX > this.right) {
-			this.setScrollLeft(this.scrollLeft + this.step);
-		} else if (event.clientX < this.left) {
-			this.setScrollLeft(this.scrollLeft - this.step);
-		}
+		if (CardPositionService.dragging) {
+			if (event.clientX > this.right) {
+				this.setScrollLeft(this.scroll.left + this.step);
+			} else if (event.clientX < this.left) {
+				this.setScrollLeft(this.scroll.left - this.step);
+			}
 
-		if (event.clientY > this.bottom) {
-			this.setScrollTop(this.scrollTop + this.step);
-		} else if (event.clientY < this.top) {
-			this.setScrollTop(this.scrollTop - this.step);
+			if (event.clientY > this.bottom) {
+				this.setScrollTop(this.scroll.top + this.step);
+			} else if (event.clientY < this.top) {
+				this.setScrollTop(this.scroll.top - this.step);
+			}
 		}
 	}
 
 	setScrollLeft(scrollLeft: number) {
-		this.updateScrollLeft = true;
 		this.renderer.setProperty(
 			this.element.nativeElement,
 			Constants.PROPERTY.SCROLL_LEFT,
@@ -107,7 +95,6 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 	}
 
 	setScrollTop(scrollTop: number) {
-		this.updateScrollTop = true;
 		this.renderer.setProperty(
 			this.element.nativeElement,
 			Constants.PROPERTY.SCROLL_TOP,
@@ -117,35 +104,58 @@ export class ScrollableDirective implements OnInit, AfterViewInit {
 
 	@HostListener('scroll', ['$event'])
 	onScroll(event): void {
-		if (this.dragging) {
-			if (this.updateScrollLeft) {
-				this.setPositionScrollLeft(event.target.scrollLeft, true);
-				this.updateScrollLeft = false;
+		this.setPositionScrollLeft(event.target.scrollLeft);
+		this.setPositionScrollTop(event.target.scrollTop);
+	}
+
+	setPositionScrollLeft(scrollLeft: number) {
+		this.scroll.left = scrollLeft;
+		CardPositionService.scroll.left = this.scroll.left;
+	}
+
+	setPositionScrollTop(scrollTop: number) {
+		this.scroll.top = scrollTop;
+		CardPositionService.scroll.top = this.scroll.top;
+		if (!DimensionsService.oneDayMode) {
+			if (this.scroll.top == 0 && InitService.checkRequestPreviousDaysInitialData()) {
+				this.handleMinScrollTop();
+			} else if (this.scroll.top == this.maxScrollTop && InitService.checkRequestNextDaysInitialData()) {
+				this.handleMaxScrollTop();
+			} else if (this.consumingTimeout) {
+				NotificationService.notifyToast(undefined);
+				clearTimeout(this.minScrollTimeout);
+				clearTimeout(this.maxScrollTimeout);
+				this.consumingTimeout = false;
 			}
-			if (this.updateScrollTop) {
-				this.setPositionScrollTop(event.target.scrollTop, true);
-				this.updateScrollTop = false;
-			}
-		} else {
-			this.setPositionScrollLeft(event.target.scrollLeft, false);
-			this.setPositionScrollTop(event.target.scrollTop, false);
 		}
 	}
 
-	setPositionScrollLeft(scrollLeft: number, setRelative: boolean) {
-		this.scrollLeft = scrollLeft;
-		CardPositionService.scrollLeft = this.scrollLeft;
-		if (setRelative) {
-			CardPositionService.relativeScrollLeft = this.scrollLeft - this.lastScrollLeft;
-		}
+	handleMinScrollTop(): void {
+		this.consumingTimeout = true;
+		NotificationService.notifyToast(new StandardToast(undefined, true, this.scrollTopTimeout));
+		this.minScrollTimeout = setTimeout(
+			() => {
+				this.consumingTimeout = false;
+				if (this.scroll.top == 0) {
+					this.initService.requestPreviousDaysInitialData();
+				}
+			},
+			this.scrollTopTimeout
+		)
 	}
 
-	setPositionScrollTop(scrollTop: number, setRelative: boolean) {
-		this.scrollTop = scrollTop;
-		CardPositionService.scrollTop = this.scrollTop;
-		if (setRelative) {
-			CardPositionService.relativeScrollTop = this.scrollTop - this.lastScrollTop;
-		}
+	handleMaxScrollTop(): void {
+		this.consumingTimeout = true;
+		NotificationService.notifyToast(new StandardToast(undefined, true, this.scrollTopTimeout));
+		this.maxScrollTimeout = setTimeout(
+			() => {
+				this.consumingTimeout = false;
+				if (this.scroll.top == this.maxScrollTop) {
+					this.initService.requestNextDaysInitialData();
+				}
+			},
+			this.scrollTopTimeout
+		)
 	}
 
 }

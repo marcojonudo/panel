@@ -6,7 +6,14 @@ import {CardPositionService} from "../../services/card-position.service";
 import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {AppointmentsService} from "../../services/appointments.service";
-import {UpdateAppointmentDayParams} from "../update-appointment-day-params";
+import {Position} from "../position";
+import {ScheduleInterval} from "../schedule-interval";
+import {Card} from "../card";
+import {NotificationService} from "../../services/notification.service";
+import {Dayjs} from "dayjs";
+import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
+import {WarningToast} from "../toasts/warning-toast";
+import {Scroll} from "../scroll";
 
 export class AssignedDropzone implements Dropzone {
 
@@ -16,101 +23,128 @@ export class AssignedDropzone implements Dropzone {
 	type: string = Constants.DROPZONE_TYPE.ASSIGNED;
 	subType: string;
 	mechanic: Mechanic;
-	rect: any;
-
-	dayMechanicGroups: CardsGroup[];
+	interval: ScheduleInterval;
+	position: Position;
 
 	constructor(
 		cardsService: CardsService,
 		appointmentsService: AppointmentsService,
-		mechanic: Mechanic
+		mechanic: Mechanic,
+		interval: ScheduleInterval
 	) {
 		this.cardsService = cardsService;
 		this.appointmentsService = appointmentsService;
 		this.mechanic = mechanic;
+		this.interval = interval;
 	}
 
-	validateMovement(position: Coordinates): CardsGroup[] {
-		this.dayMechanicGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		return CardPositionService.validateAssignedPosition(
-			position,
-			this.dayMechanicGroups
-		);
+	validate(coordinates: Coordinates, group: CardsGroup): OverlappedGroupsInfo {
+		const dayMechanicGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		const validateInfo = CardPositionService.validateCoordinates(coordinates, this, dayMechanicGroups, group);
+		return this.validateOverlappedGroups(
+			group, dayMechanicGroups, validateInfo.line, validateInfo.newStart, validateInfo.newEnd, this.interval
+		)
 	}
 
-	removeGroup(group: CardsGroup, validated: boolean, destinyDropzone: Dropzone): void {
-		if (destinyDropzone) {
-			this.updateAppointmentsCounterSubtract(group, destinyDropzone);
-		}
-		this.cardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
-	}
-
-	findLastPosition(groups: CardsGroup[], group: CardsGroup, position: Coordinates): Coordinates {
-		/* Se actualiza el left, start y end de los grupos y se retorna la posición final a la que se tendrá que
-		*  desplazar la ficha, una vez tenidos en cuenta los solapamientos */
-		return CardPositionService.updateAssignedGroupsPosition(
-			position,
-			groups
-			// this.dayMechanicGroups
-		);
-	}
-
-	addGroup(
-		groups: CardsGroup[],
+	validateOverlappedGroups(
 		group: CardsGroup,
-		originDropzone: Dropzone,
-		lastPosition: Coordinates
-	): void {
-		this.cardsService.updateAssignedCards(
-			groups,
-			group,
-			this.mechanic.day,
-			this.mechanic.code,
-			lastPosition.line,
-			this.dayMechanicGroups
+		dayMechanicGroups: CardsGroup[],
+		line: number,
+		newStart: Dayjs,
+		newEnd: Dayjs,
+		dropzoneInterval: ScheduleInterval
+	): OverlappedGroupsInfo {
+		/* Para validar si la posición es correcta, se deben tener en cuenta los grupos solapados. Estos grupos sólo
+		*  pueden ser aquellos que no sean el que se está moviendo (si este parte desde la derecha), y los que estén
+		*  en la misma línea más tarde que el nuevo start */
+		const lineRightGroups = dayMechanicGroups.filter((g: CardsGroup) =>
+			g.id != group.id && g.line == line && g.end.isAfter(newStart)
 		);
-		this.updateAppointmentsCounterAdd(group, originDropzone);
+		const overlappedGroupsInfo = CardPositionService.handleOverlappedMovements(newEnd, lineRightGroups)
+			.setNewStart(newStart);
+		return newStart >= dropzoneInterval.start && overlappedGroupsInfo.newEnd <= dropzoneInterval.end ?
+			overlappedGroupsInfo : undefined;
+	}
+
+	removeGroup(group: CardsGroup): void {
+		CardsService.removeFromAssigned(group, this.mechanic.day, this.mechanic.code);
+	}
+
+	updateProperties(groups: CardsGroup[], newStart: Dayjs, line: number, mechanic: Mechanic): boolean {
+		const day = newStart.startOf(Constants.DAY_JS.d);
+		if (this.checkNotifyDifferentDay(groups[0].cards[0], day)) {
+			NotificationService.notifyToast(
+				new WarningToast(Constants.MESSAGE.DIFFERENT_CARD_DAY(day, groups[0].cards[0].order.day))
+			);
+		}
+		const newCard = CardsService.checkNewCard(groups);
+		CardsService.updatePositionProperties(
+			groups, newStart.startOf(Constants.DAY_JS.d), mechanic.code, line, newStart
+		);
+		return newCard;
+	}
+
+	checkNotifyDifferentDay(card: Card, day: Dayjs): boolean {
+		return card.type != Constants.CARD_TYPE.AUXILIARY && !card.mechanicCode && !day.isSame(card.order.day);
+	}
+
+	addGroup(group: CardsGroup, groups: CardsGroup[], newCard: boolean = false): void {
+		const cardsToUpdate = [].concat(...groups.map((group: CardsGroup) => group.cards));
+
+		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
+		/* Si se acaba de soltar en panel una ficha auxiliar nueva, esta debe crearse en BD, no actualizarse */
+		if (newCard) {
+			this.cardsService.createDbCards(cardsToUpdate)
+		} else {
+			this.cardsService.updateDbCardsPosition(cardsToUpdate);
+		}
 
 		/* Después de la transicíon del grupo a su posición final, se añade a la lista de grupos de destino. Se usa el
 		*  timeout para evitar que la ficha aparezca en su lugar de destino antes de que se haya completado el
 		*  desplazamiento */
 		setTimeout(
-			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
+			() => this.notify(),
+			CardsService.getAddGroupDelay(group)
 		);
+	}
+
+	addRealTimeGroup(group: CardsGroup): void {
+		CardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code);
+		if (CardPositionService.checkDraggingGroup(group.id)) {
+			CardPositionService.resetDragAction();
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.GROUP_UPDATED_REAL_TIME));
+		}
+	}
+
+	findLastCoordinates(group: CardsGroup, coordinates: Coordinates): Coordinates {
+		coordinates.x = CardPositionService.leftToAbsolutePosition(group.left);
+		return coordinates;
 	}
 
 	handleNotValidatedMovement(group: CardsGroup): void {
 		/* Si el movimiento no valida, lo único que hay que hacer es añadir el grupo a su dropzone original (no hay que
 		*  actualizar propiedades, ni el panel de citas) */
+		NotificationService.notifyGroups([group]);
 		setTimeout(
-			() => this.cardsService.addToAssigned(group, this.mechanic.day, this.mechanic.code),
-			Constants.VALUE.CARD_MOVEMENT_DURATION
+			() => this.notify(true),
+			CardsService.getAddGroupDelay(group)
 		);
 	}
 
-	updateAppointmentsCounterSubtract(group: CardsGroup, destinyDropzone: Dropzone): void {
-		/* Sólo se tiene que reducir el contador de citas si una ficha se mueve de asignada a asignada (restar en una
-		*  categoría y sumar en otra), o de asignada a no asignada (restar en una categoría). Si se mueve a otra
-		*  dropzone (finalizada), no se resta nada al contador de citas */
-		if (destinyDropzone.type != Constants.DROPZONE_TYPE.FINISH) {
-			this.appointmentsService.updateAppointment(
-				group.cards[0].day,
-				group.cards,
-				false,
-				new UpdateAppointmentDayParams(false, true)
-			);
-		}
+	fixNotValidatedMovementScroll(startPosition: Coordinates, initialScroll: Scroll, scroll: Scroll): Coordinates {
+		startPosition.y = startPosition.y + initialScroll.top - scroll.top;
+		startPosition.x = startPosition.x + initialScroll.left - scroll.left;
+		return startPosition;
 	}
 
-	updateAppointmentsCounterAdd(group: CardsGroup, originDropzone: Dropzone): void {
-		this.appointmentsService.updateAppointment(
-			group.cards[0].day,
-			group.cards,
-			true,
-			new UpdateAppointmentDayParams(false, true),
-			true
-		)
+	notify(resetHelperGroup: boolean = true): void {
+		NotificationService.notifyUpdateArray();
+		if (resetHelperGroup) {
+			/* Además de notificar los grupos de las líneas, se elimina el helper group del overlay. Se hace
+			*  aquí (antes se hacía en la directive clickeable) para contemplar también los casos de
+			*  actualización en tiempo real */
+			CardPositionService.setHelperGroup(undefined);
+		}
 	}
 
 }

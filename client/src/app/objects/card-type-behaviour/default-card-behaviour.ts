@@ -1,24 +1,22 @@
 import {CardsGroup} from "../cards-group";
 import {CardTypeBehaviour} from "./card-type-behaviour";
 import {NotificationService} from "../../services/notification.service";
-import {ContextMenuInfo} from "../context-menu-info";
 import {Coordinates} from "../coordinates";
-import {DayContextMenu} from "../context-menu-update/day-context-menu";
 import {CardsService} from "../../services/cards.service";
+import {GroupContextMenuInfo} from "../context-menu/group-context-menu-info";
 
-export class DefaultCardBehaviour implements CardTypeBehaviour{
+export class DefaultCardBehaviour implements CardTypeBehaviour {
 
-	findHelperGroup: Function;
-	handleLeftClick: Function;
-	handleRightClick: Function;
+	findHelperGroup(group: CardsGroup): CardsGroup {
+		return group;
+	}
 
-	constructor(cardsService: CardsService) {
-		this.findHelperGroup = (group: CardsGroup) => group;
-		this.handleLeftClick = (group: CardsGroup, x: number) =>
-			cardsService.findCardModeAction(group.mode).execute(group, x);
-		this.handleRightClick = (group: CardsGroup, coordinates: Coordinates) => {
-			NotificationService.notifyContextMenu(new ContextMenuInfo(group, coordinates));
-		}
+	handleLeftClick(group: CardsGroup, x: number): void {
+		CardsService.findCardModeAction(group.mode).execute(group, x);
+	}
+
+	handleRightClick(group: CardsGroup, coordinates: Coordinates): void {
+		NotificationService.notifyContextMenu(new GroupContextMenuInfo(group, coordinates), true);
 	}
 
 }

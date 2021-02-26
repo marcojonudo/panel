@@ -3,6 +3,9 @@ import {Card} from "../objects/card";
 import {CardsService} from "../services/cards.service";
 import {DimensionsService} from "../services/dimensions.service";
 import {MechanicsService} from "../services/mechanics.service";
+import {CardDurationHandler} from "../objects/card-duration/card-duration-handler";
+import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
+import {UnassignedCardDurationHandler} from "../objects/card-duration/unassigned-card-duration-handler";
 
 @Directive({
   selector: '[appResizableCard]'
@@ -18,18 +21,21 @@ export class ResizableCardDirective {
 	private updatedCards: Card[];
 	private lastX: number;
 
+	private handler: CardDurationHandler;
+	private dragWhenReducing: boolean;
+
 	constructor(
 		private element: ElementRef,
 		private renderer: Renderer2,
 		private cdRef: ChangeDetectorRef,
-		private cardsService: CardsService,
-		private mechanicsService: MechanicsService
+		private cardsService: CardsService
 	) {
-		this.updatedCards = []
+		this.reset();
 	}
 
 	ngOnInit(): void {
 		this.pointerDownListener = this.renderer.listen(this.element.nativeElement, 'pointerdown', this.onPointerDown.bind(this));
+		this.handler = this.card.day ? new AssignedCardDurationHandler() : new UnassignedCardDurationHandler();
 	}
 
 	onPointerDown(event: PointerEvent): void {
@@ -44,13 +50,21 @@ export class ResizableCardDirective {
 		const diff = event.clientX - this.lastX;
 		if (Math.abs(diff) >= DimensionsService.intervalWidth &&
 			!(diff < 0 && this.card.width == DimensionsService.intervalWidth)) {
-			this.updatedCards = this.updatedCards.concat(
-				this.cardsService.handleCardDurationUpdate(
-					this.card,
-					DimensionsService.intervalWidth * Math.sign(diff),
-					this.mechanicsService.findMechanic(this.card.day, this.card.mechanicCode)
-				)
-			).filter((card, i, self) => self.indexOf(card) === i);
+			const updateDurationInfo = CardsService.handleCardDurationUpdate(
+				this.card,
+				DimensionsService.intervalWidth * Math.sign(diff),
+				this.card.day ? MechanicsService.findMechanic(this.card.day, this.card.mechanicCode) : undefined,
+				this.handler,
+				this.dragWhenReducing
+			);
+			/* Sólo se actualiza el valor si era falso; si era positivo, significa que se desplazaron grupos colindantes
+			*  hacia la derecha, por lo que a partir de ese momento deben desplazarse también si se reduce la duración
+			*  de la ficha */
+			if (!this.dragWhenReducing) {
+				this.dragWhenReducing = updateDurationInfo.dragWhenReducing;
+			}
+			this.updatedCards = this.updatedCards.concat(updateDurationInfo.cards)
+				.filter((card, i, self) => self.indexOf(card) === i);
 			this.lastX = event.clientX;
 		}
 	}
@@ -60,6 +74,12 @@ export class ResizableCardDirective {
 		this.pointerUpListener();
 
 		this.cardsService.updateDbCardsDuration(this.updatedCards);
+		this.reset();
+	}
+
+	reset(): void {
+		this.updatedCards = [];
+		this.dragWhenReducing = false;
 	}
 
 }

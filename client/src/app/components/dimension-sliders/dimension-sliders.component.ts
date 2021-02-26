@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DimensionsService} from "../../services/dimensions.service";
 import {NotificationService} from "../../services/notification.service";
+import {MechanicsService} from "../../services/mechanics.service";
 
 @Component({
 	selector: 'app-dimension-sliders',
@@ -17,23 +18,12 @@ export class DimensionSlidersComponent implements OnInit {
 
 	private _min: number;
 	private _max: number;
-	private _width: number;
-
-	constructor() {
-		this.min = DimensionsService.gridWidth;
-	}
 
 	ngOnInit(): void {
-		this.width = this.maxScheduleWidth;
-		this.max = this.maxScheduleMaxWidth;
-		// this.maxScheduleMaxWidthSubscription = this.timeService.maxScheduleMaxWidth$.subscribe(maxScheduleMaxWidth => {
-		// 	this.max = maxScheduleMaxWidth;
-		// 	/* Se limitan los decimales porque con el número por defecto, el step no llega al max y en el slider se
-		// 	*  muestra la bola en un punto medio del eje */
-		// 	this.step = parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));
-		// 	console.log(111111111111111, this.max, this.step);
-		// 	this.cdRef.detectChanges();
-		// });
+		if (this.checkEnableSlider()) {
+			this.min = DimensionsService.gridWidth;
+			this.max = parseFloat(this.maxScheduleMaxWidth.toFixed(2));
+		}
 	}
 
 	// region Getters / setters
@@ -54,23 +44,19 @@ export class DimensionSlidersComponent implements OnInit {
 		this._max = value;
 	}
 
-	get width(): number {
-		return this._width;
-	}
-
-	set width(value: number) {
-		this._width = value;
-	}
-
 	// endregion
+
+	checkEnableSlider(): boolean {
+		return DimensionsService.oneDayMode ? MechanicsService.todaySchedules : MechanicsService.futureSchedules
+	}
 
 	findStep(): number {
 		return parseFloat(((this.max - this.min) / this.ZOOM_LEVELS).toFixed(4));
 	}
 
 	updateWidth() {
-		DimensionsService.updateMaxScheduleWidth(this.width);
-		NotificationService.notifyMaxScheduleWidth(this.width);
+		DimensionsService.updateMaxScheduleWidth(this.maxScheduleWidth);
+		NotificationService.notifyMaxScheduleWidth(this.maxScheduleWidth);
 	}
 
 }

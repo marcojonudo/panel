@@ -1,9 +1,15 @@
-<div id="slider-container" class="w-100 h-100 d-flex justify-content-center">
+<div class="align-center zoom-header">zoom</div>
+<div id="slider-container" class="w-100 align-center">
+	<div class="h-100 zoom-indicators d-flex flex-column align-items-center justify-content-between">
+		<div class="align-center">+</div>
+		<div class="align-center">-</div>
+	</div>
 	<input id="percentage-slider"
 		   type="range"
+		   [disabled]="!checkEnableSlider()"
 		   [min]="min"
 		   [max]="max"
 		   [step]="findStep()"
-		   [(ngModel)]="width"
+		   [(ngModel)]="maxScheduleWidth"
 		   (input)="updateWidth()">
 </div>

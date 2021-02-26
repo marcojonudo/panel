@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
+import {DimensionsService} from "../../services/dimensions.service";
 
 @Component({
 	selector: 'app-time-indicator',
@@ -11,10 +12,6 @@ export class TimeIndicatorComponent {
 
 	@Input() left: number;
 	@Input() height: number;
-
-	checkShow(): boolean {
-		return this.left != undefined;
-	}
 
 	check(): void {
 		if (Constants.CHECK) {

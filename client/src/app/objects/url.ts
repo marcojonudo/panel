@@ -3,7 +3,7 @@ import {environment} from "../../environments/environment";
 export class Url {
 
 	public static initialData(): string {
-		return `${environment.serverUrl}/panel/get`;
+		return `${environment.serverUrl}/panel`;
 	}
 
 	public static mechanicsPosition(): string {
@@ -16,10 +16,6 @@ export class Url {
 
 	public static mechanicJobLineType(): string {
 		return `${environment.serverUrl}/panel/mechanic/jobLineType`;
-	}
-
-	public static appointmentsDaysCounters(): string {
-		return `${environment.serverUrl}/panel/appointmentDay/counters`;
 	}
 
 	public static cards(): string {
@@ -42,16 +38,48 @@ export class Url {
 		return `${environment.serverUrl}/panel/cards/links`;
 	}
 
-	public static appointmentDayMax(): string {
-		return `${environment.serverUrl}/panel/appointmentDay/max`;
+	public static resetCardsLinks(): string {
+		return `${environment.serverUrl}/panel/cards/resetLinks`;
+	}
+
+	public static cardsDeletion(): string {
+		return `${environment.serverUrl}/panel/cards/delete`;
+	}
+
+	public static cardsVehiclePosition(): string {
+		return `${environment.serverUrl}/panel/cards/vehiclePosition`;
+	}
+
+	public static cardsPendingCall(): string {
+		return `${environment.serverUrl}/panel/cards/pendingCall`;
+	}
+
+	public static cardsPendingBudget(): string {
+		return `${environment.serverUrl}/panel/cards/pendingBudget`;
+	}
+
+	public static appointmentDays(): string {
+		return `${environment.serverUrl}/panel/appointmentDays`;
 	}
 
 	public static appointmentType(): string {
 		return `${environment.serverUrl}/panel/appointment/type`;
 	}
 
+	public static appointment(): string {
+		return `${environment.serverUrl}/panel/appointment`;
+	}
+
 	public static appointmentSchedule(): string {
 		return `${environment.serverUrl}/panel/appointment/schedule`;
+	}
+
+	public static syncJpdv(): string {
+		return `${environment.serverUrl}/panel/syncJpdv`;
+	}
+
+	public static publisher(): string {
+		return `${environment.serverUrl}/panel/publisher`;
 	}
 
 }

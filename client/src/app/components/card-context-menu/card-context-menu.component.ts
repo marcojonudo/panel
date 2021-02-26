@@ -1,16 +1,14 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {NotificationService} from "../../services/notification.service";
-import {Subscription} from "rxjs/internal/Subscription";
-import {CardsGroup} from "../../objects/cards-group";
-import {ContextMenuInfo} from "../../objects/context-menu-info";
-import {Coordinates} from "../../objects/coordinates";
 import {CardPositionService} from "../../services/card-position.service";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
-import {DayContextMenu} from "../../objects/context-menu-update/day-context-menu";
-import {DayCardDetails} from "../../objects/card-details-update/day-card-details";
 import {Card} from "../../objects/card";
 import {DimensionsService} from "../../services/dimensions.service";
+import {CardDetailsInfo} from "../../objects/lateral-panel-info/card-details-info";
+import {GroupContextMenuInfo} from "../../objects/context-menu/group-context-menu-info";
+import {CardsGroup} from "../../objects/cards-group";
+import {WarningToast} from "../../objects/toasts/warning-toast";
 
 @Component({
 	selector: 'app-card-context-menu',
@@ -20,7 +18,7 @@ import {DimensionsService} from "../../services/dimensions.service";
 })
 export class CardContextMenuComponent implements OnInit {
 
-	@Input() contextMenuInfo: ContextMenuInfo;
+	@Input() contextMenuInfo: GroupContextMenuInfo;
 
 	private leftOffset: number;
 
@@ -31,46 +29,30 @@ export class CardContextMenuComponent implements OnInit {
 			? Constants.VALUE.MECHANIC_INFO_WIDTH : 0;
 	}
 
-	findLeft(
-		x: number,
-		contextMenuInfo: ContextMenuInfo = this.contextMenuInfo
-	): number {
-		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedLeft(x) : this.findUnassignedLeft(x);
+	checkShowDetails(group: CardsGroup = this.contextMenuInfo.group): boolean {
+		return group.cards[0].type != Constants.CARD_TYPE.AUXILIARY;
 	}
 
-	findAssignedLeft(x: number, leftOffset: number = this.leftOffset): number {
-		return CardPositionService.absolutePositionToLeft(x) + leftOffset;
-	}
-
-	findUnassignedLeft(x: number): number {
-		return x;
-	}
-
-	findTop(y: number, contextMenuInfo: ContextMenuInfo = this.contextMenuInfo): number {
-		return contextMenuInfo && contextMenuInfo.group.start ? this.findAssignedTop(y) : this.findUnassignedTop();
-	}
-
-	findAssignedTop(y: number): number {
-		return CardPositionService.absolutePositionToTop(y);
-	}
-
-	findUnassignedTop(): number {
-		return -((Constants.VALUE.UNASSIGNED_BAR_HEIGHT - Constants.VALUE.LINE_HEIGHT_DEFAULT) / 2 + Constants.VALUE.LINE_HEIGHT_DEFAULT / 2)
+	checkCutCardSelected(): boolean {
+		return this.contextMenuInfo.group.mode == Constants.GROUP_MODE.CUT;
 	}
 
 	cutCard(): void {
-		this.cardsService.updateCardMode(this.contextMenuInfo.group, Constants.GROUP_MODE.CUT);
+		CardsService.updateCardMode([this.contextMenuInfo.group], Constants.GROUP_MODE.CUT);
 	}
 
-	cutCardByHalf(contextMenuInfo: ContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset): void {
+	cutCardByHalf(
+		contextMenuInfo: GroupContextMenuInfo = this.contextMenuInfo, leftOffset: number = this.leftOffset
+	): void {
 		const groupX = contextMenuInfo.group.start
 			? contextMenuInfo.group.left : CardPositionService.barLeftToAbsolutePosition(contextMenuInfo.group.left);
-		this.cardsService.cutCardByHalf(
+		const translatedGroups = this.cardsService.cutCardByHalf(
 			contextMenuInfo.group,
 			groupX,
-			contextMenuInfo.clickCoordinates.x - leftOffset
+			CardPositionService.absolutePositionToLeft(contextMenuInfo.clickCoordinates.x)
 		);
 		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyGroups(translatedGroups.concat([contextMenuInfo.group]), true);
 	}
 
 	showCardDetails(): void {
@@ -78,8 +60,19 @@ export class CardContextMenuComponent implements OnInit {
 		const clickedCard = this.contextMenuInfo.group.cards.find((card: Card) =>
 			DimensionsService.calcLeftFromStart(card.end) > xLeft
 		);
-		NotificationService.notifyCardDetails(new DayCardDetails(clickedCard.day, clickedCard));
 		NotificationService.notifyContextMenu(undefined);
+		NotificationService.notifyLateralInfo(clickedCard.day, new CardDetailsInfo(clickedCard), true)
+	}
+
+	replaceCard(group: CardsGroup = this.contextMenuInfo.group): void {
+		/* Obligatoriamente tiene que haber grupos no asignados para poder reemplazar una ficha temporal */
+		if (CardsService.unassignedGroups.length) {
+			CardsService.auxiliaryGroupToReplace = group;
+			CardsService.updateCardMode(CardsService.unassignedGroups, Constants.GROUP_MODE.REPLACE);
+		} else {
+			NotificationService.notifyToast(new WarningToast(Constants.MESSAGE.NO_UNASSIGNED_GROUPS_TO_REPLACE));
+		}
+		NotificationService.notifyContextMenu(undefined, true);
 	}
 
 }

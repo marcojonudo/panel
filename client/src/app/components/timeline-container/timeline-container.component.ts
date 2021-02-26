@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {Constants} from "../../objects/constants";
-import {QuartersSaturation} from "../../objects/quarters-saturation";
+import {Dayjs} from "dayjs";
+import {HourQuarter} from "../../objects/hour-quarter";
 
 @Component({
 	selector: 'app-timeline-container',
@@ -10,9 +11,9 @@ import {QuartersSaturation} from "../../objects/quarters-saturation";
 })
 export class TimelineContainerComponent {
 
-	@Input() day: Date;
-	@Input() quartersSaturation: QuartersSaturation;
-	@Input() maxScheduleHours: number[];
+	@Input() day: Dayjs;
+	@Input() maxScheduleHoursQuarter: HourQuarter[];
+	@Input() saturatedQuarters: HourQuarter[];
 	@Input() maxScheduleWidth: number;
 
 	get timelineHeight(): number {
@@ -21,7 +22,7 @@ export class TimelineContainerComponent {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking timeline container', this.day, this.maxScheduleHours)
+			console.log('checking timeline container', this.day)
 		}
 	}
 

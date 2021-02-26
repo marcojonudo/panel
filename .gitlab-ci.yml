@@ -1,39 +1,63 @@
-#image: alpine
-
 stages:
     - build
     - assemble
     - versioning
-    - tagging
     - docker
     - deploy
 
-#variables:
-#    SCRIPTS_REPO: https://gitlab.com/marco_fv/ci-scripts
-#before_script:
-#    - ls
-#    - echo $SCRIPTS_REPO
-#    - mkdir test
-#    - export SCRIPTS_DIR=test
-#    - echo $SCRIPTS_DIR
-#    - git clone -q --depth 1 "$SCRIPTS_REPO" "$SCRIPTS_DIR"
-#    - ls
+.fetch_ci_scripts: &fetch_ci_scripts
+    - export SCRIPTS_DIR=$(mktemp -d)
+    - git clone -q --depth 1 "$SCRIPTS_REPO" "$SCRIPTS_DIR"
+    - chmod -R +x $SCRIPTS_DIR
 
-build:backend:
-    stage: build
-    image: gradle:alpine
-    variables:
-        GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+.gradle_template: &gradle_template
     tags:
         - sidesman2
-    script:
-        - gradle --build-cache :server:build
+    image: registry.gitlab.com/marco_fv/ci-scripts:gradle
+    variables:
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     cache:
         key: "$CI_COMMIT_REF_NAME"
         policy: push
         paths:
             - build
             - .gradle
+    artifacts:
+        paths:
+            - build/libs/*.jar
+        expire_in: 1 hour
+
+.get_version_template: &get_version_template
+    tags:
+        - gitlab-org
+    image: registry.gitlab.com/marco_fv/ci-scripts:groovy
+    before_script:
+        - *fetch_ci_scripts
+    artifacts:
+        paths:
+            - version
+        expire_in: 1 year
+
+.deploy_template: &deploy_template
+    stage: deploy
+    image: registry.gitlab.com/marco_fv/ci-scripts:groovy
+    tags:
+        - sidesman2
+    dependencies:
+        - get-version:hash
+        - get-version:semantic:push
+    before_script:
+        - *fetch_ci_scripts
+    script:
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/deploy.groovy
+    only:
+        - branches
+
+build:backend:
+    stage: build
+    <<: *gradle_template
+    script:
+        - gradle --build-cache :server:build
     only:
         - branches
 
@@ -45,7 +69,7 @@ build:frontend:
     artifacts:
         paths:
             - server/build/resources/client/static
-        expire_in: 1 hour
+        expire_in: 1 day
     cache:
         paths:
             - node_modules/
@@ -54,11 +78,7 @@ build:frontend:
 
 assemble:jar:
     stage: assemble
-    image: gradle:alpine
-    variables:
-        GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-    tags:
-        - sidesman2
+    <<: *gradle_template
     dependencies:
         - build:frontend
     script:
@@ -66,111 +86,84 @@ assemble:jar:
     artifacts:
         paths:
             - server/build/libs/*.jar
-        expire_in: 1 hour
-    cache:
-        key: "$CI_COMMIT_REF_NAME"
-        policy: push
-        paths:
-            - build
-            - .gradle
+        expire_in: 1 day
     only:
         - branches
 
-get-version:dev:
+get-version:hash:
     stage: versioning
-    tags:
-        - gitlab-org
-    before_script:
-        - chmod +x ./gitlab-ci-scripts/getDevVersion.sh
+    <<: *get_version_template
     script:
-        - echo $CURRENT_VERSION
-        - ./gitlab-ci-scripts/getDevVersion.sh > version
-    artifacts:
-        paths:
-            - version
-        expire_in: 1 hour
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/getHashVersion.groovy
     only:
         - branches
     except:
         - master
-#        - development
+        - development
 
-get-version:merge-request:
+get-version:semantic:push:
     stage: versioning
-    tags:
-        - gitlab-org
-    before_script:
-        - chmod +x ./gitlab-ci-scripts/getMergeRequestVersion.sh
+    <<: *get_version_template
     script:
-        - echo $CURRENT_VERSION
-        - ./gitlab-ci-scripts/getMergeRequestVersion.sh > version
-    artifacts:
-        paths:
-            - version
-        expire_in: 1 hour
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/getSemanticPushVersion.groovy
     only:
-        - merge_requests
+        - master
+        - development
 
-tagging:git:
-    stage: tagging
-    tags:
-        - gitlab-org
-    dependencies:
-        - get-version:dev
-        - get-version:merge-request
-    before_script:
-        - CURRENT_VERSION=$(git describe --tags)
-        - PROJECT_VERSION=$(cat ./version)
-        - echo Updating from $CURRENT_VERSION to $PROJECT_VERSION
-        - chmod +x ./gitlab-ci-scripts/gitTag.sh
+get-version:semantic:merge_request:
+    stage: versioning
+    <<: *get_version_template
     script:
-        - ./gitlab-ci-scripts/gitTag.sh
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/getSemanticVersion.groovy
     only:
         - merge_requests
-        - branches
 
 build:docker:
     stage: docker
-    image: docker:latest
+    image: registry.gitlab.com/marco_fv/ci-scripts:docker
     services:
         - docker:dind
     dependencies:
         - assemble:jar
-        - get-version:dev
-        - get-version:merge-request
+        - get-version:hash
+        - get-version:semantic:push
     before_script:
-        - chmod +x ./gitlab-ci-scripts/docker.sh
+        - *fetch_ci_scripts
     script:
-        - ./gitlab-ci-scripts/docker.sh
+        - $SCRIPTS_DIR/shell/docker.sh
     only:
         - branches
 
-deploy:sta:
-    stage: deploy
-    tags:
-        - sidesman2
+deploy:manual:sta:
+    <<: *deploy_template
+    only:
+        - branches
+    except:
+        - schedules
     variables:
         ENVIRONMENT: sta
-    before_script:
-        - apk upgrade --update && apk add openssh sshpass
-        - chmod +x ./gitlab-ci-scripts/deploy.sh
-    script:
-        - ./gitlab-ci-scripts/deploy.sh
     when: manual
+
+deploy:manual:prod:
+    <<: *deploy_template
     only:
         - branches
-
-deploy:prod:
-    stage: deploy
-    tags:
-        - sidesman2
+    except:
+        - schedules
     variables:
         ENVIRONMENT: prod
-    before_script:
-        - apk upgrade --update && apk add openssh sshpass
-        - chmod +x ./gitlab-ci-scripts/deploy.sh
-    script:
-        - ./gitlab-ci-scripts/deploy.sh
     when: manual
+
+deploy:scheduled:sta:
+    <<: *deploy_template
     only:
-        - branches
+        - schedules
+    variables:
+        ENVIRONMENT: sta
+
+deploy:scheduled:prod:
+    <<: *deploy_template
+    only:
+        - schedules
+    variables:
+        ENVIRONMENT: prod

@@ -1,49 +1,68 @@
 <div
+	[id]="mechanicLineId"
 	class="h-100 mechanic-line">
 	<div
-		*ngFor="let appointment of mechanic.appointments | appointments"
+		*ngFor="let appointment of mechanic.appointments"
 		class="d-flex appointment-schedule-container"
 		[ngStyle]="{
-			'width.px': calcScheduleWidth(appointment.schedule.intervals[0].duration),
+			'width.px': calcScheduleWidth(appointment.schedule.duration),
 			'height.px': calcScheduleHeight(mechanic.lines),
-			'left.px': calcScheduleLeft(appointment.schedule.intervals[0].start)
+			'left.px': calcScheduleLeft(appointment.schedule.start)
 		}">
-		<div
-			class="w-100 appointment-schedule d-flex">
+		<div class="w-100 appointment-schedule d-flex">
 			<div
-				class="w-100 align-center appointment-schedule-text"
+				class="w-100 align-center"
 				[style.background-color]="appointment.appointmentType.color">
-				<span *ngIf="showAppointmentsName">{{appointment.appointmentType.name}}</span>
+				<span *ngIf="showAppointmentsName" class="appointment-schedule-text">{{appointment.appointmentType.name}}</span>
 			</div>
 			<div
-				*ngIf="checkShowAppointmentStartSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].start)"
 				class="schedule-border schedule-left-border"
-				[ngStyle]="{background: findScheduleLeftBorderBackground(appointment.appointmentType.color)}">
+				[ngStyle]="buildAppointmentBorderStyle(
+					mechanic.schedules,
+					appointment.schedule.start,
+					appointment.appointmentType.color
+				)"
+				appDragSchedule
+				[mechanic]="mechanic"
+				[appointment]="appointment"
+				[behaviour]="createUpdateScheduleBehaviour(true)">
 			</div>
 			<div
-				*ngIf="checkShowAppointmentEndSquareBracket(mechanic.schedule.intervals, appointment.schedule.intervals[0].end)"
 				class="schedule-border schedule-right-border"
-				[ngStyle]="{background: findScheduleRightBorderBackground(appointment.appointmentType.color)}">
+				[ngStyle]="buildAppointmentBorderStyle(
+					mechanic.schedules,
+					appointment.schedule.end,
+					appointment.appointmentType.color,
+					false
+				)"
+				appDragSchedule
+				[mechanic]="mechanic"
+				[appointment]="appointment"
+				[behaviour]="createUpdateScheduleBehaviour(false)">
 			</div>
 		</div>
 	</div>
 	<div
+		*ngFor="let interval of mechanic.schedules"
 		class="h-100 d-flex schedule-line"
-		appDropzone
-		[type]="assignedDropzoneType"
-		[mechanic]="mechanic"
-		*ngFor="let interval of mechanic.schedule.intervals"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(interval.duration),
 		 	'left.px': calcScheduleLeft(interval.start)
-		}">
+		}"
+		appDropzone
+		[type]="assignedDropzoneType"
+		[mechanic]="mechanic"
+		[interval]="interval"
+		[dropzoneUpdate]="checkUpdateDropzone(interval.start)"
+		appDragSchedule
+		[behaviour]="createCreateScheduleBehaviour()">
 		<div
-			class="schedule-border schedule-left-border"
-			[ngStyle]="{background: findScheduleLeftBorderBackground('red')}">
+			class="schedule-border schedule-left-border mechanic-schedule-border"
+			[ngStyle]="{background: findScheduleLeftBorderBackground(redColor)}">
 		</div>
 		<div
-			class="schedule-border schedule-right-border"
-			[ngStyle]="{background: findScheduleRightBorderBackground('red')}">
+			class="schedule-border schedule-right-border mechanic-schedule-border"
+			[ngStyle]="{background: findScheduleRightBorderBackground(redColor)}">
 		</div>
 		<div
 			class="w-100 position-relative d-flex"
@@ -63,7 +82,7 @@
 		</div>
 	</div>
 	<app-draggable-group
-		*ngFor="let group of findGroups(day, mechanic.code)"
+		*ngFor="let group of findGroups()"
 		class="assigned-card"
 		[ngClass]="{'hidden': checkHideGroup(group.id)}"
 		[ngStyle]="{
@@ -71,7 +90,8 @@
 			'transform': 'translateX(' + group.left + 'px) translateY(' + group.cards[0].line * 100 + '%)'
 		}"
 		(hiddenCardsGroup)="setHiddenCardsGroup($event)"
-		[cardsGroup]="group">
+		[group]="group"
+		[groupUpdate]="checkUpdateGroup(group.id)">
 	</app-draggable-group>
 </div>
 <div>{{check()}}</div>

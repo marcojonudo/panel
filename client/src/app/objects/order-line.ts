@@ -1,10 +1,12 @@
+import {Article} from "./article";
+
 export class OrderLine {
 
-	description: string;
+	article: Article;
 	units: number;
 
-	constructor(orderLine: { [key: string]: any }) {
-		this.description = orderLine.article.name;
+	constructor(orderLine: any) {
+		this.article = new Article(orderLine.article);
 		this.units = orderLine.units;
 	}
 

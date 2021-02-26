@@ -11,7 +11,6 @@ import {MechanicInfoComponent} from './components/mechanic-info/mechanic-info.co
 import {MechanicLineContainerComponent} from './components/mechanic-line-container/mechanic-line-container.component';
 import {TimelineContainerComponent} from './components/timeline-container/timeline-container.component';
 
-import {DayInfoPanelComponent} from './components/day-info-panel/day-info-panel.component';
 import {AppointmentsPanelComponent} from './components/appointments-panel/appointments-panel.component';
 import {DayPanelComponent} from './components/day-panel/day-panel.component';
 import {DimensionSlidersComponent} from './components/dimension-sliders/dimension-sliders.component';
@@ -24,16 +23,14 @@ import {ScrollingModule} from "@angular/cdk/scrolling";
 import {CardComponent} from './components/card/card.component';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AngularDraggableModule} from "angular2-draggable";
-import {ClickableCardDirective} from './directives/clickable-card.directive'
+import {ClickableDirective} from './directives/clickable.directive'
 import {OverlayModule} from "@angular/cdk/overlay";
 import {MovableDirective} from './directives/movable.directive';
 import {ScrollableDirective} from './directives/scrollable.directive';
 import {DropzoneDirective} from './directives/dropzone.directive';
 import {OverlayComponent} from './components/overlay/overlay.component';
 import {MainComponent} from './components/main/main.component';
-import {HelperCardComponent} from './components/helper-card/helper-card.component';
 import {DraggableGroupComponent} from './components/draggable-group/draggable-group.component';
-import {HelperDraggableGroupComponent} from './components/helper-draggable-group/helper-draggable-group.component';
 import {ResizableLineDirective} from './directives/resizable-line.directive';
 import {ResizableCardDirective} from './directives/resizable-card.directive';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
@@ -44,15 +41,20 @@ import {SkillsDetailsComponent} from './components/skills-details/skills-details
 import {UtilsService} from "./services/utils.service";
 import {SessionIdInterceptor} from "./interceptors/session-id-interceptor";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
-import {AppointmentSchedulePanelComponent} from './components/appointment-schedule-panel/appointment-schedule-panel.component';
-import {DraggableScheduleDirective} from './directives/draggable-schedule.directive';
-import {AppointmentsPipe} from './pipes/appointments.pipe';
 import {CardSectionPipe} from './pipes/card-section.pipe';
 import {CardDetailsComponent} from './components/card-details/card-details.component';
 import {CardContextMenuComponent} from './components/card-context-menu/card-context-menu.component';
 import {HorizontalScrollableDirective} from './directives/horizontal-scrollable.directive';
 import {MechanicsPipe} from './pipes/mechanics.pipe';
-import { TimeIndicatorComponent } from './components/time-indicator/time-indicator.component';
+import {TimeIndicatorComponent} from './components/time-indicator/time-indicator.component';
+import {LateralPanelComponent} from './components/lateral-panel/lateral-panel.component';
+import {AppointmentsSummaryComponent} from './components/appointments-summary/appointments-summary.component';
+import {ToastsContainerComponent} from './components/toasts-container/toasts-container.component';
+import { DragScheduleDirective } from './directives/drag-schedule.directive';
+import { DragScheduleContextMenuComponent } from './components/drag-schedule-context-menu/drag-schedule-context-menu.component';
+import * as dayjs from "dayjs";
+import {Constants} from "./objects/constants";
+import { ContextMenuComponent } from './components/context-menu/context-menu.component';
 
 @NgModule({
 	declarations: [
@@ -64,35 +66,35 @@ import { TimeIndicatorComponent } from './components/time-indicator/time-indicat
 		MechanicInfoComponent,
 		MechanicLineContainerComponent,
 		TimelineContainerComponent,
-		DayInfoPanelComponent,
 		AppointmentsPanelComponent,
 		DayPanelComponent,
 		DimensionSlidersComponent,
 		DaysPipe,
 		CardComponent,
-		ClickableCardDirective,
+		ClickableDirective,
 		MovableDirective,
 		ScrollableDirective,
 		DropzoneDirective,
 		OverlayComponent,
 		MainComponent,
-		HelperCardComponent,
 		DraggableGroupComponent,
-		HelperDraggableGroupComponent,
 		ResizableLineDirective,
 		ResizableCardDirective,
 		SpinnerComponent,
 		ToolsBarComponent,
 		SkillsDetailsComponent,
-		AppointmentSchedulePanelComponent,
-		DraggableScheduleDirective,
-		AppointmentsPipe,
 		CardSectionPipe,
 		CardDetailsComponent,
 		CardContextMenuComponent,
 		HorizontalScrollableDirective,
 		MechanicsPipe,
-		TimeIndicatorComponent
+		TimeIndicatorComponent,
+		LateralPanelComponent,
+		AppointmentsSummaryComponent,
+		ToastsContainerComponent,
+		DragScheduleDirective,
+		DragScheduleContextMenuComponent,
+		ContextMenuComponent
 	],
 	imports: [
 		BrowserModule,
@@ -122,8 +124,10 @@ export class AppModule {
 	}
 
 	private overrideDateToJSON() {
-		Date.prototype.toJSON = function () {
-			return UtilsService.isDate(this) ? this.getTime() : this.toLocaleTimeString();
+		dayjs.prototype.toJSON = function () {
+			return UtilsService.isDate(this)
+				? this.format(Constants.DATE_FORMAT.yyyy_MM_dd)
+				: this.format(Constants.TIME_FORMAT.HH_mm);
 		};
 	}
 

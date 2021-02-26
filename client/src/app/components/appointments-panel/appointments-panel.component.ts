@@ -1,10 +1,12 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
 import {AppointmentsService} from "../../services/appointments.service";
-import {Subscription} from "rxjs/internal/Subscription";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
-import {AppointmentDay} from "../../objects/appointment-day";
+import {AppointmentDay} from "../../objects/appointments/appointment-day";
 import {NotificationService} from "../../services/notification.service";
+import {Dayjs} from "dayjs";
+import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
+import {AppointmentTypeValues} from "../../objects/appointments/appointment-type-values";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -12,15 +14,10 @@ import {NotificationService} from "../../services/notification.service";
 	styleUrls: ['./appointments-panel.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppointmentsPanelComponent implements OnInit {
+export class AppointmentsPanelComponent {
 
-	@Input() day: Date;
-
-	private readonly TOTAL: string = 'TOTAL';
-	private readonly MAX: string = 'MAX';
-
-	private appointmentsCounterSubscription: Subscription;
-	private _daysAppointmentsCounter: any;
+	@Input() day: Dayjs;
+	@Input() appointmentDayUpdate: AppointmentDayUpdate;
 
 	constructor(
 		private appointmentsService: AppointmentsService,
@@ -28,30 +25,7 @@ export class AppointmentsPanelComponent implements OnInit {
 		private cdRef: ChangeDetectorRef
 	) {}
 
-	ngOnInit() {
-		this.daysAppointmentsCounter = this.appointmentsService.daysAppointmentsCounter;
-		this.appointmentsCounterSubscription = NotificationService.appointmentsCounter$.subscribe(update => {
-			this.cdRef.detectChanges();
-		});
-	}
-
 	// region Getters / setters
-
-	get daysAppointmentsCounter(): any {
-		return this._daysAppointmentsCounter;
-	}
-
-	set daysAppointmentsCounter(value: any) {
-		this._daysAppointmentsCounter = value;
-	}
-
-	get morning(): string {
-		return Constants.SCHEDULE_TYPE.MORNING;
-	}
-
-	get afternoon(): string {
-		return Constants.SCHEDULE_TYPE.AFTERNOON;
-	}
 
 	get morningAppointmentSaturation(): number {
 		return Constants.APPOINTMENT_SATURATION.MORNING;
@@ -61,23 +35,47 @@ export class AppointmentsPanelComponent implements OnInit {
 		return Constants.APPOINTMENT_SATURATION.AFTERNOON;
 	}
 
+	get timelineHeight(): number {
+		return Constants.VALUE.TIMELINE_HEIGHT;
+	}
+
+	get appointmentSummaryItemHeight(): number {
+		return Constants.VALUE.APPOINTMENT_SUMMARY_ITEM_HEIGHT;
+	}
+
 	// endregion
 
-	findDayAppointmentsCounter(day: Date): any {
-		return this.daysAppointmentsCounter[day.getTime()];
+	findAppointmentDayValues(): AppointmentTypeValues[] {
+		return this.appointmentDayUpdate.value.values;
 	}
 
 	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {
-		return appointments > Math.round(max * appointmentSaturation);
+		return this.appointmentsService.checkSaturation(appointments, max, appointmentSaturation);
 	}
 
-	addMax(appointmentDay: AppointmentDay): void {
-		this.appointmentsService.addMax(appointmentDay);
+	findMax(max: number, appointmentsSaturation): number {
+		return this.appointmentsService.findMax(max, appointmentsSaturation);
+	}
+
+	findSaturationPercentage(appointments: number, max: number, appointmentSaturation: number = 1): number {
+		return this.appointmentsService.findSaturationPercentage(appointments, max, appointmentSaturation);
+	}
+
+	addMax(
+		appointmentTypeCode: string,
+		appointmentDay: AppointmentDay = this.appointmentDayUpdate.value
+	): void {
+		this.appointmentsService.addMax(appointmentDay, appointmentTypeCode);
+		NotificationService.notifyAppointmentDay(appointmentDay);
 		this.cdRef.detectChanges();
 	}
 
-	subtractMax(appointmentDay: AppointmentDay): void {
-		this.appointmentsService.subtractMax(appointmentDay);
+	subtractMax(
+		appointmentTypeCode: string,
+		appointmentDay: AppointmentDay = this.appointmentDayUpdate.value
+	): void {
+		this.appointmentsService.subtractMax(appointmentDay, appointmentTypeCode);
+		NotificationService.notifyAppointmentDay(appointmentDay);
 		this.cdRef.detectChanges();
 	}
 

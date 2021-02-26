@@ -1,23 +1,25 @@
 import {CardsGroup} from "../cards-group";
 import {CardTypeBehaviour} from "./card-type-behaviour";
-import {NotificationService} from "../../services/notification.service";
-import {ContextMenuInfo} from "../context-menu-info";
-import {Coordinates} from "../coordinates";
-import {DayContextMenu} from "../context-menu-update/day-context-menu";
 import {CardsService} from "../../services/cards.service";
+import {NotificationService} from "../../services/notification.service";
+import {Coordinates} from "../coordinates";
+import {GroupContextMenuInfo} from "../context-menu/group-context-menu-info";
 
 export class AuxiliaryCardBehaviour implements CardTypeBehaviour {
 
-	findHelperGroup: Function;
-	handleLeftClick: Function;
-	handleRightClick: Function;
+	findHelperGroup(group: CardsGroup): CardsGroup {
+		return group;
+	}
 
-	constructor(cardsService: CardsService) {
-		this.findHelperGroup = (group) => group.clone(true);
-		this.handleLeftClick = (group: CardsGroup, x: number) =>
-			cardsService.findCardModeAction(group.mode).execute(group, x);
-		this.handleRightClick = (group: CardsGroup, coordinates: Coordinates) =>{
-			NotificationService.notifyContextMenu(new ContextMenuInfo(group, coordinates));
+	handleLeftClick(group: CardsGroup, x: number): void {
+		CardsService.findCardModeAction(group.mode).execute(group, x);
+	}
+
+	handleRightClick(group: CardsGroup, coordinates: Coordinates): void {
+		/* Sólo se permite modificar la ficha si ya está asignada. Las plantillas de auxiliares deben permanecer
+		*  siempre igual */
+		if (group.day) {
+			NotificationService.notifyContextMenu(new GroupContextMenuInfo(group, coordinates), true);
 		}
 	}
 

@@ -1,138 +1,185 @@
 package panel.controllers
 
 import groovy.transform.CompileStatic
+import io.micronaut.core.convert.format.Format
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.sse.Event
 import io.reactivex.subjects.PublishSubject
-import panel.clients.cubo.CuboDatabaseClient
-import panel.clients.panel.PanelDatabaseClient
-import panel.pogos.CompleteInfo
-import panel.pogos.PublisherInfo
+import panel.clients.CuboDatabaseClient
+import panel.clients.PanelDatabaseClient
+import panel.jobs.JpdvOrdersJob
+import panel.pogos.appointmentDays.AppointmentDay
+import panel.pogos.appointments.AppointmentSchedule
+import panel.pogos.cards.Card
+import panel.pogos.firstLoad.CompleteInfo
+import panel.pogos.realTime.RealTimeRequestInfo
+import panel.pogos.schedules.EmployeeSchedule
+import panel.pogos.schedules.EmployeeScheduleAppointment
 import panel.publisher.PanelPublisher
 import panel.services.PanelService
-import utils.pogos.schedules.EmployeeScheduleAppointment
+import panel.utils.Constants
+
+import javax.annotation.Nullable
+import javax.inject.Inject
+import java.time.LocalDate
+import java.time.LocalTime
 
 @CompileStatic
 @Controller("/panel")
 class PanelController {
 
-	private final PanelService panelService
-	private final PanelDatabaseClient panelDatabaseClient
-	private final CuboDatabaseClient cuboDatabaseClient
+	@Inject PanelService panelService
+	@Inject PanelDatabaseClient panelDatabaseClient
+	@Inject CuboDatabaseClient cuboDatabaseClient
+	@Inject JpdvOrdersJob jpdvOrdersJob
 
-	PanelController(
-			PanelService panelService,
-			PanelDatabaseClient panelDatabaseClient,
-			CuboDatabaseClient cuboDatabaseClient
+	@Get
+	CompleteInfo get(
+		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
+		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
 	) {
-		this.panelService = panelService
-		this.panelDatabaseClient = panelDatabaseClient
-		this.cuboDatabaseClient = cuboDatabaseClient
-	}
-
-	@Get("/get")
-	CompleteInfo get() {
-		return panelService.getPanelInfo()
+		return panelService.getPanelInfo(from, to)
 	}
 
 	@Get("/publisher")
-	PublishSubject<Event<PublisherInfo>> getCardsPublisher() {
+	PublishSubject<Event<RealTimeRequestInfo>> getCardsPublisher() {
 		return PanelPublisher.get()
 	}
 
 	@Post("/cards")
-	void createCards(@Header String sessionId, @Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.createCards(sessionId, cards)
+	void createCards(
+		@Header String sessionId, @QueryValue @Nullable Boolean updateLinks, @Body List<Map<String, Object>> cards
+	) {
+		panelDatabaseClient.createCards(sessionId, Constants.REAL_TIME_ACTION.CREATE_CARDS, cards, updateLinks)
 	}
 
-	@Put("/cards/position")
-	void updatePosition(@Header String sessionId, @Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.updateCardsPosition(sessionId, cards)
+	@Patch("/cards/position")
+	void updatePosition(@Header String sessionId, @Body List<Card> cards, @QueryValue boolean updateLinks) {
+		panelDatabaseClient.updateCardsPosition(
+			sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_POSITION, cards, updateLinks
+		)
 	}
 
 	@Put("/cards/duration")
-	void updateDuration(@Header String sessionId, @Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.updateCardsDuration(sessionId, cards)
+	void updateDuration(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updateCardsDuration(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_DURATION, cards)
 	}
 
-	@Put("/cards/division")
-	void updateDivision(
-			@Header String sessionId,
-	        @QueryValue List<Integer> oldDivisionIndexes,
-	        @Body List<Map<String, Object>> cards
-	) {
-		panelDatabaseClient.updateCardsDivision(sessionId, oldDivisionIndexes, cards)
+	@Post("/cards/division")
+	void updateDivision(@Header String sessionId, @Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.updateCardsDivision(sessionId, Constants.REAL_TIME_ACTION.DIVIDE_CARDS, cards)
 	}
 
-	@Put("/cards/links")
-	void updateLinks(@Header String sessionId, @Body List<Map<String, Object>> cards) {
-		panelDatabaseClient.updateCardsLinks(sessionId, cards)
+	@Patch("/cards/links")
+	void updateLinks(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_LINKS, cards)
+	}
+
+	@Patch("/cards/resetLinks")
+	void updateAllLinks(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.RESET_CARDS_LINKS, cards)
+	}
+
+	@Put("/cards/delete")
+	void deleteCards(@Header String sessionId, @Body List<Map<String, Object>> cards) {
+		panelDatabaseClient.deleteCards(sessionId, Constants.REAL_TIME_ACTION.DELETE_CARDS, cards)
+	}
+
+	@Patch("/cards/vehiclePosition")
+	void updateVehiclePosition(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updateVehiclePosition(sessionId, Constants.REAL_TIME_ACTION.UPDATE_VEHICLE_POSITION, cards)
+	}
+
+	@Patch("/cards/pendingCall")
+	void updatePendingMaterial(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updatePendingCall(sessionId, Constants.REAL_TIME_ACTION.UPDATE_PENDING_CALL, cards)
+	}
+
+	@Patch("/cards/pendingBudget")
+	void updatePendingBudget(@Header String sessionId, @Body List<Card> cards) {
+		panelDatabaseClient.updatePendingBudget(sessionId, Constants.REAL_TIME_ACTION.UPDATE_PENDING_BUDGET, cards)
 	}
 
 	@Put("/mechanic/position")
-	void updateMechanicsPosition(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
-		cuboDatabaseClient.updateMechanicsPosition(sessionId, mechanics)
+	void updateMechanicsPosition(@Header String sessionId, @Body List<EmployeeSchedule> mechanics) {
+		cuboDatabaseClient.updateMechanicsPosition(
+			sessionId,
+			Constants.REAL_TIME_ACTION.UPDATE_MECHANICS_POSITION,
+			mechanics
+		)
 	}
 
 	@Put("/mechanic/lines")
-	void updateMechanicLines(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
-		cuboDatabaseClient.updateMechanicLines(sessionId, mechanics)
+	void updateMechanicLines(@Header String sessionId, @Body List<EmployeeSchedule> mechanics) {
+		cuboDatabaseClient.updateMechanicLines(sessionId, Constants.REAL_TIME_ACTION.UPDATE_MECHANIC_LINES, mechanics)
 	}
 
 	@Put("/mechanic/jobLineType")
-	void updateMechanicJobLineType(@Header String sessionId, @Body List<Map<String, Object>> mechanics) {
-		cuboDatabaseClient.updateMechanicJobLineType(sessionId, mechanics)
+	void updateMechanicJobLineType(@Header String sessionId, @Body EmployeeSchedule mechanic) {
+		cuboDatabaseClient.updateMechanicJobLineType(
+			sessionId,
+			Constants.REAL_TIME_ACTION.UPDATE_MECHANIC_JOB_LINE_TYPE,
+			mechanic
+		)
 	}
 
 	@Put("/appointment/type")
-	void updateAppointmentType(
-			@Header String sessionId,
-			@Body Map<String, Object> appointment
-	) {
+	void updateAppointmentType(@Header String sessionId, @Body Map<String, Object> appointment) {
 		cuboDatabaseClient.updateAppointmentType(sessionId, appointment)
 	}
 
-	@Delete("/appointment/type")
-	void updateAppointmentType(
-			@Header String sessionId,
-			@QueryValue long id,
-			@QueryValue long mechanicId,
-			@QueryValue int index
-	) {
-		cuboDatabaseClient.deleteAppointment(sessionId, id, mechanicId, index)
-	}
-
-	@Post("/appointment/schedule")
+	@Post("/appointment")
 	EmployeeScheduleAppointment createAppointment(
-			@Header String sessionId,
-			@Body Map<String, Object> appointment,
-			@QueryValue long mechanicId
+		@Header String sessionId,
+		@Body AppointmentSchedule appointmentSchedule
 	) {
-		return cuboDatabaseClient.createAppointment(sessionId, appointment, mechanicId)
+		cuboDatabaseClient.createAppointment(
+			sessionId,
+			Constants.REAL_TIME_ACTION.CREATE_APPOINTMENT,
+			appointmentSchedule
+		)
 	}
 
-	@Put("/appointment/schedule")
+	@Patch("/appointment/schedule")
 	void updateAppointmentSchedule(
-			@Header String sessionId,
-			@Body Map<String, Object> appointment
+		@Header String sessionId,
+		@Body AppointmentSchedule appointmentSchedule
 	) {
-		cuboDatabaseClient.updateAppointmentSchedule(sessionId, appointment)
+		cuboDatabaseClient.updateAppointmentSchedule(
+			sessionId,
+			Constants.REAL_TIME_ACTION.UPDATE_APPOINTMENT_SCHEDULE,
+			appointmentSchedule
+		)
 	}
 
-	@Put("/appointmentDay/counters")
-	void updateAppointmentDays(
-			@Header String sessionId,
-			@Body List<Map<String, Object>> appointmentDays
+	@Delete("/appointment")
+	void deleteAppointmentSchedule(
+		@Header String sessionId,
+		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate day,
+		@QueryValue String mechanicCode,
+		@QueryValue String typeCode,
+		@QueryValue String start
 	) {
+		cuboDatabaseClient.deleteAppointment(
+			sessionId,
+			Constants.REAL_TIME_ACTION.DELETE_APPOINTMENT,
+			day,
+			mechanicCode,
+			typeCode,
+			LocalTime.parse(start)
+		)
+	}
+
+	@Put("/appointmentDays")
+	void updateAppointmentDays(@Header String sessionId, @Body List<AppointmentDay> appointmentDays) {
 		panelDatabaseClient.updateAppointmentDays(sessionId, appointmentDays)
 	}
 
-	@Put("/appointmentDay/max")
-	void updateAppointmentDayMax(
-			@Header String sessionId,
-			@Body Map<String, Object> appointmentDay
-	) {
-		panelDatabaseClient.updateAppointmentDayMax(sessionId, appointmentDay)
+	@Post("/syncJpdv")
+	HttpResponse<Void> syncJpdv() {
+		jpdvOrdersJob.execute()
+		return HttpResponse.ok()
 	}
 
 }

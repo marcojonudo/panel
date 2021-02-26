@@ -1,9 +1,9 @@
 <div
-	class="w-100 h-100 d-flex align-items-center mechanic-info border-right-2 border-semi-dark"
-	[ngClass]="{'mechanic-info-highlight': checkHighlightMechanic()}">
+	class="w-100 h-100 d-flex align-items-center blank-background border-right border-semi-dark">
 	<div
 		*ngIf="oneDayMode; else minLayout"
-		class="w-100 d-flex border-top border-bottom border-semi-dark"
+		class="w-100 d-flex mechanic-info border-top border-bottom border-semi-dark"
+		[ngClass]="{'mechanic-info-highlight': highlight}"
 		[style.height.px]="defaultHeight">
 		<div class="w-70 d-flex flex-column">
 			<div
@@ -38,7 +38,10 @@
 			<div *ngIf="!mechanic.fixed" class="w-100 h-25">
 				<select
 					class="w-100 h-100 align-center job-line-type-select"
-					[style.background-color]="findJobLineTypeColor(mechanic.jobLineType)"
+					[ngStyle]="{
+						'background-color': findJobLineTypeBackgroundColor(mechanic.jobLineType),
+						'color': findJobLineTypeColor(mechanic.jobLineType)
+					}"
 					[(ngModel)]="mechanic.jobLineType"
 					(change)="updateJobLineType()">
 					<option></option>
@@ -72,12 +75,6 @@
 		</div>
 	</ng-template>
 </div>
-<app-appointment-schedule-panel
-	*ngIf="showAppointmentSchedulesDialog"
-	class="appointment-schedule-panel-container"
-	[ngStyle]="{'left.px': mechanicInfoWidth, 'height.px': defaultHeight}"
-	[schedule]="mechanic.schedule"
-	[mechanic]="mechanic"></app-appointment-schedule-panel>
 <ng-template #deleteScheduleModal let-modal>
 	<div class="modal-header">
 		<h4 class="modal-title" id="modal-basic-title">!Atención!</h4>

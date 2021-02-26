@@ -1,0 +1,22 @@
+<ngb-toast
+	*ngIf="toast"
+	[class]="toast.className"
+	[autohide]="true"
+	[delay]="toast.delay"
+	(hide)="remove()">
+	{{toast.text}}
+	<svg *ngIf="toast.spinner" width="50" height="50" viewPort="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
+		<circle
+			id="bar"
+			r="21"
+			cx="25" cy="25"
+			fill="transparent"
+			stroke-width="4"
+			stroke="#7B7B7B"
+			stroke-dasharray="132"
+			stroke-dashoffset="132"
+			transform="rotate(-90 25 25)">
+		</circle>
+	</svg>
+</ngb-toast>
+<div>{{check()}}</div>

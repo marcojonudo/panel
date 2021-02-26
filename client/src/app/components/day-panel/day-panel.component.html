@@ -3,27 +3,24 @@
 	<div class="w-100 h-100">
 		<app-timeline-container
 			[day]="day"
-			[quartersSaturation]="quartersSaturation"
-			[maxScheduleHours]="maxScheduleHours"
+			[maxScheduleHoursQuarter]="maxScheduleHoursQuarter"
+			[saturatedQuarters]="saturatedQuarters"
 			[maxScheduleWidth]="maxScheduleWidth"
 			class="timeline-container-wrapper">
 		</app-timeline-container>
 		<app-time-indicator
+			*ngIf="checkShowTimeIndicator()"
 			[left]="timeIndicatorLeft"
 			[height]="timeIndicatorHeight">
 		</app-time-indicator>
 		<app-grid
 			[day]="day"
 			[mechanics]="mechanics"
-			[mechanicLineUpdate]="mechanicLineUpdate"
-			[dayMechanicSkills]="dayMechanicSkills"
+			[mechanicLineUpdates]="mechanicLineUpdates"
+			[mechanicSkillsUpdate]="mechanicSkillsUpdate"
 			[showAppointmentsName]="showAppointmentsName"
-			[maxScheduleWidth]="maxScheduleWidth">
+			[mechanicGroupUpdates]="mechanicGroupUpdates">
 		</app-grid>
-		<app-card-context-menu
-			*ngIf="checkShowContextMenu()"
-			[contextMenuInfo]="contextMenuInfo">
-		</app-card-context-menu>
 	</div>
 </div>
 <div>{{checkDayPanel()}}</div>

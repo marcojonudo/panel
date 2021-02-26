@@ -1,48 +1,20 @@
-.appointments-panel table {
-	display: flex;
-	flex-direction: column;
-	background-color: #ffffff;
+.appointments-panel {
+	font-size: .8em;
+	text-align: center;
 }
 
-.appointments-panel table thead {
-	flex: 1 0 auto;
-	display: flex;
-	background-color: #595959;
+.appointments-panel-header {
+	background-color: #00494e;
 	color: #ffffff;
 }
 
-.appointments-panel table tbody {
-	flex: 4 0 auto;
-	display: flex;
-	flex-direction: column;
+.appointments-panel-percentage {
+	font-size: 1.2em;
+	font-weight: bold;
 }
 
-.appointments-panel table tr {
-	flex-grow: 1;
-	flex-basis: 0;
-	display: flex;
-}
-
-.appointments-panel table tr td, .appointments-panel table tr th {
-	padding: 0 !important;
-	flex-grow: 1;
-	flex-basis: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.appointments-panel tbody th {
-	background-color: #595959;
-	color: #ffffff;
-}
-
-.appointments-panel tr th:first-child {
-	border-right: 3px solid #dee2e6
-}
-
-.appointments-panel tr th:not(first-child), .appointments-panel tr td {
-	border-right: 1px solid #dee2e6
+.text-red {
+	color: #ff0000;
 }
 
 .appointment-number-icon {
@@ -51,8 +23,4 @@
 
 .max-appointment-limit {
 	font-size: .8em;
-}
-
-.red-background {
-	background-color: red;
 }

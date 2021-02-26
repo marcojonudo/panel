@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
 import {JobLineType} from "../../objects/job-line-type";
@@ -7,8 +7,12 @@ import {CardsService} from "../../services/cards.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {MechanicsService} from "../../services/mechanics.service";
 import {NotificationService} from "../../services/notification.service";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
 import {JobLineTypeService} from "../../services/job-line-type.service";
+import {Dayjs} from "dayjs";
+import {DropzoneService} from "../../services/dropzone.service";
+import {Dropzone} from "../../objects/dropzone-type/dropzone";
+import {CardsGroup} from "../../objects/cards-group";
+import {UnassignedDropzone} from "../../objects/dropzone-type/unassigned-dropzone";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -18,13 +22,13 @@ import {JobLineTypeService} from "../../services/job-line-type.service";
 })
 export class MechanicInfoComponent {
 
-	@Input() day: Date;
+	@Input() day: Dayjs;
 	@Input() mechanic: Mechanic;
+	@Input() jobLineType: string;
 	@Input() position: string;
-	@Input() dayMechanicSkills: DayMechanicSkills;
+	@Input() highlight: boolean;
 
 	private _oneDayMode: boolean;
-	private _highlightMechanic: boolean;
 	private _showAppointmentSchedulesDialog: boolean;
 
 	constructor(
@@ -35,22 +39,8 @@ export class MechanicInfoComponent {
 		private cdRef: ChangeDetectorRef
 	) {
 		this.oneDayMode = true;
-		this.highlightMechanic = false;
 		this.showAppointmentSchedulesDialog = false;
 	}
-
-	// ngOnInit(): void {
-	// 	// this.oneDayModeSubscription = this.daysService.oneDayMode$.subscribe(oneDayMode => {
-	// 	// 	// TODO Añadir detectChanges
-	// 	// 	this.oneDayMode = oneDayMode;
-	// 	// });
-	// 	this.skillsSubscription = this.commonService.skills$.subscribe(skills => {
-	// 		if (!(skills.length && this.mechanic.skills == skills)) {
-	// 			this.highlightMechanic = false;
-	// 			this.cdRef.detectChanges();
-	// 		}
-	// 	});
-	// }
 
 	// region Getters / setters
 
@@ -62,16 +52,8 @@ export class MechanicInfoComponent {
 		this._oneDayMode = value;
 	}
 
-	get highlightMechanic(): boolean {
-		return this._highlightMechanic;
-	}
-
-	set highlightMechanic(value: boolean) {
-		this._highlightMechanic = value;
-	}
-
 	get jobLineTypes(): JobLineType[] {
-		return this.jobLineTypeService.jobLineTypes;
+		return JobLineTypeService.jobLineTypes;
 	}
 
 	get defaultHeight() {
@@ -98,14 +80,20 @@ export class MechanicInfoComponent {
 	}
 
 	checkRemoveMechanic(content): void {
-		const assignedCardsGroups = this.cardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
-		if (assignedCardsGroups.length) {
+		const assignedGroups = CardsService.findDayMechanicGroups(this.mechanic.day, this.mechanic.code);
+		if (assignedGroups.length) {
 			this.modalService.open(content, {centered: true}).result.then(
 				() => {
-					assignedCardsGroups.forEach(group => {
-						this.cardsService.removeFromAssigned(group, this.day, this.mechanic.code);
-						this.cardsService.resetCardsGroup(group);
-						this.cardsService.addToUnassigned(group);
+					const originDropzone = DropzoneService.findDropzone(assignedGroups[0].cards[0]);
+					const destinyDropzone: UnassignedDropzone =
+						<UnassignedDropzone> DropzoneService.dropzones.find((dropzone: Dropzone) =>
+							dropzone.type == Constants.DROPZONE_TYPE.UNASSIGNED
+					);
+					assignedGroups.map((g: CardsGroup) => g.id).forEach((groupId: string) => {
+						const group = assignedGroups.find((g: CardsGroup) => g.id == groupId);
+						originDropzone.removeGroup(group);
+						destinyDropzone.updateProperties([group]);
+						destinyDropzone.addGroup(group);
 					});
 					this.mechanicsService.removeMechanic(this.day, this.mechanic);
 				},
@@ -120,29 +108,25 @@ export class MechanicInfoComponent {
 		this.cdRef.detectChanges();
 	}
 
-	checkHighlightMechanic(
-		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
-	): boolean {
-		return dayMechanicSkills && dayMechanicSkills.skills.length != 0;
-	}
-
 	showSkills(
 		skills: Skill[],
-		day: Date,
+		day: Dayjs,
 		mechanicCode: string,
-		dayMechanicSkills: DayMechanicSkills = this.dayMechanicSkills
+		highlight: boolean = this.highlight
 	) {
-		NotificationService.notifySkills(
-			new DayMechanicSkills(day, mechanicCode, dayMechanicSkills && dayMechanicSkills.skills.length ? [] : skills)
-		);
+		NotificationService.notifyDayMechanicSkills(day, mechanicCode, highlight ? undefined : skills);
+	}
+
+	findJobLineTypeBackgroundColor(code: string): string {
+		return JobLineTypeService.findJobLineTypeColor(code);
 	}
 
 	findJobLineTypeColor(code: string): string {
-		return this.jobLineTypeService.findJobLineTypeColor(code);
+		return code == Constants.JOB_LINE_TYPE.AA ? Constants.COLOR.WHITE : Constants.COLOR.BLACK;
 	}
 
 	updateJobLineType(mechanic: Mechanic = this.mechanic): void {
-		this.jobLineTypeService.updateJobLineType(mechanic);
+		this.jobLineTypeService.updateDbJobLineType(mechanic);
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 		this.cdRef.detectChanges();
 	}

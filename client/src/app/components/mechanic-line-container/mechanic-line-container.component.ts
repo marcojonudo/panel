@@ -1,9 +1,17 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	Component,
+	Input
+} from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
 import {Constants} from "../../objects/constants";
 import {AppointmentSchedule} from "../../objects/appointment-schedule";
-import {MechanicUpdate} from "../../objects/update-days-cards/mechanic-update";
-import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills";
+import {Dayjs} from "dayjs";
+import {MechanicSkills} from "../../objects/mechanic-skills";
+import {CardsGroup} from "../../objects/cards-group";
+import {GroupUpdate} from "../../objects/trigger-cd/update-objects/groups/group-update";
+import {TriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
+import {GroupTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/group-trigger-map-update";
 
 @Component({
 	selector: 'app-mechanic-line-container',
@@ -13,15 +21,16 @@ import {DayMechanicSkills} from "../../objects/skills-update/day-mechanic-skills
 })
 export class MechanicLineContainerComponent {
 
-	@Input() day: Date;
-	@Input() mechanicLineUpdate: MechanicUpdate;
-	@Input() dayMechanicSkills: DayMechanicSkills;
-	@Input() maxScheduleWidth: number;
+	@Input() day: Dayjs;
+	@Input() mechanicLineUpdate: TriggerMapUpdate;
+	@Input() mechanicSkills: MechanicSkills;
 	@Input() mechanic: Mechanic;
+	@Input() groups: CardsGroup[];
 	@Input() height: number;
 	@Input() appointments: AppointmentSchedule[];
 	@Input() position: string;
 	@Input() showAppointmentsName: boolean;
+	@Input() groupUpdates: GroupUpdate[];
 
 	// region Getters / setters
 
@@ -35,9 +44,13 @@ export class MechanicLineContainerComponent {
 		return this.mechanic.height + Constants.VALUE.JOB_LINE_TYPE_HEIGHT;
 	}
 
+	checkHighlightMechanic(mechanicSkills: MechanicSkills = this.mechanicSkills): boolean {
+		return mechanicSkills.skills != undefined;
+	}
+
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line container', this.mechanicLineUpdate)
+			console.log('checking mechanic line container', this.groupUpdates)
 		}
 	}
 }

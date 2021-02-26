@@ -4,16 +4,17 @@ import {Mechanic} from "../mechanic";
 
 export class RealTimeMechanicUpdatePosition extends RealTimeUpdate {
 
+	private realTimeService: RealTimeService;
 	private readonly mechanics: Mechanic[];
 
-	constructor(mechanics: any) {
+	constructor(realTimeService: RealTimeService, mechanics: any) {
 		super();
-		mechanics.forEach(m => m.day = new Date(m.day));
-		this.mechanics = mechanics;
+		this.realTimeService = realTimeService;
+		this.mechanics = mechanics.map(mechanic => new Mechanic(mechanic));
 	}
 
-	update(realTimeService: RealTimeService): void {
-		realTimeService.updateMechanicPosition(this.mechanics);
+	update(): void {
+		this.realTimeService.updateMechanicPosition(this.mechanics);
 	}
 
 }

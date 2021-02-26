@@ -5,18 +5,16 @@ import {Constants} from "../constants";
 
 export class UnassignedFinishedSection implements UnassignedSection {
 
-	cardsService: CardsService;
 	name: string;
 	dropzoneType: string;
 
-	constructor(cardsService: CardsService, name: string) {
-		this.cardsService = cardsService;
+	constructor(name: string) {
 		this.name = name;
 		this.dropzoneType = Constants.DROPZONE_TYPE.UNASSIGNED_FINISHED;
 	}
 
 	findGroups(): CardsGroup[] {
-		return this.cardsService.finishedCardsGroups;
+		return CardsService.finishedGroups;
 	}
 
 }

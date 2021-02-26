@@ -15,14 +15,14 @@ import {NotificationService} from "../../services/notification.service";
 })
 export class OverlayComponent implements OnInit, OnDestroy {
 
-	private coordinates: Coordinates;
+	coordinates: Coordinates;
 
 	private coordinatesSubscription: Subscription;
 	private draggingSubscription: Subscription;
-	private helperCardsGroupSubscription: Subscription;
+	private helperGroupSubscription: Subscription;
 
-	private _helperCardsGroup: CardsGroup;
-	private dragging: boolean;
+	private _helperGroup: CardsGroup;
+	dragging: boolean;
 
 	constructor(
 		private cardPositionService: CardPositionService,
@@ -44,8 +44,8 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		});
 
 		/* Permite mostrar o eliminar la ficha auxiliar en pantalla */
-		this.helperCardsGroupSubscription = NotificationService.helperCardsGroup$.subscribe(helperCardsGroup => {
-			this.helperCardsGroup = helperCardsGroup;
+		this.helperGroupSubscription = NotificationService.helperGroup$.subscribe(helperGroup => {
+			this.helperGroup = helperGroup;
 			this.cdRef.detectChanges();
 		});
 	}
@@ -53,17 +53,17 @@ export class OverlayComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.coordinatesSubscription.unsubscribe();
 		this.draggingSubscription.unsubscribe();
-		this.helperCardsGroupSubscription.unsubscribe();
+		this.helperGroupSubscription.unsubscribe();
 	}
 
 	// region Getters / setters
 
-	get helperCardsGroup(): CardsGroup {
-		return this._helperCardsGroup;
+	get helperGroup(): CardsGroup {
+		return this._helperGroup;
 	}
 
-	set helperCardsGroup(value: CardsGroup) {
-		this._helperCardsGroup = value;
+	set helperGroup(value: CardsGroup) {
+		this._helperGroup = value;
 	}
 
 	get translateDuration(): number {
@@ -80,11 +80,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
 		if (Constants.CHECK) {
 			console.log('checking overlay');
 		}
-	}
-
-	updateCard() {
-		CardPositionService.hiddenGroup = undefined;
-		CardPositionService.setHelperGroup(undefined);
 	}
 
 }

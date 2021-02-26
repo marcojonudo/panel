@@ -1,0 +1,6 @@
+<div
+	*ngFor="let type of findAppointmentTypes()"
+	class="context-menu-item align-center"
+	(click)="selectAppointmentType(type)">
+	{{type.code}}
+</div>
