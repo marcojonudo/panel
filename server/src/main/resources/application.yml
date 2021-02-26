@@ -40,16 +40,8 @@ cron:
     sync-jpdv-orders: '0 0 0 1 1 ?'
 #    sync-jpdv-orders: '0/30 * * * * ?'
 
-
-#endpoints:
-#    server-database-resolver:
-#        host: http://localhost
-#        port: 8084
-#        url: ${host}:${port}
-#    panel:
-#        url: ${endpoints.server-datbase-resolver.url}/panel
-
 ifv:
+    path: https://cuboifv.cloudapp.net:8086/api
     username: PortalIFVuser
     password: ifvRest18$
     centre: ABS

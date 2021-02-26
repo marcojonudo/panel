@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 @CompileStatic
-@Client("https://www.portalifv.com:8086/api")
+@Client("\${ifv.path}")
 interface IfvClient {
 
 	@Post("/SeguridadJson/GetToken")

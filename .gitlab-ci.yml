@@ -1,19 +1,19 @@
 stages:
+    - versioning
     - build
     - assemble
-    - versioning
     - docker
     - deploy
 
 .fetch_ci_scripts: &fetch_ci_scripts
     - export SCRIPTS_DIR=$(mktemp -d)
-    - git clone -q --depth 1 "$SCRIPTS_REPO" "$SCRIPTS_DIR"
+    - git clone -q --depth 1 --single-branch --branch $CI_SCRIPTS_BRANCH "$SCRIPTS_REPO" "$SCRIPTS_DIR"
     - chmod -R +x $SCRIPTS_DIR
 
 .gradle_template: &gradle_template
+    image: gradle:6.1
     tags:
         - sidesman2
-    image: registry.gitlab.com/marco_fv/ci-scripts:gradle
     variables:
         GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     cache:
@@ -26,17 +26,18 @@ stages:
         paths:
             - build/libs/*.jar
         expire_in: 1 hour
+    except:
+        variables:
+            - $CI_COMMIT_BRANCH == "deploy"
 
 .get_version_template: &get_version_template
-    tags:
-        - gitlab-org
     image: registry.gitlab.com/marco_fv/ci-scripts:groovy
     before_script:
         - *fetch_ci_scripts
     artifacts:
         paths:
             - version
-        expire_in: 1 year
+        expire_in: 1 week
 
 .deploy_template: &deploy_template
     stage: deploy
@@ -46,47 +47,12 @@ stages:
     dependencies:
         - get-version:hash
         - get-version:semantic:push
+        - build:docker
     before_script:
         - *fetch_ci_scripts
     script:
-        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/deploy.groovy
-    only:
-        - branches
-
-build:backend:
-    stage: build
-    <<: *gradle_template
-    script:
-        - gradle --build-cache :server:build
-    only:
-        - branches
-
-build:frontend:
-    stage: build
-    image: gradle:5.6.4
-    script:
-        - gradle --build-cache buildAndCopyClientResources
-    artifacts:
-        paths:
-            - server/build/resources/client/static
-        expire_in: 1 day
-    cache:
-        paths:
-            - node_modules/
-    only:
-        - branches
-
-assemble:jar:
-    stage: assemble
-    <<: *gradle_template
-    dependencies:
-        - build:frontend
-    script:
-        - gradle --build-cache :server:shadowJar
-    artifacts:
-        paths:
-            - server/build/libs/*.jar
-        expire_in: 1 day
+        - groovy -cp $SCRIPTS_DIR/groovy $SCRIPTS_DIR/groovy/uploadAndDeploy.groovy
+    when: manual
     only:
         - branches
 
@@ -98,8 +64,11 @@ get-version:hash:
     only:
         - branches
     except:
-        - master
-        - development
+        refs:
+            - master
+            - development
+        variables:
+            - $CI_COMMIT_BRANCH == "deploy"
 
 get-version:semantic:push:
     stage: versioning
@@ -118,6 +87,48 @@ get-version:semantic:merge_request:
     only:
         - merge_requests
 
+build:backend:
+    stage: build
+    <<: *gradle_template
+    script:
+        - gradle --build-cache :server:build
+    only:
+        - branches
+
+build:frontend:
+    stage: build
+    image: gradle:6.1
+    tags:
+        - sidesman2
+    script:
+        - gradle --build-cache buildAndCopyClientResources
+    artifacts:
+        paths:
+            - server/build/resources/client/static
+        expire_in: 1 day
+    cache:
+        paths:
+            - node_modules/
+    only:
+        - branches
+    except:
+        variables:
+            - $CI_COMMIT_BRANCH == "deploy"
+
+assemble:jar:
+    stage: assemble
+    <<: *gradle_template
+    dependencies:
+        - build:frontend
+    script:
+        - gradle --build-cache :server:shadowJar
+    artifacts:
+        paths:
+            - server/build/libs/*.jar
+        expire_in: 1 week
+    only:
+        - branches
+
 build:docker:
     stage: docker
     image: registry.gitlab.com/marco_fv/ci-scripts:docker
@@ -127,12 +138,19 @@ build:docker:
         - assemble:jar
         - get-version:hash
         - get-version:semantic:push
+    artifacts:
+        paths:
+            - tar/*.tar
+        expire_in: 1 week
     before_script:
         - *fetch_ci_scripts
     script:
         - $SCRIPTS_DIR/shell/docker.sh
     only:
         - branches
+    except:
+        variables:
+            - $CI_COMMIT_BRANCH == "deploy"
 
 deploy:manual:sta:
     <<: *deploy_template

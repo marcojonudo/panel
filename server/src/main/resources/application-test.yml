@@ -1,13 +1,3 @@
 micronaut:
-    application:
-        name: panel
     server:
         port: -1
-
-#endpoints:
-#    server-database-resolver:
-#        host: http://localhost
-#        port: 8084
-#        url: ${host}:${port}
-#    panel:
-#        url: ${endpoints.server-datbase-resolver.url}/panel
