@@ -2,8 +2,8 @@ package panel.pogos.firstLoad
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
-import panel.pogos.appointmentDays.AppointmentDay
-import panel.pogos.cards.Card
+import panel.domains.panel.AppointmentDay
+import panel.domains.panel.Card
 
 @CompileStatic
 class UpdateCards {

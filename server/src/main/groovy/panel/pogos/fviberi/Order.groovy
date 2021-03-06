@@ -2,6 +2,7 @@ package panel.pogos.fviberi
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import groovy.transform.CompileStatic
+import panel.domains.fviberi.OrderHeader
 import panel.utils.Constants
 
 import java.time.LocalDate
@@ -23,6 +24,18 @@ class Order {
     Client client
     Vehicle vehicle
 	List<OrderLine> lines
+
+	Order(OrderHeader order) {
+		number = order.number
+		state = order.state as State
+		creatorCode = order.creatorCode
+		created = order.created
+		day = order.day
+		timeInfo = new OrderTime(order.timeInfo[0])
+		client = new Client(order.client)
+		vehicle = new Vehicle(order.vehicle)
+		lines = order.lines.collect { new OrderLine(it) }
+	}
 
 	enum State {
 

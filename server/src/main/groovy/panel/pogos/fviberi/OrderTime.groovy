@@ -14,4 +14,9 @@ class OrderTime {
 	@JsonFormat(pattern = Constants.TimeFormat.HH_mm, timezone = Constants.SPAIN_TIMEZONE)
 	LocalTime deadline
 
+	OrderTime(panel.domains.fviberi.OrderTime orderTime) {
+		shortCode = orderTime.shortCode
+		deadline = orderTime.deadline
+	}
+
 }

@@ -11,7 +11,7 @@ import panel.clients.PanelDatabaseClient
 import panel.jobs.JpdvOrdersJob
 import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.appointments.AppointmentSchedule
-import panel.pogos.cards.Card
+import panel.pogos.cards.CardPogo
 import panel.pogos.firstLoad.CompleteInfo
 import panel.pogos.realTime.RealTimeRequestInfo
 import panel.pogos.schedules.EmployeeSchedule
@@ -55,14 +55,14 @@ class PanelController {
 	}
 
 	@Patch("/cards/position")
-	void updatePosition(@Header String sessionId, @Body List<Card> cards, @QueryValue boolean updateLinks) {
+	void updatePosition(@Header String sessionId, @Body List<CardPogo> cards, @QueryValue boolean updateLinks) {
 		panelDatabaseClient.updateCardsPosition(
 			sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_POSITION, cards, updateLinks
 		)
 	}
 
 	@Put("/cards/duration")
-	void updateDuration(@Header String sessionId, @Body List<Card> cards) {
+	void updateDuration(@Header String sessionId, @Body List<CardPogo> cards) {
 		panelDatabaseClient.updateCardsDuration(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_DURATION, cards)
 	}
 
@@ -72,12 +72,12 @@ class PanelController {
 	}
 
 	@Patch("/cards/links")
-	void updateLinks(@Header String sessionId, @Body List<Card> cards) {
+	void updateLinks(@Header String sessionId, @Body List<CardPogo> cards) {
 		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.UPDATE_CARDS_LINKS, cards)
 	}
 
 	@Patch("/cards/resetLinks")
-	void updateAllLinks(@Header String sessionId, @Body List<Card> cards) {
+	void updateAllLinks(@Header String sessionId, @Body List<CardPogo> cards) {
 		panelDatabaseClient.updateCardsLinks(sessionId, Constants.REAL_TIME_ACTION.RESET_CARDS_LINKS, cards)
 	}
 
@@ -87,17 +87,17 @@ class PanelController {
 	}
 
 	@Patch("/cards/vehiclePosition")
-	void updateVehiclePosition(@Header String sessionId, @Body List<Card> cards) {
+	void updateVehiclePosition(@Header String sessionId, @Body List<CardPogo> cards) {
 		panelDatabaseClient.updateVehiclePosition(sessionId, Constants.REAL_TIME_ACTION.UPDATE_VEHICLE_POSITION, cards)
 	}
 
 	@Patch("/cards/pendingCall")
-	void updatePendingMaterial(@Header String sessionId, @Body List<Card> cards) {
+	void updatePendingMaterial(@Header String sessionId, @Body List<CardPogo> cards) {
 		panelDatabaseClient.updatePendingCall(sessionId, Constants.REAL_TIME_ACTION.UPDATE_PENDING_CALL, cards)
 	}
 
 	@Patch("/cards/pendingBudget")
-	void updatePendingBudget(@Header String sessionId, @Body List<Card> cards) {
+	void updatePendingBudget(@Header String sessionId, @Body List<CardPogo> cards) {
 		panelDatabaseClient.updatePendingBudget(sessionId, Constants.REAL_TIME_ACTION.UPDATE_PENDING_BUDGET, cards)
 	}
 

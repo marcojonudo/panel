@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 @CompileStatic
-class Card {
+class CardPogo {
 
 	Long id
     Group group
@@ -32,18 +32,18 @@ class Card {
 	Status status
 
 	@JsonSerialize(using = CardMinSerializer)
-    Card linkedPrevious
+    CardPogo linkedPrevious
 
 	@JsonSerialize(using = CardMinSerializer)
-    Card linkedNext
+    CardPogo linkedNext
 
 	int linkedIndex
 
 	@JsonSerialize(using = CardMinSerializer)
-    Card dividedPrevious
+    CardPogo dividedPrevious
 
 	@JsonSerialize(using = CardMinSerializer)
-    Card dividedNext
+    CardPogo dividedNext
 
 	int divisionIndex
 	String vehiclePosition
@@ -63,7 +63,7 @@ class Card {
 
 	/* Constructor para fichas obtenidas de base de datos */
 	@JsonCreator
-	Card(Map card) {
+	CardPogo(Map card) {
 		id = (Long) card.id
 		code = card.code
 		day = card.day ? LocalDate.parse((String) card.day) : null
@@ -74,11 +74,11 @@ class Card {
 		mechanicCode = card.mechanicCode
 		line = (Integer) card.line
 		status = (Status) card.status
-		linkedPrevious = card.linkedPrevious ? (Card) card.linkedPrevious : null
-		linkedNext = card.linkedNext ? (Card) card.linkedNext : null
+		linkedPrevious = card.linkedPrevious ? (CardPogo) card.linkedPrevious : null
+		linkedNext = card.linkedNext ? (CardPogo) card.linkedNext : null
 		linkedIndex = card.linkedIndex ? (int) card.linkedIndex : 0
-		dividedPrevious = card.dividedPrevious ? (Card) card.dividedPrevious : null
-		dividedNext = card.dividedNext ? (Card) card.dividedNext : null
+		dividedPrevious = card.dividedPrevious ? (CardPogo) card.dividedPrevious : null
+		dividedNext = card.dividedNext ? (CardPogo) card.dividedNext : null
 		divisionIndex = card.divisionIndex ? (int) card.divisionIndex : 0
 		vehiclePosition = card.vehiclePosition
 		pending = card.pending ? new Pending((Map) card.pending) : null
@@ -94,7 +94,7 @@ class Card {
 	}
 
 	/* Constructor para la creación de nuevas fichas a partir de la orden y la agrupación */
-	Card(Order order, Group group, float units, int duration) {
+	CardPogo(Order order, Group group, float units, int duration) {
 		code = "${group.unitsInShortName ? units as int : ''}$group.shortName"
 		this.group = group
 		this.duration = duration
@@ -106,7 +106,7 @@ class Card {
 		type = CardType.values().find { ((Closure<Boolean>) it.condition)(this.order.code, this.order.day) }
 	}
 
-	Card(
+	CardPogo(
 		String code, LocalDate day, LocalTime start, int duration, String mechanicCode, int line, Group group
 	) {
 		type = CardType.AUXILIARY
@@ -149,7 +149,7 @@ class Card {
 
 	@Override
 	boolean equals(Object card) {
-		card = (Card) card
+		card = (CardPogo) card
 		return this.order.number == card.order.number &&
 				this.group.code == card.group.code &&
 				this.linkedIndex == card.linkedIndex &&
