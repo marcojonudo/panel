@@ -4,10 +4,8 @@ package panel.services.data.cubo
 import grails.gorm.services.Query
 import grails.gorm.services.Service
 import grails.gorm.services.Where
-import panel.domains.cubo.Employee
-import panel.domains.cubo.EmployeeSchedule
-import panel.domains.cubo.JobPositionGroup
-import panel.domains.cubo.JobPositionGroup.JobPositionGroupCode
+import panel.domains.schedules.EmployeeSchedule
+import panel.domains.schedules.JobPositionGroup
 
 import java.time.LocalDate
 
@@ -16,8 +14,8 @@ abstract class EmployeeScheduleDataService {
 
 	abstract EmployeeSchedule get(Serializable id)
 
-	@Where({ day == day && employee == employee})
-	abstract EmployeeSchedule find(LocalDate day, Employee employee)
+//	@Where({ day == day && employee == employee})
+//	abstract EmployeeSchedule find(LocalDate day, Employee employee)
 
 	abstract List<EmployeeSchedule> findAll(LocalDate day)
 
@@ -26,10 +24,11 @@ abstract class EmployeeScheduleDataService {
 		from ${EmployeeSchedule employeeSchedule}
 		inner join ${JobPositionGroup jobPositionGroup = employeeSchedule.jobPositionGroup}
 		where $employeeSchedule.day >= $from and $employeeSchedule.schedule is not null
-		and $employeeSchedule.absence is null and $employeeSchedule.showInPanel = 1
+		and $employeeSchedule.absenceInfo is null and $employeeSchedule.workingDay = 1
+		and $employeeSchedule.savedIfv = 1
 		and $jobPositionGroup.code = $jobPositionGroupCode
 	""")
-	abstract LocalDate findFirstDay(LocalDate from, JobPositionGroupCode jobPositionGroupCode)
+	abstract LocalDate findFirstDay(LocalDate from, JobPositionGroup.Code jobPositionGroupCode)
 
 	@Where({ day >= from && schedule != null && absence == null &&
 				jobPositionGroup == jobPositionGroup && showInPanel == true })
@@ -40,11 +39,11 @@ abstract class EmployeeScheduleDataService {
 		from ${EmployeeSchedule employeeSchedule}
 		inner join ${JobPositionGroup jobPositionGroup = employeeSchedule.jobPositionGroup}
 		where (($employeeSchedule.day >= $from and $employeeSchedule.schedule is not null
-		and $employeeSchedule.absence is null and $employeeSchedule.showInPanel = 1)
-		or ($employeeSchedule.day is null))
+		and $employeeSchedule.absenceInfo is null and $employeeSchedule.workingDay = 1
+		and $employeeSchedule.savedIfv = 1) or ($employeeSchedule.day is null))
 		and $jobPositionGroup.code = $jobPositionGroupCode
 	""")
-	abstract List<EmployeeSchedule> findAll(LocalDate from, LocalDate to, JobPositionGroupCode jobPositionGroupCode)
+	abstract List<EmployeeSchedule> findAll(LocalDate from, LocalDate to, JobPositionGroup.Code jobPositionGroupCode)
 
 	abstract List<EmployeeSchedule> findAllByDayIsNull()
 

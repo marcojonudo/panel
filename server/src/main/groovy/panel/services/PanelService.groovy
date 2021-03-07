@@ -5,12 +5,13 @@ import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import panel.domains.cubo.Employee
-import panel.domains.cubo.EmployeeSchedule
-import panel.domains.cubo.JobPositionGroup.JobPositionGroupCode
-import panel.domains.cubo.Schedule
 import panel.domains.panel.*
 import panel.domains.panel.AppointmentType.AppointmentTypeCode
+import panel.domains.schedules.EmployeeSchedule
+import panel.domains.schedules.JobPositionGroup
+import panel.domains.schedules.ScheduleInterval
 import panel.domains.skills.Skill
+import panel.domains.skills.SkillEmployee
 import panel.pogos.appointmentDays.UpdateAppointmentDays
 import panel.pogos.cards.GroupUnits
 import panel.pogos.firstLoad.CompleteInfo
@@ -38,6 +39,7 @@ class PanelService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PanelService)
 
+	@Inject private SkillsService skillsService
 	@Inject private JobLineTypeDataService jobLineTypeDataService
 	@Inject private AppointmentTypeDataService appointmentTypeDataService
 	@Inject private AppointmentDayDataService appointmentDayDataService
@@ -55,13 +57,19 @@ class PanelService {
 	CompleteInfo getPanelInfo(LocalDate from, LocalDate to) {
 		LocalDate today = LocalDate.now()
 		List<JobLineType> jobLineTypes = jobLineTypeDataService.findAll()
-		List<Skill> skills = skillDataService.findAll()
 
 		List<AppointmentType> appointmentTypes = appointmentTypeDataService.findAll()
 		List<AppointmentDay> appointmentDays = appointmentDayDataService.findAll(from)
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
 		List<Employee> employees = employeeDataService.findAll(true)
-		LocalDate firstScheduleDay = employeeScheduleDataService.findFirstDay(today, JobPositionGroupCode.GARAGE)
+		LocalDate firstScheduleDay = employeeScheduleDataService.findFirstDay(today, JobPositionGroup.Code.GARAGE)
+
+		List<Skill> skills = skillDataService.findAll()
+		List<SkillEmployee> skillEmployees = skillsService.findSkillEmployees(
+			((List<EmployeeSchedule>) daysMechanics.values().flatten()).unique { it.code },
+			skills,
+			today.withDayOfMonth(1)
+		)
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
@@ -95,7 +103,7 @@ class PanelService {
 	 * @return List of mechanic employees
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from, LocalDate to) {
-		List<EmployeeSchedule> mechanics = employeeScheduleDataService.findAll(from, to, JobPositionGroupCode.GARAGE)
+		List<EmployeeSchedule> mechanics = employeeScheduleDataService.findAll(from, to, JobPositionGroup.Code.GARAGE)
 		lastScheduleDay = employeeScheduleDataService.findEmployeeScheduleDay([sort: 'day', order: 'desc', max: 1])
 		return integrateFixedMechanics(mechanics)
 	}
@@ -114,7 +122,7 @@ class PanelService {
             }
 			mechanics.each {
 				if (!it.day) {
-					it.schedule = findThresholdSchedule(todayMechanics)
+					it.intervals = [findThresholdSchedule(todayMechanics)].toSet()
 					it.day = today
 				}
 				if (!daysMechanics[it.day.toString()]) {
@@ -126,19 +134,12 @@ class PanelService {
 		return daysMechanics
 	}
 
-	static Schedule findThresholdSchedule(List<EmployeeSchedule> mechanics) {
-		LocalTime minMorningStart = mechanics.schedule.morningStart.min()
-		LocalTime minAfternoonStart = mechanics.schedule.afternoonStart.min()
-		LocalTime maxMorningEnd = mechanics.schedule.morningEnd.max()
-		LocalTime maxAfternoonEnd = mechanics.schedule.afternoonEnd.max()
+	static ScheduleInterval findThresholdSchedule(List<EmployeeSchedule> mechanics) {
+		List<ScheduleInterval> intervals = (List<ScheduleInterval>) mechanics.intervals.flatten()
+		LocalTime minStart = intervals.start.min()
+		LocalTime maxEnd = intervals.end.max()
 
-		if (!minMorningStart) {
-			return new Schedule(morningStart: minAfternoonStart, morningEnd: maxAfternoonEnd)
-		} else if (!minAfternoonStart) {
-			return new Schedule(morningStart: minMorningStart, morningEnd: maxMorningEnd)
-		} else {
-			return new Schedule(morningStart: minMorningStart, morningEnd: maxAfternoonEnd)
-		}
+		return new ScheduleInterval(start: minStart, end: maxEnd)
 	}
 
 	// endregion
