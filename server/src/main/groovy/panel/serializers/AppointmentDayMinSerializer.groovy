@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import groovy.transform.CompileStatic
-import panel.pogos.appointmentDays.AppointmentDay
+import panel.domains.panel.AppointmentDay
 
 @CompileStatic
 class AppointmentDayMinSerializer extends StdSerializer<AppointmentDay> {
@@ -19,9 +19,9 @@ class AppointmentDayMinSerializer extends StdSerializer<AppointmentDay> {
 	}
 
 	@Override
-	void serialize(AppointmentDay appointmentDayy, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException, JsonProcessingException {
+	void serialize(AppointmentDay appointmentDay, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException, JsonProcessingException {
 		jsonGenerator.writeStartObject()
-		jsonGenerator.writeStringField("day", appointmentDayy.day.toString())
+		jsonGenerator.writeStringField("day", appointmentDay.day.toString())
 		jsonGenerator.writeFieldName("values")
 		jsonGenerator.writeStartArray()
 		jsonGenerator.writeEndArray()

@@ -8,7 +8,7 @@ import panel.clients.CuboDatabaseClient
 import panel.clients.IfvClient
 import panel.clients.PanelDatabaseClient
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
-import panel.pogos.cards.Card
+import panel.pogos.cards.CardPogo
 import panel.pogos.cards.Group
 import panel.pogos.eCommerce.confirm.ConfirmAppointmentInfo
 import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
@@ -245,7 +245,7 @@ class EcommerceService {
 			return mockSaveEcommerceCardInfo(day, start, end, code)
 		}
 
-		List<Card> cards = panelDatabaseClient.findCards(day, mechanicsAppointments.mechanic.employee.code)
+		List<CardPogo> cards = panelDatabaseClient.findCards(day, mechanicsAppointments.mechanic.employee.code)
 		List<MechanicAppointment> availableMechanics = findAvailableSchedules(
 			mechanicsAppointments, start, start.plusMinutes(duration), cards
 		)
@@ -256,7 +256,7 @@ class EcommerceService {
 
 		Group group = panelDatabaseClient.findGroup(groupCode)
 		EmployeeSchedule mechanic = availableMechanics[0].mechanic
-		Card card = new Card(
+		CardPogo card = new CardPogo(
 			code, day, start, duration, mechanic.employee.code, mechanic.lines - 1, group
 		)
 		panelDatabaseClient.createCards("", Constants.REAL_TIME_ACTION.CREATE_CARDS, [card], false)
@@ -264,7 +264,7 @@ class EcommerceService {
 	}
 
 	private static List<MechanicAppointment> findAvailableSchedules(
-		List<MechanicAppointment> mechanicsAppointments, LocalTime start, LocalTime end, List<Card> cards
+		List<MechanicAppointment> mechanicsAppointments, LocalTime start, LocalTime end, List<CardPogo> cards
 	) {
 		return mechanicsAppointments.findAll {
 			boolean availableSchedule = it.schedule.start <= start && it.schedule.end >= end
@@ -280,7 +280,7 @@ class EcommerceService {
 		return buildEcommerceCardCode(lastEcommerceCode)
 	}
 
-	private static boolean findOverlappedCard(Card existentCard, LocalTime start, LocalTime end) {
+	private static boolean findOverlappedCard(CardPogo existentCard, LocalTime start, LocalTime end) {
 		LocalTime cardEnd = existentCard.start.plusMinutes(existentCard.duration)
 		return (start <= existentCard.start && end > existentCard.start) ||
 			(end >= cardEnd && start < cardEnd) ||
@@ -308,14 +308,14 @@ class EcommerceService {
 	// region Confirm card
 
 	ConfirmAppointmentInfo confirmAppointment(String code) {
-		Card card = panelDatabaseClient.findCard(code)
+		CardPogo card = panelDatabaseClient.findCard(code)
 		if (!card) {
 			return new ConfirmAppointmentInfo(
 				"$Constants.NON_EXISTENT_CARD$code",
 				ConfirmAppointmentInfo.Error.NON_EXISTENT_CARD
 			)
 		}
-		card.status = Card.Status.CONFIRMED
+		card.status = CardPogo.Status.CONFIRMED
 		panelDatabaseClient.updateStatus(card)
 		return new ConfirmAppointmentInfo()
 	}

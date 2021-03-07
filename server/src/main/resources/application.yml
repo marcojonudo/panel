@@ -38,10 +38,73 @@ host.ip: ${HOST_IP:localhost}
 
 cron:
     sync-jpdv-orders: '0 0 0 1 1 ?'
-#    sync-jpdv-orders: '0/30 * * * * ?'
+
+host:
+    ip: ${HOST_IP:localhost}
+    local-mysql-port: ${MYSQL_PORT:3306}
+
+database:
+    credentials:
+        username: root
+        password: root
+
+hibernate:
+    hbm2ddl:
+        auto: 'none'
 
 ifv:
     path: https://cuboifv.cloudapp.net:8086/api
     username: PortalIFVuser
     password: ifvRest18$
     centre: ABS
+
+dataSource:
+    dbCreate: validate
+    driverClassName: com.mysql.jdbc.Driver
+    dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    url: jdbc:mysql://${host.ip}:${host.local-mysql-port}/panel?useSSL=false
+    username: ${database.credentials.username}
+    password: ${database.credentials.password}
+    properties:
+        initialSize: 1
+        maxActive: 1
+        minIdle: 1
+        maxIdle: 1
+        testOnBorrow: true
+        validationQuery: SELECT 1
+        validationInterval: 15000
+    logSql: true
+
+dataSources:
+    cubo:
+        dbCreate: validate
+        driverClassName: com.mysql.jdbc.Driver
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        url: jdbc:mysql://${host.ip}:${host.local-mysql-port}/cubo?useSSL=false
+        username: ${database.credentials.username}
+        password: ${database.credentials.password}
+        properties:
+            initialSize: 1
+            maxActive: 1
+            minIdle: 1
+            maxIdle: 1
+            testOnBorrow: true
+            validationQuery: SELECT 1
+            validationInterval: 15000
+        logSql: true
+    fviberi:
+        dbCreate: validate
+        driverClassName: com.mysql.jdbc.Driver
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        url: jdbc:mysql://${host.ip}:${host.local-mysql-port}/fviberi?useSSL=false
+        username: ${database.credentials.username}
+        password: ${database.credentials.password}
+        properties:
+            initialSize: 1
+            maxActive: 1
+            minIdle: 1
+            maxIdle: 1
+            testOnBorrow: true
+            validationQuery: SELECT 1
+            validationInterval: 15000
+        logSql: true

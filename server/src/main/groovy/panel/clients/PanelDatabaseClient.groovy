@@ -7,7 +7,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.appointmentDays.AppointmentType
-import panel.pogos.cards.Card
+import panel.pogos.cards.CardPogo
 import panel.pogos.cards.Group
 import panel.pogos.cards.GroupUnits
 import panel.pogos.cards.Task
@@ -28,7 +28,7 @@ interface PanelDatabaseClient {
 	List<Task> getTasks(@QueryValue List<Integer> articles)
 
 	@Get("/cards")
-	List<Card> getCards(
+	List<CardPogo> getCards(
 		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate from,
 		@QueryValue @Nullable @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate to
 	)
@@ -46,7 +46,7 @@ interface PanelDatabaseClient {
 	Map<Integer, List<GroupUnits>> getDurations(@Body Map<Integer, List<GroupUnits>> ordersGroupsUnits)
 
 	@Post("/cards")
-	List<Card> createCards(
+	List<CardPogo> createCards(
 		@Header String sessionId,
 		@Header @Nullable String realTimeAction,
 		@Body List cards,
@@ -54,11 +54,11 @@ interface PanelDatabaseClient {
 	)
 
 	@Put("/cards")
-	List<Card> updateCards(@Body List<Card> cards)
+	List<CardPogo> updateCards(@Body List<CardPogo> cards)
 
 	@Patch("/cards/links")
 	void updateCardsLinks(
-		@Header @Nullable String sessionId, @Header @Nullable String realTimeAction, @Body List<Card> cards
+		@Header @Nullable String sessionId, @Header @Nullable String realTimeAction, @Body List<CardPogo> cards
 	)
 
 	@Post("/cards/delete")
@@ -68,7 +68,7 @@ interface PanelDatabaseClient {
 	HttpResponse<Void> updateCardsPosition(
 		@Header String sessionId,
 		@Header String realTimeAction,
-		@Body List<Card> cards,
+		@Body List<CardPogo> cards,
 		@QueryValue boolean updateLinks
 	)
 
@@ -76,7 +76,7 @@ interface PanelDatabaseClient {
 	void updateCardsDuration(
 		@Header String sessionId,
 		@Header String realTimeAction,
-		@Body List<Card> cards
+		@Body List<CardPogo> cards
 	)
 
 	@Put("/cards/division")
@@ -85,13 +85,13 @@ interface PanelDatabaseClient {
 	)
 
 	@Patch("/cards/vehiclePosition")
-	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+	void updateVehiclePosition(@Header String sessionId, @Header String realTimeAction, @Body List<CardPogo> cards)
 
 	@Patch("/cards/pendingCall")
-	void updatePendingCall(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+	void updatePendingCall(@Header String sessionId, @Header String realTimeAction, @Body List<CardPogo> cards)
 
 	@Patch("/cards/pendingBudget")
-	void updatePendingBudget(@Header String sessionId, @Header String realTimeAction, @Body List<Card> cards)
+	void updatePendingBudget(@Header String sessionId, @Header String realTimeAction, @Body List<CardPogo> cards)
 
 	@Post("/appointmentDays")
 	void createAppointmentDays(@Header String sessionId, @Body List<AppointmentDay> appointmentDays)
@@ -103,7 +103,7 @@ interface PanelDatabaseClient {
 	String findLastEcommerceCode()
 
 	@Get("/mechanicsCards")
-	List<Card> findCards(
+	List<CardPogo> findCards(
 		@QueryValue @Format(Constants.DateFormat.yyyy_MM_dd) LocalDate day,
 		@QueryValue List<String> mechanicCodes
 	)
@@ -112,9 +112,9 @@ interface PanelDatabaseClient {
 	Group findGroup(@QueryValue int code)
 
 	@Get("/card")
-	Card findCard(@QueryValue String code)
+	CardPogo findCard(@QueryValue String code)
 
 	@Patch("/status")
-	Card updateStatus(@Body Card card)
+	CardPogo updateStatus(@Body CardPogo card)
 
 }

@@ -3,13 +3,13 @@ package panel.pogos.firstLoad
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
-import panel.pogos.appointmentDays.AppointmentDay
-import panel.pogos.appointmentDays.AppointmentType
-import panel.pogos.cards.Card
-import panel.pogos.schedules.Employee
-import panel.pogos.schedules.EmployeeSchedule
-import panel.pogos.schedules.JobLineType
-import panel.pogos.skills.Skill
+import panel.domains.cubo.Employee
+import panel.domains.cubo.EmployeeSchedule
+import panel.domains.panel.AppointmentDay
+import panel.domains.panel.AppointmentType
+import panel.domains.panel.Card
+import panel.domains.panel.JobLineType
+import panel.domains.skills.Skill
 import panel.utils.Constants
 
 import java.time.LocalDate

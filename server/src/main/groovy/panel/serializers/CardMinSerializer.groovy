@@ -5,21 +5,21 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import groovy.transform.CompileStatic
-import panel.pogos.cards.Card
+import panel.pogos.cards.CardPogo
 
 @CompileStatic
-class CardMinSerializer extends StdSerializer<Card> {
+class CardMinSerializer extends StdSerializer<CardPogo> {
 
 	CardMinSerializer() {
 		super((Class) null)
 	}
 
-    CardMinSerializer(Class<Card> card) {
+    CardMinSerializer(Class<CardPogo> card) {
 		super(card)
 	}
 
 	@Override
-	void serialize(Card card, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException, JsonProcessingException {
+	void serialize(CardPogo card, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException, JsonProcessingException {
 		jsonGenerator.writeStartObject()
 		jsonGenerator.writeObjectFieldStart("order")
 		jsonGenerator.writeObjectField("number", card.order.number)

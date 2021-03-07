@@ -9,7 +9,7 @@ import panel.pogos.appointmentDays.AppointmentType
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
 import panel.pogos.appointmentDays.AppointmentTypeValues
 import panel.pogos.appointmentDays.UpdateAppointmentDays
-import panel.pogos.cards.Card
+import panel.pogos.cards.CardPogo
 import panel.pogos.cards.Group
 import panel.pogos.cards.GroupUnits
 import panel.pogos.cards.Task
@@ -1987,7 +1987,7 @@ class PanelServiceSpec extends Specification {
 			[(order1Article.number): [new GroupUnits([group: group1, units: [1], duration: 30])]]
 
 		when:
-		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
+		List<CardPogo> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
 
 		then:
 		cards.size() == 1
@@ -1995,7 +1995,7 @@ class PanelServiceSpec extends Specification {
 		cards[0].order.code == order1Article.timeInfo.shortCode
 		cards[0].code == group1.shortName
 		cards[0].group.code == group1.code
-		cards[0].status == Card.Status.DEFAULT
+		cards[0].status == CardPogo.Status.DEFAULT
 		cards[0].duration == 30
 	}
 
@@ -2018,7 +2018,7 @@ class PanelServiceSpec extends Specification {
 		]
 
 		when:
-		List<Card> cards = panelService.buildOrdersCards([order1Article, order4Articles], ordersGroupsUnits)
+		List<CardPogo> cards = panelService.buildOrdersCards([order1Article, order4Articles], ordersGroupsUnits)
 
 		then:
 		cards.size() == 4
@@ -2045,7 +2045,7 @@ class PanelServiceSpec extends Specification {
 		panelDatabaseClient.getDurations(_) >> [(order1Article.number): []]
 
 		when:
-		List<Card> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
+		List<CardPogo> cards = panelService.buildOrdersCards([order1Article], ordersGroupsUnits)
 
 		then:
 		!cards
@@ -2057,8 +2057,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card same fields"() {
 		given:
-		Card builtCard = new Card([duration: 10, divisionIndex: 0, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV']])
-		Card dayCard = new Card([duration: 10, divisionIndex: 0, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: Card.Status.AUXILIARY, vehicle: [brand: 'FV']])
+		CardPogo builtCard = new CardPogo([duration: 10, divisionIndex: 0, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: CardPogo.Status.AUXILIARY, vehicle: [brand: 'FV']])
+		CardPogo dayCard = new CardPogo([duration: 10, divisionIndex: 0, code: 'code', order: [number: 1, state: Order.State.A], mechanicCode: '1', status: CardPogo.Status.AUXILIARY, vehicle: [brand: 'FV']])
 
 		when:
 		Map<String, Object> updateOrderInfo = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -2069,8 +2069,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card updated order info"() {
 		given:
-		Card builtCard = new Card([order: [number: 1, code: 'C1'], duration: 20, divisionIndex: 0, vehicle: [brand: 'FV']])
-		Card dayCard = new Card([order: [number: 1, code: 'C2'], duration: 20, divisionIndex: 0, vehicle: [brand: 'FV']])
+		CardPogo builtCard = new CardPogo([order: [number: 1, code: 'C1'], duration: 20, divisionIndex: 0, vehicle: [brand: 'FV']])
+		CardPogo dayCard = new CardPogo([order: [number: 1, code: 'C2'], duration: 20, divisionIndex: 0, vehicle: [brand: 'FV']])
 
 		when:
 		Map<String, Object> updateOrderInfo = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -2083,8 +2083,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card updated vehicle info"() {
 		given:
-		Card builtCard = new Card([order: [number: 1], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
-		Card dayCard = new Card([order: [number: 1], divisionIndex: 0, vehicle: [brand: 'BMW'], duration: 30])
+		CardPogo builtCard = new CardPogo([order: [number: 1], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
+		CardPogo dayCard = new CardPogo([order: [number: 1], divisionIndex: 0, vehicle: [brand: 'BMW'], duration: 30])
 
 		when:
 		Map<String, Object> updateOrderInfo = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -2097,8 +2097,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card updated order appointment start"() {
 		given:
-		Card builtCard = new Card([order: [number: 1, created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
-		Card dayCard = new Card([order: [number: 1, created: '19:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
+		CardPogo builtCard = new CardPogo([order: [number: 1, created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
+		CardPogo dayCard = new CardPogo([order: [number: 1, created: '19:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
 
 		when:
 		Map<String, Object> updateOrderInfo = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -2111,8 +2111,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card updated order appointment day"() {
 		given:
-		Card builtCard = new Card([order: [number: 1, day: '2020-07-03', created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
-		Card dayCard = new Card([order: [number: 1, day: '2020-07-04', created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
+		CardPogo builtCard = new CardPogo([order: [number: 1, day: '2020-07-03', created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
+		CardPogo dayCard = new CardPogo([order: [number: 1, day: '2020-07-04', created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
 
 		when:
 		Map<String, Object> updateOrderInfo = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -2125,8 +2125,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test check updated card updated order appointment day and start"() {
 		given:
-		Card builtCard = new Card([order: [number: 1, day: '2020-07-03', created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
-		Card dayCard = new Card([order: [number: 1, day: '2020-07-04', created: '17:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
+		CardPogo builtCard = new CardPogo([order: [number: 1, day: '2020-07-03', created: '10:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
+		CardPogo dayCard = new CardPogo([order: [number: 1, day: '2020-07-04', created: '17:00'], divisionIndex: 0, vehicle: [brand: 'FV'], duration: 30])
 
 		when:
 		Map<String, Object> updateOrderInfo = panelService.checkUpdatedOrderInfo(dayCard, builtCard)
@@ -2144,11 +2144,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test update card order info"() {
 		given:
-		Card dayCard = new Card([order: [number: 1, state: 'A'], vehicle: [brand: 'BMW'], duration: 10])
-		Card builtCard = new Card([order: [number: 1, state: 'V'], vehicle: [brand: 'FV'], duration: 10])
+		CardPogo dayCard = new CardPogo([order: [number: 1, state: 'A'], vehicle: [brand: 'BMW'], duration: 10])
+		CardPogo builtCard = new CardPogo([order: [number: 1, state: 'V'], vehicle: [brand: 'FV'], duration: 10])
 
 		when:
-		Card updatedDayCard = panelService.updateCardOrderInfo(dayCard, builtCard)
+		CardPogo updatedDayCard = panelService.updateCardOrderInfo(dayCard, builtCard)
 
 		then:
 		updatedDayCard.vehicle.brand == 'FV'
@@ -2161,11 +2161,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test find replaced card same tasks"() {
 		given:
-		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2]]])
+		List<CardPogo> dayOrderCards = [new CardPogo(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		CardPogo builtCard = new CardPogo(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2]]])
 
 		when:
-		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+		CardPogo replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
 
 		then:
 		!replacedCard
@@ -2173,11 +2173,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test find replaced card one more task"() {
 		given:
-		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
+		List<CardPogo> dayOrderCards = [new CardPogo(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		CardPogo builtCard = new CardPogo(group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3]]])
 
 		when:
-		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+		CardPogo replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
 
 		then:
 		replacedCard
@@ -2187,11 +2187,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test find replaced card one less task"() {
 		given:
-		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
-		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 1]]])
+		List<CardPogo> dayOrderCards = [new CardPogo(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]])]
+		CardPogo builtCard = new CardPogo(group: [code: 2, tasks: [[articleCode: 1]]])
 
 		when:
-		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+		CardPogo replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
 
 		then:
 		replacedCard
@@ -2201,11 +2201,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test find replaced card completely different tasks"() {
 		given:
-		List<Card> dayOrderCards = [new Card(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3], [articleCode: 4]]])]
-		Card builtCard = new Card(group: [code: 2, tasks: [[articleCode: 5], [articleCode: 6], [articleCode: 7]]])
+		List<CardPogo> dayOrderCards = [new CardPogo(group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2], [articleCode: 3], [articleCode: 4]]])]
+		CardPogo builtCard = new CardPogo(group: [code: 2, tasks: [[articleCode: 5], [articleCode: 6], [articleCode: 7]]])
 
 		when:
-		Card replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
+		CardPogo replacedCard = panelService.findReplacedCard(dayOrderCards, builtCard)
 
 		then:
 		!replacedCard
@@ -2217,11 +2217,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test update card group info same groups"() {
 		given:
-		Card dayCard = new Card(group: [code: 1], duration: 20)
-		Card builtCard = new Card(group: [code: 1], duration: 20)
+		CardPogo dayCard = new CardPogo(group: [code: 1], duration: 20)
+		CardPogo builtCard = new CardPogo(group: [code: 1], duration: 20)
 
 		when:
-		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
+		CardPogo updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
 
 		then:
 		updatedCard.group.code == 1
@@ -2230,11 +2230,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test update card group info updated group"() {
 		given:
-		Card dayCard = new Card(group: [code: 1], duration: 20)
-		Card builtCard = new Card(group: [code: 2], duration: 30)
+		CardPogo dayCard = new CardPogo(group: [code: 1], duration: 20)
+		CardPogo builtCard = new CardPogo(group: [code: 2], duration: 30)
 
 		when:
-		Card updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
+		CardPogo updatedCard = panelService.updateCardGroupInfo(dayCard, builtCard)
 
 		then:
 		updatedCard.group.code == 2
@@ -2247,10 +2247,10 @@ class PanelServiceSpec extends Specification {
 
 	void "test check replace order cards no replacement"() {
 		given:
-		List<Card> builtCards = [
-			new Card([order: [number: 1, creatorCode: '123'], group: [code: 1]]),
-			new Card([order: [number: 1], group: [code: 2]]),
-			new Card([order: [number: 2], group: [code: 1]])
+		List<CardPogo> builtCards = [
+            new CardPogo([order: [number: 1, creatorCode: '123'], group: [code: 1]]),
+            new CardPogo([order: [number: 1], group: [code: 2]]),
+            new CardPogo([order: [number: 2], group: [code: 1]])
 		]
 
 		when:
@@ -2262,10 +2262,10 @@ class PanelServiceSpec extends Specification {
 
 	void "test check replace order cards replace eCommerce cards"() {
 		given:
-		List<Card> builtCards = [
-			new Card([order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], group: [code: 1]]),
-			new Card([order: [number: 1], group: [code: 2]]),
-			new Card([order: [number: 2], group: [code: 1]])
+		List<CardPogo> builtCards = [
+            new CardPogo([order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], group: [code: 1]]),
+            new CardPogo([order: [number: 1], group: [code: 2]]),
+            new CardPogo([order: [number: 2], group: [code: 1]])
 		]
 
 		when:
@@ -2281,11 +2281,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update no existent cards"() {
 		given:
-		List<Card> dbCards = []
-		List<Card> builtCards = [
-			new Card([order: [number: 1], group: [code: 1]]),
-			new Card([order: [number: 1], group: [code: 2]]),
-			new Card([order: [number: 2], group: [code: 1]])
+		List<CardPogo> dbCards = []
+		List<CardPogo> builtCards = [
+            new CardPogo([order: [number: 1], group: [code: 1]]),
+            new CardPogo([order: [number: 1], group: [code: 2]]),
+            new CardPogo([order: [number: 2], group: [code: 1]])
 		]
 
 		when:
@@ -2304,12 +2304,12 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update new order cards new card with new group"() {
 		given:
-		List<Card> dbCards = [
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])
+		List<CardPogo> dbCards = [
+			new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])
 		]
-		List<Card> builtCards = [
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]]),
-			new Card([order: [number: 2], group: [code: 1]])
+		List<CardPogo> builtCards = [
+            new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]]),
+            new CardPogo([order: [number: 2], group: [code: 1]])
 		]
 
 		when:
@@ -2326,8 +2326,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update no updated cards"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
 		UpdateCards updateCards = panelService.handleCardsUpdate(dbCards, builtCards)
@@ -2339,8 +2339,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update updated order info card"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1]])]
 
 		when:
 		UpdateCards updateCards = panelService.handleCardsUpdate(dbCards, builtCards)
@@ -2360,8 +2360,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update cards updated replaced card"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], day: '2020-07-03', vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1]]]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], day: '2020-07-03', vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1]]]])]
 
 		when:
 		UpdateCards updateCards = panelService.handleCardsUpdate(dbCards, builtCards)
@@ -2382,8 +2382,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update cards updated replaced card different order day"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1, day: '2020-07-03'], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
-		List<Card> builtCards = [new Card([order: [number: 1, day: '2020-07-04'], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1]]]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1, day: '2020-07-03'], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1, day: '2020-07-04'], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1]]]])]
 
 		when:
 		UpdateCards updateCards = panelService.handleCardsUpdate(dbCards, builtCards)
@@ -2403,8 +2403,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update replaced card and updated order info"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]])]
 
 		when:
 		UpdateCards updateCards = panelService.handleCardsUpdate(dbCards, builtCards)
@@ -2424,15 +2424,15 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update order cards new group"() {
 		given:
-		List<Card> dbCards = [
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]]),
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2]]]]),
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3, tasks: [[articleCode: 1], [articleCode: 2]]]]),
+		List<CardPogo> dbCards = [
+            new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]]),
+            new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 1], [articleCode: 2]]]]),
+            new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3, tasks: [[articleCode: 1], [articleCode: 2]]]]),
 		]
-		List<Card> builtCards = [
-			new Card([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
-			new Card([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
-			new Card([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
+		List<CardPogo> builtCards = [
+            new CardPogo([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+            new CardPogo([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
+            new CardPogo([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
 		]
 
 		when:
@@ -2454,13 +2454,13 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update order replace eCommerce found cards"() {
 		given:
-		List<Card> dbCards = [
-			new Card([start: time8.toString(), type: Card.CardType.AUXILIARY, status: Card.Status.ECOMMERCE, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+		List<CardPogo> dbCards = [
+            new CardPogo([start: time8.toString(), type: Card.CardType.AUXILIARY, status: Card.Status.ECOMMERCE, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
 		]
-		List<Card> builtCards = [
-			new Card([duration: 30, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE, created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
-			new Card([duration: 20, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
-			new Card([duration: 10, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
+		List<CardPogo> builtCards = [
+            new CardPogo([duration: 30, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE, created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+            new CardPogo([duration: 20, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
+            new CardPogo([duration: 10, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
 		]
 
 		when:
@@ -2483,13 +2483,13 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards update order replace eCommerce not found cards"() {
 		given:
-		List<Card> dbCards = [
-			new Card([order: [number: 2, creatorCode: '123', created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+		List<CardPogo> dbCards = [
+            new CardPogo([order: [number: 2, creatorCode: '123', created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
 		]
-		List<Card> builtCards = [
-			new Card([duration: 30, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE, created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
-			new Card([duration: 20, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
-			new Card([duration: 10, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
+		List<CardPogo> builtCards = [
+            new CardPogo([duration: 30, order: [number: 1, creatorCode: Constants.ECOMMERCE_USER_CODE, created: time8.toString()], vehicle: [brand: 'FV'], group: [code: 1, tasks: [[articleCode: 1]]]]),
+            new CardPogo([duration: 20, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 2, tasks: [[articleCode: 1]]]]),
+            new CardPogo([duration: 10, order: [number: 1], vehicle: [brand: 'FV'], group: [code: 4, tasks: [[articleCode: 7]]]])
 		]
 
 		when:
@@ -2511,10 +2511,10 @@ class PanelServiceSpec extends Specification {
 
 	void "test deleted orders cards no cards to delete"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dbCards)
+		List<CardPogo> cards = panelService.getDeletedOrdersCards([order4Articles], dbCards)
 
 		then:
 		!cards
@@ -2522,10 +2522,10 @@ class PanelServiceSpec extends Specification {
 
 	void "test deleted orders cards card to delete"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<Card> cards = panelService.getDeletedOrdersCards([order4Articles], dbCards)
+		List<CardPogo> cards = panelService.getDeletedOrdersCards([order4Articles], dbCards)
 
 		then:
 		cards.size() == 1
@@ -2538,11 +2538,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test get updated group deleted cards no cards to delete"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dbCards, builtCards)
+		List<CardPogo> cards = panelService.getUpdatedGroupDeletedCards(dbCards, builtCards)
 
 		then:
 		!cards
@@ -2550,11 +2550,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test get updated group deleted cards cards to delete"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]])]
 
 		when:
-		List<Card> cards = panelService.getUpdatedGroupDeletedCards(dbCards, builtCards)
+		List<CardPogo> cards = panelService.getUpdatedGroupDeletedCards(dbCards, builtCards)
 
 		then:
 		cards.size() == 1
@@ -2568,10 +2568,10 @@ class PanelServiceSpec extends Specification {
 
 	void "test delete card"() {
 		given:
-		Card card = new Card([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])
+		CardPogo card = new CardPogo([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])
 
 		when:
-		Card deletedCard = panelService.deleteCard(card)
+		CardPogo deletedCard = panelService.deleteCard(card)
 
 		then:
 		deletedCard.dateDeleted
@@ -2583,11 +2583,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test get deleted cards no deleted cards"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<Card> cards = panelService.getDeletedCards([order4Articles], dbCards, builtCards)
+		List<CardPogo> cards = panelService.getDeletedCards([order4Articles], dbCards, builtCards)
 
 		then:
 		!cards
@@ -2595,11 +2595,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test get deleted cards deleted order deleted cards"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<Card> cards = panelService.getDeletedCards([order1Article], dbCards, builtCards)
+		List<CardPogo> cards = panelService.getDeletedCards([order1Article], dbCards, builtCards)
 
 		then:
 		cards
@@ -2609,11 +2609,11 @@ class PanelServiceSpec extends Specification {
 
 	void "test get deleted cards deleted updated group deleted card"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]])]
 
 		when:
-		List<Card> cards = panelService.getDeletedCards([order4Articles], dbCards, builtCards)
+		List<CardPogo> cards = panelService.getDeletedCards([order4Articles], dbCards, builtCards)
 
 		then:
 		cards
@@ -2627,13 +2627,13 @@ class PanelServiceSpec extends Specification {
 
 	void "test fix same cards deleted info no deleted cards"() {
 		given:
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1],
 				vehicle: [brand: 'BMW'],
 				group: [code: 1],
-				linkedPrevious: new Card(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]),
-				linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				linkedPrevious: new CardPogo(order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]),
+				linkedNext: new CardPogo(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
 			])
 		]
 
@@ -2647,17 +2647,17 @@ class PanelServiceSpec extends Specification {
 
 	void "test fix same cards deleted info deleted linked previous"() {
 		given:
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1],
 				vehicle: [brand: 'BMW'],
 				group: [code: 1],
-				linkedPrevious: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
-				linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				linkedPrevious: new CardPogo(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
+				linkedNext: new CardPogo(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
 			])
 		]
-		List<Card> deletedCards = [
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]])
+		List<CardPogo> deletedCards = [
+			new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]])
 		]
 
 		when:
@@ -2670,17 +2670,17 @@ class PanelServiceSpec extends Specification {
 
 	void "test fix same cards deleted info deleted linked next"() {
 		given:
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1],
 				vehicle: [brand: 'BMW'],
 				group: [code: 1],
-				linkedPrevious: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
-				linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				linkedPrevious: new CardPogo(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
+				linkedNext: new CardPogo(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
 			])
 		]
-		List<Card> deletedCards = [
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3]])
+		List<CardPogo> deletedCards = [
+			new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3]])
 		]
 
 		when:
@@ -2693,18 +2693,18 @@ class PanelServiceSpec extends Specification {
 
 	void "test fix same cards deleted info deleted all linked"() {
 		given:
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1],
 				vehicle: [brand: 'BMW'],
 				group: [code: 1],
-				linkedPrevious: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
-				linkedNext: new Card(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
+				linkedPrevious: new CardPogo(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 2]),
+				linkedNext: new CardPogo(order: [number: 1],vehicle: [brand: 'BMW'],group: [code: 3])
 			])
 		]
-		List<Card> deletedCards = [
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]]),
-			new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3]])
+		List<CardPogo> deletedCards = [
+            new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]]),
+            new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 3]])
 		]
 
 		when:
@@ -2721,8 +2721,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards no actions needed"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dbCards, builtCards)
@@ -2737,8 +2737,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards new cards"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = dbCards + [new Card([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = dbCards + [new CardPogo([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles, order1Article], dbCards, builtCards)
@@ -2754,8 +2754,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards updated cards"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'FV'], group: [code: 1]])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dbCards, builtCards)
@@ -2769,8 +2769,8 @@ class PanelServiceSpec extends Specification {
 
 	void "test handle cards updated new cards"() {
 		given:
-		List<Card> dbCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [[code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]]])]
-		List<Card> builtCards = [new Card([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]]])]
+		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [[code: 1, tasks: [[articleCode: 1], [articleCode: 2]]]]])]
+		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2, tasks: [[articleCode: 3], [articleCode: 4]]]])]
 
 		when:
 		UpdateCards updateCards = panelService.getCardsToUpdate([order4Articles], dbCards, builtCards)
@@ -2959,22 +2959,22 @@ class PanelServiceSpec extends Specification {
 
 	void "test find order cards appointment types only RAP appointments"() {
 		given:
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today.minusDays(1)],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today.plusDays(1)],
 				duration: 20,
 				vehicle: [brand: 'FV'],
@@ -2993,22 +2993,22 @@ class PanelServiceSpec extends Specification {
 
 	void "test find order cards appointment types only RAP and INT appointments"() {
 		given:
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today.minusDays(1)],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.INT)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today.plusDays(1)],
 				duration: 20,
 				vehicle: [brand: 'FV'],
@@ -3028,22 +3028,22 @@ class PanelServiceSpec extends Specification {
 
 	void "test find order cards appointment types one TP appointment"() {
 		given:
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today.minusDays(1)],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.INT)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today.plusDays(1)],
 				duration: 20,
 				vehicle: [brand: 'FV'],
@@ -3087,8 +3087,8 @@ class PanelServiceSpec extends Specification {
 		List<AppointmentDay> appointmentDays = [
 			new AppointmentDay([day: today, values: [[appointmentType: [code: 'TP'], morning: 0, afternoon: 0, total: 0, max: 0]]]),
 		]
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today, created: '10:00'],
 				duration: 20,
 				vehicle: [brand: 'FV'],
@@ -3113,8 +3113,8 @@ class PanelServiceSpec extends Specification {
 		List<AppointmentDay> appointmentDays = [
 			new AppointmentDay([day: today, values: [[appointmentType: [code: 'TP'], morning: 0, afternoon: 0, total: 0, max: 0]]]),
 		]
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today.minusDays(1), created: '10:00'],
 				duration: 20,
 				vehicle: [brand: 'FV'],
@@ -3140,15 +3140,15 @@ class PanelServiceSpec extends Specification {
 			new AppointmentDay([day: today, values: [[appointmentType: [code: 'TP'], morning: 0, afternoon: 0, total: 0, max: 0]]]),
 			new AppointmentDay([day: today.plusDays(1), values: [[appointmentType: [code: 'RAP'], morning: 0, afternoon: 0, total: 0, max: 0]]])
 		]
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today, created: '10:00'],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.TP)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 2, code: 'C2', day: today.plusDays(1), created: '19:00'],
 				duration: 20,
 				vehicle: [brand: 'FV'],
@@ -3182,8 +3182,8 @@ class PanelServiceSpec extends Specification {
 		List<AppointmentDay> existentAppointmentDays = [
 			new AppointmentDay([day: today, values: [[appointmentType: [code: 'TP'], morning: 0, afternoon: 0, total: 0, max: 3]]]),
 		]
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today, created: '10:00'],
 				duration: 20,
 				vehicle: [brand: 'FV'],
@@ -3279,15 +3279,15 @@ class PanelServiceSpec extends Specification {
 		appointmentDays[0].values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.morning = 1
 		appointmentDays[0].values.find { it.appointmentType.code == AppointmentTypeCode.RAP }.total = 1
 
-		List<Card> cards = [
-			new Card([
+		List<CardPogo> cards = [
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today, created: orderStart.toString()],
 				duration: 20,
 				vehicle: [brand: 'FV'],
 				divisionIndex: 0,
 				group: [appointmentType: new AppointmentType(code: AppointmentTypeCode.RAP)]
 			]),
-			new Card([
+			new CardPogo([
 				order: [number: 1, code: 'C1', day: today],
 				duration: 20,
 				vehicle: [brand: 'FV'],

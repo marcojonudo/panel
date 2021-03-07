@@ -1,30 +1,29 @@
 package panel.services
 
+import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import panel.clients.CuboDatabaseClient
-import panel.clients.FviberiDatabaseClient
-import panel.clients.PanelDatabaseClient
-import panel.pogos.appointmentDays.AppointmentDay
-import panel.pogos.appointmentDays.AppointmentType
-import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
-import panel.pogos.appointmentDays.AppointmentTypeValues
+import panel.domains.cubo.Employee
+import panel.domains.panel.*
+import panel.domains.panel.AppointmentType.AppointmentTypeCode
+import panel.domains.schedules.EmployeeSchedule
+import panel.domains.schedules.JobPositionGroup
+import panel.domains.schedules.ScheduleInterval
+import panel.domains.skills.Skill
+import panel.domains.skills.SkillEmployee
 import panel.pogos.appointmentDays.UpdateAppointmentDays
-import panel.pogos.cards.Card
-import panel.pogos.cards.Group
 import panel.pogos.cards.GroupUnits
-import panel.pogos.cards.Task
 import panel.pogos.firstLoad.CompleteInfo
 import panel.pogos.firstLoad.SyncOrdersSemaphore
 import panel.pogos.firstLoad.UpdateCards
-import panel.pogos.fviberi.Article
 import panel.pogos.fviberi.Order
-import panel.pogos.schedules.Employee
-import panel.pogos.schedules.EmployeeSchedule
-import panel.pogos.schedules.JobLineType
-import panel.pogos.schedules.Schedule
-import panel.pogos.skills.Skill
+import panel.services.data.cubo.EmployeeDataService
+import panel.services.data.cubo.EmployeeScheduleDataService
+import panel.services.data.fviberi.OrderHeaderDataService
+import panel.services.data.panel.*
+import panel.services.data.skills.SkillDataService
+import panel.utils.Builder
 import panel.utils.Constants
 
 import javax.inject.Inject
@@ -40,21 +39,37 @@ class PanelService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PanelService)
 
-	@Inject private PanelDatabaseClient panelDatabaseClient
-	@Inject private FviberiDatabaseClient fviberiDatabaseClient
-	@Inject private CuboDatabaseClient cuboDatabaseClient
+	@Inject private SkillsService skillsService
+	@Inject private JobLineTypeDataService jobLineTypeDataService
+	@Inject private AppointmentTypeDataService appointmentTypeDataService
+	@Inject private AppointmentDayDataService appointmentDayDataService
+	@Inject private CardDataService cardDataService
+	@Inject private TaskDataService taskDataService
+	@Inject private GroupDurationDataService groupDurationDataService
+	@Inject private SkillDataService skillDataService
+	@Inject private EmployeeDataService employeeDataService
+	@Inject private EmployeeScheduleDataService employeeScheduleDataService
+	@Inject private OrderHeaderDataService orderHeaderDataService
 
 	static LocalDate lastScheduleDay
 
+	@Transactional(connection = "cubo")
 	CompleteInfo getPanelInfo(LocalDate from, LocalDate to) {
 		LocalDate today = LocalDate.now()
-		List<JobLineType> jobLineTypes = panelDatabaseClient.getJobLineTypes()
-		List<Skill> skills = cuboDatabaseClient.getMechanicsSkills()
-		List<AppointmentType> appointmentTypes = panelDatabaseClient.getAppointmentTypes()
-		List<AppointmentDay> appointmentDays = panelDatabaseClient.getAppointmentDays(from)
+		List<JobLineType> jobLineTypes = jobLineTypeDataService.findAll()
+
+		List<AppointmentType> appointmentTypes = appointmentTypeDataService.findAll()
+		List<AppointmentDay> appointmentDays = appointmentDayDataService.findAll(from)
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
-		List<Employee> employees = cuboDatabaseClient.getEmployees()
-		LocalDate firstScheduleDay = cuboDatabaseClient.getFirstScheduleDay(today)
+		List<Employee> employees = employeeDataService.findAll(true)
+		LocalDate firstScheduleDay = employeeScheduleDataService.findFirstDay(today, JobPositionGroup.Code.GARAGE)
+
+		List<Skill> skills = skillDataService.findAll()
+		List<SkillEmployee> skillEmployees = skillsService.findSkillEmployees(
+			((List<EmployeeSchedule>) daysMechanics.values().flatten()).unique { it.code },
+			skills,
+			today.withDayOfMonth(1)
+		)
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
 		*  tengan en la cinta citas de días que ni siquiera pueden asignar */
@@ -88,8 +103,8 @@ class PanelService {
 	 * @return List of mechanic employees
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from, LocalDate to) {
-		List<EmployeeSchedule> mechanics = cuboDatabaseClient.getMechanics(from, to, true)
-		lastScheduleDay = cuboDatabaseClient.getLastScheduleDay()
+		List<EmployeeSchedule> mechanics = employeeScheduleDataService.findAll(from, to, JobPositionGroup.Code.GARAGE)
+		lastScheduleDay = employeeScheduleDataService.findEmployeeScheduleDay([sort: 'day', order: 'desc', max: 1])
 		return integrateFixedMechanics(mechanics)
 	}
 
@@ -107,7 +122,7 @@ class PanelService {
             }
 			mechanics.each {
 				if (!it.day) {
-					it.schedule = findThresholdSchedule(todayMechanics)
+					it.intervals = [findThresholdSchedule(todayMechanics)].toSet()
 					it.day = today
 				}
 				if (!daysMechanics[it.day.toString()]) {
@@ -119,19 +134,12 @@ class PanelService {
 		return daysMechanics
 	}
 
-	static Schedule findThresholdSchedule(List<EmployeeSchedule> mechanics) {
-		LocalTime minMorningStart = mechanics.schedule.morningStart.min()
-		LocalTime minAfternoonStart = mechanics.schedule.afternoonStart.min()
-		LocalTime maxMorningEnd = mechanics.schedule.morningEnd.max()
-		LocalTime maxAfternoonEnd = mechanics.schedule.afternoonEnd.max()
+	static ScheduleInterval findThresholdSchedule(List<EmployeeSchedule> mechanics) {
+		List<ScheduleInterval> intervals = (List<ScheduleInterval>) mechanics.intervals.flatten()
+		LocalTime minStart = intervals.start.min()
+		LocalTime maxEnd = intervals.end.max()
 
-		if (!minMorningStart) {
-			return new Schedule(morningStart: minAfternoonStart, morningEnd: maxAfternoonEnd)
-		} else if (!minAfternoonStart) {
-			return new Schedule(morningStart: minMorningStart, morningEnd: maxMorningEnd)
-		} else {
-			return new Schedule(morningStart: minMorningStart, morningEnd: maxAfternoonEnd)
-		}
+		return new ScheduleInterval(start: minStart, end: maxEnd)
 	}
 
 	// endregion
@@ -174,7 +182,7 @@ class PanelService {
 	 */
 	static List<GroupUnits> getOrderGroups(Order order, List<Task> tasks) {
 		/* Se obtienen las task correspondientes a los artículos de la orden */
-		List<Task> orderTasks = filterAbsorbableTasks(tasks.findAll { it.articleCode in order.lines.article.code })
+		List<Task> orderTasks = filterAbsorbableTasks(tasks.findAll { it.articleCode in order.lines*.article.code })
 
 		List<Task> processedTasks = []
 		List<GroupUnits> selectedGroupsInfo = []
@@ -184,8 +192,8 @@ class PanelService {
 				Group selectedGroup = findSelectedGroup(orderTasks, task.groups, processedTasks)
 				if (selectedGroup) {
 					selectedGroupsInfo << new GroupUnits(
-							group: selectedGroup,
-							units: getOrderGroupUnits(order, selectedGroup)
+						group: selectedGroup,
+						units: getOrderGroupUnits(order, selectedGroup)
 					)
 					processedTasks += selectedGroup.tasks
 				} else {
@@ -206,10 +214,10 @@ class PanelService {
 		return mainTasks ?: orderTasks
 	}
 
-	static Group findSelectedGroup(List<Task> orderTasks, List<Group> groups, List<Task> processedTasks) {
-		List<Group> possibleGroups = sortPossibleGroups(groups, processedTasks)
+	static Group findSelectedGroup(List<Task> orderTasks, Set<Group> groups, List<Task> processedTasks) {
+		Set<Group> possibleGroups = sortPossibleGroups(groups, processedTasks)
 		Group selectedGroup = possibleGroups.find { Group group ->
-			List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks.articleCode }
+			List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks*.articleCode }
 			/* Si el tamaño de las tareas del grupo y las comunes es el mismo, significa que todas las del grupo están
 			*  en la orden. Por lo tanto, ese sería el grupo seleccionado */
 			return group.tasks.size() == commonTasks.size()
@@ -217,8 +225,8 @@ class PanelService {
 		return selectedGroup
 	}
 
-	static List<Group> sortPossibleGroups(List<Group> groups, List<Task> processedTasks) {
-		List<Group> sortedGroups = []
+	static Set<Group> sortPossibleGroups(Set<Group> groups, List<Task> processedTasks) {
+		Set<Group> sortedGroups = []
 		/* Si la tarea tiene agrupaciones asociadas (debería tener siempre, se contempla sólo por prevenir errores) */
 		if (groups) {
 			/* Se filtran los grupos cuyas unidades aún no hayan sido procesadas. Si un grupo tiene una tarea 1, y esa
@@ -246,8 +254,8 @@ class PanelService {
 
 	static List<Float> getOrderGroupUnits(Order order, Group group) {
 		return order.lines.findAll {
-			it.article.code in group.tasks.articleCode
-		}.units.collect { it as Float }
+			it.article.code in group.tasks*.articleCode
+		}*.units.collect { it as Float }
 	}
 
 	/**
@@ -256,9 +264,10 @@ class PanelService {
 	 * @return List of Card
 	 */
 	List<Card> buildOrdersCards(List<Order> orders, Map<Order, List<GroupUnits>> ordersGroupsUnits) {
-		Map<Integer, List<GroupUnits>> durationGroupsUnits = panelDatabaseClient.getDurations(
-			(Map<Integer, List<GroupUnits>>) ordersGroupsUnits.collectEntries { [(it.key.number): (it.value)] }
-		)
+		Map<Integer, List<GroupUnits>> durationGroupsUnits = (Map<Integer, List<GroupUnits>>) ordersGroupsUnits
+				.collectEntries {
+			[(it.key.number): groupDurationDataService.findAll(it.value)]
+		}
 
 		List<Card> ordersCards = []
 		durationGroupsUnits.each { Integer orderNumber, List<GroupUnits> groupsUnits ->
@@ -266,8 +275,7 @@ class PanelService {
 			List<Card> orderCards = []
 			if (groupsUnits.duration) {
 				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
-					Card card = new Card(order, groupUnits.group, groupUnits.units[0], groupUnits.duration)
-					orderCards << card
+					orderCards << Builder.buildCard(order, groupUnits.group, groupUnits.units[0], groupUnits.duration)
 				}
 				orderCards.sort { it.group.color.order }
 				ordersCards = ordersCards + orderCards
@@ -282,6 +290,7 @@ class PanelService {
 
 	// region Sync orders with cards
 
+	@Transactional(connection = "fviberi")
 	UpdateCards syncJpdvOrders(
 		LocalDate from,
 		LocalDate lastScheduleDay,
@@ -292,9 +301,9 @@ class PanelService {
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
 				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-				List<Order> orders = fviberiDatabaseClient.getOrders(Constants.ORDERS_QUERY_STATES, lastScheduleDay)
+				List<Order> orders = orderHeaderDataService.findAll(Constants.ORDERS_QUERY_STATES, lastScheduleDay)
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
-				List<Card> dbCards = panelDatabaseClient.getCards(from, null)
+				List<Card> dbCards = cardDataService.findAllFrom(from)
 				List<Card> avoidSyncCards = dbCards.findAll { checkAvoidSync(it) }
 				List<Card> syncCards = handleOrdersCards(orders, dbCards.findAll { !checkAvoidSync(it) })
 
@@ -307,8 +316,8 @@ class PanelService {
 				}
 				updateCards.appointmentDays = syncAppointmentDays(
 					days,
-					appointmentDays ?: panelDatabaseClient.getAppointmentDays(from),
-					(appointmentTypes ?: panelDatabaseClient.getAppointmentTypes()).findAll { it.counter },
+					appointmentDays ?: appointmentDayDataService.findAll(from),
+					(appointmentTypes ?: appointmentTypeDataService.findAll()).findAll { it.counter },
 					updateCards.getAll().findAll { it.type == Card.CardType.APPOINTMENT }
 				)
 
@@ -327,7 +336,7 @@ class PanelService {
 	}
 
 	UpdateCards findDbUpdateCards(LocalDate from) {
-		List<Card> dbCards = panelDatabaseClient.getCards(from, null)
+		List<Card> dbCards = cardDataService.findAllFrom(from)
 		List<Card> auxiliaryCards = dbCards.findAll { checkAvoidSync(it) }
 		return new UpdateCards(dbCards, auxiliaryCards)
 	}
@@ -339,8 +348,11 @@ class PanelService {
 	 */
 	UpdateCards syncOrders(List<Order> orders, List<Card> dbCards) {
 		/* Se obtiene una lista de todas las tareas de las distintas órdenes */
-		List<Integer> articlesCodes = ((List<Article>) orders.lines.article.flatten()).findAll { it.labour }.code.unique()
-		List<Task> ordersTasks = panelDatabaseClient.getTasks(articlesCodes)
+		List<Integer> articlesCodes = []//((List<Article>) orders.lines*.article.flatten()).findAll { it.labour }.code.unique()
+		orders.each {
+			articlesCodes += it.lines*.article.findAll { it.labour }.code.unique()
+		}
+		List<Task> ordersTasks = taskDataService.findAll(articlesCodes)
 
 		/* Para cada orden, se obtienen sus agrupaciones y las unidades de cada uno de ellos */
 		Map<Order, List<GroupUnits>> ordersGroupsUnits = getOrdersGroupsUnits(orders, ordersTasks)
@@ -514,9 +526,9 @@ class PanelService {
 	 * @return Replaced card
 	 */
 	static Card findReplacedCard(List<Card> dbOrderCards, Card builtCard) {
-		List<Integer> builtCardTasksCodes = builtCard.group.tasks.articleCode
+		List<Integer> builtCardTasksCodes = builtCard.group.tasks*.articleCode as List<Integer>
 		Card replacedCard = dbOrderCards.find {
-			List<Integer> dayOrderCardTasksCodes = it.group.tasks.articleCode
+			List<Integer> dayOrderCardTasksCodes = it.group.tasks*.articleCode as List<Integer>
 			List<Integer> difference = builtCardTasksCodes.size() > dayOrderCardTasksCodes.size() ?
 											builtCardTasksCodes - dayOrderCardTasksCodes :
 											dayOrderCardTasksCodes - builtCardTasksCodes
@@ -685,20 +697,16 @@ class PanelService {
 		if (updateCards.newCards) {
 			/* Las relaciones entre fichas se asignan a la hora de guardar en BD, ya que aquí todavía no tienen un id.
 			*  Por lo tanto, en la respuesta ya figura la información completa */
-			updateCards.newCards = panelDatabaseClient.createCards(
-				"", "", updateCards.newCards.collect { it.properties }, true
-			)
+			updateCards.newCards = cardDataService.saveCards(updateCards.newCards)
 		}
 		if (updateCards.newReplace) {
-			updateCards.newReplace = panelDatabaseClient.createCards(
-				"", "", updateCards.newReplace.collect { it.properties }, true
-			)
+			updateCards.newReplace = cardDataService.saveCards(updateCards.newReplace)
 		}
 		if (updateCards.getUpdate()) {
-			panelDatabaseClient.updateCards(updateCards.getUpdate())
+			cardDataService.updateOrder(updateCards.getUpdate())
 		}
 		if (updateCards.deleted) {
-			panelDatabaseClient.deleteCards("", "", updateCards.deleted.collect { it.properties })
+			cardDataService.updateDeleted(updateCards.deleted)
 		}
 	}
 
@@ -712,15 +720,15 @@ class PanelService {
 		List<AppointmentType> appointmentTypes,
 		List<Card> cards
 	) {
-		List<AppointmentDay> appointmentDays = days.collect { new AppointmentDay(it, appointmentTypes) }
+		List<AppointmentDay> appointmentDays = days.collect { Builder.buildAppointmentDay(it, appointmentTypes) }
 		fillAppointmentDays(appointmentDays, existentAppointmentDays, cards)
 		UpdateAppointmentDays updateAppointmentDays = findUpdateAppointmentDays(existentAppointmentDays, appointmentDays)
 
 		if (updateAppointmentDays.created) {
-			panelDatabaseClient.createAppointmentDays("", updateAppointmentDays.created)
+			appointmentDayDataService.save(updateAppointmentDays.created)
 		}
 		if (updateAppointmentDays.updated) {
-			panelDatabaseClient.updateAppointmentDays("", updateAppointmentDays.updated)
+			appointmentDayDataService.update(updateAppointmentDays.updated)
 		}
 		return appointmentDays
 	}
