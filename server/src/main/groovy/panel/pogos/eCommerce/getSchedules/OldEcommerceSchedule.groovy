@@ -3,7 +3,7 @@ package panel.pogos.eCommerce.getSchedules
 import com.fasterxml.jackson.annotation.JsonFormat
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import panel.pogos.appointmentDays.AppointmentType
+import panel.domains.panel.AppointmentType
 import panel.utils.Constants
 
 import java.time.LocalDate
@@ -15,7 +15,7 @@ class OldEcommerceSchedule {
     @JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
     LocalDate day
     List<OldEcommerceScheduleInterval> intervals
-    AppointmentType.AppointmentTypeCode type
+    AppointmentType.Code type
 
     OldEcommerceSchedule(LocalDate day, EcommerceSchedule ecommerceSchedule) {
         this.day = day

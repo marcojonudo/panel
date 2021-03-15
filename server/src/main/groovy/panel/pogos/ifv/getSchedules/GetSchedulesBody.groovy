@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.CompileStatic
 import panel.pogos.ifv.IfvBody
-import panel.pogos.ifv.IfvBody.IfvBodyData
+import panel.pogos.ifv.IfvBodyData
 import panel.utils.Constants
 
 import javax.inject.Singleton
@@ -21,19 +21,11 @@ class GetSchedulesBody extends IfvBody {
     class GetSchedulesBodyData extends IfvBodyData {
 
         @JsonProperty("FechaDesde")
-        @JsonFormat(
-            shape = JsonFormat.Shape.STRING,
-            pattern = Constants.DateFormat.dd_MM_yyyy_SLASH,
-            timezone = Constants.SPAIN_TIMEZONE
-        )
+        @JsonFormat(pattern = Constants.DateFormat.dd_MM_yyyy_SLASH, timezone = Constants.SPAIN_TIMEZONE)
         LocalDate from
 
         @JsonProperty("FechaHasta")
-        @JsonFormat(
-            shape = JsonFormat.Shape.STRING,
-            pattern = Constants.DateFormat.dd_MM_yyyy_SLASH,
-            timezone = Constants.SPAIN_TIMEZONE
-        )
+        @JsonFormat(pattern = Constants.DateFormat.dd_MM_yyyy_SLASH, timezone = Constants.SPAIN_TIMEZONE)
         LocalDate to
 
         @JsonProperty("IdCentros")

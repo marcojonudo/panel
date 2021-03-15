@@ -22,7 +22,7 @@
 					<span
 						*ngIf="checkShowCreatorCode(card); else deadlineTemplate"
 						class="creator-code">
-						{{card.order.creator.personalData.completeName}}
+						{{card.order.creator.shortName}}
 					</span>
 					<ng-template #deadlineTemplate>
 						<span>{{card.order.deadline | date: 'HH:mm'}}</span>

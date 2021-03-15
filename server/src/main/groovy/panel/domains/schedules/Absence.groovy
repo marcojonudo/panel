@@ -3,6 +3,7 @@ package panel.domains.schedules
 
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class Absence implements GormEntity<Absence> {
@@ -16,6 +17,8 @@ class Absence implements GormEntity<Absence> {
     }
 
     static mapping = {
+        datasource Constants.DataSource.SCHEDULES
+
         version defaultValue: 0
     }
 

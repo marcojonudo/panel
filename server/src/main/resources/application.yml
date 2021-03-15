@@ -76,11 +76,11 @@ dataSource:
     logSql: true
 
 dataSources:
-    cubo:
+    schedules:
         dbCreate: validate
         driverClassName: com.mysql.jdbc.Driver
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-        url: jdbc:mysql://${host.ip}:${host.local-mysql-port}/cubo?useSSL=false
+        url: jdbc:mysql://${host.ip}:${host.local-mysql-port}/schedules?useSSL=false
         username: ${database.credentials.username}
         password: ${database.credentials.password}
         properties:

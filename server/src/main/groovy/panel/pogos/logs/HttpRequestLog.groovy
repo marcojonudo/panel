@@ -1,8 +1,7 @@
 package panel.pogos.logs
 
-import com.fasterxml.jackson.databind.node.ObjectNode
+
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
@@ -13,7 +12,7 @@ class HttpRequestLog {
 	HttpMethod method
 	String service
 	Map<String, Object> params
-	Object body
+	Map body
 
 	HttpRequestLog(HttpRequest request) {
 		method = request.method
@@ -23,9 +22,7 @@ class HttpRequestLog {
 				[(it.key): ((List<String>) it.value)[0]]
 			}
 		}
-		request.body.ifPresent({ Object body ->
-			this.body = body instanceof ObjectNode ? new JsonSlurper().parseText(body.toString()) : body
-		})
+		body = Jackson.convertValue(request.body.get())
 	}
 
 	@Override

@@ -14,14 +14,19 @@ class AbsenceInfo implements GormEntity<AbsenceInfo> {
     @JsonIgnore
     EmployeeSchedule employeeSchedule
     Absence absence
+
     @JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
     LocalDate expectedEndDay
+
+    static belongsTo = [employeeSchedule: EmployeeSchedule]
 
     static constraints = {
         expectedEndDay nullable: true
     }
 
     static mapping = {
+        datasource Constants.DataSource.SCHEDULES
+
         version defaultValue: 0
         absence fetch: 'join'
     }

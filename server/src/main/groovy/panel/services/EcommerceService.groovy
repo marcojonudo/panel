@@ -4,12 +4,10 @@ import groovy.transform.CompileStatic
 import io.micronaut.runtime.server.EmbeddedServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import panel.clients.CuboDatabaseClient
 import panel.clients.IfvClient
-import panel.clients.PanelDatabaseClient
-import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
-import panel.pogos.cards.CardPogo
-import panel.pogos.cards.Group
+import panel.domains.panel.*
+import panel.domains.schedules.EmployeeSchedule
+import panel.domains.schedules.ScheduleInterval
 import panel.pogos.eCommerce.confirm.ConfirmAppointmentInfo
 import panel.pogos.eCommerce.getSchedules.DayEcommerceSchedule
 import panel.pogos.eCommerce.getSchedules.EcommerceSchedule
@@ -19,9 +17,13 @@ import panel.pogos.eCommerce.save.EcommerceCard
 import panel.pogos.eCommerce.save.SaveEcommerceCardInfo
 import panel.pogos.ifv.getSchedules.GetSchedulesBody
 import panel.pogos.ifv.getSchedules.GetSchedulesResponse
-import panel.pogos.schedules.EmployeeSchedule
-import panel.pogos.schedules.MechanicAppointment
-import panel.pogos.schedules.ScheduleInterval
+import panel.services.data.panel.CardDataService
+import panel.services.data.panel.GroupDataService
+import panel.services.data.panel.MechanicAppointmentDataService
+import panel.services.data.panel.MechanicInfoDataService
+import panel.services.data.schedules.EmployeeScheduleDataService
+import panel.services.data.schedules.ScheduleIntervalDataService
+import panel.utils.Builder
 import panel.utils.Constants
 
 import javax.inject.Inject
@@ -36,8 +38,12 @@ class EcommerceService {
 	private static final Logger LOG = LoggerFactory.getLogger(EcommerceService)
 
 	@Inject private EmbeddedServer embeddedServer
-	@Inject private PanelDatabaseClient panelDatabaseClient
-	@Inject private CuboDatabaseClient cuboDatabaseClient
+	@Inject private EmployeeScheduleDataService employeeScheduleDataService
+	@Inject private MechanicAppointmentDataService mechanicAppointmentDataService
+	@Inject private CardDataService cardDataService
+	@Inject private ScheduleIntervalDataService scheduleIntervalDataService
+	@Inject private GroupDataService groupDataService
+	@Inject private MechanicInfoDataService mechanicInfoDataService
 	@Inject private IfvClient ifvClient
 
 	// region Get schedules
@@ -47,8 +53,8 @@ class EcommerceService {
 		GetSchedulesResponse schedulesResponse = ifvClient.getSchedules(new GetSchedulesBody(centreCode, from, to))
 		List<DayEcommerceSchedule> daysEcommerceSchedules = schedulesResponse.data.collect {
 			List<EcommerceSchedule> typesSchedules = [
-				new EcommerceSchedule(AppointmentTypeCode.ECO, [new ScheduleInterval(start: it.start, end: it.end)]),
-				new EcommerceSchedule(AppointmentTypeCode.TP, [new ScheduleInterval(start: it.start, end: it.end)])
+				new EcommerceSchedule(AppointmentType.Code.ECO, [new ScheduleInterval(start: it.start, end: it.end)]),
+				new EcommerceSchedule(AppointmentType.Code.TP, [new ScheduleInterval(start: it.start, end: it.end)])
 			]
 			return new DayEcommerceSchedule(it.day, typesSchedules)
 		}
@@ -231,12 +237,12 @@ class EcommerceService {
 	// region Save card
 
 	SaveEcommerceCardInfo saveCard(
-		LocalDate day, LocalTime start, int duration, int groupCode, AppointmentTypeCode type
+		LocalDate day, LocalTime start, int duration, int groupCode, AppointmentType.Code type
 	) {
 		LocalTime end = start.plusMinutes(duration)
 		String code = findEcommerceCardCode()
 
-		List<MechanicAppointment> mechanicsAppointments = cuboDatabaseClient.getMechanicAppointments(
+		List<MechanicAppointment> mechanicsAppointments = mechanicAppointmentDataService.findAll(
 			day, day, Constants.ECOMMERCE_CARD_APPOINTMENT_TYPE_CODES.value
 		)
 		/* Si no hay mecánicos con citas, se devuelve una respuesta mockeada */
@@ -245,8 +251,11 @@ class EcommerceService {
 			return mockSaveEcommerceCardInfo(day, start, end, code)
 		}
 
-		List<CardPogo> cards = panelDatabaseClient.findCards(day, mechanicsAppointments.mechanic.employee.code)
-		List<MechanicAppointment> availableMechanics = findAvailableSchedules(
+		List<EmployeeSchedule> mechanics = employeeScheduleDataService.findAll(
+			mechanicsAppointments.mechanicId as List<Long>
+		)
+		List<Card> cards = cardDataService.findAll(day, (List<String>) mechanics.employeeData.code)
+		List<MechanicAppointment> availableMechanics = findAvailableMechanicAppointments(
 			mechanicsAppointments, start, start.plusMinutes(duration), cards
 		)
 		if (!availableMechanics) {
@@ -254,33 +263,44 @@ class EcommerceService {
 			return mockSaveEcommerceCardInfo(day, start, end, code)
 		}
 
-		Group group = panelDatabaseClient.findGroup(groupCode)
-		EmployeeSchedule mechanic = availableMechanics[0].mechanic
-		CardPogo card = new CardPogo(
-			code, day, start, duration, mechanic.employee.code, mechanic.lines - 1, group
+		Group group = groupDataService.find(groupCode)
+		EmployeeSchedule mechanic = mechanics.find { EmployeeSchedule mechanic ->
+			mechanicsAppointments.find { it.mechanicId == mechanic.id }
+		}
+		MechanicInfo mechanicInfo = mechanicInfoDataService.find(mechanic.id)
+		Card card = Builder.buildCard(
+			code, day, start, duration, mechanic.employeeData.code, mechanicInfo.lines - 1, group
 		)
-		panelDatabaseClient.createCards("", Constants.REAL_TIME_ACTION.CREATE_CARDS, [card], false)
+		cardDataService.save(card)
 		return new SaveEcommerceCardInfo(new EcommerceCard(day, start, end, code, "TEMPORAL"))
 	}
 
-	private static List<MechanicAppointment> findAvailableSchedules(
-		List<MechanicAppointment> mechanicsAppointments, LocalTime start, LocalTime end, List<CardPogo> cards
+	private List<MechanicAppointment> findAvailableMechanicAppointments(
+		List<MechanicAppointment> mechanicAppointments, LocalTime start, LocalTime end, List<Card> cards
 	) {
-		return mechanicsAppointments.findAll {
-			boolean availableSchedule = it.schedule.start <= start && it.schedule.end >= end
+		List<ScheduleInterval> intervals = scheduleIntervalDataService.findAll(
+			mechanicAppointments.intervalId as List<Long>
+		)
+		List<ScheduleInterval> availableIntervals = intervals.findAll {
+			boolean availableSchedule = it.start <= start && it.end >= end
 			if (availableSchedule) {
 				return !cards.findAll { findOverlappedCard(it, start, end) }
 			}
 			return false
 		}
+		return mechanicAppointments.findAll { MechanicAppointment mechanicAppointment ->
+			availableIntervals.find { it.id == mechanicAppointment.intervalId }
+		}
 	}
 
 	private String findEcommerceCardCode() {
-		String lastEcommerceCode = panelDatabaseClient.findLastEcommerceCode()
+		String lastEcommerceCode = cardDataService.findCode(
+			[Card.Status.ECOMMERCE, Card.Status.CONFIRMED], [sort: 'id', order: 'desc', max: 1]
+		)
 		return buildEcommerceCardCode(lastEcommerceCode)
 	}
 
-	private static boolean findOverlappedCard(CardPogo existentCard, LocalTime start, LocalTime end) {
+	private static boolean findOverlappedCard(Card existentCard, LocalTime start, LocalTime end) {
 		LocalTime cardEnd = existentCard.start.plusMinutes(existentCard.duration)
 		return (start <= existentCard.start && end > existentCard.start) ||
 			(end >= cardEnd && start < cardEnd) ||
@@ -300,7 +320,7 @@ class EcommerceService {
 	}
 
 	private static String buildEcommerceCardCode(String lastEcommerceCode) {
-		return "${AppointmentTypeCode.ECO.toString()}${lastEcommerceCode ? ((lastEcommerceCode[3..-1] as int) + 1) : 1}"
+		return "${AppointmentType.Code.ECO.toString()}${lastEcommerceCode ? ((lastEcommerceCode[3..-1] as int) + 1) : 1}"
 	}
 
 	// endregion
@@ -308,15 +328,14 @@ class EcommerceService {
 	// region Confirm card
 
 	ConfirmAppointmentInfo confirmAppointment(String code) {
-		CardPogo card = panelDatabaseClient.findCard(code)
+		Card card = cardDataService.find(code)
 		if (!card) {
 			return new ConfirmAppointmentInfo(
 				"$Constants.NON_EXISTENT_CARD$code",
 				ConfirmAppointmentInfo.Error.NON_EXISTENT_CARD
 			)
 		}
-		card.status = CardPogo.Status.CONFIRMED
-		panelDatabaseClient.updateStatus(card)
+		cardDataService.update(card.code, Card.Status.CONFIRMED)
 		return new ConfirmAppointmentInfo()
 	}
 

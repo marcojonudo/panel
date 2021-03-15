@@ -17,11 +17,10 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 	LocalDate day
 	String code
 	boolean workingDay
+	AbsenceInfo absenceInfo
 	int restMinutes
-    JobPositionGroup jobPositionGroup
-
-//	EmployeeScheduleOrder order
-	boolean savedIfv = true
+    JobPositionGroup.Code jobPositionGroupCode
+	boolean savedIfv
 
 	@JsonFormat(pattern = Constants.DateTimeFormat.yyyy_MM_dd_HH_mm_ss, timezone = Constants.SPAIN_TIMEZONE)
 	LocalDateTime dateCreated
@@ -37,11 +36,6 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 	@JsonInclude
 	Set<ScheduleInterval> intervals
 
-	boolean validated
-	float dayTheoreticalHours
-
-	static hasOne = [absenceInfo: AbsenceInfo]
-
 	static hasMany = [intervals: ScheduleInterval]
 
 	static constraints = {
@@ -53,11 +47,11 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 	}
 
 	static mapping = {
+		datasource Constants.DataSource.SCHEDULES
+
 		version defaultValue: 0
 		employeeData fetch: 'join'
-		absenceInfo fetch: 'join', cascade: 'all'
-		jobPositionGroup fetch: 'join'
-//		order fetch: 'join'
+		absenceInfo fetch: 'join'
 		intervals fetch: 'join', joinTable: [name: 'employee_schedule_intervals']
 	}
 

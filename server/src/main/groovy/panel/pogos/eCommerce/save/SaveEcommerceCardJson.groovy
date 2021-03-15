@@ -1,7 +1,7 @@
 package panel.pogos.eCommerce.save
 
 import groovy.transform.CompileStatic
-import panel.pogos.appointmentDays.AppointmentType
+import panel.domains.panel.AppointmentType
 
 import java.time.LocalDate
 import java.time.LocalTime
@@ -13,6 +13,6 @@ class SaveEcommerceCardJson {
     LocalTime start
     Integer duration
     Integer groupCode
-    AppointmentType.AppointmentTypeCode type
+    AppointmentType.Code type
 
 }

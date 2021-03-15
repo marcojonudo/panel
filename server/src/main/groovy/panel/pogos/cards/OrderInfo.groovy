@@ -2,6 +2,7 @@ package panel.pogos.cards
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import groovy.transform.CompileStatic
+import panel.domains.fviberi.OrderHeader
 import panel.pogos.fviberi.Order
 import panel.pogos.fviberi.OrderLine
 import panel.utils.Constants
@@ -14,7 +15,7 @@ class OrderInfo {
 
 	Integer number
 	String code
-	Order.State state
+	OrderHeader.State state
 	String creatorCode
 
 	@JsonFormat(pattern = Constants.TimeFormat.HH_mm, timezone = Constants.SPAIN_TIMEZONE)
@@ -32,7 +33,7 @@ class OrderInfo {
 	OrderInfo(Map order) {
 		number = (Integer) order.number
 		code = order.code
-		state = (Order.State) order.state
+		state = (OrderHeader.State) order.state
 		creatorCode = order.creatorCode
 		created = order.created ? LocalTime.parse((String) order.created) : null
 		deadline = order.deadline ? LocalTime.parse((String) order.deadline) : null

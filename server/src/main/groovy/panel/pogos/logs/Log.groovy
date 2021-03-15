@@ -6,15 +6,19 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Log {
 
-	String message
+	Map info
 
 	Log(String message) {
-		this.message = message
+		this.info = [message: message]
+	}
+
+	Log(Map info) {
+		this.info = info
 	}
 
 	@Override
 	String toString() {
-		return JsonOutput.toJson(this)
+		return JsonOutput.toJson(info)
 	}
 
 }

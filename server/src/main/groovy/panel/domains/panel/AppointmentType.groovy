@@ -7,7 +7,7 @@ import org.grails.datastore.gorm.GormEntity
 @Entity
 class AppointmentType implements GormEntity<AppointmentType> {
 
-    AppointmentTypeCode code
+    Code code
     String name
     boolean workingLine
     boolean counter
@@ -19,7 +19,7 @@ class AppointmentType implements GormEntity<AppointmentType> {
         color nullable: true, maxSize: 7
     }
 
-    enum AppointmentTypeCode {
+    enum Code {
 
         RAP('RAP'),
         INT('INT'),
@@ -30,7 +30,7 @@ class AppointmentType implements GormEntity<AppointmentType> {
 
         final String value
 
-        AppointmentTypeCode(String value) {
+        Code(String value) {
             this.value = value
         }
 

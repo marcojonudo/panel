@@ -2,6 +2,7 @@ package panel.domains.fviberi
 
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class Client implements GormEntity<Client> {
@@ -12,7 +13,7 @@ class Client implements GormEntity<Client> {
 	Integer phoneNumber
 
 	static mapping = {
-		datasource 'fviberi'
+		datasource Constants.DataSource.FVIBERI
 		table 'fvclient'
 
 		code column: 'coclient'

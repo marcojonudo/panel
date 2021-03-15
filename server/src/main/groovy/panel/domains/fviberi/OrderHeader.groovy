@@ -12,7 +12,7 @@ import java.time.LocalTime
 class OrderHeader implements GormEntity<OrderHeader> {
 
 	int number
-	String state
+	State state
 	String creatorCode
 
 	@JsonFormat(pattern = Constants.TimeFormat.HH_mm, timezone = Constants.SPAIN_TIMEZONE)
@@ -26,7 +26,7 @@ class OrderHeader implements GormEntity<OrderHeader> {
 	static hasMany = [lines: OrderLine, timeInfo: OrderTime]
 
 	static mapping = {
-		datasource 'fviberi'
+		datasource Constants.DataSource.FVIBERI
 		table 'fvcabord'
 
 		number column: 'nuordrep'
@@ -41,6 +41,17 @@ class OrderHeader implements GormEntity<OrderHeader> {
 
 		id name: 'number', generator: 'assigned'
 		version false
+	}
+
+	enum State {
+
+		A,
+		C,
+		E,
+		P,
+		V,
+		X
+
 	}
 
 }

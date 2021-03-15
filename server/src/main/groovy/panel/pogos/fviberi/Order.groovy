@@ -12,7 +12,7 @@ import java.time.LocalTime
 class Order {
 
 	int number
-	State state
+	OrderHeader.State state
 	String creatorCode
 
 	@JsonFormat(pattern = Constants.TimeFormat.HH_mm, timezone = Constants.SPAIN_TIMEZONE)
@@ -27,7 +27,7 @@ class Order {
 
 	Order(OrderHeader order) {
 		number = order.number
-		state = order.state as State
+		state = order.state as OrderHeader.State
 		creatorCode = order.creatorCode
 		created = order.created
 		day = order.day
@@ -35,17 +35,6 @@ class Order {
 		client = new Client(order.client)
 		vehicle = new Vehicle(order.vehicle)
 		lines = order.lines.collect { new OrderLine(it) }
-	}
-
-	enum State {
-
-		A,
-		C,
-		E,
-		P,
-		V,
-		X
-
 	}
 
 }

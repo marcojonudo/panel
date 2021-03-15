@@ -18,6 +18,7 @@ import panel.pogos.schedules.EmployeeSchedule
 import panel.pogos.schedules.EmployeeScheduleAppointment
 import panel.publisher.PanelPublisher
 import panel.services.PanelService
+import panel.services.data.panel.CardDataService
 import panel.utils.Constants
 
 import javax.annotation.Nullable
@@ -30,6 +31,7 @@ import java.time.LocalTime
 class PanelController {
 
 	@Inject PanelService panelService
+	@Inject CardDataService cardDataService
 	@Inject PanelDatabaseClient panelDatabaseClient
 	@Inject CuboDatabaseClient cuboDatabaseClient
 	@Inject JpdvOrdersJob jpdvOrdersJob

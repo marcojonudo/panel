@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class Skill implements GormEntity<Skill> {
@@ -29,6 +30,8 @@ class Skill implements GormEntity<Skill> {
     }
 
     static mapping = {
+        datasource Constants.DataSource.SCHEDULES
+
         version defaultValue: 0
         code lazy: false
         style fetch: 'join'

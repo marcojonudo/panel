@@ -2,14 +2,14 @@ package panel.pogos.eCommerce.getSchedules
 
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
-import panel.pogos.schedules.ScheduleInterval
+import panel.domains.panel.AppointmentType
+import panel.domains.schedules.ScheduleInterval
 
 @CompileStatic
 @TupleConstructor
 class EcommerceSchedule {
 
-    AppointmentTypeCode type
+    AppointmentType.Code type
     List<ScheduleInterval> intervals
 
 }

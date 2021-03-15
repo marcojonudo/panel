@@ -11,7 +11,6 @@ import javax.inject.Inject
 import java.time.LocalDate
 
 @Service(SkillEmployee)
-@CurrentTenant
 abstract class SkillEmployeeDataService {
 
 	@Inject private SkillDataService skillDataService

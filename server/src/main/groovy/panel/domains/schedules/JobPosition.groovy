@@ -3,6 +3,7 @@ package panel.domains.schedules
 
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class JobPosition implements GormEntity<JobPosition> {
@@ -13,6 +14,8 @@ class JobPosition implements GormEntity<JobPosition> {
 	Authority roleAuthority
 
 	static mapping = {
+		datasource Constants.DataSource.SCHEDULES
+
 		jobPositionGroup lazy: false
 		version defaultValue: 0
 	}

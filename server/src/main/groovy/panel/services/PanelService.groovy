@@ -4,9 +4,11 @@ import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import panel.domains.cubo.Employee
+import panel.domains.fviberi.OrderHeader
+import panel.domains.fviberi.OrderLine
 import panel.domains.panel.*
-import panel.domains.panel.AppointmentType.AppointmentTypeCode
+import panel.domains.panel.AppointmentType.Code
+import panel.domains.schedules.Centre
 import panel.domains.schedules.EmployeeSchedule
 import panel.domains.schedules.JobPositionGroup
 import panel.domains.schedules.ScheduleInterval
@@ -17,11 +19,11 @@ import panel.pogos.cards.GroupUnits
 import panel.pogos.firstLoad.CompleteInfo
 import panel.pogos.firstLoad.SyncOrdersSemaphore
 import panel.pogos.firstLoad.UpdateCards
-import panel.pogos.fviberi.Order
-import panel.services.data.cubo.EmployeeDataService
-import panel.services.data.cubo.EmployeeScheduleDataService
+import panel.pogos.ifv.getEmployees.IfvEmployee
 import panel.services.data.fviberi.OrderHeaderDataService
 import panel.services.data.panel.*
+import panel.services.data.schedules.CentreDataService
+import panel.services.data.schedules.EmployeeScheduleDataService
 import panel.services.data.skills.SkillDataService
 import panel.utils.Builder
 import panel.utils.Constants
@@ -39,6 +41,8 @@ class PanelService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PanelService)
 
+	@Inject private CentreDataService centreDataService
+	@Inject private IfvService ifvService
 	@Inject private SkillsService skillsService
 	@Inject private JobLineTypeDataService jobLineTypeDataService
 	@Inject private AppointmentTypeDataService appointmentTypeDataService
@@ -47,22 +51,25 @@ class PanelService {
 	@Inject private TaskDataService taskDataService
 	@Inject private GroupDurationDataService groupDurationDataService
 	@Inject private SkillDataService skillDataService
-	@Inject private EmployeeDataService employeeDataService
 	@Inject private EmployeeScheduleDataService employeeScheduleDataService
 	@Inject private OrderHeaderDataService orderHeaderDataService
 
 	static LocalDate lastScheduleDay
 
-	@Transactional(connection = "cubo")
+	@Transactional(connection = Constants.DataSource.SCHEDULES)
 	CompleteInfo getPanelInfo(LocalDate from, LocalDate to) {
 		LocalDate today = LocalDate.now()
+
+		Centre centre = centreDataService.find()
+		List<IfvEmployee> employees = []//ifvService.getEmployees(today, today, centre.code)
+
 		List<JobLineType> jobLineTypes = jobLineTypeDataService.findAll()
 
 		List<AppointmentType> appointmentTypes = appointmentTypeDataService.findAll()
 		List<AppointmentDay> appointmentDays = appointmentDayDataService.findAll(from)
+
 		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
-		List<Employee> employees = employeeDataService.findAll(true)
-		LocalDate firstScheduleDay = employeeScheduleDataService.findFirstDay(today, JobPositionGroup.Code.GARAGE)
+		LocalDate firstScheduleDay = daysMechanics.values().find { it }[0].day
 
 		List<Skill> skills = skillDataService.findAll()
 		List<SkillEmployee> skillEmployees = skillsService.findSkillEmployees(
@@ -146,9 +153,9 @@ class PanelService {
 
 	// region Get cards
 
-	static List<Card> handleOrdersCards(List<Order> orders, List<Card> dbOrdersCards) {
+	static List<Card> handleOrdersCards(List<OrderHeader> orders, List<Card> dbOrdersCards) {
 		dbOrdersCards.each { Card card ->
-			Order order = orders.find { it.number == card.order.number }
+			OrderHeader order = orders.find { it.number == card.order.number }
 			/* Las fichas auxiliares no tienen orden */
 			if (order) {
 				card.order.lines = order.lines
@@ -167,12 +174,16 @@ class PanelService {
 	 * @param tasks List of all tasks
 	 * @return Map with orders and its groups and units
 	 */
-	static Map<Order, List<GroupUnits>> getOrdersGroupsUnits(List<Order> orders, List<Task> tasks) {
-		Map<Order, List<GroupUnits>> ordersGroupsUnits = orders.collectEntries {
-			[(it): (getOrderGroups(it, tasks))]
-		}
-		return ordersGroupsUnits
-	}
+//	static Map<Order, List<GroupUnits>> getOrdersGroupsUnits(List<OrderHeader> orders, List<Task> tasks) {
+//		Map<Order, List<GroupUnits>> ordersGroupsUnits = orders.findAll { it.number == 1323406 }.collectEntries {
+//			try {
+//				[(it): (getOrderGroups(it, tasks))]
+//			} catch (all) {
+//				[(it): null]
+//			}
+//		}
+//		return ordersGroupsUnits
+//	}
 
 	/**
 	 * Get order groups and units based on its articles
@@ -180,24 +191,26 @@ class PanelService {
 	 * @param tasks List of all tasks
 	 * @return List of GroupUnits
 	 */
-	static List<GroupUnits> getOrderGroups(Order order, List<Task> tasks) {
+	static List<GroupUnits> getOrderGroups(OrderHeader order, List<OrderLine> orderLines, List<Task> orderTasks) {
 		/* Se obtienen las task correspondientes a los artículos de la orden */
-		List<Task> orderTasks = filterAbsorbableTasks(tasks.findAll { it.articleCode in order.lines*.article.code })
+//		List<Integer> orderArticleCodes = findOrderArticlesCodes(order)
+//		List<Task> orderTasks = tasks.findAll { it.articleCode in orderArticleCodes }
+		List<Task> filteredOrderTasks = filterAbsorbableTasks(orderTasks)
 
 		List<Task> processedTasks = []
 		List<GroupUnits> selectedGroupsInfo = []
-		orderTasks.each { Task task ->
+		filteredOrderTasks.each { Task task ->
 			boolean alreadyProcessedTask = processedTasks.find { it.articleCode == task.articleCode }
 			if (!alreadyProcessedTask) {
-				Group selectedGroup = findSelectedGroup(orderTasks, task.groups, processedTasks)
+				Group selectedGroup = findSelectedGroup(filteredOrderTasks, task.groups, processedTasks)
 				if (selectedGroup) {
 					selectedGroupsInfo << new GroupUnits(
 						group: selectedGroup,
-						units: getOrderGroupUnits(order, selectedGroup)
+						units: getOrderGroupUnits(orderLines, selectedGroup)
 					)
 					processedTasks += selectedGroup.tasks
 				} else {
-					LOG.warn("[$order.number][$task.articleCode]$orderTasks.articleCode Group not found for task")
+					LOG.warn("[$order.number][$task.articleCode]$filteredOrderTasks.articleCode Group not found for task")
 				}
 			}
 		}
@@ -252,9 +265,9 @@ class PanelService {
 		return sortedGroups
 	}
 
-	static List<Float> getOrderGroupUnits(Order order, Group group) {
-		return order.lines.findAll {
-			it.article.code in group.tasks*.articleCode
+	static List<Float> getOrderGroupUnits(List<OrderLine> orderLines, Group group) {
+		return orderLines.findAll {
+			findUnitaryArticleCode(it.article.code) in group.tasks*.articleCode
 		}*.units.collect { it as Float }
 	}
 
@@ -263,7 +276,7 @@ class PanelService {
 	 * @param ordersGroupsUnits Orders with their associated groups and units
 	 * @return List of Card
 	 */
-	List<Card> buildOrdersCards(List<Order> orders, Map<Order, List<GroupUnits>> ordersGroupsUnits) {
+	List<Card> buildOrdersCards(List<OrderHeader> orders, Map<OrderHeader, List<GroupUnits>> ordersGroupsUnits) {
 		Map<Integer, List<GroupUnits>> durationGroupsUnits = (Map<Integer, List<GroupUnits>>) ordersGroupsUnits
 				.collectEntries {
 			[(it.key.number): groupDurationDataService.findAll(it.value)]
@@ -271,7 +284,7 @@ class PanelService {
 
 		List<Card> ordersCards = []
 		durationGroupsUnits.each { Integer orderNumber, List<GroupUnits> groupsUnits ->
-			Order order = orders.find { it.number == orderNumber }
+			OrderHeader order = orders.find { it.number == orderNumber }
 			List<Card> orderCards = []
 			if (groupsUnits.duration) {
 				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
@@ -301,7 +314,7 @@ class PanelService {
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
 				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-				List<Order> orders = orderHeaderDataService.findAll(Constants.ORDERS_QUERY_STATES, lastScheduleDay)
+				List<OrderHeader> orders = orderHeaderDataService.findAll(Constants.ORDERS_QUERY_STATES, lastScheduleDay)
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 				List<Card> dbCards = cardDataService.findAllFrom(from)
 				List<Card> avoidSyncCards = dbCards.findAll { checkAvoidSync(it) }
@@ -346,16 +359,20 @@ class PanelService {
 	 * @param orders List of Order
 	 * @return List of Card
 	 */
-	UpdateCards syncOrders(List<Order> orders, List<Card> dbCards) {
+	UpdateCards syncOrders(List<OrderHeader> orders, List<Card> dbCards) {
 		/* Se obtiene una lista de todas las tareas de las distintas órdenes */
-		List<Integer> articlesCodes = []//((List<Article>) orders.lines*.article.flatten()).findAll { it.labour }.code.unique()
-		orders.each {
-			articlesCodes += it.lines*.article.findAll { it.labour }.code.unique()
+		Map<OrderHeader, List<GroupUnits>> ordersGroupsUnits = orders.collectEntries {
+			List<OrderLine> orderLines = filterOrderLines(it.lines)
+			List<Integer> articleCodes = findUnitaryArticleCodes(orderLines*.article.code)
+			List<Task> orderTasks = taskDataService.findAll(articleCodes)
+			List<GroupUnits> groupsUnits = getOrderGroups(it, orderLines, orderTasks)
+			return [(it): groupsUnits]
 		}
-		List<Task> ordersTasks = taskDataService.findAll(articlesCodes)
+//		List<Integer> articlesCodes = findOrderArticlesCodes(orders)
+//		List<Task> ordersTasks = taskDataService.findAll(articlesCodes)
 
-		/* Para cada orden, se obtienen sus agrupaciones y las unidades de cada uno de ellos */
-		Map<Order, List<GroupUnits>> ordersGroupsUnits = getOrdersGroupsUnits(orders, ordersTasks)
+//		/* Para cada orden, se obtienen sus agrupaciones y las unidades de cada uno de ellos */
+//		Map<Order, List<GroupUnits>> ordersGroupsUnits = getOrdersGroupsUnits(orders, ordersTasks)
 
 		/* Se construyen las fichas a partir de la información de ordenes y grupos */
 		List<Card> ordersCards = buildOrdersCards(orders, ordersGroupsUnits)
@@ -366,6 +383,26 @@ class PanelService {
 		return updateCards
 	}
 
+	static List<OrderLine> filterOrderLines(Set<OrderLine> orderLines) {
+		List<OrderLine> filteredLines = []
+		orderLines.each {
+			try {
+				if (it.article.labour == "S") {
+					filteredLines << it
+				}
+			} catch (all) {}
+		}
+		return filteredLines
+	}
+
+	static List<Integer> findUnitaryArticleCodes(List<Integer> codes) {
+		return codes.collect { findUnitaryArticleCode(it) }
+	}
+
+	static int findUnitaryArticleCode(int code) {
+		return (code as String)[1..-1] as int
+	}
+
 	/**
 	 * Obtiene las fichas, de las distintas categorías, que se deben cargar en panel
 	 * @param orders Lista de órdenes
@@ -373,7 +410,7 @@ class PanelService {
 	 * @param builtCards Lista de fichas construidas
 	 * @return Objeto con las distintas categorías de fichas
 	 */
-	static UpdateCards getCardsToUpdate(List<Order> orders, List<Card> dbCards, List<Card> builtCards) {
+	static UpdateCards getCardsToUpdate(List<OrderHeader> orders, List<Card> dbCards, List<Card> builtCards) {
 		/* Se obtienen las órdenes cuyas fichas deben ser creadas (número de orden no existe en las fichas actuales) */
 		UpdateCards updateCards = handleCardsUpdate(dbCards, builtCards)
 		updateCards.deleted += getDeletedCards(orders, dbCards, builtCards)
@@ -627,7 +664,7 @@ class PanelService {
 	 * @param builtCards List of built cards
 	 * @return List of updated cards
 	 */
-	static List<Card> getDeletedCards(List<Order> orders, List<Card> dbCards, List<Card> builtCards) {
+	static List<Card> getDeletedCards(List<OrderHeader> orders, List<Card> dbCards, List<Card> builtCards) {
 		List<Card> cardsToDelete = getDeletedOrdersCards(orders, dbCards)
 		cardsToDelete += getUpdatedGroupDeletedCards(dbCards, builtCards)
 		List<Card> deletedCards = cardsToDelete.collect { deleteCard(it) }
@@ -640,7 +677,7 @@ class PanelService {
 	 * @param builtCards Cards saved for day
 	 * @return List of cards to delete
 	 */
-	static List<Card> getDeletedOrdersCards(List<Order> orders, List<Card> dbCards) {
+	static List<Card> getDeletedOrdersCards(List<OrderHeader> orders, List<Card> dbCards) {
 		List<Card> cardsToDelete = dbCards.findAll {
 			!(it.order.number in orders.number) && it.type != Card.CardType.AUXILIARY
 		}
@@ -753,8 +790,8 @@ class PanelService {
 			LocalDate day = orderCards[0].order.day.isBefore(today) ? today : orderCards[0].order.day
 			AppointmentDay appointmentDay = appointmentDays.find { it.day == day }
 			if (appointmentDay) {
-				List<AppointmentTypeCode> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)
-				appointmentTypeCodes.each { AppointmentTypeCode code ->
+				List<Code> appointmentTypeCodes = findOrderCardsAppointmentTypes(orderCards)
+				appointmentTypeCodes.each { Code code ->
 					fillScheduleTypeAppointmentValues(
 						appointmentDay.values.find { it.appointmentType.code == code },
 						orderCards[0].order.created,
@@ -798,16 +835,16 @@ class PanelService {
 	 * @param cards Fichas de la orden
 	 * @return Lista de códigos de cita
 	 */
-	static List<AppointmentTypeCode> findOrderCardsAppointmentTypes(List<Card> cards) {
+	static List<Code> findOrderCardsAppointmentTypes(List<Card> cards) {
 		/* Con que haya una sóla prestación de TP, toda la cita es de TP */
-		if (cards.find { it.group.appointmentType.code == AppointmentTypeCode.TP }) {
-			return [AppointmentTypeCode.TP]
+		if (cards.find { it.group.appointmentType.code == Code.TP }) {
+			return [Code.TP]
 		} else {
 			/* Si no hay TP, pero se encuentra una prestación de INT, figura tanto en INT como en RAP */
-			if (cards.find { it.group.appointmentType.code == AppointmentTypeCode.INT }) {
-				return [AppointmentTypeCode.RAP, AppointmentTypeCode.INT]
+			if (cards.find { it.group.appointmentType.code == Code.INT }) {
+				return [Code.RAP, Code.INT]
 			} else {
-				return [AppointmentTypeCode.RAP]
+				return [Code.RAP]
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package panel.domains.fviberi
 
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class Article implements GormEntity<Article> {
@@ -18,7 +19,7 @@ class Article implements GormEntity<Article> {
 	}
 
 	static mapping = {
-		datasource 'fviberi'
+		datasource Constants.DataSource.FVIBERI
 		table 'fvarticu'
 
 		code column: 'coarticu'

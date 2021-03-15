@@ -11,6 +11,6 @@ class IfvBody {
 	@JsonProperty("parametro")
 	IfvBodyData data
 
-	class IfvBodyData {}
-
 }
+
+class IfvBodyData {}

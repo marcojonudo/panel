@@ -3,6 +3,7 @@ package panel.domains.fviberi
 import com.fasterxml.jackson.annotation.JsonInclude
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class Vehicle implements GormEntity<Vehicle> {
@@ -21,7 +22,7 @@ class Vehicle implements GormEntity<Vehicle> {
 	String fuel
 
 	static mapping = {
-		datasource 'fviberi'
+		datasource Constants.DataSource.FVIBERI
 		table 'fvvehicu'
 
 		numberPlate column: 'numatric'

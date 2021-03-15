@@ -1,6 +1,5 @@
 package panel.services.data.panel
 
-
 import grails.gorm.services.Query
 import grails.gorm.services.Service
 import grails.gorm.services.Where
@@ -48,8 +47,8 @@ abstract class CardDataService {
 	""")
 	abstract Card find(String orderCode, int groupCode, int linkedIndex, int divisionIndex, LocalDate day)
 
-	@Where({ code ==~ ~/$orderCodePattern(\d*)/ && dateDeleted == null })
-	abstract Card find(String orderCodePattern, Map args)
+	@Query("select $card.code from ${Card card} where $card.status in $statusList")
+	abstract String findCode(List<Card.Status> statusList, Map args)
 
 	abstract Card find(String code)
 

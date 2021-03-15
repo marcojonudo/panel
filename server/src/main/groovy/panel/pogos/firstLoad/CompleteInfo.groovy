@@ -3,13 +3,13 @@ package panel.pogos.firstLoad
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
-import panel.domains.cubo.Employee
-import panel.domains.cubo.EmployeeSchedule
 import panel.domains.panel.AppointmentDay
 import panel.domains.panel.AppointmentType
 import panel.domains.panel.Card
 import panel.domains.panel.JobLineType
+import panel.domains.schedules.EmployeeSchedule
 import panel.domains.skills.Skill
+import panel.pogos.ifv.getEmployees.IfvEmployee
 import panel.utils.Constants
 
 import java.time.LocalDate
@@ -18,7 +18,7 @@ import java.time.LocalDate
 class CompleteInfo {
 
 	Map<String, List<EmployeeSchedule>> daysMechanics
-	List<Employee> employees
+	List<IfvEmployee> employees
 	List<Skill> skills
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
@@ -33,7 +33,7 @@ class CompleteInfo {
 
 	CompleteInfo(
 		Map<String, List<EmployeeSchedule>> daysMechanics,
-		List<Employee> employees,
+		List<IfvEmployee> employees,
 		List<Skill> skills,
 		List<JobLineType> jobLineTypes,
 		List<AppointmentType> appointmentTypes,

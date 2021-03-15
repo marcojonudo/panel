@@ -1,6 +1,7 @@
 package panel.utils
 
 import groovy.transform.CompileStatic
+import panel.domains.fviberi.OrderHeader
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
 
 @CompileStatic
@@ -27,9 +28,25 @@ class Constants {
 
 	}
 
+	static class Message {
+
+		static final String GET_EMPLOYEES_IFV_WRONG_REQUEST = "Error requesting employees to IFV"
+
+	}
+
 	static class ExceptionMessage {
 
 		static final String GET_IFV_TOKEN = "Error requesting token to IFV"
+		static final String IFV_REQUEST_ERROR = "IFV request error"
+
+	}
+
+	static class DataSource {
+
+		static final String SCHEDULES = "schedules"
+		static final String FVIBERI = "fviberi"
+		static final String CUBO = "cubo"
+		static final String LOCALHOST = "localhost"
 
 	}
 
@@ -58,7 +75,9 @@ class Constants {
 		CREATE_CARDS: 'createCards',
 	]
 
-	static final List<String> ORDERS_QUERY_STATES = ['A', 'P', 'E']
+	static final List<OrderHeader.State> ORDERS_QUERY_STATES = [
+		OrderHeader.State.A, OrderHeader.State.P, OrderHeader.State.E
+	]
 	static final List<AppointmentTypeCode> ECOMMERCE_CARD_APPOINTMENT_TYPE_CODES = [
 		AppointmentTypeCode.ECO, AppointmentTypeCode.TP, AppointmentTypeCode.RAP_CRF
 	]

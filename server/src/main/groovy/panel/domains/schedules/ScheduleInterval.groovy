@@ -24,6 +24,8 @@ class ScheduleInterval implements GormEntity<ScheduleInterval> {
     static belongsTo = EmployeeSchedule
 
     static mapping = {
+        datasource Constants.DataSource.SCHEDULES
+
         version defaultValue: 0
         employeeSchedules lazy: false, joinTable: [name: 'employee_schedule_intervals', key: 'interval_id']
     }

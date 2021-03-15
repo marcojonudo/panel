@@ -3,6 +3,7 @@ package panel.domains.skills
 
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class SkillCode implements GormEntity<SkillCode> {
@@ -12,6 +13,8 @@ class SkillCode implements GormEntity<SkillCode> {
     int order
 
     static mapping = {
+        datasource Constants.DataSource.SCHEDULES
+
         version defaultValue: 0
         style fetch: 'join'
     }

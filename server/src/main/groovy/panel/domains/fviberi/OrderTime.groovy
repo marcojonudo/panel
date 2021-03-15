@@ -2,7 +2,6 @@ package panel.domains.fviberi
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
-import grails.gorm.MultiTenant
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
 import panel.utils.Constants
@@ -20,7 +19,7 @@ class OrderTime implements GormEntity<OrderTime>, Serializable {
 	LocalTime deadline
 
 	static mapping = {
-		datasource 'fviberi'
+		datasource Constants.DataSource.FVIBERI
 		table 'fvsegtie'
 
 		order column: 'nuordrep'

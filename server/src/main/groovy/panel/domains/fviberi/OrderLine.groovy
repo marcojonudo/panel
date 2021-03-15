@@ -3,6 +3,7 @@ package panel.domains.fviberi
 import com.fasterxml.jackson.annotation.JsonIgnore
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 @Entity
 class OrderLine implements GormEntity<OrderLine>, Serializable {
@@ -15,7 +16,7 @@ class OrderLine implements GormEntity<OrderLine>, Serializable {
 	Article article
 
 	static mapping = {
-		datasource 'fviberi'
+		datasource Constants.DataSource.FVIBERI
 		table 'fvlinord'
 
 		order column: 'nuordrep'

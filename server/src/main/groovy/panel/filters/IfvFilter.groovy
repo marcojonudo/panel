@@ -19,33 +19,32 @@ import panel.pogos.logs.ExceptionLog
 import panel.utils.Constants
 
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 @Singleton
 @CompileStatic
 @Requires(notEnv = Environment.TEST)
-@Filter("/api/HorariosCentroJson/**")
+@Filter(patterns = ["/api/HorariosEmpJson/**", "/api/HorariosCentroJson/**"])
 class IfvFilter implements HttpClientFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(IfvFilter)
 
-	@Inject IfvClient ifvClient
+	@Inject Provider<IfvClient> ifvClientProvider
 	@Inject GetTokenBody getTokenBody
 
 	@Override
 	Publisher<? extends HttpResponse<?>> doFilter(MutableHttpRequest<?> request, ClientFilterChain chain) {
 //		LOG.info(new HttpRequestLog(request).toString())
+		String service = request.path.split("/")[2]
 		try {
-			GetTokenResponse response = ifvClient.getToken(getTokenBody)
+			getTokenBody.service = "${service}Controller"
+			GetTokenResponse response = ifvClientProvider.get().getToken(getTokenBody)
 			((IfvBody) request.body.get()).token = response.token
 		} catch (all) {
 			LOG.error(new ExceptionLog(Constants.ExceptionMessage.GET_IFV_TOKEN, all.class.simpleName, all.message).toString())
 		}
 		return chain.proceed(request)
-//		return Publishers.map(chain.proceed(request), { HttpResponse<?> response ->
-////			LOG.info(new HttpResponseLog(response).toString())
-//			return response
-//		})
 	}
 
 }

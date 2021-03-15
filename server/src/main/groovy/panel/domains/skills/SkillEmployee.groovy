@@ -3,6 +3,7 @@ package panel.domains.skills
 
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.utils.Constants
 
 import java.time.LocalDate
 
@@ -15,6 +16,8 @@ class SkillEmployee implements GormEntity<SkillEmployee> {
     LocalDate month
 
     static mapping = {
+        datasource Constants.DataSource.SCHEDULES
+
         version defaultValue: 0
         skill fetch: 'join'
     }

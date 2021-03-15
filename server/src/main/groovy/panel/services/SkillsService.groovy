@@ -27,14 +27,14 @@ class SkillsService {
         /* Se obtienen, en orden, los meses para los que hay que buscar habilidades */
         List<LocalDate> months = [month] + skillEmployees.month.findAll { it < month }.unique().sort().reverse()
         employeeSchedules.groupBy {
-            it.jobPositionGroup
-        }.each { JobPositionGroup jobPositionGroup, List<EmployeeSchedule> groupEmployeeSchedules ->
+            it.jobPositionGroupCode
+        }.each { JobPositionGroup.Code jobPositionGroupCode, List<EmployeeSchedule> groupEmployeeSchedules ->
             /* Sólo se gestionan las habilidades si el grupo de trabajo es taller o tienda, ya que para el resto no hay
              * ninguna definida. Si en un futuro se decide tener más matrices, habría que modificar este if */
-            if (jobPositionGroup.code == JobPositionGroup.Code.GARAGE ||
-                    jobPositionGroup.code == JobPositionGroup.Code.SHOP) {
+            if (jobPositionGroupCode == JobPositionGroup.Code.GARAGE ||
+                    jobPositionGroupCode == JobPositionGroup.Code.SHOP) {
                 List<Skill> jobPositionGroupSkills = expertiseSkills.findAll {
-                    it.category.jobPositionGroup.code == jobPositionGroup.code
+                    it.category.jobPositionGroupCode == jobPositionGroupCode
                 }
 
                 groupEmployeeSchedules.each { EmployeeSchedule employeeSchedule ->
