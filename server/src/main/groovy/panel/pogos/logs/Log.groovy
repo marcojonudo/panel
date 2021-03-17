@@ -1,6 +1,5 @@
 package panel.pogos.logs
 
-import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -18,7 +17,7 @@ class Log {
 
 	@Override
 	String toString() {
-		return JsonOutput.toJson(info)
+		return Jackson.writeValueAsString(info)
 	}
 
 }

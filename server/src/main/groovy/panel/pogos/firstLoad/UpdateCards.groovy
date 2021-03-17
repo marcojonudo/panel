@@ -43,7 +43,7 @@ class UpdateCards {
 	}
 
 	List<Card> getAll() {
-		return newCards + newReplace + updated + reset + same
+		return newCards + newReplace + reset + updated + same
 	}
 
 	boolean updated() {
@@ -59,6 +59,16 @@ class UpdateCards {
 			deletedCards: deleted,
 			appointmentDays: appointmentDays
 		] as Map<String, List<Object>>
+	}
+
+	void add(UpdateCards updateCards) {
+		this.newCards += updateCards.newCards
+		this.newReplace += updateCards.newReplace
+		this.reset += updateCards.reset
+		this.updated += updateCards.updated
+		this.same += updateCards.same
+		this.deleted += updateCards.deleted
+		this.avoidSync += updateCards.avoidSync
 	}
 
 }

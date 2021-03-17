@@ -17,4 +17,8 @@ class Jackson {
 		return getMapper().convertValue(object, Map)
 	}
 
+	static String writeValueAsString(Object object) {
+		return getMapper().writeValueAsString(object)
+	}
+
 }

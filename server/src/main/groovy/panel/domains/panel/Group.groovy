@@ -9,7 +9,7 @@ import panel.serializers.GroupSerializer
 @Entity
 class Group implements GormEntity<Group> {
 
-    long id
+//    long id
     int code
     String name
     String shortName

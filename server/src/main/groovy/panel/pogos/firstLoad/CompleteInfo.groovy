@@ -18,16 +18,22 @@ import java.time.LocalDate
 class CompleteInfo {
 
 	Map<String, List<EmployeeSchedule>> daysMechanics
+
+	@JsonInclude
 	List<IfvEmployee> employees
 	List<Skill> skills
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
+
 	@JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
 	LocalDate firstScheduleDay
+
 	@JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
 	LocalDate lastScheduleDay
+
 	@JsonInclude
 	List<AppointmentDay> appointmentDays
+
 	@JsonInclude
 	List<Card> cards
 

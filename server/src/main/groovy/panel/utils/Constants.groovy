@@ -31,6 +31,8 @@ class Constants {
 	static class Message {
 
 		static final String GET_EMPLOYEES_IFV_WRONG_REQUEST = "Error requesting employees to IFV"
+		static final String NOT_FOUND_ARTICLE = "Article not found in DB"
+		static final String NOT_FOUND_DURATION = "Duration not found for group"
 
 	}
 
@@ -89,5 +91,6 @@ class Constants {
 	static final String OPERATION_SUCCESS = "Operación completada con éxito"
 	static final String ECOMMERCE_USER_CODE = "9999997"
 	static final String SPV_ID = "799"
+	static final int ROUND_NUMBER = 5
 
 }

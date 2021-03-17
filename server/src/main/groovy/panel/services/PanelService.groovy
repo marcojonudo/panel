@@ -20,6 +20,7 @@ import panel.pogos.firstLoad.CompleteInfo
 import panel.pogos.firstLoad.SyncOrdersSemaphore
 import panel.pogos.firstLoad.UpdateCards
 import panel.pogos.ifv.getEmployees.IfvEmployee
+import panel.pogos.logs.Log
 import panel.services.data.fviberi.OrderHeaderDataService
 import panel.services.data.panel.*
 import panel.services.data.schedules.CentreDataService
@@ -61,7 +62,7 @@ class PanelService {
 		LocalDate today = LocalDate.now()
 
 		Centre centre = centreDataService.find()
-		List<IfvEmployee> employees = []//ifvService.getEmployees(today, today, centre.code)
+		List<IfvEmployee> employees = ifvService.getEmployees(today, today, centre.code)
 
 		List<JobLineType> jobLineTypes = jobLineTypeDataService.findAll()
 
@@ -96,18 +97,13 @@ class PanelService {
 		)
 	}
 
-	static boolean checkAvoidSync(Card card) {
-		/* No se sincronizan con JPDV las plantillas de las fichas auxiliares, ni las fichas de eCommerce cuyo status
-		*  no sea ECOMMERCE (si el status es CONFIRMED, se debe esperar a que se sustituya) */
-		return card.type == Card.CardType.AUXILIARY && card.status != Card.Status.ECOMMERCE
-	}
-
 	// region Mechanics
 
 	/**
-	 * Get day mechanics and load position if it is not defined yet
-	 * @param date Day to get mechanics
-	 * @return List of mechanic employees
+	 * Obtiene los mecánicos para cada día y carga su posición si todavía no está definida
+	 * @param from Fecha desde
+	 * @param to Fecha hasta
+	 * @return Mapa con día y mecánicos
 	 */
 	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from, LocalDate to) {
 		List<EmployeeSchedule> mechanics = employeeScheduleDataService.findAll(from, to, JobPositionGroup.Code.GARAGE)
@@ -115,6 +111,11 @@ class PanelService {
 		return integrateFixedMechanics(mechanics)
 	}
 
+	/**
+	 * Integra los mecánicos sin día (líneas de taller y tienda) y convierte la lista de mecánicos en un mapa
+	 * @param mechanics Lista de mecánicos
+	 * @return Mapa con día y mecánicos
+	 */
 	static Map<String, List<EmployeeSchedule>> integrateFixedMechanics(List<EmployeeSchedule> mechanics) {
 		boolean existentMechanics = mechanics.find { it.day }
 		Map<String, List<EmployeeSchedule>> daysMechanics = [:]
@@ -141,6 +142,11 @@ class PanelService {
 		return daysMechanics
 	}
 
+	/**
+	 * Obtiene un horario con la entrada más temprana y la salida más tardía
+	 * @param mechanics Lista de mecánicos
+	 * @return Intervalo de horario
+	 */
 	static ScheduleInterval findThresholdSchedule(List<EmployeeSchedule> mechanics) {
 		List<ScheduleInterval> intervals = (List<ScheduleInterval>) mechanics.intervals.flatten()
 		LocalTime minStart = intervals.start.min()
@@ -151,159 +157,8 @@ class PanelService {
 
 	// endregion
 
-	// region Get cards
-
-	static List<Card> handleOrdersCards(List<OrderHeader> orders, List<Card> dbOrdersCards) {
-		dbOrdersCards.each { Card card ->
-			OrderHeader order = orders.find { it.number == card.order.number }
-			/* Las fichas auxiliares no tienen orden */
-			if (order) {
-				card.order.lines = order.lines
-			}
-		}
-		return dbOrdersCards
-	}
-
-	// endregion
-
-	// region Build cards
-
-	/**
-	 * Get orders groups and its units to get the card duration
-	 * @param orders List of Order
-	 * @param tasks List of all tasks
-	 * @return Map with orders and its groups and units
-	 */
-//	static Map<Order, List<GroupUnits>> getOrdersGroupsUnits(List<OrderHeader> orders, List<Task> tasks) {
-//		Map<Order, List<GroupUnits>> ordersGroupsUnits = orders.findAll { it.number == 1323406 }.collectEntries {
-//			try {
-//				[(it): (getOrderGroups(it, tasks))]
-//			} catch (all) {
-//				[(it): null]
-//			}
-//		}
-//		return ordersGroupsUnits
-//	}
-
-	/**
-	 * Get order groups and units based on its articles
-	 * @param order Order from which to get the groups
-	 * @param tasks List of all tasks
-	 * @return List of GroupUnits
-	 */
-	static List<GroupUnits> getOrderGroups(OrderHeader order, List<OrderLine> orderLines, List<Task> orderTasks) {
-		/* Se obtienen las task correspondientes a los artículos de la orden */
-//		List<Integer> orderArticleCodes = findOrderArticlesCodes(order)
-//		List<Task> orderTasks = tasks.findAll { it.articleCode in orderArticleCodes }
-		List<Task> filteredOrderTasks = filterAbsorbableTasks(orderTasks)
-
-		List<Task> processedTasks = []
-		List<GroupUnits> selectedGroupsInfo = []
-		filteredOrderTasks.each { Task task ->
-			boolean alreadyProcessedTask = processedTasks.find { it.articleCode == task.articleCode }
-			if (!alreadyProcessedTask) {
-				Group selectedGroup = findSelectedGroup(filteredOrderTasks, task.groups, processedTasks)
-				if (selectedGroup) {
-					selectedGroupsInfo << new GroupUnits(
-						group: selectedGroup,
-						units: getOrderGroupUnits(orderLines, selectedGroup)
-					)
-					processedTasks += selectedGroup.tasks
-				} else {
-					LOG.warn("[$order.number][$task.articleCode]$filteredOrderTasks.articleCode Group not found for task")
-				}
-			}
-		}
-		return selectedGroupsInfo
-	}
-
-	/**
-	 * Remove absorbable tasks if main tasks exist
-	 * @param orderTasks List of order tasks
-	 * @return List of filtered task
-	 */
-	static List<Task> filterAbsorbableTasks(List<Task> orderTasks) {
-		List<Task> mainTasks = orderTasks.findAll { !it.absorbable }
-		return mainTasks ?: orderTasks
-	}
-
-	static Group findSelectedGroup(List<Task> orderTasks, Set<Group> groups, List<Task> processedTasks) {
-		Set<Group> possibleGroups = sortPossibleGroups(groups, processedTasks)
-		Group selectedGroup = possibleGroups.find { Group group ->
-			List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks*.articleCode }
-			/* Si el tamaño de las tareas del grupo y las comunes es el mismo, significa que todas las del grupo están
-			*  en la orden. Por lo tanto, ese sería el grupo seleccionado */
-			return group.tasks.size() == commonTasks.size()
-		}
-		return selectedGroup
-	}
-
-	static Set<Group> sortPossibleGroups(Set<Group> groups, List<Task> processedTasks) {
-		Set<Group> sortedGroups = []
-		/* Si la tarea tiene agrupaciones asociadas (debería tener siempre, se contempla sólo por prevenir errores) */
-		if (groups) {
-			/* Se filtran los grupos cuyas unidades aún no hayan sido procesadas. Si un grupo tiene una tarea 1, y esa
-			*  tarea ya forma parte de otro grupo creado con anterioridad, no se tiene en cuenta */
-			sortedGroups = groups.findAll {
-				!it.tasks.find { it.articleCode in processedTasks.articleCode }
-			}
-			/* Se ordenan primero por número de tareas (grupo con 4 tareas más preferencia que uno de 3), después por
-			*  orden del color, y en caso de igualdad, por código de agrupación (únicamente para evitar generación de
-			*  agrupaciones distintas) */
-			sortedGroups.sort { Group a, Group b ->
-				if (b.tasks.size() == a.tasks.size()) {
-					if (a.color.order == b.color.order) {
-						return a.code <=> b.code
-					} else {
-						return a.color.order <=> b.color.order
-					}
-				} else {
-					return b.tasks.size() <=> a.tasks.size()
-				}
-			}
-		}
-		return sortedGroups
-	}
-
-	static List<Float> getOrderGroupUnits(List<OrderLine> orderLines, Group group) {
-		return orderLines.findAll {
-			findUnitaryArticleCode(it.article.code) in group.tasks*.articleCode
-		}*.units.collect { it as Float }
-	}
-
-	/**
-	 * Build order cards based on order info and groups
-	 * @param ordersGroupsUnits Orders with their associated groups and units
-	 * @return List of Card
-	 */
-	List<Card> buildOrdersCards(List<OrderHeader> orders, Map<OrderHeader, List<GroupUnits>> ordersGroupsUnits) {
-		Map<Integer, List<GroupUnits>> durationGroupsUnits = (Map<Integer, List<GroupUnits>>) ordersGroupsUnits
-				.collectEntries {
-			[(it.key.number): groupDurationDataService.findAll(it.value)]
-		}
-
-		List<Card> ordersCards = []
-		durationGroupsUnits.each { Integer orderNumber, List<GroupUnits> groupsUnits ->
-			OrderHeader order = orders.find { it.number == orderNumber }
-			List<Card> orderCards = []
-			if (groupsUnits.duration) {
-				groupsUnits.eachWithIndex { GroupUnits groupUnits, int i ->
-					orderCards << Builder.buildCard(order, groupUnits.group, groupUnits.units[0], groupUnits.duration)
-				}
-				orderCards.sort { it.group.color.order }
-				ordersCards = ordersCards + orderCards
-			} else {
-				LOG.warn("Duration not found for group: ${groupsUnits.group.code}")
-			}
-		}
-		return ordersCards
-	}
-
-	// endregion
-
 	// region Sync orders with cards
 
-	@Transactional(connection = "fviberi")
 	UpdateCards syncJpdvOrders(
 		LocalDate from,
 		LocalDate lastScheduleDay,
@@ -314,11 +169,11 @@ class PanelService {
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
 				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-				List<OrderHeader> orders = orderHeaderDataService.findAll(Constants.ORDERS_QUERY_STATES, lastScheduleDay)
+				List<OrderHeader> orders = orderHeaderDataService.findAll(Constants.ORDERS_QUERY_STATES, lastScheduleDay).sort { it.number }[0..0]
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 				List<Card> dbCards = cardDataService.findAllFrom(from)
 				List<Card> avoidSyncCards = dbCards.findAll { checkAvoidSync(it) }
-				List<Card> syncCards = handleOrdersCards(orders, dbCards.findAll { !checkAvoidSync(it) })
+				List<Card> syncCards = fillCardsOrderLines(dbCards.findAll { !checkAvoidSync(it) }, orders)
 
 				updateCards = syncOrders(orders, syncCards)
 				updateCards.avoidSync = avoidSyncCards
@@ -348,6 +203,34 @@ class PanelService {
 		return updateCards
 	}
 
+	/**
+	 * Comprueba si la ficha debe sincronizarse con JPDV
+	 * @param card Ficha
+	 * @return booleano
+	 */
+	static boolean checkAvoidSync(Card card) {
+		/* No se sincronizan con JPDV las plantillas de las fichas auxiliares, ni las fichas de eCommerce cuyo status
+		*  no sea ECOMMERCE (si el status es CONFIRMED, se debe esperar a que se sustituya) */
+		return card.type == Card.CardType.AUXILIARY && card.status != Card.Status.ECOMMERCE
+	}
+
+	/**
+	 * Se rellena la lista de fichas con información sobre la orden
+	 * @param cards Lista de fichas
+	 * @param orders Lista de ordenes
+	 * @return
+	 */
+	static List<Card> fillCardsOrderLines(List<Card> cards, List<OrderHeader> orders) {
+		cards.each { Card card ->
+			OrderHeader order = orders.find { it.number == card.order.number }
+			/* Las fichas auxiliares no tienen orden */
+			if (order) {
+				card.order.lines = filterOrderLines(order)
+			}
+		}
+		return cards
+	}
+
 	UpdateCards findDbUpdateCards(LocalDate from) {
 		List<Card> dbCards = cardDataService.findAllFrom(from)
 		List<Card> auxiliaryCards = dbCards.findAll { checkAvoidSync(it) }
@@ -355,137 +238,274 @@ class PanelService {
 	}
 
 	/**
-	 * Sync orders with created cards and update them
-	 * @param orders List of Order
-	 * @return List of Card
+	 * Sincroniza las ordenes de JPDV con las fichas existentes en panel
+	 * @param orders Lista de ordenes
+	 * @return Lista de fichas de base de datos
 	 */
 	UpdateCards syncOrders(List<OrderHeader> orders, List<Card> dbCards) {
-		/* Se obtiene una lista de todas las tareas de las distintas órdenes */
-		Map<OrderHeader, List<GroupUnits>> ordersGroupsUnits = orders.collectEntries {
-			List<OrderLine> orderLines = filterOrderLines(it.lines)
-			List<Integer> articleCodes = findUnitaryArticleCodes(orderLines*.article.code)
-			List<Task> orderTasks = taskDataService.findAll(articleCodes)
-			List<GroupUnits> groupsUnits = getOrderGroups(it, orderLines, orderTasks)
-			return [(it): groupsUnits]
+		UpdateCards ordersUpdateCards = new UpdateCards()
+		orders.each {
+			List<GroupUnits> groupsUnits = findGroupUnits(it)
+			List<GroupUnits> groupsDurations = groupDurationDataService.findAll(groupsUnits)
+			List<Card> orderCards = buildOrderCards(it, groupsDurations)
+
+			boolean replaceOrderCards = checkReplaceOrderCards(orderCards)
+			UpdateCards updateCards = null
+			if (replaceOrderCards) {
+				updateCards = handleCardsReplacement(dbCards, orderCards)
+			}
+			updateCards = updateCards ?: handleCardsUpdate(dbCards, orderCards)
+			ordersUpdateCards.add(updateCards)
 		}
-//		List<Integer> articlesCodes = findOrderArticlesCodes(orders)
-//		List<Task> ordersTasks = taskDataService.findAll(articlesCodes)
-
-//		/* Para cada orden, se obtienen sus agrupaciones y las unidades de cada uno de ellos */
-//		Map<Order, List<GroupUnits>> ordersGroupsUnits = getOrdersGroupsUnits(orders, ordersTasks)
-
-		/* Se construyen las fichas a partir de la información de ordenes y grupos */
-		List<Card> ordersCards = buildOrdersCards(orders, ordersGroupsUnits)
-
-		/* A partir de las órdenes, las fichas guardadas y las recién construidas, se obtienen aquellas que deben ser
-		*  actualizadas en DB */
-		UpdateCards updateCards = getCardsToUpdate(orders, dbCards, ordersCards)
-		return updateCards
+		UpdateCards deleteUpdateCards = handleCardsDeletion(
+			orders, dbCards, ordersUpdateCards.getAll(), ordersUpdateCards.same
+		)
+		ordersUpdateCards.add(deleteUpdateCards)
+		return ordersUpdateCards
 	}
 
-	static List<OrderLine> filterOrderLines(Set<OrderLine> orderLines) {
+	/**
+	 * Encuentra los grupos y unidades asociados a una orden
+	 * @param order Orden
+	 * @return Lista de grupos y unidades asociados
+	 */
+	List<GroupUnits> findGroupUnits(OrderHeader order) {
+		/* Se filtran las líneas para obtener sólo aquellas cuyo artículo se haya encontrado en BD */
+		List<OrderLine> orderLines = filterOrderLines(order)
+
+		/* Se obtienen los artículos sin el primer dígito, que no identifica el propio artículo */
+		List<Integer> articleCodes = orderLines.article.code.collect { findUnitaryArticleCode(it) }
+		List<Task> orderTasks = taskDataService.findAll(articleCodes)
+		List<GroupUnits> groupsUnits = findOrderGroups(order, orderLines, orderTasks)
+		return groupsUnits
+	}
+
+	/**
+	 * Filtra las líneas de la orden cuyo artículo se haya encontrado en BD (de no ser así, el objeto Article dará
+	 * una LazyInitializationException al intentar acceder él)
+	 * @param order Orden
+	 * @return Lista de líneas de la orden
+	 */
+	static List<OrderLine> filterOrderLines(OrderHeader order) {
 		List<OrderLine> filteredLines = []
-		orderLines.each {
+		order.lines.each {
 			try {
 				if (it.article.labour == "S") {
 					filteredLines << it
 				}
-			} catch (all) {}
+			} catch (ignored) {
+				LOG.info(new Log([message: Constants.Message.NOT_FOUND_ARTICLE, order: order.number, line: it.line]).toString())
+			}
 		}
 		return filteredLines
 	}
 
-	static List<Integer> findUnitaryArticleCodes(List<Integer> codes) {
-		return codes.collect { findUnitaryArticleCode(it) }
-	}
-
+	/**
+	 * Se elimina el primer dígito del código de artículo
+	 * @param code Código de artículo
+	 * @return Código de artículo sin el primer dígito
+	 */
 	static int findUnitaryArticleCode(int code) {
 		return (code as String)[1..-1] as int
 	}
 
 	/**
-	 * Obtiene las fichas, de las distintas categorías, que se deben cargar en panel
-	 * @param orders Lista de órdenes
-	 * @param dbCards Lista de fichas de base de datos
-	 * @param builtCards Lista de fichas construidas
-	 * @return Objeto con las distintas categorías de fichas
+	 * Get order groups and units based on its articles
+	 * @param order Order from which to get the groups
+	 * @param tasks List of all tasks
+	 * @return List of GroupUnits
 	 */
-	static UpdateCards getCardsToUpdate(List<OrderHeader> orders, List<Card> dbCards, List<Card> builtCards) {
-		/* Se obtienen las órdenes cuyas fichas deben ser creadas (número de orden no existe en las fichas actuales) */
-		UpdateCards updateCards = handleCardsUpdate(dbCards, builtCards)
-		updateCards.deleted += getDeletedCards(orders, dbCards, builtCards)
-		fixSameCardsDeletedInfo(updateCards.same, updateCards.deleted)
-		return updateCards
-	}
+	static List<GroupUnits> findOrderGroups(OrderHeader order, List<OrderLine> orderLines, List<Task> orderTasks) {
+		/* Se filtran las tareas absorbibles */
+		List<Task> filteredOrderTasks = filterAbsorbableTasks(orderTasks)
 
-	/**
-	 * Get cards to create from existent orders, or cards to update
-	 * @param dbCards List of cards of the day
-	 * @param builtCards Cards built based on orders info
-	 * @return UpdateCardsInfo with newCards and cardsToUpdate
-	 */
-	static UpdateCards handleCardsUpdate(List<Card> dbCards, List<Card> builtCards) {
-		UpdateCards updateCards = new UpdateCards()
-		builtCards.groupBy { it.order.number }.each { int orderNumber, List<Card> builtOrderCards ->
-			boolean replaceOrderCards = checkReplaceOrderCards(builtOrderCards)
-			boolean handled = false
-			if (replaceOrderCards) {
-				handled = handleOrderCardsReplacement(dbCards, builtOrderCards, updateCards)
-			}
-			/* Si las fichas no han sido reemplazadas, siguen el flujo habitual de actualización */
-			if (!handled) {
-				builtOrderCards.each { handleCardUpdate(dbCards, it, updateCards) }
+		List<Task> processedTasks = []
+		List<GroupUnits> selectedGroupsInfo = []
+		filteredOrderTasks.each { Task task ->
+			boolean alreadyProcessedTask = processedTasks.find { it.articleCode == task.articleCode }
+			if (!alreadyProcessedTask) {
+				/* Se obtienen los grupos cuyas tareas todavía no han sido procesadas */
+				Set<Group> possibleGroups = task.groups.findAll {
+					!it.tasks.find { it.articleCode in processedTasks.articleCode }
+				}
+				Group selectedGroup = findSelectedGroup(possibleGroups, filteredOrderTasks)
+				if (selectedGroup) {
+					selectedGroupsInfo << new GroupUnits(
+						group: selectedGroup,
+						units: getOrderGroupUnits(orderLines, selectedGroup)
+					)
+					processedTasks += selectedGroup.tasks
+				} else {
+					LOG.warn("[$order.number][$task.articleCode]$filteredOrderTasks.articleCode Group not found for task")
+				}
 			}
 		}
-
-		return updateCards
+		return selectedGroupsInfo
 	}
 
 	/**
-	 * Se comprueba si las fichas de la orden deben reemplazar otras ya existentes, como en el caso de eCommerce
+	 * Elimina las tareas absorbibles si existen otras que no lo sean (es decir, se dejan sólo las principales)
+	 * @param orderTasks Lista de tareas de la orden
+	 * @return Lista de tareas filtradas
+	 */
+	static List<Task> filterAbsorbableTasks(List<Task> orderTasks) {
+		List<Task> mainTasks = orderTasks.findAll { !it.absorbable }
+		return mainTasks ?: orderTasks
+	}
+
+	/**
+	 * Se obtiene el grupo cuya coincidencia de tareas sea mayor comparada con las de laorden
+	 * @param groups Lista de grupos de una tarea
+	 * @param orderTasks Lista de tareas de la orden
+	 * @return Grupo seleccionado
+	 */
+	static Group findSelectedGroup(Set<Group> groups, List<Task> orderTasks) {
+		List<Group> possibleGroups = sortPossibleGroups(groups)
+		Group selectedGroup = possibleGroups.find { Group group ->
+			List<Task> commonTasks = orderTasks.findAll { it.articleCode in group.tasks*.articleCode }
+			/* Si el tamaño de las tareas del grupo y las comunes es el mismo, significa que todas las del grupo están
+			*  en la orden. Por lo tanto, ese sería el grupo seleccionado */
+			return group.tasks.size() == commonTasks.size()
+		}
+		return selectedGroup
+	}
+
+	/**
+	 * Ordena los grupos en función del orden en el que se tengan que seleccionar
+	 * @param groups Lista de grupos
+	 * @return Lista de grupos ordenada
+	 */
+	static List<Group> sortPossibleGroups(Set<Group> groups) {
+		/* Se ordenan primero por número de tareas (grupo con 4 tareas más preferencia que uno de 3), después por
+		*  orden del color, y en caso de igualdad, por código de agrupación (únicamente para evitar generación de
+		*  agrupaciones distintas) */
+		return groups.sort { Group a, Group b ->
+			if (b.tasks.size() == a.tasks.size()) {
+				if (a.color.order == b.color.order) {
+					return a.code <=> b.code
+				} else {
+					return a.color.order <=> b.color.order
+				}
+			} else {
+				return b.tasks.size() <=> a.tasks.size()
+			}
+		}
+	}
+
+	/**
+	 * Obtiene las líneas de orden cuyo código de artículo está presente en una agrupación
+	 * @param orderLines Líneas de la orden
+	 * @param group Agrupación
+	 * @return Lista de unidades
+	 */
+	static List<Float> getOrderGroupUnits(List<OrderLine> orderLines, Group group) {
+		return orderLines.findAll {
+			findUnitaryArticleCode(it.article.code) in group.tasks*.articleCode
+		}*.units.collect { it as Float }
+	}
+
+	/**
+	 * Construye las fichas de una orden basándose en los grupos y sus duraciones
+	 * @param order Orden
+	 * @param groupDurations Lista de grupos y sus duraciones
+	 * @return Lista de fichas
+	 */
+	static List<Card> buildOrderCards(OrderHeader order, List<GroupUnits> groupDurations) {
+		List<Card> orderCards = []
+		groupDurations.each {
+			if (it.duration) {
+				orderCards << Builder.buildCard(order, it.group, it.units[0], it.duration)
+			} else {
+				LOG.info(new Log([message: Constants.Message.NOT_FOUND_DURATION, group: groupDurations.group.code]).toString())
+			}
+		}
+		orderCards.sort { it.group.color.order }
+		return orderCards
+	}
+
+	/**
+	 * Comprueba si las fichas de la orden deben reemplazar otras ya existentes, como en el caso de eCommerce
 	 * @param builtOrderCards Fichas de orden generadas
 	 * @return boolean
 	 */
 	static boolean checkReplaceOrderCards(List<Card> builtOrderCards) {
 		/* Se gestiona el reemplazo sólo si la ficha no está asignada, y si el código de creador de la orden es
-		*  eCommerce */
+		 * eCommerce */
 		return !builtOrderCards[0].mechanicCode && builtOrderCards[0].order.creatorCode == Constants.ECOMMERCE_USER_CODE
 	}
 
 	/**
-	 * Se gestiona la actualización de fichas recién creadas con información de las existentes (si es necesario)
-	 * @param dbCards Fichas ya creadas en base de datos
-	 * @param builtOrderCards Fichas de la orden recién creadas
-	 * @param updateCards Objecto con información de fichas
-	 * @return Lista de fichas actualizadas
+	 * Gestiona y obtiene las fichas que se deben reemplazar
+	 * @param dbCards Lista de fichas de la base de datos
+	 * @param orderCards Lista de fichas de la orden
+	 * @return Objeto updateCards
 	 */
-	static boolean handleOrderCardsReplacement(
-		List<Card> dbCards, List<Card> builtOrderCards, UpdateCards updateCards
-	) {
+	static UpdateCards handleCardsReplacement(List<Card> dbCards, List<Card> cards) {
 		/* En el caso de eCommerce, sólo se reemplaza una ficha, ya que es la única que se crea cuando se reserva
 		*  tiempo desde la web.
 		*  La hora de creación de la orden debería coincidir con la hora de comienzo de la ficha temporal ya creada */
-		boolean handled = false
+		UpdateCards updateCards = null
 		Card cardToReplace = dbCards.find {
 			it.type == Card.CardType.AUXILIARY && it.status == Card.Status.ECOMMERCE &&
-				it.start == builtOrderCards[0].order.created
+				it.start == cards[0].order.created
 		}
 		if (cardToReplace) {
-			updateCards.newReplace += updateReplacedCards(cardToReplace, builtOrderCards)
-			updateCards.deleted << cardToReplace
-			handled = true
+			List<Card> updatedOrderCards = updateReplacedCards(cardToReplace, cards)
+			updateCards = new UpdateCards(newReplace: updatedOrderCards, deleted: [cardToReplace])
 		}
-		return handled
+		return updateCards
 	}
 
 	/**
-	 * Se gestiona la actualización de una sóla ficha recién creada
+	 * Actualiza la posición de varias fichas, sutituyendo a otra ya existente
+	 * @param dbCard Ficha existente en BD
+	 * @param cards Fichas recién creada
+	 * @return Fichas actualizadas
+	 */
+	static List<Card> updateReplacedCards(Card dbCard, List<Card> cards) {
+		cards.eachWithIndex { Card card, int i ->
+			LocalTime start = i == 0 ? dbCard.start : cards[i - 1].start.plusMinutes(cards[i - 1].duration)
+			updateReplacedCard(dbCard, card, start)
+		}
+		return cards
+	}
+
+	/**
+	 * Actualiza la información de posición de la ficha que va a reemplazar a otra
+	 * @param dbCard Ficha que va a ser reemplazada
+	 * @param builtCard Ficha que va a reemplazar a la existente
+	 * @return Ficha actualizada
+	 */
+	static Card updateReplacedCard(Card dbCard, Card card, LocalTime start = null) {
+		card.day = dbCard.day
+		card.mechanicCode = dbCard.mechanicCode
+		card.line = dbCard.line
+		card.start = start ?: dbCard.start
+		return card
+	}
+
+	/**
+	 * Gestiona y obtiene las fichas que se deben actualizar
+	 * @param dbCards Lista de fichas de la base de datos
+	 * @param orderCards Lista de fichas de la orden
+	 * @return Objeto updateCards
+	 */
+	static UpdateCards handleCardsUpdate(List<Card> dbCards, List<Card> cards) {
+		UpdateCards updateCards = new UpdateCards()
+		cards.each {
+			updateCards.add(handleCardUpdate(dbCards, it))
+		}
+		return updateCards
+	}
+
+	/**
+	 * Gestiona la actualización de una ficha recién creada
 	 * @param dbCards Fichas de base de datos
 	 * @param builtCard Ficha recién creada
-	 * @param updateCards Objeto con información sobre las fichas
-	 * @return
+	 * @return Objeto updateCards
 	 */
-	static UpdateCards handleCardUpdate(List<Card> dbCards, Card builtCard, UpdateCards updateCards) {
+	static UpdateCards handleCardUpdate(List<Card> dbCards, Card builtCard) {
+		UpdateCards updateCards = new UpdateCards()
 		List<Card> dbOrderCards = dbCards.findAll { it.order.number == builtCard.order.number }
 
 		/* Si en base de datos existen fichas asociadas al número de orden, se comprueba si alguna debe ser
@@ -506,7 +526,7 @@ class PanelService {
 					/* Si se actualiza la info de la orden, se debe reflejar en todas las posibles fichas divididas,
                     *  no sólo en builtCard. Por eso se pasa como parámetro dbGroupOrderCards */
 					if (checkResetCards(orderDifferences)) {
-						updateCards.reset += dbGroupOrderCards.collect { updateResetCard(it) }
+						updateCards.reset += dbGroupOrderCards.collect { resetCardPosition(it) }
 					} else {
 						updateCards.updated += dbGroupOrderCards
 					}
@@ -547,28 +567,67 @@ class PanelService {
 	}
 
 	/**
+	 * Comprueba si la info de JPDV ha sido actualizada
+	 * @param dbCard Ficha de base de datos
+	 * @param card Ficha recién construida
+	 * @return boolean
+	 */
+	static Map<String, Object> checkUpdatedOrderInfo(Card dbCard, Card card) {
+		Map<String, Object> orderDifferences = ((card.order.properties + card.vehicle.properties) -
+			(dbCard.order.properties + dbCard.vehicle.properties)) as Map<String, Object>
+		return orderDifferences
+	}
+
+	/**
+	 * Actualiza una ficha con la nueva información de la orden
+	 * @param dbCard Ficha de base de datos
+	 * @param card Ficha recién construida
+	 * @return Updated card
+	 */
+	static Card updateCardOrderInfo(Card dbCard, Card card) {
+		dbCard.order = card.order
+		dbCard.vehicle = card.vehicle
+		return dbCard
+	}
+
+	/**
 	 * Comprueba si las actualizaciones de una orden implican resetear la ficha (ocurre si cambian el día o la hora de
 	 * una cita)
 	 * @param orderDifferences Mapa con las diferencias de la orden existentes en una ficha
+	 * @return booleano
 	 */
 	static boolean checkResetCards(Map<String, Object> orderDifferences) {
 		return orderDifferences.find { it.key in Constants.RESET_NEW_CARDS_PROPERTIES }
 	}
 
 	/**
-	 * Find the replaced existent card based on its group tasks. If groups are not the same, it is necessary to check
-	 * the tasks to know if a card is replacing another, or if it a completely new card
-	 * @param dayOrderCards Saved order cards
-	 * @param builtCard Built card
-	 * @return Replaced card
+	 * Resetea la posición de una ficha
+	 * @param card Ficha a resetear
+	 * @return Ficha actualizada
+	 */
+	static Card resetCardPosition(Card card) {
+		card.day = null
+		card.mechanicCode = null
+		card.start = null
+		card.line = null
+		card.status = Card.Status.DEFAULT
+		return card
+	}
+
+	/**
+	 * Encuentra la ficha existente a reemplazar basándose en las tareas del grupo. Si este no es el mismo, es
+	 * necesario revisar las tareas para saber si la ficha está siendo reemplazada, o si se debe crear otra nueva
+	 * @param dbOrderCards Fichas guardadas en DB
+	 * @param builtCard Ficha construida
+	 * @return Ficha a reemplazar
 	 */
 	static Card findReplacedCard(List<Card> dbOrderCards, Card builtCard) {
 		List<Integer> builtCardTasksCodes = builtCard.group.tasks*.articleCode as List<Integer>
 		Card replacedCard = dbOrderCards.find {
 			List<Integer> dayOrderCardTasksCodes = it.group.tasks*.articleCode as List<Integer>
 			List<Integer> difference = builtCardTasksCodes.size() > dayOrderCardTasksCodes.size() ?
-											builtCardTasksCodes - dayOrderCardTasksCodes :
-											dayOrderCardTasksCodes - builtCardTasksCodes
+				builtCardTasksCodes - dayOrderCardTasksCodes :
+				dayOrderCardTasksCodes - builtCardTasksCodes
 
 			/* Una diferencia de uno entre las tareas implica que sólo se ha añadido o quitado una. Es decir, que la
 			*  agrupación ha cambiado poco. En ese caso, se toma la ficha como referencia para actualizar únicamente su
@@ -579,27 +638,21 @@ class PanelService {
 	}
 
 	/**
-	 * Check if a card order info has been updated from JPDV
-	 * @param builtCard Built card based on orders info
-	 * @param dbCard Card of the day, already saved in DB
-	 * @return boolean
+	 * Gestiona y obtiene las fichas que se deben borrar
+	 * @param orders Lista de órdenes
+	 * @param dbCards Lista de fichas de la BD
+	 * @param cards Lista de fichas recién creadas
+	 * @param sameCards Lista de fichas que no se han modificado
+	 * @return Objeto updateCards
 	 */
-	static Map<String, Object> checkUpdatedOrderInfo(Card dbCard, Card builtCard) {
-		Map<String, Object> orderDifferences = ((builtCard.order.properties + builtCard.vehicle.properties) -
-			(dbCard.order.properties + dbCard.vehicle.properties)) as Map<String, Object>
-		return orderDifferences
-	}
-
-	/**
-	 * Update card object with new built card order info
-	 * @param builtCard Newly built card
-	 * @param dbCard Already saved card
-	 * @return Updated card
-	 */
-	static Card updateCardOrderInfo(Card dbCard, Card builtCard) {
-		dbCard.order = builtCard.order
-		dbCard.vehicle = builtCard.vehicle
-		return dbCard
+	static UpdateCards handleCardsDeletion(
+		List<OrderHeader> orders, List<Card> dbCards, List<Card> cards, List<Card> sameCards
+	) {
+		List<Card> deletedCards = (findDeletedOrdersCards(orders, dbCards) +
+				findUpdatedGroupDeletedCards(dbCards, cards)).collect {
+			deleteCard(it, sameCards)
+		}
+		return new UpdateCards(deleted: deletedCards)
 	}
 
 	/**
@@ -615,82 +668,25 @@ class PanelService {
 	}
 
 	/**
-	 * Actualiza la información de posición de la ficha que va a reemplazar a otra
-	 * @param dbCard Ficha que va a ser reemplazada
-	 * @param builtCard Ficha que va a reemplazar a la existente
-	 * @return Ficha actualizada
+	 * Obtiene las fichas que se deben borrar porque ya no existe la orden
+	 * @param orders Lista de ordenes
+	 * @param cards Lista de fichas
+	 * @return Lista de fichas para borrar
 	 */
-	static Card updateReplacedCard(Card dbCard, Card builtCard) {
-		builtCard.day = dbCard.day
-		builtCard.mechanicCode = dbCard.mechanicCode
-		builtCard.start = dbCard.start
-		return builtCard
-	}
-
-	/**
-	 * Actualiza la posición de varias fichas, sutituyendo a otra ya existente
-	 * @param dbCard Ficha existente en BD
-	 * @param builtCards Fichas recién creada
-	 * @return Fichas actualizadas
-	 */
-	static List<Card> updateReplacedCards(Card dbCard, List<Card> builtCards) {
-		builtCards.eachWithIndex { Card card, int i ->
-			card.day = dbCard.day
-			card.mechanicCode = dbCard.mechanicCode
-			card.line = dbCard.line
-			card.start = i == 0 ? dbCard.start : builtCards[i-1].start.plusMinutes(builtCards[i-1].duration)
-		}
-		return builtCards
-	}
-
-	/**
-	 * Actualiza la información de posición de la ficha que va a reemplazar a otra
-	 * @param dbCard Ficha que va a ser reemplazada
-	 * @param builtCard Ficha que va a reemplazar a la existente
-	 * @return Ficha actualizada
-	 */
-	static Card updateResetCard(Card dbCard) {
-		dbCard.day = null
-		dbCard.mechanicCode = null
-		dbCard.start = null
-		dbCard.line = null
-		dbCard.status = Card.Status.DEFAULT
-		return dbCard
-	}
-
-	/**
-	 * Get deleted cards with updated dateDeleted
-	 * @param orders List of orders
-	 * @param builtCards List of built cards
-	 * @return List of updated cards
-	 */
-	static List<Card> getDeletedCards(List<OrderHeader> orders, List<Card> dbCards, List<Card> builtCards) {
-		List<Card> cardsToDelete = getDeletedOrdersCards(orders, dbCards)
-		cardsToDelete += getUpdatedGroupDeletedCards(dbCards, builtCards)
-		List<Card> deletedCards = cardsToDelete.collect { deleteCard(it) }
-		return deletedCards
-	}
-
-	/**
-	 * Get cards to delete because order no longer exists
-	 * @param orders List of orders
-	 * @param builtCards Cards saved for day
-	 * @return List of cards to delete
-	 */
-	static List<Card> getDeletedOrdersCards(List<OrderHeader> orders, List<Card> dbCards) {
-		List<Card> cardsToDelete = dbCards.findAll {
+	static List<Card> findDeletedOrdersCards(List<OrderHeader> orders, List<Card> cards) {
+		List<Card> cardsToDelete = cards.findAll {
 			!(it.order.number in orders.number) && it.type != Card.CardType.AUXILIARY
 		}
 		return cardsToDelete
 	}
 
 	/**
-	 * Get cards to delete because order tasks changed and its group is no longer necessary
-	 * @param orders List of orders
-	 * @param builtCards Cards built based on orders info
-	 * @return List of cards to delete
+	 * Obtiene las fichas que se deben borrar al haber cambiado las agrupaciones
+	 * @param dbCards Lista de fichas de base de datos
+	 * @param cards Lista de fichas recién construidas
+	 * @return Lista de fichas para borrar
 	 */
-	static List<Card> getUpdatedGroupDeletedCards(List<Card> dbCards, List<Card> builtCards) {
+	static List<Card> findUpdatedGroupDeletedCards(List<Card> dbCards, List<Card> builtCards) {
 		List<Card> cardsToDelete = dbCards.findAll { Card dbCard ->
 			List<Card> builtOrderCards = builtCards.findAll { it.order.number == dbCard.order.number }
 			Card orderAndGroupCard = builtOrderCards.find { it.group.code == dbCard.group.code }
@@ -700,25 +696,31 @@ class PanelService {
 	}
 
 	/**
-	 * Delete card (set dateDeleted)
-	 * @param card Card
+	 * Borra una ficha, reseteando los enlaces que pueda tener
+	 * @param card Ficha a borrar
+	 * @param cards Lista de fichas a las que puede ser necesario borrar el enlace
 	 * @return Updated card
 	 */
-	static Card deleteCard(Card card) {
+	static Card deleteCard(Card card, List<Card> sameCards) {
 		card.dateDeleted = LocalDateTime.now()
+		unlinkCards(card, sameCards)
 		return card
 	}
 
-	static void fixSameCardsDeletedInfo(List<Card> sameCards, List<Card> deletedCards) {
-		sameCards.each { Card card ->
-			Card linkedPreviousDeletedCard = card.linkedPrevious ? deletedCards.find { it == card.linkedPrevious } : null
-			Card linkedNextDeletedCard = card.linkedNext ? deletedCards.find { it == card.linkedNext } : null
-			if (linkedPreviousDeletedCard) {
-				card.linkedPrevious = null
-			}
-			if (linkedNextDeletedCard) {
-				card.linkedNext = null
-			}
+	/**
+	 * Desenlaza la ficha borrada del resto de fichas que sigan en panel (si por ejemplo se elimina un grupo, pero no
+	 * otro enlazado, este último debe dejar de estarlo)
+	 * @param card Ficha borrada
+	 * @param sameCards Fichas que siguen existiendo en panel
+	 */
+	static void unlinkCards(Card card, List<Card> sameCards) {
+		Card nextCard = sameCards.find { it.linkedPrevious == card }
+		if (nextCard) {
+			nextCard.linkedPrevious = null
+		}
+		Card previousCard = sameCards.find { it.linkedNext == card }
+		if (previousCard) {
+			previousCard.linkedNext = null
 		}
 	}
 

@@ -7,6 +7,7 @@ import panel.domains.panel.Group
 import panel.domains.panel.GroupDuration
 import panel.domains.panel.Task
 import panel.pogos.cards.GroupUnits
+import panel.utils.Constants
 
 @Service(GroupDuration)
 abstract class GroupDurationDataService {
@@ -33,20 +34,21 @@ abstract class GroupDurationDataService {
 			Float duration
 			GroupDuration groupDuration = find(it.group.id, it.units[0] as int)
 			if (groupDuration) {
-				it.duration = (int)(5 * Math.round(groupDuration.duration/5))
+				it.duration = (int)(Constants.ROUND_NUMBER * Math.round(groupDuration.duration / Constants.ROUND_NUMBER))
 			} else {
 				groupDuration = find(it.group.id, 1)
 				if (groupDuration) {
-					duration = (float) groupDuration.duration * it.units[0]
-					it.duration = (int)(5 * Math.round(duration/5))
+					duration = (float) (groupDuration.duration * it.units[0])
+					it.duration = (int)(Constants.ROUND_NUMBER * Math.round(duration / Constants.ROUND_NUMBER))
 				} else {
 					List<Long> tasksIds = it.group.tasks.sort { it.articleCode }.id
-					List<Float> durations = [tasksIds, it.units].transpose().collect { long taskId, float units ->
+					List<Float> durations = (List<Float>) [tasksIds, it.units].transpose()
+							.collect { long taskId, float units ->
 						groupDuration = find(it.group.id, taskId, units as int)
 						return groupDuration.duration * units
 					}
 					duration = (float) durations.sum()
-					it.duration = (int)(5 * Math.round(duration/5))
+					it.duration = (int)(Constants.ROUND_NUMBER * Math.round(duration / Constants.ROUND_NUMBER))
 				}
 			}
 		}

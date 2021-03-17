@@ -42,8 +42,8 @@ abstract class CardDataService {
 	@Query("""
 		from ${Card card}
 		where card.order.code = $orderCode and card.group.code = $groupCode
-		and $card.linkedIndex = $linkedIndex and $card.divisionIndex = $divisionIndex 
-		and (card.day is null or card.day >= $day) and card.dateDeleted is null
+		and $card.linkedIndex = $linkedIndex and $card.divisionIndex = $divisionIndex
+		and ($card.day is null or $card.day >= $day) and $card.dateDeleted is null
 	""")
 	abstract Card find(String orderCode, int groupCode, int linkedIndex, int divisionIndex, LocalDate day)
 

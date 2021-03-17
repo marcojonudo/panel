@@ -83,10 +83,11 @@ class Card implements GormEntity<Card> {
     }
 
     static mapping = {
-        group lazy: false
         version defaultValue: 0
-        linkedPrevious fetch: 'join'
-        linkedNext fetch: 'join'
+
+        group lazy: false
+        linkedPrevious lazy: false
+        linkedNext lazy: false
     }
 
     static embedded = ['pending', 'order', 'client', 'vehicle']
@@ -153,7 +154,7 @@ class OrderInfo {
     @JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
     LocalDate day
 
-    Set<OrderLine> lines
+    List<OrderLine> lines
 
     static constraints = {
         number nullable: true

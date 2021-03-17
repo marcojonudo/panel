@@ -3,6 +3,7 @@ package panel.utils
 import groovy.transform.CompileStatic
 import panel.domains.fviberi.OrderHeader
 import panel.domains.panel.*
+import panel.services.PanelService
 
 import java.time.LocalDate
 import java.time.LocalTime
@@ -25,7 +26,7 @@ class Builder {
 				created: order.created,
 				deadline: order.timeInfo[0].deadline,
 				day: order.day,
-				lines: order.lines,
+				lines: PanelService.filterOrderLines(order),
 			),
 			vehicle: new VehicleInfo(
 				numberPlate: order.vehicle.numberPlate ?: null,

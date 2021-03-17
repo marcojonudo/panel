@@ -1751,7 +1751,7 @@ class PanelServiceSpec extends Specification {
 
 	void "test get order groups 1"() {
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order4Articles, [task026, task066, task129, task169])
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(order4Articles, [task026, task066, task129, task169])
 
 		then:
 		groupUnits.size() == 4
@@ -1775,7 +1775,7 @@ class PanelServiceSpec extends Specification {
 		)
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task108, task169, task273])
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(order, [task108, task169, task273])
 
 		then:
 		groupUnits.size() == 2
@@ -1797,7 +1797,7 @@ class PanelServiceSpec extends Specification {
 		)
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task108, task086, task169])
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(order, [task108, task086, task169])
 
 		then:
 		groupUnits.size() == 3
@@ -1820,7 +1820,7 @@ class PanelServiceSpec extends Specification {
 		)
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(order, [task086, task021, task277])
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(order, [task086, task021, task277])
 
 		then:
 		groupUnits.size() == 2
@@ -1851,7 +1851,7 @@ class PanelServiceSpec extends Specification {
 		)
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(
 			order,
 			[task001, task004, task021, task022, task025, task026, task066, task086, task112, task151, task200, task330]
 		)
@@ -1888,7 +1888,7 @@ class PanelServiceSpec extends Specification {
 		)
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(
 			order,
 			[task013, task015, task021, task073, task212, task277, task339]
 		)
@@ -1925,7 +1925,7 @@ class PanelServiceSpec extends Specification {
 		)
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(
 			order,
 			[task001, task004, task021, task022, task025, task026, task066, task086, task112, task151, task200, task330]
 		)
@@ -1961,7 +1961,7 @@ class PanelServiceSpec extends Specification {
 		)
 
 		when:
-		List<GroupUnits> groupUnits = panelService.getOrderGroups(
+		List<GroupUnits> groupUnits = panelService.findOrderGroups(
 			order,
 			[task001, task004, task151, task200, task225, task339]
 		)
@@ -2514,7 +2514,7 @@ class PanelServiceSpec extends Specification {
 		List<CardPogo> dbCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<CardPogo> cards = panelService.getDeletedOrdersCards([order4Articles], dbCards)
+		List<CardPogo> cards = panelService.findDeletedOrdersCards([order4Articles], dbCards)
 
 		then:
 		!cards
@@ -2525,7 +2525,7 @@ class PanelServiceSpec extends Specification {
 		List<CardPogo> dbCards = [new CardPogo([order: [number: 2], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<CardPogo> cards = panelService.getDeletedOrdersCards([order4Articles], dbCards)
+		List<CardPogo> cards = panelService.findDeletedOrdersCards([order4Articles], dbCards)
 
 		then:
 		cards.size() == 1
@@ -2542,7 +2542,7 @@ class PanelServiceSpec extends Specification {
 		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 1]])]
 
 		when:
-		List<CardPogo> cards = panelService.getUpdatedGroupDeletedCards(dbCards, builtCards)
+		List<CardPogo> cards = panelService.findUpdatedGroupDeletedCards(dbCards, builtCards)
 
 		then:
 		!cards
@@ -2554,7 +2554,7 @@ class PanelServiceSpec extends Specification {
 		List<CardPogo> builtCards = [new CardPogo([order: [number: 1], vehicle: [brand: 'BMW'], group: [code: 2]])]
 
 		when:
-		List<CardPogo> cards = panelService.getUpdatedGroupDeletedCards(dbCards, builtCards)
+		List<CardPogo> cards = panelService.findUpdatedGroupDeletedCards(dbCards, builtCards)
 
 		then:
 		cards.size() == 1
