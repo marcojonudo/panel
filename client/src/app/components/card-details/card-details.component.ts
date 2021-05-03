@@ -3,6 +3,8 @@ import {Card} from "../../objects/card";
 import {Constants} from "../../objects/constants";
 import {NotificationService} from "../../services/notification.service";
 import {CardsService} from "../../services/cards.service";
+import {OrderLine} from "../../objects/order-line";
+import {Dayjs} from "dayjs";
 
 @Component({
 	selector: 'app-card-details',
@@ -14,10 +16,7 @@ export class CardDetailsComponent {
 
 	@Input() card: Card;
 
-	constructor(
-		private cardsService: CardsService,
-		private cdRef: ChangeDetectorRef
-	) {}
+	constructor(private cardsService: CardsService, private cdRef: ChangeDetectorRef) {}
 
 	// region Getters / setters
 
@@ -31,16 +30,76 @@ export class CardDetailsComponent {
 
 	// endregion
 
-	findStateName(state: string): string {
-		return Constants.ORDER_STATE_NAME[state];
-	}
-
 	closePanel(): void {
 		NotificationService.notifyLateralInfo(this.card.day, undefined, true);
 	}
 
-	checkVehiclePosition(vehiclePosition: string): boolean {
-		return this.card.vehiclePosition == vehiclePosition;
+	checkVehiclePosition(vehiclePosition: string, card: Card = this.card): boolean {
+		return card && card.vehiclePosition == vehiclePosition;
+	}
+
+	checkPendingCall(card: Card = this.card): boolean {
+		return card && card.pending.call;
+	}
+
+	checkPendingBudget(card: Card = this.card): boolean {
+		return card && card.pending.budget;
+	}
+
+	findClientName(card: Card = this.card): string {
+		return card ? card.client.name : undefined;
+	}
+
+	findClientSurnames(card: Card = this.card): string {
+		return card ? card.client.surnames : undefined;
+	}
+
+	findClientPhoneNumber(card: Card = this.card): number {
+		return card ? card.client.phoneNumber : undefined;
+	}
+
+	findVehicleNumberPlate(card: Card = this.card): string {
+		return card ? card.vehicle.numberPlate : undefined;
+	}
+
+	findVehicleBrand(card: Card = this.card): string {
+		return card ? card.vehicle.brand : undefined;
+	}
+
+	findVehicleModel(card: Card = this.card): string {
+		return card ? card.vehicle.model : undefined;
+	}
+
+	findVehicleCylinder(card: Card = this.card): string {
+		return card ? card.vehicle.cylinder : undefined;
+	}
+
+	findVehicleColor(card: Card = this.card): string {
+		return card ? card.vehicle.color : undefined;
+	}
+
+	findOrderCreated(card: Card = this.card): Dayjs {
+		return card ? card.order.created : undefined;
+	}
+
+	findOrderDeadline(card: Card = this.card): Dayjs {
+		return card ? card.order.deadline : undefined;
+	}
+
+	findOrderNumber(card: Card = this.card): number {
+		return card ? card.order.number : undefined;
+	}
+
+	findOrderCode(card: Card = this.card): string {
+		return card ? card.order.code : undefined;
+	}
+
+	findStateName(card: Card = this.card): string {
+		return card ? Constants.ORDER_STATE_NAME[card.order.state] : undefined;
+	}
+
+	findOrderLines(card: Card = this.card): OrderLine[] {
+		return card ? card.order.lines : [];
 	}
 
 	updateVehiclePosition(vehiclePosition: string, card: Card = this.card): void {

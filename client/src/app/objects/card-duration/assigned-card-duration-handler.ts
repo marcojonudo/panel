@@ -3,10 +3,10 @@ import {CardsService} from "../../services/cards.service";
 import {Card} from "../card";
 import {CardDurationHandler} from "./card-duration-handler";
 import {Constants} from "../constants";
-import {ScheduleInterval} from "../schedule-interval";
 import {Mechanic} from "../mechanic";
 import {NotificationService} from "../../services/notification.service";
 import {UpdateDurationInfo} from "./update-duration-info";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class AssignedCardDurationHandler implements CardDurationHandler {
 
@@ -65,7 +65,7 @@ export class AssignedCardDurationHandler implements CardDurationHandler {
 	}
 
 	validateDurationUpdate(group: CardsGroup, card: Card, mechanic: Mechanic): CardsGroup[] {
-		const groupOutsideSchedule = this.checkGroupOutsideSchedule(group, mechanic.schedules);
+		const groupOutsideSchedule = this.checkGroupOutsideSchedule(group, mechanic.intervals);
 		/* Si el grupo se sale del horario al aumentar la duración */
 		if (groupOutsideSchedule) {
 			return undefined;
@@ -75,14 +75,14 @@ export class AssignedCardDurationHandler implements CardDurationHandler {
 		/* Si no se desplazan otros grupos al aumentar la duración, o se desplazan pero siguen dentro del horario, se
 		*  se valida la actualización y se devuelven los grupos actualizados */
 		if (!updatedGroups.length ||
-			!this.checkGroupOutsideSchedule(updatedGroups[updatedGroups.length - 1], mechanic.schedules)) {
+			!this.checkGroupOutsideSchedule(updatedGroups[updatedGroups.length - 1], mechanic.intervals)) {
 			return updatedGroups;
 		}
 		return undefined;
 	}
 
-	checkGroupOutsideSchedule(group: CardsGroup, schedules: ScheduleInterval[]): boolean {
-		const threshold = schedules.find((interval: ScheduleInterval) => interval.end.isSame(group.end));
+	checkGroupOutsideSchedule(group: CardsGroup, intervals: ScheduleInterval[]): boolean {
+		const threshold = intervals.find(interval => interval.end.isSame(group.end));
 		return threshold != undefined;
 	}
 

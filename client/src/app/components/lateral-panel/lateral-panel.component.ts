@@ -21,22 +21,30 @@ export class LateralPanelComponent {
 		return Constants.VALUE.LATERAL_PANEL_WIDTH;
 	}
 
+	get mechanicSkillsType(): string {
+		return Constants.UPDATE_OBJECT.MECHANIC_SKILLS;
+	}
+
+	get cardDetailsType(): string {
+		return Constants.LATERAL_PANEL_INFO_TYPE.CARD_DETAILS;
+	}
+
+	get appointmentsDetailsType(): string {
+		return Constants.LATERAL_PANEL_INFO_TYPE.APPOINTMENTS_DETAILS;
+	}
+
 	// endregion
 
 	findLateralPanelWidth(): number {
 		return this.info && this.info.show ? this.lateralPanelWidth : 0;
 	}
 
-	checkShowSkills(info: LateralPanelInfo = this.info): boolean {
-		return info && info.type == Constants.UPDATE_OBJECT.MECHANIC_SKILLS;
+	checkShow(type: string, info: LateralPanelInfo = this.info): boolean {
+		return info && info.type == type;
 	}
 
-	checkShowCardDetails(info: LateralPanelInfo = this.info): boolean {
-		return info && info.type == Constants.LATERAL_PANEL_INFO_TYPE.CARD_DETAILS;
-	}
-
-	checkShowAppointmentsDetails(info: LateralPanelInfo = this.info): boolean {
-		return info && info.type == Constants.LATERAL_PANEL_INFO_TYPE.APPOINTMENTS_DETAILS;
+	findParams(type: string, info: LateralPanelInfo = this.info): any {
+		return this.checkShow(type) ? info.params : undefined;
 	}
 
 }

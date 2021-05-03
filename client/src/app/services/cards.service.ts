@@ -16,7 +16,6 @@ import {DaysAssignedGroups} from "../objects/days-assigned-groups";
 import {DimensionsService} from "./dimensions.service";
 import {Url} from "../objects/url";
 import {MechanicsService} from "./mechanics.service";
-import {ScheduleInterval} from "../objects/schedule-interval";
 import {HourQuarters} from "../objects/hour-quarters";
 import {QuartersSaturation} from "../objects/quarters-saturation";
 import {QuarterSaturation} from "../objects/quarters-saturation/quarter-saturation";
@@ -42,6 +41,7 @@ import {UpdateDurationInfo} from "../objects/card-duration/update-duration-info"
 import {AuxiliaryReplacement} from "../objects/auxiliary-replacement";
 import {AssignedDropzone} from "../objects/dropzone-type/assigned-dropzone";
 import {UnassignedDropzone} from "../objects/dropzone-type/unassigned-dropzone";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Injectable({
 	providedIn: 'root'
@@ -179,8 +179,8 @@ export class CardsService {
 
 	// region Init
 
-	static init(cards: Card[], daysMechanics: DaysMechanics) {
-		this.cards = cards;
+	static init(cards: any[], days: Dayjs[]) {
+		this.cards = cards.map(card => new Card(card));
 
 		/* Se obtienen las fichas temporales que están sin asignar, que son las fichas base que se mostrarán para crear
 		*  fichas temporales */
@@ -202,7 +202,7 @@ export class CardsService {
 
 		this.assignedCards = notFinishedCards.filter(card => card.day);
 		this.assignedGroups = this.initAssignedGroups(this.assignedCards);
-		this.initAssignedDaysCardsObjects(this.assignedGroups, daysMechanics);
+		this.initAssignedDaysCardsObjects(this.assignedGroups, days);
 
 		console.log('Cards', this.cards);
 		console.log('Auxiliary cards groups', this.unassignedAuxiliaryCardsGroups);
@@ -262,22 +262,21 @@ export class CardsService {
 		return this.findPreviousCards(cards, card, [card]).concat(this.findNextCards(cards, card));
 	}
 
-	private static initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], daysMechanics: DaysMechanics): any {
+	private static initAssignedDaysCardsObjects(assignedCardsGroups: CardsGroup[], days: Dayjs[]): any {
 		this.assignedDaysCardsGroups = {};
 
-		for (let dayTime in daysMechanics) {
-			this.assignedDaysCardsGroups[dayTime] = {};
-
-			for (let mechanic of daysMechanics[dayTime]) {
-				const assignedDayCardsGroups = assignedCardsGroups.filter(cardsGroup => {
-					return cardsGroup.cards[0].day.valueOf() == +dayTime && cardsGroup.cards[0].mechanicCode == mechanic.code
-				});
-				this.assignedDaysCardsGroups[dayTime][mechanic.code] = UtilsService.sort(
-					assignedDayCardsGroups,
-					(g) => g.start
+		days.forEach(day => {
+			this.assignedDaysCardsGroups[day.valueOf()] = {};
+			const dayMechanics = MechanicsService.findDayMechanics(day);
+			for (let mechanic of dayMechanics) {
+				const assignedDayCardsGroups = assignedCardsGroups.filter(cardsGroup =>
+					cardsGroup.cards[0].day.isSame(day) && cardsGroup.cards[0].mechanicCode == mechanic.code
+				);
+				this.assignedDaysCardsGroups[day.valueOf()][mechanic.code] = UtilsService.sort(
+					assignedDayCardsGroups, (g) => g.start
 				);
 			}
-		}
+		})
 	}
 
 	static checkNotifyEcommerceCards(unassignedGroups: CardsGroup[] = this.unassignedGroups): void {
@@ -821,12 +820,14 @@ export class CardsService {
 
 	static findQuarterMechanics(dayMechanics: Mechanic[], quarter: number): Mechanic[] {
 		return dayMechanics.filter((mechanic: Mechanic) => {
-			return mechanic.schedules.find((interval: ScheduleInterval) =>
-				interval.hourQuarters.find((hourQuarter: HourQuarters) =>
-					hourQuarter.quarters.find((q: number) =>
-						quarter == UtilsService.calcMinutes(hourQuarter.hour, q)
-					) != undefined
-				) != undefined
+			return mechanic.intervals.find((interval: ScheduleInterval) =>
+				//TODO
+				false
+				// interval.hourQuarters.find((hourQuarter: HourQuarters) =>
+				// 	hourQuarter.quarters.find((q: number) =>
+				// 		quarter == UtilsService.calcMinutes(hourQuarter.hour, q)
+				// 	) != undefined
+				// ) != undefined
 			) != undefined;
 		});
 	}
@@ -1216,7 +1217,7 @@ export class CardsService {
 		);
 		NotificationService.notifyGroups([group], true);
 		if (updateDb) {
-			this.http.patch(Url.cardsVehiclePosition(), [card]).subscribe();
+			this.http.patch(Url.cardsVehiclePosition(), card).subscribe();
 		}
 	}
 
@@ -1232,7 +1233,7 @@ export class CardsService {
 		);
 		NotificationService.notifyGroups([group], true);
 		if (updateDb) {
-			this.http.patch(Url.cardsPendingCall(), [card]).subscribe();
+			this.http.patch(Url.cardsPendingCall(), card).subscribe();
 		}
 	}
 
@@ -1244,7 +1245,7 @@ export class CardsService {
 		);
 		NotificationService.notifyGroups([group], true);
 		if (updateDb) {
-			this.http.patch(Url.cardsPendingBudget(), [card]).subscribe();
+			this.http.patch(Url.cardsPendingBudget(), card).subscribe();
 		}
 	}
 

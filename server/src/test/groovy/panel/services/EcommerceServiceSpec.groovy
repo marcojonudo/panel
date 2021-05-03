@@ -1,8 +1,6 @@
 package panel.services
 
 import io.micronaut.test.annotation.MicronautTest
-import io.micronaut.test.annotation.MockBean
-import panel.clients.CuboDatabaseClient
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -17,14 +15,6 @@ class EcommerceServiceSpec extends Specification {
 
 	@Inject
 	EcommerceService ecommerceService
-
-	@Inject
-	CuboDatabaseClient cuboDatabaseClient
-
-	@MockBean(CuboDatabaseClient)
-	CuboDatabaseClient cuboDatabaseClient() {
-		Mock(CuboDatabaseClient)
-	}
 
 	// endregion
 

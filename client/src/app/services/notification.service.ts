@@ -7,7 +7,6 @@ import {CardsGroup} from "../objects/cards-group";
 import {ContextMenuInfo} from "../objects/context-menu/context-menu-info";
 import {Toast} from "../objects/toasts/toast";
 import {Dayjs} from "dayjs";
-import {Skill} from "../objects/skill";
 import {HourQuarter} from "../objects/hour-quarter";
 import {LateralPanelInfo} from "../objects/lateral-panel-info/lateral-panel-info";
 import {DayAppointmentDayUpdate} from "../objects/trigger-cd/update-objects/appointments-counter/day-appointment-day-update";
@@ -29,6 +28,8 @@ import {CardsService} from "./cards.service";
 import {ContextMenuUpdate} from "../objects/trigger-cd/update-objects/generic/context-menu-update";
 import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 import {AppointmentDay} from "../objects/appointments/appointment-day";
+import {Skill} from "../objects/skills/skill";
+import {SkillEmployee} from "../objects/skills/skill-employee";
 
 @Injectable({
 	providedIn: 'root'
@@ -327,8 +328,10 @@ export class NotificationService {
 		this.mainCursorSubject.next(cursor);
 	}
 
-	static notifyDayMechanicSkills(day: Dayjs, mechanicCode: string, skills: Skill[]): void {
-		const dayMechanicSkillsUpdate = new DayMechanicSkillsUpdate(day, new MechanicSkills(mechanicCode, skills));
+	static notifyDayMechanicSkills(day: Dayjs, mechanicCode: string, skillEmployees: SkillEmployee[]): void {
+		const dayMechanicSkillsUpdate = new DayMechanicSkillsUpdate(
+			day, new MechanicSkills(mechanicCode, skillEmployees)
+		);
 		this.updateArray.push(dayMechanicSkillsUpdate);
 		this.notifyUpdateArray();
 	}

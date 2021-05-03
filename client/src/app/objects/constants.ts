@@ -4,6 +4,10 @@ import {Card} from "./card";
 
 export class Constants {
 
+	public static readonly DATE_TIME_FORMAT: any = {
+		yyyy_MM_dd_HH_mm: 'YYYY-MM-DD HH:mm'
+	}
+
 	public static PROPERTY: any = {
 		SCROLL_LEFT: 'scrollLeft',
 		SCROLL_TOP: 'scrollTop',
@@ -57,11 +61,14 @@ export class Constants {
 		DRAG_SCHEDULE_CONTEXT_MENU: 'drag-schedule-context-menu'
 	};
 	public static readonly CHECK: boolean = false;
-	public static readonly SKILL_EXPERTISE_LEVEL: any = {
-		LOW: 1,
-		MEDIUM: 2,
-		HIGH: 3
-	};
+
+	public static SKILL_EXPERTISE: any = {
+		LOW: 'LOW',
+		MEDIUM: 'MEDIUM',
+		HIGH: 'HIGH',
+		TRAINING: 'TRAINING'
+	}
+
 	public static readonly NEXT_CARD_DIRECTION: any = {
 		LEFT: 'LEFT',
 		RIGHT: 'RIGHT'

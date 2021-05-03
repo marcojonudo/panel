@@ -299,21 +299,21 @@ export class RealTimeService {
 	// region Mechanics
 
 	static updateMechanicJobLineType(mechanic: Mechanic): void {
-		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
+		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.mechanicPanelInfo.position);
 		localMechanic.jobLineType = mechanic.jobLineType;
 		NotificationService.notifyMechanicLine(localMechanic.day, localMechanic.code);
 	}
 
 	static updateLines(mechanic: Mechanic): void {
-		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelPosition);
-		MechanicsService.updateMechanicLines(localMechanic, mechanic.lines);
+		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.mechanicPanelInfo.position);
+		MechanicsService.updateMechanicLines(localMechanic, mechanic.mechanicPanelInfo.lines);
 	}
 
 	updateMechanicPosition(mechanics: Mechanic[]): void {
 		/* El último elemento de la lista es el mecánico eliminado */
 		const removedMechanic = MechanicsService.findMechanicByPosition(
 			mechanics[0].day,
-			mechanics[mechanics.length-1].panelPosition
+			mechanics[mechanics.length-1].mechanicPanelInfo.position
 		);
 		this.mechanicsService.removeMechanic(removedMechanic.day, removedMechanic, false);
 	}
@@ -334,17 +334,17 @@ export class RealTimeService {
 
 	static updateAppointmentSchedule(appointment: AppointmentSchedule): void {
 		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
-		AppointmentsService.updateSchedule(
-			mechanic,
-			appointment,
-			appointment.schedule.start,
-			appointment.schedule.end
-		)
+		// AppointmentsService.updateSchedule(
+		// 	mechanic,
+		// 	appointment,
+		// 	appointment.schedule.start,
+		// 	appointment.schedule.end
+		// )
 	}
 
 	static deleteAppointment(appointment: AppointmentSchedule): void {
 		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
-		AppointmentsService.delete(mechanic, appointment)
+		// AppointmentsService.delete(mechanic, appointment)
 	}
 
 	// updateAppointmentType(updatedAppointment: AppointmentSchedule): void {

@@ -3,10 +3,10 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {Mechanic} from "../mechanic";
 import {Position} from "../position";
-import {ScheduleInterval} from "../schedule-interval";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {Scroll} from "../scroll";
+import {ScheduleInterval} from "../schedule-interval";
 
 export interface Dropzone {
 

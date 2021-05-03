@@ -1,9 +1,9 @@
 import {AppointmentType} from "./appointments/appointment-type";
-import {ScheduleInterval} from "./schedule-interval";
 import {UtilsService} from "../services/utils.service";
 import * as dayjs from "dayjs";
 import {Dayjs} from "dayjs";
 import {AppointmentsService} from "../services/appointments.service";
+import {ScheduleInterval} from "./schedule-interval";
 
 export class AppointmentSchedule {
 
@@ -12,12 +12,7 @@ export class AppointmentSchedule {
 	appointmentType: AppointmentType;
 	schedule: ScheduleInterval;
 
-	constructor(
-		day: Dayjs,
-		mechanicCode: string,
-		appointmentType: AppointmentType,
-		schedule: ScheduleInterval,
-	) {
+	constructor(day: Dayjs, mechanicCode: string, appointmentType: AppointmentType, schedule: ScheduleInterval) {
 		this.day = day;
 		this.mechanicCode = mechanicCode;
 		this.appointmentType = appointmentType;

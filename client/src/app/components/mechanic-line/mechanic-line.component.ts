@@ -12,7 +12,6 @@ import {Constants} from "../../objects/constants";
 import {CardPositionService} from "../../services/card-position.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {JobLineTypeService} from "../../services/job-line-type.service";
-import {ScheduleInterval} from "../../objects/schedule-interval";
 import {MechanicsService} from "../../services/mechanics.service";
 import {DragScheduleBehaviour} from "../../objects/drag-schedule-behaviour/drag-schedule-behaviour";
 import {UpdateScheduleBehaviour} from "../../objects/drag-schedule-behaviour/update-schedule-behaviour";
@@ -25,6 +24,8 @@ import {DropzonesTriggerMap} from "../../objects/trigger-cd/trigger-maps/dropzon
 import {TriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/trigger-map-update";
 import {DropzoneUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 import {GroupTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/group-trigger-map-update";
+import {ScheduleInterval} from "../../objects/schedule-interval";
+import {MechanicAppointment} from "../../objects/mechanic-appointment";
 
 @Component({
 	selector: 'app-mechanic-line',
@@ -38,7 +39,7 @@ export class MechanicLineComponent implements OnInit {
 	@Input() mechanic: Mechanic;
 	@Input() groups: CardsGroup[];
 	@Input() mechanicLineUpdate: TriggerMapUpdate;
-	@Input() appointments: AppointmentSchedule[];
+	@Input() appointments: MechanicAppointment[];
 	@Input() showAppointmentsName: boolean;
 	@Input() groupUpdates: GroupUpdate[];
 
@@ -53,7 +54,7 @@ export class MechanicLineComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		this.dropzonesTriggerMap = new DropzonesTriggerMap(this.mechanic.schedules);
+		this.dropzonesTriggerMap = new DropzonesTriggerMap(this.mechanic.intervals);
 		this.groupsTriggerMap = new GroupsTriggerMap(this.groups);
 	}
 
@@ -137,14 +138,11 @@ export class MechanicLineComponent implements OnInit {
 	}
 
 	buildAppointmentBorderStyle(
-		scheduleIntervals: ScheduleInterval[],
-		appointmentThreshold: Dayjs,
-		appointmentColor: string,
-		leftBorder: boolean = true
+		intervals: ScheduleInterval[], appointmentThreshold: Dayjs, appointmentColor: string, leftBorder: boolean = true
 	): any {
 		const overlapped = leftBorder ?
-			this.checkOverlappedStartSquareBracket(scheduleIntervals, appointmentThreshold) :
-			this.checkOverlappedEndSquareBracket(scheduleIntervals, appointmentThreshold);
+			this.checkOverlappedStartSquareBracket(intervals, appointmentThreshold) :
+			this.checkOverlappedEndSquareBracket(intervals, appointmentThreshold);
 		let style = {};
 		let borderColor = appointmentColor;
 		if (overlapped) {
@@ -159,8 +157,8 @@ export class MechanicLineComponent implements OnInit {
 		return style;
 	}
 
-	checkOverlappedStartSquareBracket(scheduleIntervals: ScheduleInterval[], appointmentStart: Dayjs): boolean {
-		return scheduleIntervals.find((interval: ScheduleInterval) =>
+	checkOverlappedStartSquareBracket(intervals: ScheduleInterval[], appointmentStart: Dayjs): boolean {
+		return intervals.find((interval: ScheduleInterval) =>
 			interval.start.isSame(appointmentStart)
 		) != undefined;
 	}
@@ -218,7 +216,7 @@ export class MechanicLineComponent implements OnInit {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line', this.mechanic.panelPosition, this.groups);
+			console.log('checking mechanic line', this.mechanic.mechanicPanelInfo.position, this.groups);
 		}
 	}
 

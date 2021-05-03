@@ -28,7 +28,7 @@ class JpdvOrdersJob {
 		*  ya que se hace al obtener los mecánicos. No se obtienen aquí para no sobrecargar el proceso con peticiones
 		*  a bd, pero si se da el caso, se llama al método para que se obtenga el último día de horarios */
 		if (!PanelService.lastScheduleDay) {
-			panelService.getDaysMechanics(today, today.plusDays(Constants.DAYS_LOAD))
+			panelService.findMechanics(today, today.plusDays(Constants.DAYS_LOAD))
 		}
 		UpdateCards updateCards = panelService.syncJpdvOrders(
 			LocalDate.now(), PanelService.lastScheduleDay

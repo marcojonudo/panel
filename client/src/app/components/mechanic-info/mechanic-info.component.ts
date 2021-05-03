@@ -2,7 +2,6 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} fr
 import {Constants} from "../../objects/constants";
 import {Mechanic} from "../../objects/mechanic";
 import {JobLineType} from "../../objects/job-line-type";
-import {Skill} from "../../objects/skill";
 import {CardsService} from "../../services/cards.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {MechanicsService} from "../../services/mechanics.service";
@@ -13,6 +12,9 @@ import {DropzoneService} from "../../services/dropzone.service";
 import {Dropzone} from "../../objects/dropzone-type/dropzone";
 import {CardsGroup} from "../../objects/cards-group";
 import {UnassignedDropzone} from "../../objects/dropzone-type/unassigned-dropzone";
+import {Skill} from "../../objects/skills/skill";
+import {SkillsService} from "../../services/skills.service";
+import {SkillEmployee} from "../../objects/skills/skill-employee";
 
 @Component({
 	selector: 'app-mechanic-info',
@@ -74,9 +76,9 @@ export class MechanicInfoComponent {
 
 	// endregion
 
-	getSkillColorObject(skill: Skill): any {
-		return skill.expertise && skill.expertise != Constants.SKILL_EXPERTISE_LEVEL.LOW ?
-			{'background-color': skill.backgroundColor, 'color': skill.color} : undefined;
+	findSkillBadgeStyle(skill: Skill, mechanic: Mechanic): any {
+		const highExpertise = SkillsService.checkExperiencedSkill(skill, mechanic.employeeData.code);
+		return highExpertise ? skill.code.style.toStyle() : undefined;
 	}
 
 	checkRemoveMechanic(content): void {
@@ -108,13 +110,8 @@ export class MechanicInfoComponent {
 		this.cdRef.detectChanges();
 	}
 
-	showSkills(
-		skills: Skill[],
-		day: Dayjs,
-		mechanicCode: string,
-		highlight: boolean = this.highlight
-	) {
-		NotificationService.notifyDayMechanicSkills(day, mechanicCode, highlight ? undefined : skills);
+	showSkills(skillEmployees: SkillEmployee[], day: Dayjs, mechanicCode: string, highlight: boolean = this.highlight) {
+		NotificationService.notifyDayMechanicSkills(day, mechanicCode, highlight ? undefined : skillEmployees);
 	}
 
 	findJobLineTypeBackgroundColor(code: string): string {

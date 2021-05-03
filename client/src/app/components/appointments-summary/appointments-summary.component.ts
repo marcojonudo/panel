@@ -65,6 +65,7 @@ export class AppointmentsSummaryComponent {
 	): void {
 		const appointmentsDetailsInfo = this.showingLateralPanel
 			? undefined : new AppointmentsDetailsInfo(appointmentDay);
+		console.log(1, appointmentsDetailsInfo);
 		this.showingLateralPanel = !this.showingLateralPanel;
 		NotificationService.notifyLateralInfo(day, appointmentsDetailsInfo, true);
 	}

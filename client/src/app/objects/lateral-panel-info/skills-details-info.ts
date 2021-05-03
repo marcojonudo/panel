@@ -11,7 +11,7 @@ export class SkillsDetailsInfo implements LateralPanelInfo {
 	constructor(mechanicSkills: MechanicSkills) {
 		this.type = Constants.UPDATE_OBJECT.MECHANIC_SKILLS;
 		this.params = mechanicSkills;
-		this.show = mechanicSkills && mechanicSkills.skills != undefined;
+		this.show = mechanicSkills && mechanicSkills.skillEmployees != undefined;
 	}
 
 }

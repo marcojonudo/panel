@@ -61,10 +61,6 @@
 	right: -10px;
 }
 
-.mechanic-schedule-border {
-	pointer-events: none;
-}
-
 .quarter-border {
 	border-left: 1px dotted;
 }

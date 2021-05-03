@@ -19,6 +19,7 @@
 
 .appointment-number-icon {
 	font-size: .6em;
+	cursor: pointer;
 }
 
 .max-appointment-limit {

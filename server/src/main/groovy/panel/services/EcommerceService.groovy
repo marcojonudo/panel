@@ -20,7 +20,7 @@ import panel.pogos.ifv.getSchedules.GetSchedulesResponse
 import panel.services.data.panel.CardDataService
 import panel.services.data.panel.GroupDataService
 import panel.services.data.panel.MechanicAppointmentDataService
-import panel.services.data.panel.MechanicInfoDataService
+import panel.services.data.panel.MechanicPanelInfoDataService
 import panel.services.data.schedules.EmployeeScheduleDataService
 import panel.services.data.schedules.ScheduleIntervalDataService
 import panel.utils.Builder
@@ -43,7 +43,7 @@ class EcommerceService {
 	@Inject private CardDataService cardDataService
 	@Inject private ScheduleIntervalDataService scheduleIntervalDataService
 	@Inject private GroupDataService groupDataService
-	@Inject private MechanicInfoDataService mechanicInfoDataService
+	@Inject private MechanicPanelInfoDataService mechanicInfoDataService
 	@Inject private IfvClient ifvClient
 
 	// region Get schedules
@@ -267,9 +267,9 @@ class EcommerceService {
 		EmployeeSchedule mechanic = mechanics.find { EmployeeSchedule mechanic ->
 			mechanicsAppointments.find { it.mechanicId == mechanic.id }
 		}
-		MechanicInfo mechanicInfo = mechanicInfoDataService.find(mechanic.id)
+		MechanicPanelInfo mechanicPanelInfo = mechanicInfoDataService.find(mechanic.id)
 		Card card = Builder.buildCard(
-			code, day, start, duration, mechanic.employeeData.code, mechanicInfo.lines - 1, group
+			code, day, start, duration, mechanic.employeeData.code, mechanicPanelInfo.lines - 1, group
 		)
 		cardDataService.save(card)
 		return new SaveEcommerceCardInfo(new EcommerceCard(day, start, end, code, "TEMPORAL"))

@@ -11,7 +11,6 @@ import panel.domains.panel.AppointmentType.Code
 import panel.domains.schedules.Centre
 import panel.domains.schedules.EmployeeSchedule
 import panel.domains.schedules.JobPositionGroup
-import panel.domains.schedules.ScheduleInterval
 import panel.domains.skills.Skill
 import panel.domains.skills.SkillEmployee
 import panel.pogos.appointmentDays.UpdateAppointmentDays
@@ -54,6 +53,8 @@ class PanelService {
 	@Inject private SkillDataService skillDataService
 	@Inject private EmployeeScheduleDataService employeeScheduleDataService
 	@Inject private OrderHeaderDataService orderHeaderDataService
+	@Inject private MechanicPanelInfoDataService mechanicInfoDataService
+	@Inject private MechanicAppointmentDataService mechanicAppointmentDataService
 
 	static LocalDate lastScheduleDay
 
@@ -62,21 +63,18 @@ class PanelService {
 		LocalDate today = LocalDate.now()
 
 		Centre centre = centreDataService.find()
-		List<IfvEmployee> employees = ifvService.getEmployees(today, today, centre.code)
+		List<IfvEmployee> employees = []//ifvService.getEmployees(today, today, centre.code)
 
 		List<JobLineType> jobLineTypes = jobLineTypeDataService.findAll()
 
 		List<AppointmentType> appointmentTypes = appointmentTypeDataService.findAll()
 		List<AppointmentDay> appointmentDays = appointmentDayDataService.findAll(from)
 
-		Map<String, List<EmployeeSchedule>> daysMechanics = getDaysMechanics(from, to)
-		LocalDate firstScheduleDay = daysMechanics.values().find { it }[0].day
+		List<EmployeeSchedule> mechanics = findMechanics(from, to)
 
-		List<Skill> skills = skillDataService.findAll()
+		List<Skill> skills = skillDataService.findAll(JobPositionGroup.Code.GARAGE)
 		List<SkillEmployee> skillEmployees = skillsService.findSkillEmployees(
-			((List<EmployeeSchedule>) daysMechanics.values().flatten()).unique { it.code },
-			skills,
-			today.withDayOfMonth(1)
+			mechanics.unique(false) { it.code }, skills, today.withDayOfMonth(1)
 		)
 
 		/* El último día para obtener órdenes es el último día que tengan horarios definidos. No tiene sentido que
@@ -85,12 +83,13 @@ class PanelService {
 		List<Card> cards = updateCards.getAll().findAll { !it.day || (it.day >= from && it.day <= to) }
 
 		return new CompleteInfo(
-			daysMechanics,
+			mechanics,
 			employees,
 			skills,
+			skillEmployees,
 			jobLineTypes,
 			appointmentTypes,
-			firstScheduleDay,
+			mechanics[0].day,
 			lastScheduleDay,
 			updateCards.appointmentDays ?: appointmentDays,
 			cards + updateCards.avoidSync
@@ -103,57 +102,74 @@ class PanelService {
 	 * Obtiene los mecánicos para cada día y carga su posición si todavía no está definida
 	 * @param from Fecha desde
 	 * @param to Fecha hasta
-	 * @return Mapa con día y mecánicos
+	 * @return Lista de mecánicos
 	 */
-	Map<String, List<EmployeeSchedule>> getDaysMechanics(LocalDate from, LocalDate to) {
+	List<EmployeeSchedule> findMechanics(LocalDate from, LocalDate to) {
 		List<EmployeeSchedule> mechanics = employeeScheduleDataService.findAll(from, to, JobPositionGroup.Code.GARAGE)
-		lastScheduleDay = employeeScheduleDataService.findEmployeeScheduleDay([sort: 'day', order: 'desc', max: 1])
-		return integrateFixedMechanics(mechanics)
-	}
-
-	/**
-	 * Integra los mecánicos sin día (líneas de taller y tienda) y convierte la lista de mecánicos en un mapa
-	 * @param mechanics Lista de mecánicos
-	 * @return Mapa con día y mecánicos
-	 */
-	static Map<String, List<EmployeeSchedule>> integrateFixedMechanics(List<EmployeeSchedule> mechanics) {
-		boolean existentMechanics = mechanics.find { it.day }
-		Map<String, List<EmployeeSchedule>> daysMechanics = [:]
-
-		/* Sólo se integran las líneas de taller y tienda si existen otros mecánicos. Si no, no tiene sentido hacerlo,
-		*  ya que el horario de las primeras se basa en el de los segundos */
-		if (existentMechanics) {
-			LocalDate today = LocalDate.now()
-            List<EmployeeSchedule> todayMechanics = mechanics.findAll { it.day == today }
-            if (!todayMechanics) {
-                mechanics = mechanics.findAll { it.day }
-            }
-			mechanics.each {
-				if (!it.day) {
-					it.intervals = [findThresholdSchedule(todayMechanics)].toSet()
-					it.day = today
-				}
-				if (!daysMechanics[it.day.toString()]) {
-					daysMechanics[it.day.toString()] = []
-				}
-				daysMechanics[it.day.toString()] << it
-			}
+		mechanics.each {
+			it.mechanicPanelInfo = findMechanicPanelInfo(it, mechanics)
+			it.appointments = mechanicAppointmentDataService.findAll(it.id)
 		}
-		return daysMechanics
+		lastScheduleDay = employeeScheduleDataService.findEmployeeScheduleDay([sort: 'day', order: 'desc', max: 1])
+		return mechanics
 	}
 
 	/**
-	 * Obtiene un horario con la entrada más temprana y la salida más tardía
-	 * @param mechanics Lista de mecánicos
-	 * @return Intervalo de horario
+	 * Encuentra la información de panel del mecánico
+	 * @param mechanic Mecánico
+	 * @param mechanics Lista de mecánicos para comprobar su posición en panel
+	 * @return Información de panel del mecánico
 	 */
-	static ScheduleInterval findThresholdSchedule(List<EmployeeSchedule> mechanics) {
-		List<ScheduleInterval> intervals = (List<ScheduleInterval>) mechanics.intervals.flatten()
-		LocalTime minStart = intervals.start.min()
-		LocalTime maxEnd = intervals.end.max()
-
-		return new ScheduleInterval(start: minStart, end: maxEnd)
+	MechanicPanelInfo findMechanicPanelInfo(EmployeeSchedule mechanic, List<EmployeeSchedule> mechanics) {
+		String lastPosition = mechanics.findAll { it.day == mechanic.day }.mechanicPanelInfo.position.max()
+		String nextPosition = lastPosition ?
+			String.valueOf((lastPosition.charAt(0) + 1) as char) : Constants.FIRST_MECHANIC_POSITION
+		return mechanicInfoDataService.find(mechanic.id) ?: mechanicInfoDataService.save(mechanic.id, nextPosition)
 	}
+
+//	/**
+//	 * Integra los mecánicos sin día (líneas de taller y tienda) y convierte la lista de mecánicos en un mapa
+//	 * @param mechanics Lista de mecánicos
+//	 * @return Mapa con día y mecánicos
+//	 */
+//	static Map<String, List<EmployeeSchedule>> integrateFixedMechanics(List<EmployeeSchedule> mechanics) {
+//		boolean existentMechanics = mechanics.find { it.day }
+//		Map<String, List<EmployeeSchedule>> daysMechanics = [:]
+//
+//		/* Sólo se integran las líneas de taller y tienda si existen otros mecánicos. Si no, no tiene sentido hacerlo,
+//		*  ya que el horario de las primeras se basa en el de los segundos */
+//		if (existentMechanics) {
+//			LocalDate today = LocalDate.now()
+//            List<EmployeeSchedule> todayMechanics = mechanics.findAll { it.day == today }
+//            if (!todayMechanics) {
+//                mechanics = mechanics.findAll { it.day }
+//            }
+//			mechanics.each {
+//				if (!it.day) {
+//					it.intervals = [findThresholdSchedule(todayMechanics)].toSet()
+//					it.day = today
+//				}
+//				if (!daysMechanics[it.day.toString()]) {
+//					daysMechanics[it.day.toString()] = []
+//				}
+//				daysMechanics[it.day.toString()] << it
+//			}
+//		}
+//		return daysMechanics
+//	}
+
+//	/**
+//	 * Obtiene un horario con la entrada más temprana y la salida más tardía
+//	 * @param mechanics Lista de mecánicos
+//	 * @return Intervalo de horario
+//	 */
+//	static ScheduleInterval findThresholdSchedule(List<EmployeeSchedule> mechanics) {
+//		List<ScheduleInterval> intervals = (List<ScheduleInterval>) mechanics.intervals.flatten()
+//		LocalTime minStart = intervals.start.min()
+//		LocalTime maxEnd = intervals.end.max()
+//
+//		return new ScheduleInterval(start: minStart, end: maxEnd)
+//	}
 
 	// endregion
 

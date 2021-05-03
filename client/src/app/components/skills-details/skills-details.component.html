@@ -1,13 +1,20 @@
-<div
-	class="h-100 d-flex flex-column skills-container">
+<div id="skills-container">
 	<div
 		*ngFor="let skill of buildAllSkillsArray()"
-		class="flex-grow-1 flex-basis-0 d-flex skill align-items-center border-bottom"
-		[ngClass]="{'parent-skill pl-1': skill.children.length, 'pl-2': !skill.children.length}">
-		<div>{{skill.name}}</div>
-		<div
-			class="rounded-circle skill-expertise-color ml-auto mr-1"
-			[style.background-color]="getSkillExpertiseColor(skill)">
+		class="skill-row"
+		[ngStyle]="skill.style.toStyle()"
+		[ngClass]="{'parent-skill': skill.children.length, 'child-skill': !skill.children.length}">
+		<div *ngIf="skill.code" class="skill-badge-container">
+			<div class="skill-badge" [ngStyle]="findSkillBadgeStyle(skill)">
+				<div>{{skill.code.code}}</div>
+			</div>
 		</div>
+		<svg
+			*ngIf="!skill.children.length && !skill.code"
+			viewBox="0 0 120 120"
+			xmlns="http://www.w3.org/2000/svg">
+			<circle fill="red" cx="60" cy="60" r="50" [ngClass]="findExpertiseBadgeClass(skill)"/>
+		</svg>
+		<div class="skill-name">{{skill.name}}</div>
 	</div>
 </div>

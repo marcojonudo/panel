@@ -3,25 +3,29 @@ package panel.pogos.firstLoad
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
 import panel.domains.panel.AppointmentDay
 import panel.domains.panel.AppointmentType
 import panel.domains.panel.Card
 import panel.domains.panel.JobLineType
 import panel.domains.schedules.EmployeeSchedule
 import panel.domains.skills.Skill
+import panel.domains.skills.SkillEmployee
 import panel.pogos.ifv.getEmployees.IfvEmployee
 import panel.utils.Constants
 
 import java.time.LocalDate
 
 @CompileStatic
+@TupleConstructor
 class CompleteInfo {
 
-	Map<String, List<EmployeeSchedule>> daysMechanics
+	List<EmployeeSchedule> mechanics
 
 	@JsonInclude
 	List<IfvEmployee> employees
 	List<Skill> skills
+	List<SkillEmployee> skillEmployees
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
 
@@ -36,27 +40,5 @@ class CompleteInfo {
 
 	@JsonInclude
 	List<Card> cards
-
-	CompleteInfo(
-		Map<String, List<EmployeeSchedule>> daysMechanics,
-		List<IfvEmployee> employees,
-		List<Skill> skills,
-		List<JobLineType> jobLineTypes,
-		List<AppointmentType> appointmentTypes,
-		LocalDate firstScheduleDay,
-		LocalDate lastScheduleDay,
-		List<AppointmentDay> appointmentDays,
-		List<Card> cards
-	) {
-		this.daysMechanics = daysMechanics
-		this.employees = employees
-		this.skills = skills
-		this.jobLineTypes = jobLineTypes
-		this.appointmentTypes = appointmentTypes
-		this.firstScheduleDay = firstScheduleDay
-		this.lastScheduleDay = lastScheduleDay
-		this.appointmentDays = appointmentDays
-		this.cards = cards
-	}
 
 }

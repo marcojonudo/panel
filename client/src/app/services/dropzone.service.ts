@@ -61,7 +61,9 @@ export class DropzoneService {
 	static addDropzone(dropzone: Dropzone) {
 		const existent = this.dropzones.find((d: Dropzone) => {
 			if (dropzone.type == Constants.DROPZONE_TYPE.ASSIGNED) {
-				return d.interval == dropzone.interval;
+				return d.mechanic &&
+					d.mechanic.employeeData.code == dropzone.mechanic.employeeData.code &&
+					d.interval == dropzone.interval;
 			} else {
 				return d.type == dropzone.type && d.subType == dropzone.subType
 			}

@@ -6,9 +6,9 @@ export class DropzonesTriggerMap implements TriggerMap {
 
 	[key: number]: DropzoneUpdate;
 
-	constructor(schedules: ScheduleInterval[]) {
-		schedules.forEach((schedule: ScheduleInterval) => {
-			this[schedule.start.valueOf()] = undefined;
+	constructor(intervals: ScheduleInterval[]) {
+		intervals.forEach((interval: ScheduleInterval) => {
+			this[interval.start.valueOf()] = undefined;
 		});
 	}
 

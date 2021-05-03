@@ -8,7 +8,7 @@ export class RealTimeMechanicUpdateJobLineType extends RealTimeUpdate {
 
 	constructor(mechanic: any) {
 		super();
-		this.mechanic = new Mechanic(mechanic);
+		this.mechanic = new Mechanic(mechanic, []);
 	}
 
 	update(): void {

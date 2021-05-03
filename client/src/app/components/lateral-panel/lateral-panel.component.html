@@ -3,16 +3,19 @@
 	[ngClass]="{'border-left border-semi-dark': info != undefined}"
 	[style.width.px]="findLateralPanelWidth()">
 	<app-skills-details
-		*ngIf="checkShowSkills()"
-		[mechanicSkills]="info.params">
+		class="lateral-panel-item"
+		[ngClass]="checkShow(mechanicSkillsType) ? 'show' : 'hide'"
+		[mechanicSkills]="findParams(mechanicSkillsType)">
 	</app-skills-details>
 	<app-card-details
-		*ngIf="checkShowCardDetails()"
-		[card]="info.params">
+		class="lateral-panel-item"
+		[ngClass]="checkShow(cardDetailsType) ? 'show' : 'hide'"
+		[card]="findParams(cardDetailsType)">
 	</app-card-details>
 	<app-appointments-panel
-		*ngIf="checkShowAppointmentsDetails()"
+		class="lateral-panel-item"
+		[ngClass]="checkShow(appointmentsDetailsType) ? 'show' : 'hide'"
 		[day]="day"
-		[appointmentDayUpdate]="info.params">
+		[appointmentDayUpdate]="findParams(appointmentsDetailsType)">
 	</app-appointments-panel>
 </div>

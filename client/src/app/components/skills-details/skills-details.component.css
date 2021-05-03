@@ -1,10 +1,22 @@
-.skills-container {
+#skills-container {
+	height: 100%;
 	overflow-y: auto;
 	background-color: #ffffff;
 }
 
-.skill {
+.skill-row {
+	height: 1.7rem;
+	position: relative;
+	display: flex;
+	align-items: center;
 	font-size: .8em;
+	border-bottom: 1px solid #dee2e6;
+}
+
+.skill-badge-container {
+	width: 1.2rem;
+	position: absolute;
+	left: .2rem;
 }
 
 .parent-skill {
@@ -12,7 +24,29 @@
 	background-color: #e1e1e1;
 }
 
-.skill-expertise-color {
-	width: 15px;
-	height: 15px;
+.child-skill > .skill-name{
+	left: 2.3rem;
+}
+
+.skill-name {
+	position: absolute;
+	left: 1.6rem;
+}
+
+.skill-row > svg {
+	width: .8rem;
+	position: absolute;
+	left: .4rem;
+}
+
+.expertise-badge-HIGH {
+	fill: #008000;
+}
+
+.expertise-badge-MEDIUM {
+	fill: #ffa500;
+}
+
+.expertise-badge-LOW {
+	fill: #ff0000;
 }

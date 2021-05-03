@@ -33,7 +33,7 @@ class Skill implements GormEntity<Skill> {
         datasource Constants.DataSource.SCHEDULES
 
         version defaultValue: 0
-        code lazy: false
+        code fetch: 'join'
         style fetch: 'join'
         category fetch: 'join'
         children fetch: 'join'

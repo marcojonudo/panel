@@ -1,13 +1,13 @@
-import {Skill} from "./skill";
+import {SkillEmployee} from "./skills/skill-employee";
 
 export class MechanicSkills {
 
 	mechanicCode: string;
-	skills: Skill[];
+	skillEmployees: SkillEmployee[];
 
-	constructor(mechanicCode: string = undefined, skills: Skill[] = undefined) {
+	constructor(mechanicCode: string = undefined, skillEmployees: SkillEmployee[] = undefined) {
 		this.mechanicCode = mechanicCode;
-		this.skills = skills;
+		this.skillEmployees = skillEmployees;
 	}
 
 }

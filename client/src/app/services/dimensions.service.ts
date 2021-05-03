@@ -157,7 +157,7 @@ export class DimensionsService {
 
 	// region Init
 
-	static init(baseDay: Dayjs, daysMechanics: DaysMechanics, todaySchedules: boolean, scrollTopDaysOffset: number) {
+	static init(baseDay: Dayjs, days: Dayjs[], todaySchedules: boolean, scrollTopDaysOffset: number) {
 		this.lineHeight = Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.maxTodayScheduleHoursQuarter = [];
 		this.oneDayMode = this.oneDayMode != undefined ? this.oneDayMode : true;
@@ -171,19 +171,19 @@ export class DimensionsService {
 		this.calcWidthValuesFromHoursInGrid(this.FIT_HOURS_IN_SCREEN);
 		this.defaultHourWidth = this.hourWidth;
 
-		this.initSchedulesHours(daysMechanics, baseDay);
+		this.initSchedulesHours(days, baseDay);
 		this.initMaxSchedule(this.oneDayMode);
 
 		if (scrollTopDaysOffset > 0) {
-			CardPositionService.scroll.top = this.calcScrollTopOffset(daysMechanics, scrollTopDaysOffset);
+			CardPositionService.scroll.top = this.calcScrollTopOffset(days, scrollTopDaysOffset);
 		}
 	}
 
-	private static calcScrollTopOffset(daysMechanics: DaysMechanics, scrollTopDaysOffset: number): number {
-		const keys = Object.keys(daysMechanics);
+	private static calcScrollTopOffset(days: Dayjs[], scrollTopDaysOffset: number): number {
 		let scrollTop = 0;
 		for (let i = 0; i < scrollTopDaysOffset; i++) {
-			const mechanicsHeight = this.calcGridCompleteHeight(daysMechanics[keys[i]]);
+			const dayMechanics = MechanicsService.findDayMechanics(days[i]);
+			const mechanicsHeight = this.calcGridCompleteHeight(dayMechanics);
 			scrollTop += Constants.VALUE.TIMELINE_HEIGHT + mechanicsHeight;
 		}
 		return scrollTop;
@@ -207,14 +207,15 @@ export class DimensionsService {
 	}
 
 	/**
-	 * Crea los arrays que contienen las horas entre los límtes de horarios; es decir, el comienzo del mecánico que
+	 * Crea los arrays que contienen las horas entre los límites de horarios; es decir, el comienzo del mecánico que
 	 * empiece antes, y el fin del que termine más tarde
-	 * @param {DaysMechanics} daysMechanics Días y sus mecánicos asociados
+	 * @param {Dayjs[]} days Días
 	 * @param {Dayjs} today Hoy
 	 */
-	private static initSchedulesHours(daysMechanics: DaysMechanics, today: Dayjs): void {
+	private static initSchedulesHours(days: Dayjs[], today: Dayjs): void {
 		let [minDaysSchedule, maxDaysSchedule] = [undefined, undefined];
-		for (const [day, dayMechanics] of Object.entries(daysMechanics)) {
+		days.forEach(day => {
+			const dayMechanics = MechanicsService.findDayMechanics(day);
 			if (dayMechanics.length) {
 				const [minSchedule, maxSchedule] = this.getScheduleLimits(dayMechanics, today);
 				if (+day == today.valueOf()) {
@@ -224,7 +225,7 @@ export class DimensionsService {
 				minDaysSchedule = !minDaysSchedule || minSchedule.isBefore(minDaysSchedule) ? minSchedule : minDaysSchedule;
 				maxDaysSchedule = !maxDaysSchedule || maxSchedule.isAfter(maxDaysSchedule) ? maxSchedule : maxDaysSchedule;
 			}
-		}
+		})
 		/* Si principio y fin del horario son iguales, significa que no existen horarios de mecánicos */
 		this.maxDaysSchedulesHoursQuarter = minDaysSchedule != maxDaysSchedule
 			? this.buildHoursQuarter(minDaysSchedule, maxDaysSchedule) : [];
@@ -238,10 +239,10 @@ export class DimensionsService {
 	 */
 	private static getScheduleLimits(mechanics: Mechanic[], refDay: Dayjs): Dayjs[] {
 		const minSchedule = dayjs(
-			Math.min(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[0].start.valueOf()))
+			Math.min(...mechanics.map((mechanic: Mechanic) => mechanic.intervals[0].start.valueOf()))
 		);
 		const maxSchedule = dayjs(
-			Math.max(...mechanics.map((mechanic: Mechanic) => mechanic.schedules[mechanic.schedules.length-1].end.valueOf()))
+			Math.max(...mechanics.map((mechanic: Mechanic) => mechanic.intervals[mechanic.intervals.length-1].end.valueOf()))
 		);
 		/* Se define siempre la misma fecha para que se puedan comparar horas con éxito */
 		return [
@@ -297,7 +298,7 @@ export class DimensionsService {
 
 	static calcGridCompleteHeight(dayMechanics: Mechanic[]): number {
 		return UtilsService.sumValues(
-			dayMechanics.map((mechanic: Mechanic) => this.calcMechanicLineCompleteHeight(mechanic.lines))
+			dayMechanics.map((mechanic: Mechanic) => this.calcMechanicLineCompleteHeight(mechanic.mechanicPanelInfo.lines))
 		);
 	}
 

@@ -11,8 +11,8 @@ import {Dropzone} from "../objects/dropzone-type/dropzone";
 import {Constants} from "../objects/constants";
 import {DropzoneService} from "../services/dropzone.service";
 import {DimensionsService} from "../services/dimensions.service";
-import {ScheduleInterval} from "../objects/schedule-interval";
 import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Directive({
 	selector: '[appDropzone]'

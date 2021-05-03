@@ -168,7 +168,6 @@ export class ClickableDirective implements OnInit, AfterViewChecked, OnDestroy {
 				/* Se emite la última posición ya redondeada */
 				NotificationService.notifyCoordinates(this.coordinates);
 			} else {
-				console.log('setting undefined');
 				CardPositionService.setHelperGroup(undefined);
 			}
 			CardPositionService.hiddenGroup = undefined;

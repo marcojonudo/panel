@@ -1,9 +1,6 @@
 package panel.services
 
 import io.micronaut.test.annotation.MicronautTest
-import io.micronaut.test.annotation.MockBean
-import panel.clients.CuboDatabaseClient
-import panel.clients.PanelDatabaseClient
 import panel.pogos.appointmentDays.AppointmentDay
 import panel.pogos.appointmentDays.AppointmentType
 import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
@@ -32,27 +29,6 @@ class PanelServiceSpec extends Specification {
 
 	@Inject
 	PanelService panelService
-
-	@Inject
-	PanelDatabaseClient panelDatabaseClient
-
-	@Inject
-	CuboDatabaseClient cuboDatabaseClient
-
-	@MockBean(PanelDatabaseClient)
-	PanelDatabaseClient panelDatabaseClient() {
-		Mock(PanelDatabaseClient)
-	}
-
-//	@MockBean(FviberiDatabaseClient)
-//	FviberiDatabaseClient fviberiDatabaseClient() {
-//		Mock(FviberiDatabaseClient)
-//	}
-
-	@MockBean(CuboDatabaseClient)
-	CuboDatabaseClient cuboDatabaseClient() {
-		Mock(CuboDatabaseClient)
-	}
 
 	// endregion
 

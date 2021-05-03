@@ -10,7 +10,7 @@ export class RealTimeMechanicUpdatePosition extends RealTimeUpdate {
 	constructor(realTimeService: RealTimeService, mechanics: any) {
 		super();
 		this.realTimeService = realTimeService;
-		this.mechanics = mechanics.map(mechanic => new Mechanic(mechanic));
+		this.mechanics = mechanics.map(mechanic => new Mechanic(mechanic, []));
 	}
 
 	update(): void {

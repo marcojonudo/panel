@@ -8,8 +8,9 @@ import {DragScheduleBehaviour} from "../objects/drag-schedule-behaviour/drag-sch
 import {DimensionsService} from "../services/dimensions.service";
 import {NotificationService} from "../services/notification.service";
 import {WarningToast} from "../objects/toasts/warning-toast";
-import {ScheduleInterval} from "../objects/schedule-interval";
 import {Dayjs} from "dayjs";
+import {MechanicAppointment} from "../objects/mechanic-appointment";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Directive({
 	selector: '[appDragSchedule]'
@@ -17,7 +18,7 @@ import {Dayjs} from "dayjs";
 export class DragScheduleDirective implements OnInit {
 
 	@Input() mechanic: Mechanic;
-	@Input() appointment: AppointmentSchedule;
+	@Input() appointment: MechanicAppointment;
 	@Input() behaviour: DragScheduleBehaviour;
 
 	private pointerDownListener: () => void;
@@ -26,7 +27,8 @@ export class DragScheduleDirective implements OnInit {
 
 	private lastMovedQuarter: number;
 
-	private appointmentSchedule: AppointmentSchedule;
+	private initInterval: ScheduleInterval;
+	private mechanicAppointment: MechanicAppointment;
 	private quarterRefLeft: number;
 	private quarterRefStart: Dayjs;
 
@@ -50,14 +52,15 @@ export class DragScheduleDirective implements OnInit {
 		if (DragSchedulesService.checkStartDragging(this.mechanic, event)) {
 			this.quarterRefLeft = this.behaviour.calcQuarterRefLeft(event.clientX, this.appointment);
 			this.quarterRefStart = DimensionsService.calcStartFromLeft(this.quarterRefLeft, this.mechanic.day);
-			this.appointmentSchedule = this.behaviour.createAppointment(
+			this.mechanicAppointment = this.behaviour.createAppointment(
 				this.appointment,
 				this.quarterRefLeft,
 				AppointmentsService.dragSchedulesAppointmentType.code,
 				this.mechanic
 			);
 
-			if (this.appointmentSchedule) {
+			if (this.mechanicAppointment) {
+				this.initInterval = this.mechanicAppointment.interval.clone();
 				this.pointerMoveListener = this.renderer.listen(
 					Constants.ELEMENT.DOCUMENT,
 					Constants.EVENT.POINTER_MOVE,
@@ -88,7 +91,7 @@ export class DragScheduleDirective implements OnInit {
 				this.behaviour.updateQuarterRef(
 					quarterRef,
 					this.mechanic,
-					this.appointmentSchedule
+					this.mechanicAppointment
 				);
 			}
 		}
@@ -97,11 +100,13 @@ export class DragScheduleDirective implements OnInit {
 	onPointerUp(): void {
 		this.lastMovedQuarter = 0;
 		/* Si se ha movido el cursor (para evitar fallos al hacer clic sin pointermove) */
-		if (this.appointmentSchedule.schedule.start.isSame(this.appointmentSchedule.schedule.end)) {
-			AppointmentsService.delete(this.mechanic, this.appointmentSchedule);
-			this.appointmentsService.deleteDb(this.appointmentSchedule)
+		if (this.mechanicAppointment.interval.start.isSame(this.mechanicAppointment.interval.end)) {
+			AppointmentsService.delete(this.mechanic, this.mechanicAppointment);
+			this.appointmentsService.deleteDb(this.mechanic, this.mechanicAppointment, this.initInterval);
 		} else {
-			this.behaviour.updateDatabase(this.appointmentsService, this.appointmentSchedule);
+			this.behaviour.updateDatabase(
+				this.appointmentsService, this.mechanic, this.mechanicAppointment, this.initInterval
+			);
 		}
 		this.reset();
 	}
@@ -112,11 +117,11 @@ export class DragScheduleDirective implements OnInit {
 		if (!this.checkMovementInsideSchedule(quarterRefTime, quarterRefStartTime, draggingRight)) {
 			return false;
 		}
-		const tooCloseSchedule = this.mechanic.appointments.find((appointment: AppointmentSchedule) => {
-			const [startTime, endTime] = [appointment.schedule.start.valueOf(), appointment.schedule.end.valueOf()];
-			if (appointment.equals(this.appointmentSchedule)) {
+		const tooCloseSchedule = this.mechanic.appointments.find((appointment: MechanicAppointment) => {
+			if (appointment.equals(this.mechanicAppointment)) {
 				return false;
 			}
+			const [startTime, endTime] = [appointment.interval.start.valueOf(), appointment.interval.end.valueOf()];
 			if (draggingRight) {
 				return quarterRefStartTime < startTime && quarterRefTime >= startTime;
 			} else {
@@ -131,8 +136,8 @@ export class DragScheduleDirective implements OnInit {
 		quarterRefStartTime: number,
 		draggingRight: boolean
 	): boolean {
-		const outsideSchedule = this.mechanic.schedules.find((schedule: ScheduleInterval) => {
-			const [startTime, endTime] = [schedule.start.valueOf(), schedule.end.valueOf()];
+		const outsideSchedule = this.mechanic.intervals.find(interval => {
+			const [startTime, endTime] = [interval.start.valueOf(), interval.end.valueOf()];
 			const insideSchedule = startTime <= quarterRefStartTime && quarterRefStartTime <= endTime;
 			if (!insideSchedule) {
 				return false;

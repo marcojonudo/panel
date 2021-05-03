@@ -58,26 +58,20 @@ export class InitService {
 			console.log('Received data', data);
 
 			AppointmentsService.initAppointmentTypes(data.appointmentTypes);
+			SkillsService.init(data.skills, data.skillEmployees);
 			/* Los mecánicos se cargan, independientemente de que data.daysMechanics sea null, porque podrían cargarse
 			*  las líneas fijas desde localStorage */
-			MechanicsService.init(
-				data.daysMechanics,
-				data.employees,
-				data.firstScheduleDay,
-				data.lastScheduleDay,
-				data.skills,
-				SkillsService.highlightedSkills
-			);
+			MechanicsService.init(data.mechanics, data.employees, data.firstScheduleDay, data.lastScheduleDay);
 			/* Sólo se carga la info de panel si hay horarios */
-			if (MechanicsService.days.length) {
-				CardsService.init(data.cards.map(card => new Card(card)), MechanicsService.daysMechanics);
+			if (MechanicsService.mechanics.length) {
+				CardsService.init(data.cards, MechanicsService.days);
 
 				AppointmentsService.init(data.appointmentDays);
 
 				JobLineTypeService.init(data.jobLineTypes);
 
 				DimensionsService.init(
-					MechanicsService.days[0], MechanicsService.daysMechanics, MechanicsService.todaySchedules, scrollTopDaysOffset
+					MechanicsService.days[0], MechanicsService.days, MechanicsService.todaySchedules, scrollTopDaysOffset
 				);
 			}
 

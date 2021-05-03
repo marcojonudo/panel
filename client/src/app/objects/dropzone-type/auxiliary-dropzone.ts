@@ -8,11 +8,11 @@ import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Position} from "../position";
-import {ScheduleInterval} from "../schedule-interval";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {WarningToast} from "../toasts/warning-toast";
 import {Scroll} from "../scroll";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class AuxiliaryDropzone implements Dropzone {
 

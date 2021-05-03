@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
+import panel.domains.panel.MechanicAppointment
+import panel.domains.panel.MechanicPanelInfo
 import panel.utils.Constants
 
 import java.time.LocalDate
@@ -13,6 +15,7 @@ import java.time.LocalDateTime
 class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 
 	EmployeeData employeeData
+
 	@JsonFormat(pattern = Constants.DateFormat.yyyy_MM_dd, timezone = Constants.SPAIN_TIMEZONE)
 	LocalDate day
 	String code
@@ -21,6 +24,11 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 	int restMinutes
     JobPositionGroup.Code jobPositionGroupCode
 	boolean savedIfv
+
+	MechanicPanelInfo mechanicPanelInfo
+
+	@JsonInclude
+	List<MechanicAppointment> appointments
 
 	@JsonFormat(pattern = Constants.DateTimeFormat.yyyy_MM_dd_HH_mm_ss, timezone = Constants.SPAIN_TIMEZONE)
 	LocalDateTime dateCreated
@@ -36,6 +44,8 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 	@JsonInclude
 	Set<ScheduleInterval> intervals
 
+	static hasOne = [absenceInfo: AbsenceInfo]
+
 	static hasMany = [intervals: ScheduleInterval]
 
 	static constraints = {
@@ -50,9 +60,11 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 		datasource Constants.DataSource.SCHEDULES
 
 		version defaultValue: 0
-		employeeData fetch: 'join'
+		employeeData lazy: false
 		absenceInfo fetch: 'join'
 		intervals fetch: 'join', joinTable: [name: 'employee_schedule_intervals']
 	}
+
+	static transients = ['mechanicPanelInfo', 'appointments']
 
 }

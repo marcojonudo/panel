@@ -5,9 +5,9 @@
 		*ngFor="let appointment of mechanic.appointments"
 		class="d-flex appointment-schedule-container"
 		[ngStyle]="{
-			'width.px': calcScheduleWidth(appointment.schedule.duration),
-			'height.px': calcScheduleHeight(mechanic.lines),
-			'left.px': calcScheduleLeft(appointment.schedule.start)
+			'width.px': calcScheduleWidth(appointment.interval.duration),
+			'height.px': calcScheduleHeight(mechanic.mechanicPanelInfo.lines),
+			'left.px': calcScheduleLeft(appointment.interval.start)
 		}">
 		<div class="w-100 appointment-schedule d-flex">
 			<div
@@ -18,8 +18,8 @@
 			<div
 				class="schedule-border schedule-left-border"
 				[ngStyle]="buildAppointmentBorderStyle(
-					mechanic.schedules,
-					appointment.schedule.start,
+					mechanic.intervals,
+					appointment.interval.start,
 					appointment.appointmentType.color
 				)"
 				appDragSchedule
@@ -30,8 +30,8 @@
 			<div
 				class="schedule-border schedule-right-border"
 				[ngStyle]="buildAppointmentBorderStyle(
-					mechanic.schedules,
-					appointment.schedule.end,
+					mechanic.intervals,
+					appointment.interval.end,
 					appointment.appointmentType.color,
 					false
 				)"
@@ -43,7 +43,7 @@
 		</div>
 	</div>
 	<div
-		*ngFor="let interval of mechanic.schedules"
+		*ngFor="let interval of mechanic.intervals"
 		class="h-100 d-flex schedule-line"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(interval.duration),
@@ -57,16 +57,16 @@
 		appDragSchedule
 		[behaviour]="createCreateScheduleBehaviour()">
 		<div
-			class="schedule-border schedule-left-border mechanic-schedule-border"
+			class="schedule-border schedule-left-border pointer-events-none"
 			[ngStyle]="{background: findScheduleLeftBorderBackground(redColor)}">
 		</div>
 		<div
-			class="schedule-border schedule-right-border mechanic-schedule-border"
+			class="schedule-border schedule-right-border pointer-events-none"
 			[ngStyle]="{background: findScheduleRightBorderBackground(redColor)}">
 		</div>
 		<div
 			class="w-100 position-relative d-flex"
-			[style.height.px]="calcScheduleHeight(mechanic.lines)">
+			[style.height.px]="calcScheduleHeight(mechanic.mechanicPanelInfo.lines)">
 			<div
 				*ngFor="let quarter of interval.quarters"
 				class="flex-grow-1 border-semi-dark"

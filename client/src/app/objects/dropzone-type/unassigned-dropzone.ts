@@ -8,10 +8,10 @@ import {Coordinates} from "../coordinates";
 import {NotificationService} from "../../services/notification.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Position} from "../position";
-import {ScheduleInterval} from "../schedule-interval";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {WarningToast} from "../toasts/warning-toast";
 import {Scroll} from "../scroll";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class UnassignedDropzone implements Dropzone {
 
@@ -24,11 +24,7 @@ export class UnassignedDropzone implements Dropzone {
 	interval: ScheduleInterval;
 	position: Position;
 
-	constructor(
-		cardsService: CardsService,
-		appointmentsService: AppointmentsService,
-		subType: string
-	) {
+	constructor(cardsService: CardsService, appointmentsService: AppointmentsService, subType: string) {
 		this.cardsService = cardsService;
 		this.appointmentsService = appointmentsService;
 		this.subType = subType;

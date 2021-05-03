@@ -92,5 +92,6 @@ class Constants {
 	static final String ECOMMERCE_USER_CODE = "9999997"
 	static final String SPV_ID = "799"
 	static final int ROUND_NUMBER = 5
+	static final String FIRST_MECHANIC_POSITION = "A"
 
 }

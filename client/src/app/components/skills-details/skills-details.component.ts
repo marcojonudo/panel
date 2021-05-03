@@ -3,9 +3,9 @@ import {
 	Component,
 	Input,
 } from '@angular/core';
-import {Skill} from "../../objects/skill";
-import {SkillsDetailsInfo} from "../../objects/lateral-panel-info/skills-details-info";
 import {MechanicSkills} from "../../objects/mechanic-skills";
+import {Skill} from "../../objects/skills/skill";
+import {SkillsService} from "../../services/skills.service";
 
 @Component({
 	selector: 'app-skills-details',
@@ -17,27 +17,34 @@ export class SkillsDetailsComponent {
 
 	@Input() mechanicSkills: MechanicSkills;
 
-	private SKILL_EXPERTISE_COLOR: any = {
-		LOW: '#FF0000',
-		MEDIUM: '#FFFF00',
-		HIGH: '#008000'
-	};
-
-	getSkillExpertiseColor(skill: Skill) {
-		return this.SKILL_EXPERTISE_COLOR[skill.expertise];
+	buildAllSkillsArray(skills: Skill[] = SkillsService.skills): Skill[] {
+		const parentSkills = skills.filter(s => s.children.length > 0);
+		const sortedSkills = [];
+		parentSkills.forEach(parentSkill => {
+			sortedSkills.push(parentSkill);
+			parentSkill.children.forEach(skill => {
+				sortedSkills.push(skill);
+			})
+		})
+		return sortedSkills;
 	}
 
-	buildAllSkillsArray(parentSkills: Skill[] = this.mechanicSkills.skills): Skill[] {
-		const skills = [];
-		if (parentSkills) {
-			parentSkills.forEach((parent: Skill) => {
-				skills.push(parent);
-				parent.children.forEach((child: Skill) => {
-					skills.push(child);
-				});
-			});
+	findSkillBadgeStyle(skill: Skill, mechanicSkills: MechanicSkills = this.mechanicSkills): any {
+		let highExpertise = undefined;
+		if (mechanicSkills) {
+			highExpertise = SkillsService.checkExperiencedSkill(skill, mechanicSkills.mechanicCode);
 		}
-		return skills;
+		return highExpertise ? skill.code.style.toStyle() : undefined;
+	}
+
+	findExpertise(skill: Skill, mechanicSkills: MechanicSkills = this.mechanicSkills): string {
+		return mechanicSkills && mechanicSkills.skillEmployees ?
+			mechanicSkills.skillEmployees.find(skillEmployee => skillEmployee.skill.name == skill.name).expertise :
+			undefined;
+	}
+
+	findExpertiseBadgeClass(skill: Skill): string {
+		return `expertise-badge-${this.findExpertise(skill)}`
 	}
 
 }

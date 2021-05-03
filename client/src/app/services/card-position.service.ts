@@ -13,8 +13,8 @@ import {CardsService} from "./cards.service";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../objects/groups-translation/overlapped-groups-info";
 import {ValidateCoordinatesInfo} from "../objects/groups-translation/validate-coordinates-info";
-import {ScheduleInterval} from "../objects/schedule-interval";
 import {Scroll} from "../objects/scroll";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Injectable({
 	providedIn: 'root'
@@ -265,7 +265,7 @@ export class CardPositionService {
 		helperGroup: CardsGroup
 	): ValidateCoordinatesInfo {
 		/* La posición se redondea a los múltiplos de 5 minutos */
-		coordinates = this.roundLastPosition(coordinates, dropzone.position, dropzone.mechanic.lines);
+		coordinates = this.roundLastPosition(coordinates, dropzone.position, dropzone.mechanic.mechanicPanelInfo.lines);
 		const duration = helperGroup.findDuration();
 		let newStart = DimensionsService.calcStartFromLeft(
 			this.absolutePositionToLeft(coordinates.x), dropzone.mechanic.day
@@ -311,11 +311,11 @@ export class CardPositionService {
 		return coordinates;
 	}
 
-	static findInsideDropzoneStart(newStart: Dayjs, duration: number, schedule: ScheduleInterval): Dayjs {
-		if (newStart.isBefore(schedule.start)) {
-			return schedule.start;
-		} else if (newStart.add(duration, Constants.DAY_JS.m).isAfter(schedule.end)) {
-			return schedule.end.subtract(duration, Constants.DAY_JS.m);
+	static findInsideDropzoneStart(newStart: Dayjs, duration: number, interval: ScheduleInterval): Dayjs {
+		if (newStart.isBefore(interval.start)) {
+			return interval.start;
+		} else if (newStart.add(duration, Constants.DAY_JS.m).isAfter(interval.end)) {
+			return interval.end.subtract(duration, Constants.DAY_JS.m);
 		}
 		return newStart;
 	}

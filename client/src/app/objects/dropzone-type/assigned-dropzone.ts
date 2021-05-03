@@ -7,13 +7,13 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Position} from "../position";
-import {ScheduleInterval} from "../schedule-interval";
 import {Card} from "../card";
 import {NotificationService} from "../../services/notification.service";
 import {Dayjs} from "dayjs";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {WarningToast} from "../toasts/warning-toast";
 import {Scroll} from "../scroll";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class AssignedDropzone implements Dropzone {
 

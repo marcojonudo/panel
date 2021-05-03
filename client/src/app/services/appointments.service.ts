@@ -8,9 +8,11 @@ import {AppointmentDay} from "../objects/appointments/appointment-day";
 import {NotificationService} from "./notification.service";
 import {DaysAppointmentsCounter} from "../objects/days-appointments-counter";
 import {Url} from "../objects/url";
-import {ScheduleInterval} from "../objects/schedule-interval";
 import {Dayjs} from "dayjs";
 import {AppointmentTypeValues} from "../objects/appointments/appointment-type-values";
+import {ScheduleInterval} from "../objects/schedule-interval";
+import {MechanicAppointment} from "../objects/mechanic-appointment";
+import {Builder} from "../objects/builder";
 
 @Injectable({
 	providedIn: 'root'
@@ -26,9 +28,7 @@ export class AppointmentsService {
 	private _daysAppointmentsCounter: DaysAppointmentsCounter;
 	private _appointmentDaysToUpdate: AppointmentDay[];
 
-	constructor(
-		private http: HttpClient
-	) {
+	constructor(private http: HttpClient) {
 		this.daysAppointmentsCounter = {};
 		this.appointmentDaysToUpdate = [];
 	}
@@ -81,6 +81,10 @@ export class AppointmentsService {
 
 	static findAppointmentType(code: string): AppointmentType {
 		return this.appointmentTypes.find((appointmentType: AppointmentType) => appointmentType.code == code);
+	}
+
+	static findAppointmentTypes(counter: boolean): AppointmentType[] {
+		return this.appointmentTypes.filter((appointmentType: AppointmentType) => appointmentType.counter == counter);
 	}
 
 	static findAppointmentDay(
@@ -161,69 +165,51 @@ export class AppointmentsService {
 
 	// region Appointment schedule
 
-	static create(
-		mechanic: Mechanic,
-		type: AppointmentType,
-		start: Dayjs,
-		end: Dayjs
-	): AppointmentSchedule {
-		const newAppointment = new AppointmentSchedule(
-			mechanic.day,
-			mechanic.code,
-			type,
-			new ScheduleInterval(start, end)
-		);
+	static create(mechanic: Mechanic, type: AppointmentType, start: Dayjs, end: Dayjs): MechanicAppointment {
+		const newAppointment = Builder.buildMechanicAppointment(type.code, new ScheduleInterval(start, end), type);
 		mechanic.appointments.push(newAppointment);
 
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
-
 		return newAppointment;
 	}
 
-	static updateSchedule(
-		mechanic: Mechanic,
-		appointment: AppointmentSchedule,
-		start: Dayjs,
-		end: Dayjs
-	): void {
-		const appointmentSchedule = mechanic.appointments.find((appointmentSchedule: AppointmentSchedule) =>
-			appointmentSchedule.equals(appointment)
-		);
-		appointmentSchedule.schedule.start = start;
-		appointmentSchedule.schedule.setEnd(end);
-
+	static updateSchedule(mechanic: Mechanic, appointment: MechanicAppointment, start: Dayjs, end: Dayjs): void {
+		appointment.interval = new ScheduleInterval(start, end);
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
-	static delete(
-		mechanic: Mechanic,
-		appointment: AppointmentSchedule
-	): void {
-		const appointmentIndex = mechanic.appointments.findIndex((appointmentSchedule: AppointmentSchedule) =>
-			appointmentSchedule.equals(appointment)
+	static delete(mechanic: Mechanic, appointment: MechanicAppointment): void {
+		const appointmentIndex = mechanic.appointments.findIndex((mechanicAppointment: MechanicAppointment) =>
+			mechanicAppointment.equals(appointment)
 		);
 		mechanic.appointments.splice(appointmentIndex, 1);
 
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
-	createDb(appointment: AppointmentSchedule): void {
-		this.http.post(Url.appointment(), appointment).subscribe();
+	createDb(mechanic: Mechanic, appointment: MechanicAppointment): void {
+		let url = `${Url.appointment()}?day=${mechanic.day.format(Constants.DATE_FORMAT.yyyy_MM_dd)}`
+		url += `&mechanicCode=${mechanic.employeeData.code}`
+		this.http.post(url, appointment).subscribe();
 	}
 
-	updateDb(appointment: AppointmentSchedule): void {
-		this.http.patch(Url.appointmentSchedule(), appointment).subscribe();
+	updateDb(mechanic: Mechanic, appointment: MechanicAppointment, initInterval: ScheduleInterval): void {
+		const url = this.findUpdateUrl(mechanic, appointment, initInterval);
+		this.http.patch(url, appointment).subscribe();
 	}
 
-	deleteDb(appointment: AppointmentSchedule): void {
-		const [mechanicCode, day, typeCode, start] = [
-			appointment.mechanicCode,
-			appointment.day.format(Constants.DATE_FORMAT.yyyy_MM_dd),
-			appointment.appointmentType.code,
-			appointment.schedule.start.format(Constants.TIME_FORMAT.HH_mm)
-		];
-		const params = `?start=${start}&day=${day}&mechanicCode=${mechanicCode}&typeCode=${typeCode}`;
-		this.http.delete(`${Url.appointment()}${params}`).subscribe();
+	deleteDb(mechanic: Mechanic, appointment: MechanicAppointment, initInterval: ScheduleInterval): void {
+		const url = this.findUpdateUrl(mechanic, appointment, initInterval);
+		this.http.delete(url).subscribe();
+	}
+
+	findUpdateUrl(mechanic: Mechanic, appointment: MechanicAppointment, initInterval: ScheduleInterval): string {
+		let url = `${Url.appointment()}?day=${mechanic.day.format(Constants.DATE_FORMAT.yyyy_MM_dd)}`;
+		url += `&mechanicCode=${mechanic.employeeData.code}`
+		url += `&appointmentTypeCode=${appointment.appointmentTypeCode}`
+		url += `&lastStart=${initInterval.start.format(Constants.TIME_FORMAT.HH_mm)}`
+		url += `&lastEnd=${initInterval.end.format(Constants.TIME_FORMAT.HH_mm)}`
+		return url
 	}
 
 	// endregion

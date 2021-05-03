@@ -1,11 +1,10 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
 	ElementRef,
-	Input, OnChanges,
+	Input,
 	OnInit,
-	Renderer2, SimpleChanges
+	Renderer2
 } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {Mechanic} from "../../objects/mechanic";

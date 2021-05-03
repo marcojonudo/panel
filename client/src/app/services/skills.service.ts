@@ -1,28 +1,51 @@
 import {Injectable} from '@angular/core';
-import {Skill} from "../objects/skill";
+import {SkillEmployee} from "../objects/skills/skill-employee";
+import {Skill} from "../objects/skills/skill";
+import {Constants} from "../objects/constants";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class SkillsService {
 
-	private static HIGHLIGHTED_SKILLS: Skill[] = [
-		new Skill({name: 'Montaje', code: 'N', backgroundColor: '#008000', color: '#FFFFFF'}),
-		new Skill({name: 'Convergencia', code: 'AL', backgroundColor: '#FF0000', color: '#FFFFFF'}),
-		new Skill({name: 'Aceite', code: 'AC', backgroundColor: '#FFFF00', color: '#000000'}),
-		new Skill({name: 'Pastillas/discos/líq. frenos', code: 'FR', backgroundColor: '#00BFFF', color: '#000000'}),
-		new Skill({name: 'Amortiguadores', code: 'AM', backgroundColor: '#0000FF', color: '#FFFFFF'}),
-		new Skill({name: 'Correas distribución', code: 'DIS', backgroundColor: '#0000FF', color: '#FFFFFF'}),
-		new Skill({name: 'Otras op. pesadas', code: 'ENG', backgroundColor: '#0000FF', color: '#FFFFFF'}),
-		new Skill({name: 'Aire acondicionado', code: 'AA', backgroundColor: '#000000', color: '#FFFFFF'})
-	];
+	static skills: Skill[];
+	static highlightedSkills: Skill[];
+	static skillEmployees: SkillEmployee[];
 
-	// region Getters / setters
-
-	static get highlightedSkills(): Skill[] {
-		return this.HIGHLIGHTED_SKILLS;
+	static init(skills: any[], skillEmployees: any[]): void {
+		this.skills = skills.map(skill => new Skill(skill));
+		console.log('Skills', this.skills);
+		this.highlightedSkills = this.skills.filter(skill => skill.code != undefined);
+		console.log('Highlighted skills', this.highlightedSkills);
+		this.skillEmployees = skillEmployees.map(skillEmployee => new SkillEmployee(skillEmployee));
+		console.log('Skill employees', this.skillEmployees);
 	}
 
-	// endregion
+	static findSkillEmployee(
+		skill: Skill, employeeCode: string, skillEmployees: SkillEmployee[] = this.skillEmployees
+	): SkillEmployee {
+		return skillEmployees.find(skillEmployee =>
+			skillEmployee.employeeCode == employeeCode && skillEmployee.skill.name == skill.name
+		);
+	}
+
+	static findSkillEmployees(skill: Skill, employeeCode: string): SkillEmployee[] {
+		return (skill.children.length == 0 ? [skill] : skill.children).map(s =>
+			this.findSkillEmployee(s, employeeCode)
+		).filter(skillEmployee => skillEmployee != undefined);
+	}
+
+	static findAllSkillEmployees(
+		employeeCode: string, skillEmployees: SkillEmployee[] = this.skillEmployees
+	): SkillEmployee[] {
+		return skillEmployees.filter(skillEmployee => skillEmployee.employeeCode == employeeCode);
+	}
+
+	static checkExperiencedSkill(skill: Skill, employeeCode: string): boolean {
+		const expertises = this.findSkillEmployees(skill, employeeCode).map(s => s.expertise);
+		return !expertises.find(expertise =>
+			expertise != Constants.SKILL_EXPERTISE.HIGH && expertise != Constants.SKILL_EXPERTISE.MEDIUM
+		);
+	}
 
 }

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {AppointmentsService} from "../../services/appointments.service";
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
@@ -7,6 +7,7 @@ import {NotificationService} from "../../services/notification.service";
 import {Dayjs} from "dayjs";
 import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
 import {AppointmentTypeValues} from "../../objects/appointments/appointment-type-values";
+import {AppointmentType} from "../../objects/appointments/appointment-type";
 
 @Component({
 	selector: 'app-appointments-panel',
@@ -14,16 +15,31 @@ import {AppointmentTypeValues} from "../../objects/appointments/appointment-type
 	styleUrls: ['./appointments-panel.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppointmentsPanelComponent {
+export class AppointmentsPanelComponent implements OnChanges {
 
 	@Input() day: Dayjs;
 	@Input() appointmentDayUpdate: AppointmentDayUpdate;
+
+	valuesMap: {[key: string]: AppointmentTypeValues};
 
 	constructor(
 		private appointmentsService: AppointmentsService,
 		private cardsService: CardsService,
 		private cdRef: ChangeDetectorRef
-	) {}
+	) {
+		this.valuesMap = {};
+		this.findAppointmentTypes().forEach(appointmentType => {
+			this.valuesMap[appointmentType.code] = new AppointmentTypeValues({});
+		});
+	}
+
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes.appointmentDayUpdate && changes.appointmentDayUpdate.currentValue) {
+			this.appointmentDayUpdate.value.values.forEach(appointmentTypeValues => {
+				this.valuesMap[appointmentTypeValues.appointmentType.code] = appointmentTypeValues;
+			})
+		}
+	}
 
 	// region Getters / setters
 
@@ -45,8 +61,14 @@ export class AppointmentsPanelComponent {
 
 	// endregion
 
-	findAppointmentDayValues(): AppointmentTypeValues[] {
-		return this.appointmentDayUpdate.value.values;
+	findAppointmentTypes(): AppointmentType[] {
+		return AppointmentsService.findAppointmentTypes(true);
+	}
+
+	findValues(
+		appointmentTypeCode: string, valuesMap: {[key: string]: AppointmentTypeValues} = this.valuesMap
+	): AppointmentTypeValues {
+		return valuesMap[appointmentTypeCode];
 	}
 
 	checkSaturation(appointments: number, max: number, appointmentSaturation: number = 1): boolean {

@@ -13,8 +13,8 @@ export class AppointmentTypeValues {
 	max: number;
 
 	constructor(values: any) {
-		this.appointmentDay = new AppointmentDay(values.appointmentDay);
-		this.appointmentType = new AppointmentType(values.appointmentType);
+		this.appointmentDay = values.appointmentDay ? new AppointmentDay(values.appointmentDay) : undefined;
+		this.appointmentType = values.appointmentType ? new AppointmentType(values.appointmentType) : undefined;
 		this.morning = values.morning;
 		this.afternoon = values.afternoon;
 		this.total = values.total;

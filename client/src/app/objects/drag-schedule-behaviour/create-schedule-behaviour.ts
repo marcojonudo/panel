@@ -3,11 +3,11 @@ import {CardPositionService} from "../../services/card-position.service";
 import {DimensionsService} from "../../services/dimensions.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {UtilsService} from "../../services/utils.service";
-import {AppointmentSchedule} from "../appointment-schedule";
 import {Mechanic} from "../mechanic";
 import {DragSchedulesService} from "../../services/drag-schedules.service";
 import {Dayjs} from "dayjs";
 import {Constants} from "../constants";
+import {MechanicAppointment} from "../mechanic-appointment";
 
 export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 
@@ -19,13 +19,10 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	}
 
 	createAppointment(
-		appointment: AppointmentSchedule,
-		quarterRefLeft: number,
-		appointmentTypeCode: string,
-		mechanic: Mechanic
-	): AppointmentSchedule {
+		appointment: MechanicAppointment, quarterRefLeft: number, appointmentTypeCode: string, mechanic: Mechanic
+	): MechanicAppointment {
 		const createSchedule = this.checkCreateSchedule(quarterRefLeft, mechanic);
-		let appointmentSchedule = undefined;
+		let mechanicAppointment = undefined;
 
 		if (createSchedule) {
 			const quarterEndLeft = DragSchedulesService.calcQuarterEndLeft(quarterRefLeft);
@@ -35,21 +32,21 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 					quarterEndLeft,
 					mechanic.day
 				);
-			appointmentSchedule = AppointmentsService.create(
+			mechanicAppointment = AppointmentsService.create(
 				mechanic,
 				AppointmentsService.findAppointmentType(appointmentTypeCode),
 				quarterStart,
 				quarterEnd
 			);
 		}
-		return appointmentSchedule;
+		return mechanicAppointment;
 	}
 
 	private checkCreateSchedule(quarterRefLeft: number, mechanic: Mechanic): boolean {
 		const quarterRef = DimensionsService.calcStartFromLeft(quarterRefLeft, mechanic.day);
-		const nextAppointment = mechanic.appointments.find((appointment: AppointmentSchedule) => {
-			const startDiff = appointment.schedule.start.diff(quarterRef, Constants.DAY_JS.m);
-			const endDiff = appointment.schedule.end.diff(quarterRef, Constants.DAY_JS.m);
+		const nextAppointment = mechanic.appointments.find((appointment: MechanicAppointment) => {
+			const startDiff = appointment.interval.start.diff(quarterRef, Constants.DAY_JS.m);
+			const endDiff = appointment.interval.end.diff(quarterRef, Constants.DAY_JS.m);
 			/* Si se cumple esta condición, se está haciendo clic dentro del horario de otra cita, con un margen de 15
 			*  minutos a izquierda y derecha. De esta forma, se evita crear otra nueva a no ser que se dejen, como
 			*  mínimo, esos 15 minutos a ambos lados */
@@ -72,20 +69,17 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 	updateQuarterRef(
 		quarterEnd: Dayjs,
 		mechanic: Mechanic,
-		appointment: AppointmentSchedule
+		appointment: MechanicAppointment
 	): void {
-		if (quarterEnd.isSame(appointment.schedule.start) || quarterEnd.isAfter(appointment.schedule.start)) {
-			AppointmentsService.updateSchedule(
-				mechanic,
-				appointment,
-				appointment.schedule.start,
-				quarterEnd
-			);
+		if (quarterEnd.isSame(appointment.interval.start) || quarterEnd.isAfter(appointment.interval.start)) {
+			AppointmentsService.updateSchedule(mechanic, appointment, appointment.interval.start, quarterEnd);
 		}
 	}
 
-	updateDatabase(appointmentsService: AppointmentsService, appointment: AppointmentSchedule): void {
-		appointmentsService.createDb(appointment);
+	updateDatabase(
+		appointmentsService: AppointmentsService, mechanic: Mechanic, appointment: MechanicAppointment
+	): void {
+		appointmentsService.createDb(mechanic, appointment);
 	}
 
 }

@@ -3,9 +3,9 @@ import {RealTimeService} from "../../services/real-time.service";
 import {AppointmentSchedule} from "../appointment-schedule";
 import * as dayjs from "dayjs";
 import {AppointmentsService} from "../../services/appointments.service";
-import {ScheduleInterval} from "../schedule-interval";
 import {UtilsService} from "../../services/utils.service";
 import {Constants} from "../constants";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class RealTimeAppointmentDelete extends RealTimeUpdate {
 

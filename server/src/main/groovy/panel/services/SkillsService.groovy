@@ -49,9 +49,9 @@ class SkillsService {
                         }
                     } else {
                         jobPositionGroupSkills.each {
-                            lastMonthSkillEmployees << skillEmployeeDataService.save(
-                                it, employeeSchedule.code, SkillEmployee.SkillExpertise.LOW, month
-                            )
+//                            lastMonthSkillEmployees << skillEmployeeDataService.save(
+//                                it, employeeSchedule.code, SkillEmployee.SkillExpertise.LOW, month
+//                            )
                         }
                     }
                 }

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Input, OnInit} from '@angular/core';
 import {Constants} from "../../objects/constants";
 import {CardsService} from "../../services/cards.service";
 import {NotificationService} from "../../services/notification.service";
@@ -7,6 +7,7 @@ import {MechanicsService} from "../../services/mechanics.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Dayjs} from "dayjs";
 import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
+import {SafeStyle} from "@angular/platform-browser";
 
 @Component({
 	selector: 'app-tools-bar',
@@ -20,6 +21,10 @@ export class ToolsBarComponent {
 	@Input() appointmentDayUpdate: AppointmentDayUpdate;
 	@Input() maxScheduleWidth: number;
 	@Input() maxScheduleMaxWidth: number;
+
+	@HostBinding('style.width.px') get width(): number {
+		return Constants.VALUE.TOOLS_BAR_WIDTH;
+	}
 
 	private _showingFinished: boolean;
 	private _syncing: boolean;

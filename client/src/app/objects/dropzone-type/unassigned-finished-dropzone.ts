@@ -7,12 +7,12 @@ import {CardsService} from "../../services/cards.service";
 import {Coordinates} from "../coordinates";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Position} from "../position";
-import {ScheduleInterval} from "../schedule-interval";
 import {OverlappedGroupsInfo} from "../groups-translation/overlapped-groups-info";
 import {Dayjs} from "dayjs";
 import {NotificationService} from "../../services/notification.service";
 import {WarningToast} from "../toasts/warning-toast";
 import {Scroll} from "../scroll";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class UnassignedFinishedDropzone implements Dropzone {
 
@@ -25,11 +25,7 @@ export class UnassignedFinishedDropzone implements Dropzone {
 	interval: ScheduleInterval;
 	position: Position;
 
-	constructor(
-		cardsService: CardsService,
-		appointmentsService: AppointmentsService,
-		subType: string
-	) {
+	constructor(cardsService: CardsService, appointmentsService: AppointmentsService, subType: string) {
 		this.cardsService = cardsService;
 		this.appointmentsService = appointmentsService;
 		this.subType = subType;

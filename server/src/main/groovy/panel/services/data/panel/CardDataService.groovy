@@ -172,7 +172,7 @@ abstract class CardDataService {
 		return dbCards
 	}
 
-	Card updatePosition(Card card, boolean updateLinks) {
+	Card updatePosition2(Card card, boolean updateLinks) {
 		Card dbCard = find(card)
 		if (updateLinks) {
 			fillLinkedCards(card)
@@ -188,6 +188,13 @@ abstract class CardDataService {
 			)
 		} else {
 			update(dbCard.id, card.day, card.mechanicCode, card.line, card.start, card.status)
+		}
+	}
+
+	void updatePosition(List<Card> cards) {
+		cards.each {
+			Card dbCard = find(it)
+			update(dbCard.id, it.day, it.mechanicCode, it.line, it.start, it.status)
 		}
 	}
 

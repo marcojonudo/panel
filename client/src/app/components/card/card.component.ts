@@ -97,14 +97,14 @@ export class CardComponent implements OnInit {
 	}
 
 	findDividedPosition(dividedCard: Card): string {
-		return MechanicsService.findMechanic(dividedCard.day, dividedCard.mechanicCode).panelPosition;
+		return MechanicsService.findMechanic(dividedCard.day, dividedCard.mechanicCode).mechanicPanelInfo.position;
 	}
 
 	checkArrowDirection(card: Card, dividedCard: Card) {
-		const mechanicPosition = MechanicsService.findMechanic(card.day, card.mechanicCode).panelPosition;
+		const mechanicPosition = MechanicsService.findMechanic(card.day, card.mechanicCode).mechanicPanelInfo.position;
 		const dividedMechanicPosition = MechanicsService.findMechanic(
 			dividedCard.day, dividedCard.mechanicCode
-		).panelPosition;
+		).mechanicPanelInfo.position;
 		if (mechanicPosition > dividedMechanicPosition) {
 			return 'up';
 		} else if (mechanicPosition < dividedMechanicPosition) {

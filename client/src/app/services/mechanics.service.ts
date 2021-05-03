@@ -1,8 +1,5 @@
 import {Injectable} from '@angular/core';
-import {DaysMechanics} from "../objects/days-mechanics";
 import {Mechanic} from "../objects/mechanic";
-import {UtilsService} from "./utils.service";
-import {Skill} from "../objects/skill";
 import {NotificationService} from "./notification.service";
 import {HttpClient} from "@angular/common/http";
 import {Url} from "../objects/url";
@@ -12,112 +9,46 @@ import {Dayjs} from "dayjs";
 import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 import {LocalStorageService} from "./local-storage.service";
 import {Employee} from "../objects/employee";
+import {SkillsService} from "./skills.service";
+import {ScheduleInterval} from "../objects/schedule-interval";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class MechanicsService {
 
-	private static _days: Dayjs[];
-	private static _employees: Employee[];
-	private static _firstScheduleDay: Dayjs;
-	private static _lastScheduleDay: Dayjs;
-	private static _daysMechanics: DaysMechanics;
-	private static _todaySchedules: boolean;
-	private static _futureSchedules: boolean;
-	private static _onlyAppointmentsMode: boolean;
-	private static _showAppointmentsName: boolean = true;
+	private static readonly FIXED_MECHANICS: Mechanic[] = [
+		new Mechanic({
+			employeeData: {code: "9999995", name: "TALLER"},
+			mechanicPanelInfo: {position: "Y", lines: 2},
+			intervals: [],
+			appointments: []
+		}),
+		new Mechanic({
+			employeeData: {code: "9999996", name: "TIENDA"},
+			mechanicPanelInfo: {position: "Z", lines: 2},
+			intervals: [],
+			appointments: []
+		})
+	]
+
+	static days: Dayjs[];
+	static mechanics: Mechanic[];
+	static fixedMechanics: Mechanic[];
+	static employees: Employee[];
+	static firstScheduleDay: Dayjs;
+	static lastScheduleDay: Dayjs;
+	static todaySchedules: boolean;
+	static futureSchedules: boolean;
+	static onlyAppointmentsMode: boolean;
+	static showAppointmentsName: boolean = true;
 
 	constructor(private http: HttpClient) {}
 
-	// region Getters / setters
-
-	static get days(): Dayjs[] {
-		return this._days;
-	}
-
-	static set days(value: Dayjs[]) {
-		this._days = value;
-	}
-
-	static get employees(): Employee[] {
-		return this._employees;
-	}
-
-	static set employees(value: Employee[]) {
-		this._employees = value;
-	}
-
-	static get firstScheduleDay(): dayjs.Dayjs {
-		return this._firstScheduleDay;
-	}
-
-	static set firstScheduleDay(value: dayjs.Dayjs) {
-		this._firstScheduleDay = value;
-	}
-
-	static get lastScheduleDay(): Dayjs {
-		return this._lastScheduleDay;
-	}
-
-	static set lastScheduleDay(value: Dayjs) {
-		this._lastScheduleDay = value;
-	}
-
-	static get daysMechanics(): DaysMechanics {
-		return this._daysMechanics;
-	}
-
-	static set daysMechanics(value: DaysMechanics) {
-		this._daysMechanics = value;
-	}
-
-	static get onlyAppointmentsMode(): boolean {
-		return this._onlyAppointmentsMode;
-	}
-
-	static set onlyAppointmentsMode(value: boolean) {
-		this._onlyAppointmentsMode = value;
-	}
-
-	static get showAppointmentsName(): boolean {
-		return this._showAppointmentsName;
-	}
-
-	static set showAppointmentsName(value: boolean) {
-		this._showAppointmentsName = value;
-	}
-
-	static get futureSchedules(): boolean {
-		return this._futureSchedules;
-	}
-
-	static set futureSchedules(value: boolean) {
-		this._futureSchedules = value;
-	}
-
-	static get todaySchedules(): boolean {
-		return this._todaySchedules;
-	}
-
-	static set todaySchedules(value: boolean) {
-		this._todaySchedules = value;
-	}
-
-	// endregion
-
 	// region Finders
 
-	public static findDayMechanics(day: Dayjs, fixed: boolean = undefined): Mechanic[] {
-		const dayMechanics = this.daysMechanics[day.valueOf()];
-		if (dayMechanics) {
-			if (fixed) {
-				return dayMechanics.filter((mechanic: Mechanic) => mechanic.fixed);
-			} else if (fixed == false) {
-				return dayMechanics.filter((mechanic: Mechanic) => !mechanic.fixed);
-			}
-		}
-		return dayMechanics;
+	public static findDayMechanics(day: Dayjs, mechanics: Mechanic[] = this.mechanics): Mechanic[] {
+		return mechanics.filter(mechanic => mechanic.day.isSame(day));
 	}
 
 	public static findMechanic(day: Dayjs, code: string): Mechanic {
@@ -125,91 +56,144 @@ export class MechanicsService {
 	}
 
 	public static findMechanicByPosition(day: Dayjs, position: string): Mechanic {
-		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.panelPosition == position);
+		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.mechanicPanelInfo.position == position);
 	}
 
 	// endregion
 
 	// region Init
 
-	static init(
-		daysMechanics: { [key: string]: any[] },
-		employees: any[],
-		firstScheduleDay: string,
-		lastScheduleDay: string,
-		skills: any[],
-		highlightedSkills: Skill[]
-	) {
+	static init(mechanics: any[], employees: any[], firstScheduleDay: string, lastScheduleDay: string) {
+		const today = dayjs().startOf(Constants.DAY_JS.d);
+
 		this.employees = employees.map((employee: any) => new Employee(employee));
-		const today = dayjs().startOf(Constants.DAY_JS.d);
-		this.loadFixedMechanics(daysMechanics, today)
-		if (daysMechanics) {
-			this.days = this.initDays(daysMechanics);
-			this.daysMechanics = this.initDaysMechanics(daysMechanics, skills, highlightedSkills);
-
-			this.todaySchedules = this.days.find((day: Dayjs) => day.isSame(today)) != undefined;
-			if (this.todaySchedules) {
-				this.futureSchedules = this.todaySchedules;
-				this.storeFixedMechanics(daysMechanics, today);
-			} else {
-				this.futureSchedules = Object.keys(this.daysMechanics).length > 0;
-			}
-			this.firstScheduleDay = dayjs(firstScheduleDay)
-			this.lastScheduleDay = dayjs(lastScheduleDay);
-		} else {
-			this.days = [];
-			this.daysMechanics = {};
-			this.todaySchedules = false;
-			this.futureSchedules = false;
-		}
-
-		console.log('Days', this.days);
-		console.log('Days mechanics', this.daysMechanics);
 		console.log('Employees', this.employees);
-	}
 
-	static loadFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs) {
-		const fixedMechanics = LocalStorageService.getItem(Constants.FIXED_SCHEDULES);
-		const formattedToday = today.format(Constants.DATE_FORMAT.yyyy_MM_dd);
-		if (!daysMechanics[formattedToday] && fixedMechanics) {
-			daysMechanics[formattedToday] = fixedMechanics;
-		}
-	}
-
-	static storeFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs): void {
-		LocalStorageService.setItem(
-			Constants.FIXED_SCHEDULES,
-			daysMechanics[today.format(Constants.DATE_FORMAT.yyyy_MM_dd)].filter(mechanic => mechanic.panelPosition >= "Y")
+		this.mechanics = mechanics.map(mechanic =>
+			new Mechanic(mechanic, SkillsService.highlightedSkills, SkillsService.findAllSkillEmployees(mechanic.code))
 		);
+		console.log('Mechanics', this.mechanics);
+
+		const todayMechanics = this.mechanics.filter(mechanic => mechanic.day.isSame(today));
+		this.fixedMechanics = this.findFixedMechanics(todayMechanics, today);
+		console.log('Fixed mechanics', this.fixedMechanics);
+		this.mechanics = this.mechanics.concat(this.fixedMechanics);
+
+		this.days = this.initDays(this.mechanics);
+		console.log('Days', this.days);
+
+		this.todaySchedules = todayMechanics.length > 0;
+		//TODO
+		this.futureSchedules = this.mechanics.length > 0;
+
+
+		this.firstScheduleDay = this.mechanics[0].day.clone();
+		this.lastScheduleDay = this.mechanics[this.mechanics.length - 1].day.clone();
+
+		// this.loadFixedMechanics(daysMechanics, today)
+		// if (daysMechanics) {
+			// this.daysMechanics = this.initDaysMechanics(daysMechanics);
+
+			// this.todaySchedules = this.days.find((day: Dayjs) => day.isSame(today)) != undefined;
+			// if (this.todaySchedules) {
+			// 	this.futureSchedules = this.todaySchedules;
+			// 	this.storeFixedMechanics(daysMechanics, today);
+			// } else {
+			// 	this.futureSchedules = Object.keys(this.daysMechanics).length > 0;
+			// }
+		// 	this.firstScheduleDay = dayjs(firstScheduleDay)
+		// 	this.lastScheduleDay = dayjs(lastScheduleDay);
+		// } else {
+		// 	this.days = [];
+		// 	this.daysMechanics = {};
+		// 	this.todaySchedules = false;
+		// 	this.futureSchedules = false;
+		// }
+
 	}
 
-	static initDays(daysMechanics: { [key: string]: any[] }): Dayjs[] {
-		return UtilsService.sort(
-			Object.keys(daysMechanics).map(day => dayjs(day)),
-			(elem: Dayjs) => elem.valueOf()
-		);
+	static findFixedMechanics(todayMechanics: Mechanic[], today: Dayjs): Mechanic[] {
+		/* Si hay mecánicos para el día de hoy, se generan las líneas de taller y tienda a partir de los horarios
+		 * existentes */
+		if (todayMechanics.length) {
+			return this.buildFixedMechanics(todayMechanics);
+		} else {
+			/* Si no, se obtienen del localstorage */
+			const storedFixedMechanics = LocalStorageService.getItem(Constants.FIXED_SCHEDULES).map(m => new Mechanic(m));
+			/* Si los horarios fijos almacenados son anteriores a hoy, no se cargan */
+			return storedFixedMechanics[0].day.isBefore(today) ? [] : storedFixedMechanics;
+		}
 	}
 
-	static initDaysMechanics(
-		daysMechanics: { [key: string]: any[] },
-		skills: any[],
-		highlightedSkills: Skill[]
-	): DaysMechanics {
-		const parsedDaysMechanics = {};
-		for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
-			const day = dayjs(dayString);
-			const parsedMechanics = mechanics.map(mechanic => new Mechanic(mechanic, skills, highlightedSkills));
-			parsedDaysMechanics[day.valueOf()] =
-				UtilsService.sort(parsedMechanics, (m) => m.panelPosition);
-		}
-		/* Si no hay hay mecánicos para el día actual, se añade una lista vacía. Así se facilitan operaciones
-		*  relacionadas con arrays, evitando tener que comprobar si la entrada del objeto es undefined */
-		const today = dayjs().startOf(Constants.DAY_JS.d);
-		if (!parsedDaysMechanics[today.valueOf()]) {
-			parsedDaysMechanics[today.valueOf()] = [];
-		}
-		return parsedDaysMechanics;
+	static buildFixedMechanics(mechanics: Mechanic[], fixedMechanics: Mechanic[] = this.FIXED_MECHANICS): Mechanic[] {
+		const thresholdInterval = this.findThresholdInterval(mechanics);
+		fixedMechanics.forEach(mechanic => {
+			mechanic.day = mechanics[0].day;
+			mechanic.intervals = [thresholdInterval];
+		})
+		LocalStorageService.setItem(Constants.FIXED_SCHEDULES, fixedMechanics);
+		return fixedMechanics;
 	}
+
+	static findThresholdInterval(mechanics: Mechanic[]): ScheduleInterval {
+		let minStart = undefined;
+		let maxEnd = undefined;
+		mechanics.forEach(mechanic => {
+			mechanic.intervals.forEach(interval => {
+				if (!minStart || interval.start.isBefore(minStart)) {
+					minStart = interval.start.clone();
+				}
+				if (!maxEnd || interval.end.isAfter(maxEnd)) {
+					maxEnd = interval.end.clone();
+				}
+			})
+		})
+		return new ScheduleInterval(minStart, maxEnd);
+	}
+
+	// static loadFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs) {
+	// 	const fixedMechanics = LocalStorageService.getItem(Constants.FIXED_SCHEDULES);
+	// 	const formattedToday = today.format(Constants.DATE_FORMAT.yyyy_MM_dd);
+	// 	if (!daysMechanics[formattedToday] && fixedMechanics) {
+	// 		daysMechanics[formattedToday] = fixedMechanics;
+	// 	}
+	// }
+
+	// static storeFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs): void {
+	// 	LocalStorageService.setItem(
+	// 		Constants.FIXED_SCHEDULES,
+	// 		daysMechanics[today.format(Constants.DATE_FORMAT.yyyy_MM_dd)].filter(mechanic => mechanic.mechanicPanelInfo.position >= "Y")
+	// 	);
+	// }
+
+	static initDays(mechanics: Mechanic[]): Dayjs[] {
+		const days = [];
+		mechanics.forEach(mechanic => {
+			const existentDay = days.find(day => day.isSame(mechanic.day));
+			if (!existentDay) {
+				days.push(mechanic.day);
+			}
+		})
+		return days;
+	}
+
+	// static initDaysMechanics(daysMechanics: { [key: string]: any[] }): DaysMechanics {
+	// 	const parsedDaysMechanics = {};
+	// 	for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
+	// 		const day = dayjs(dayString);
+	// 		console.log('mechanic', mechanics);
+	// 		const parsedMechanics = mechanics.map(mechanic => new Mechanic(mechanic, SkillsService.highlightedSkills));
+	// 		parsedDaysMechanics[day.valueOf()] =
+	// 			UtilsService.sort(parsedMechanics, (m) => m.mechanicPanelInfo.position);
+	// 	}
+	// 	/* Si no hay hay mecánicos para el día actual, se añade una lista vacía. Así se facilitan operaciones
+	// 	*  relacionadas con arrays, evitando tener que comprobar si la entrada del objeto es undefined */
+	// 	const today = dayjs().startOf(Constants.DAY_JS.d);
+	// 	if (!parsedDaysMechanics[today.valueOf()]) {
+	// 		parsedDaysMechanics[today.valueOf()] = [];
+	// 	}
+	// 	return parsedDaysMechanics;
+	// }
 
 	// endregion
 
@@ -245,13 +229,13 @@ export class MechanicsService {
 	}
 
 	private static rearrangeMechanics(mechanics: Mechanic[], removedMechanicIndex: number): void {
-		let prevPosition = mechanics[removedMechanicIndex].panelPosition;
+		let prevPosition = mechanics[removedMechanicIndex].mechanicPanelInfo.position;
 		mechanics.splice(removedMechanicIndex, 1);
 
 		const lastMechanicIndex = mechanics[mechanics.length - 1].fixed ? mechanics.length - 2 : mechanics.length;
 		for (let i = removedMechanicIndex; i < lastMechanicIndex; i++) {
-			const newPosition = mechanics[i].panelPosition;
-			mechanics[i].panelPosition = prevPosition;
+			const newPosition = mechanics[i].mechanicPanelInfo.position;
+			mechanics[i].mechanicPanelInfo.position = prevPosition;
 			prevPosition = newPosition;
 		}
 	}
