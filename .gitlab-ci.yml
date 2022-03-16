@@ -87,14 +87,6 @@ get-version:semantic:merge_request:
     only:
         - merge_requests
 
-build:backend:
-    stage: build
-    <<: *gradle_template
-    script:
-        - gradle --build-cache :server:build
-    only:
-        - branches
-
 build:frontend:
     stage: build
     image: gradle:6.1
@@ -140,7 +132,7 @@ build:docker:
         - get-version:semantic:push
     artifacts:
         paths:
-            - tar/*.tar
+            - server/tar/*.tar
         expire_in: 1 week
     before_script:
         - *fetch_ci_scripts
@@ -162,6 +154,13 @@ deploy:manual:sta:
         ENVIRONMENT: sta
     when: manual
 
+deploy:scheduled:sta:
+    <<: *deploy_template
+    only:
+        - schedules
+    variables:
+        ENVIRONMENT: sta
+
 deploy:manual:prod:
     <<: *deploy_template
     only:
@@ -171,13 +170,6 @@ deploy:manual:prod:
     variables:
         ENVIRONMENT: prod
     when: manual
-
-deploy:scheduled:sta:
-    <<: *deploy_template
-    only:
-        - schedules
-    variables:
-        ENVIRONMENT: sta
 
 deploy:scheduled:prod:
     <<: *deploy_template

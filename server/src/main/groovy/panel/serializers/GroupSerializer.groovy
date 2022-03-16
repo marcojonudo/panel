@@ -21,7 +21,9 @@ class GroupSerializer extends StdSerializer<Group> {
 	@Override
 	void serialize(Group group, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException, JsonProcessingException {
 		jsonGenerator.writeStartObject()
-		jsonGenerator.writeNumberField("id", group.id)
+		if (group.id) {
+			jsonGenerator.writeNumberField("id", group.id)
+		}
 		jsonGenerator.writeNumberField("code", group.code)
 		jsonGenerator.writeStringField("name", group.name)
 		jsonGenerator.writeStringField("shortName", group.shortName)
@@ -29,15 +31,16 @@ class GroupSerializer extends StdSerializer<Group> {
 		jsonGenerator.writeObjectField("color", group.color)
 		jsonGenerator.writeObjectField("appointmentType", group.appointmentType)
 
-		jsonGenerator.writeArrayFieldStart("tasks")
-		group.tasks.each {
-			jsonGenerator.writeStartObject()
-			jsonGenerator.writeNumberField("id", it.id)
-			jsonGenerator.writeNumberField("articleCode", it.articleCode)
-			jsonGenerator.writeEndObject()
+		if (group.tasks) {
+			jsonGenerator.writeArrayFieldStart("tasks")
+			group.tasks.each {
+				jsonGenerator.writeStartObject()
+				jsonGenerator.writeNumberField("id", it.id)
+				jsonGenerator.writeNumberField("articleCode", it.articleCode)
+				jsonGenerator.writeEndObject()
+			}
+			jsonGenerator.writeEndArray()
 		}
-		jsonGenerator.writeEndArray()
-
 		jsonGenerator.writeEndObject()
 	}
 

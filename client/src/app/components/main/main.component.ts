@@ -81,6 +81,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		private renderer: Renderer2
 	) {
 		this.days = MechanicsService.days;
+		console.log('initin days trigger map...', this.days);
 		this.daysTriggerMap = new DaysTriggerMap(this.days);
 
 		this.today = this.days[0];
@@ -382,6 +383,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		daysTriggerMap: DaysTriggerMap = this.daysTriggerMap,
 		type: string = Constants.UPDATE_OBJECT.APPOINTMENT_DAY
 	): AppointmentDayUpdate {
+		console.log('find appointment day update', day, daysTriggerMap, type, daysTriggerMap[day.valueOf()][type]);
 		return daysTriggerMap[day.valueOf()][type];
 	}
 

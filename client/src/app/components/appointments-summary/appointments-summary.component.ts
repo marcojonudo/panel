@@ -1,12 +1,12 @@
-import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {AppointmentsService} from "../../services/appointments.service";
-import {NotificationService} from "../../services/notification.service";
-import {AppointmentsDetailsInfo} from "../../objects/lateral-panel-info/appointments-details-info";
-import {Constants} from "../../objects/constants";
-import {Dayjs} from "dayjs";
-import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
-import {AppointmentDay} from "../../objects/appointments/appointment-day";
-import {AppointmentTypeValues} from "../../objects/appointments/appointment-type-values";
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { AppointmentsService } from "../../services/appointments.service";
+import { NotificationService } from "../../services/notification.service";
+import { AppointmentsDetailsInfo } from "../../objects/lateral-panel-info/appointments-details-info";
+import { Constants } from "../../objects/constants";
+import { Dayjs } from "dayjs";
+import { AppointmentDayUpdate } from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
+import { AppointmentDay } from "../../objects/appointments/appointment-day";
+import { AppointmentTypeValues } from "../../objects/appointments/appointment-type-values";
 
 @Component({
 	selector: 'app-appointments-summary',
@@ -48,6 +48,7 @@ export class AppointmentsSummaryComponent {
 	// endregion
 
 	findAppointmentDayValues(): AppointmentTypeValues[] {
+		console.log(this.day, this.appointmentDayUpdate);
 		return this.appointmentDayUpdate.value.values;
 	}
 

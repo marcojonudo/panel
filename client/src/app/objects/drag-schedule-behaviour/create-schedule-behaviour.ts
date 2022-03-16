@@ -8,6 +8,8 @@ import {DragSchedulesService} from "../../services/drag-schedules.service";
 import {Dayjs} from "dayjs";
 import {Constants} from "../constants";
 import {MechanicAppointment} from "../mechanic-appointment";
+import {Builder} from "../builder";
+import {ScheduleInterval} from "../schedule-interval";
 
 export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 
@@ -26,18 +28,14 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 
 		if (createSchedule) {
 			const quarterEndLeft = DragSchedulesService.calcQuarterEndLeft(quarterRefLeft);
-			const [quarterStart, quarterEnd] =
-				DragSchedulesService.calcQuarterThresholdsStart(
-					quarterRefLeft,
-					quarterEndLeft,
-					mechanic.day
-				);
-			mechanicAppointment = AppointmentsService.create(
-				mechanic,
-				AppointmentsService.findAppointmentType(appointmentTypeCode),
-				quarterStart,
-				quarterEnd
+			const [quarterStart, quarterEnd] = DragSchedulesService.calcQuarterThresholdsStart(
+				quarterRefLeft, quarterEndLeft, mechanic.day
 			);
+			const appointmentType = AppointmentsService.findAppointmentType(appointmentTypeCode);
+			mechanicAppointment = Builder.buildMechanicAppointment(
+				appointmentType.code, new ScheduleInterval(quarterStart, quarterEnd), appointmentType
+			);
+			AppointmentsService.addMechanicAppointment(mechanic, mechanicAppointment);
 		}
 		return mechanicAppointment;
 	}
@@ -72,7 +70,7 @@ export class CreateScheduleBehaviour implements DragScheduleBehaviour {
 		appointment: MechanicAppointment
 	): void {
 		if (quarterEnd.isSame(appointment.interval.start) || quarterEnd.isAfter(appointment.interval.start)) {
-			AppointmentsService.updateSchedule(mechanic, appointment, appointment.interval.start, quarterEnd);
+			AppointmentsService.updateMechanicAppointment(mechanic, appointment, appointment.interval.start, quarterEnd);
 		}
 	}
 

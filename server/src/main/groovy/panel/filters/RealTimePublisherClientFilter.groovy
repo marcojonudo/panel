@@ -9,8 +9,6 @@ import io.micronaut.http.context.ServerRequestContext
 import io.micronaut.http.filter.ClientFilterChain
 import io.micronaut.http.filter.HttpClientFilter
 import org.reactivestreams.Publisher
-import panel.pogos.realTime.RealTimeRequestInfo
-import panel.publisher.PanelPublisher
 import panel.utils.Constants
 
 @CompileStatic
@@ -26,8 +24,8 @@ class RealTimePublisherClientFilter implements HttpClientFilter {
 		if (realTimeAction) {
 			String sessionId = request.headers.get(Constants.HEADER_ID.SESSION_ID)
 			Object requestContent = findRequestContent(request)
-			RealTimeRequestInfo realTimeRequestInfo = new RealTimeRequestInfo(realTimeAction, requestContent)
-			PanelPublisher.send(sessionId, realTimeRequestInfo)
+//			RealTimeInfo realTimeRequestInfo = new RealTimeInfo(realTimeAction, requestContent)
+//			PanelPublisher.send(sessionId, realTimeRequestInfo)
 		}
 		return chain.proceed(request)
 	}

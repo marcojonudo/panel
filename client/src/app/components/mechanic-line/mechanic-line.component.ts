@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import {Mechanic} from "../../objects/mechanic";
 import {CardsGroup} from "../../objects/cards-group";
-import {AppointmentSchedule} from "../../objects/appointment-schedule";
 import {Constants} from "../../objects/constants";
 import {CardPositionService} from "../../services/card-position.service";
 import {DimensionsService} from "../../services/dimensions.service";

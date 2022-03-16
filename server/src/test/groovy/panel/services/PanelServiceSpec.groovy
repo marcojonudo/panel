@@ -1,19 +1,15 @@
 package panel.services
 
 import io.micronaut.test.annotation.MicronautTest
-import panel.pogos.appointmentDays.AppointmentDay
-import panel.pogos.appointmentDays.AppointmentType
-import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
-import panel.pogos.appointmentDays.AppointmentTypeValues
+import panel.domains.schedules.EmployeeSchedule
+
 import panel.pogos.appointmentDays.UpdateAppointmentDays
-import panel.pogos.cards.CardPogo
-import panel.pogos.cards.Group
+
 import panel.pogos.cards.GroupUnits
-import panel.pogos.cards.Task
+
 import panel.pogos.firstLoad.UpdateCards
 import panel.pogos.fviberi.*
-import panel.pogos.schedules.EmployeeSchedule
-import panel.pogos.schedules.Schedule
+
 import panel.utils.Constants
 import spock.lang.Shared
 import spock.lang.Specification

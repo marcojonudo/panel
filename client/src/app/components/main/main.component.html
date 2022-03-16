@@ -9,7 +9,7 @@
 				*ngIf="todaySchedules; else emptyDay"
 				appScrollable
 				[initialScrollLeft]="initialScrollLeft"
-				class="flex-grow-1 h-100 panel-container padding-0"
+				class="h-100 panel-container padding-0"
 				[ngClass]="{
 					'width-0-scrollbar': !displayVerticalScrollbar,
 					'overflow-scroll': todaySchedules,
@@ -60,7 +60,7 @@
 					class="h-auto d-flex"
 					[style.width.px]="maxScheduleWidth + toolsBarWidth">
 					<app-day-panel
-						class="w-100 animated fadeIn"
+						class="w-100 flex-grow-1 flex-basis-0 animated fadeIn"
 						[day]="day"
 						[mechanics]="findDayMechanics(day) | mechanics: onlyAppointmentsMode"
 						[saturatedQuarters]="findDaySaturatedQuarters(day)"

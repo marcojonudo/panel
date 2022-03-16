@@ -10,9 +10,9 @@ export class DaysTriggerMap implements TriggerMap {
 
 	constructor(days: Dayjs[]) {
 		days.forEach((day: Dayjs) => {
+			const appointmentDay = AppointmentsService.findAppointmentDay(day);
 			this[day.valueOf()] = new DayTriggerTypes(
-				CardsService.buildDaySaturation(day),
-				AppointmentsService.findAppointmentDay(day)
+				CardsService.buildDaySaturation(day), appointmentDay
 			);
 		});
 	}

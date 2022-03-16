@@ -62,10 +62,6 @@ export class Url {
 		return `${environment.serverUrl}/panel/appointmentDays`;
 	}
 
-	// public static appointmentType(): string {
-	// 	return `${environment.serverUrl}/panel/appointment/type`;
-	// }
-
 	public static appointment(): string {
 		return `${environment.serverUrl}/panel/appointment`;
 	}

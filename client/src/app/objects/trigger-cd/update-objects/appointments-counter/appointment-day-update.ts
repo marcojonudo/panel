@@ -9,6 +9,7 @@ export class AppointmentDayUpdate implements TriggerMapUpdate {
 
 	constructor(value: AppointmentDay) {
 		this.type = Constants.UPDATE_OBJECT.APPOINTMENT_DAY;
+		console.log(1111, value);
 		this.value = value;
 	}
 

@@ -3,6 +3,7 @@
 }
 
 .panel-container {
+	flex: 1 0 0;
 	position: relative;
 }
 

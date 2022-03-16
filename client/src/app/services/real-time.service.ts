@@ -1,16 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Card} from "../objects/card";
 import {CardsService} from "./cards.service";
-import {RealTimeCardUpdatePosition} from "../objects/real-time-update/real-time-card-update-position";
-import {RealTimeCardUpdateDuration} from "../objects/real-time-update/real-time-card-update-duration";
-import {RealTimeCardUpdateLinks} from "../objects/real-time-update/real-time-card-update-links";
-import {RealTimeMechanicUpdateLines} from "../objects/real-time-update/real-time-mechanic-update-lines";
 import {Mechanic} from "../objects/mechanic";
-import {RealTimeMechanicUpdatePosition} from "../objects/real-time-update/real-time-mechanic-update-position";
 import {RealTimeUpdateInfo} from "../objects/real-time-update/real-time-update-info";
-import {RealTimeAppointmentUpdateSchedule} from "../objects/real-time-update/real-time-appointment-update-schedule";
 import {AppointmentsService} from "./appointments.service";
-import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {NotificationService} from "./notification.service";
 import {CardsGroup} from "../objects/cards-group";
 import {DimensionsService} from "./dimensions.service";
@@ -18,87 +11,28 @@ import {MechanicsService} from "./mechanics.service";
 import {UnassignedCardLinkHandler} from "../objects/card-links/unassigned-card-link-handler";
 import {AssignedCardLinkHandler} from "../objects/card-links/assigned-card-link-handler";
 import {Dayjs} from "dayjs";
-import {RealTimeAppointmentCreate} from "../objects/real-time-update/real-time-appointment-create";
-import {RealTimeMechanicUpdateJobLineType} from "../objects/real-time-update/real-time-mechanic-update-job-line-type";
-import {RealTimeAppointmentDelete} from "../objects/real-time-update/real-time-appointment-delete";
 import {SyncCardsInfo} from "../objects/sync-cards-info";
-import {RealTimeSyncJpdv} from "../objects/real-time-update/real-time-sync-jpdv";
-import {RealTimeCardUpdateVehiclePosition} from "../objects/real-time-update/real-time-card-update-vehicle-position";
-import {RealTimeCardUpdatePendingCall} from "../objects/real-time-update/real-time-card-update-pending-call";
-import {RealTimeCardUpdatePendingBudget} from "../objects/real-time-update/real-time-card-update-pending-budget";
 import {Url} from "../objects/url";
 import {UnassignedCardDurationHandler} from "../objects/card-duration/unassigned-card-duration-handler";
 import {AssignedCardDurationHandler} from "../objects/card-duration/assigned-card-duration-handler";
 import {RightCardLinkHandler} from "../objects/card-links/side/right-card-link-handler";
-import {RealTimeCardDivide} from "../objects/real-time-update/real-time-card-divide";
 import {DropzoneService} from "./dropzone.service";
 import {AppointmentDay} from "../objects/appointments/appointment-day";
-import {RealTimeCardCreate} from "../objects/real-time-update/real-time-card-create";
-import {RealTimeCardResetLinks} from "../objects/real-time-update/real-time-card-reset-links";
-import {RealTimeCardDelete} from "../objects/real-time-update/real-time-card-delete";
+import {Constants} from "../objects/constants";
+import {MechanicAppointment} from "../objects/mechanic-appointment";
+import * as dayjs from "dayjs";
+import {UtilsService} from "./utils.service";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class RealTimeService {
 
-	private readonly UPDATE_TYPE = {
-		updateCardsPosition: (cards: any[]) =>
-			new RealTimeCardUpdatePosition(this, cards),
-		updateCardsDuration: (cards: any[]) =>
-			new RealTimeCardUpdateDuration(this, cards),
-		updateCardsLinks: (cards: any[]) =>
-			new RealTimeCardUpdateLinks(this, cards),
-		resetCardsLinks: (cards: any[]) =>
-			new RealTimeCardResetLinks(this, cards),
-		deleteCards: (cards: any[]) =>
-			new RealTimeCardDelete(this, cards),
-		divideCards: (cards: any[]) =>
-			new RealTimeCardDivide(this, cards),
-		createCards: (cards: any[]) =>
-			new RealTimeCardCreate(this, cards),
-		updateMechanicJobLineType: (mechanic: any) =>
-			new RealTimeMechanicUpdateJobLineType(mechanic),
-		updateMechanicLines: (mechanics: any[]) =>
-			new RealTimeMechanicUpdateLines(mechanics),
-		updateMechanicsPosition: (mechanics: any[]) =>
-			new RealTimeMechanicUpdatePosition(this, mechanics),
-		createAppointment: (appointment: any) =>
-			new RealTimeAppointmentCreate(appointment),
-		updateAppointmentSchedule: (appointment: any) =>
-			new RealTimeAppointmentUpdateSchedule(appointment),
-		deleteAppointment: (appointment: any) =>
-			new RealTimeAppointmentDelete(appointment),
-		syncJpdv: (updateInfo: any) =>
-			new RealTimeSyncJpdv(this, updateInfo),
-		updateVehiclePosition: (cards: any[]) =>
-			new RealTimeCardUpdateVehiclePosition(this, cards),
-		updatePendingCall: (cards: any[]) =>
-			new RealTimeCardUpdatePendingCall(this, cards),
-		updatePendingBudget: (cards: any[]) =>
-			new RealTimeCardUpdatePendingBudget(this, cards),
-	};
+	static sessionId: string;
 
-	constructor(
-		private cardsService: CardsService,
-		private mechanicsService: MechanicsService
-	) {
+	constructor(private cardsService: CardsService, private mechanicsService: MechanicsService) {
 		this.connectUpdatePublisher();
 	}
-
-	private static _sessionId: string;
-
-	// region Getters / setters
-
-	static get sessionId(): string {
-		return this._sessionId;
-	}
-
-	static set sessionId(value: string) {
-		this._sessionId = value;
-	}
-
-	// endregion
 
 	connectUpdatePublisher(): void {
 		const eventSource = new EventSource(Url.publisher());
@@ -106,10 +40,65 @@ export class RealTimeService {
 			if (event.lastEventId != RealTimeService.sessionId) {
 				const updateInfo: RealTimeUpdateInfo = JSON.parse(event.data);
 				console.log('Received update info:', updateInfo);
-				const updateType = this.UPDATE_TYPE[updateInfo.action](updateInfo.content);
-				updateType.update();
+				this.executeRealTimeUpdate(updateInfo.action, updateInfo.content);
 			}
 		};
+	}
+
+	executeRealTimeUpdate(action: string, content: any): void {
+		switch (action) {
+			case Constants.REAL_TIME_ACTION.CREATE_MECHANIC_APPOINTMENT:
+				this.createMechanicAppointment(content);
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_MECHANIC_APPOINTMENT:
+				this.updateMechanicAppointment(content);
+				break;
+			case Constants.REAL_TIME_ACTION.DELETE_MECHANIC_APPOINTMENT:
+				this.deleteMechanicAppointment(content);
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_CARDS_POSITION:
+				this.updateCardsPosition(content.cards.map(c => new Card(c)));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_CARDS_DURATION:
+				this.updateCardsDuration(content.cards.map(c => new Card(c)));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_CARDS_LINKS:
+				this.updateCardsLinks(content.cards.map(c => new Card(c)));
+				break;
+			case Constants.REAL_TIME_ACTION.RESET_CARDS_LINKS:
+				this.resetCardsLinks(content.cards.map(c => new Card(c)));
+				break;
+			case Constants.REAL_TIME_ACTION.DELETE_CARDS:
+				this.deleteCards(content.cards.map(c => new Card(c)));
+				break;
+			case Constants.REAL_TIME_ACTION.CREATE_CARDS:
+				this.createCards(content.cards.map(c => new Card(c)));
+				break;
+			case Constants.REAL_TIME_ACTION.DIVIDE_CARDS:
+				this.divideCards(content.cards.map(c => new Card(c)));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_MECHANIC_JOB_LINE_TYPE:
+				this.updateMechanicJobLineType(new Mechanic(content.mechanic));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_MECHANIC_LINES:
+				this.updateMechanicLines(new Mechanic(content.mechanic));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_MECHANICS_POSITION:
+				this.updateMechanicsPosition(content.mechanics.map(m => new Mechanic(m)));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_CARD_VEHICLE_POSITION:
+				this.updateCardVehiclePosition(new Card(content.card));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_CARD_PENDING_CALL:
+				this.updateCardPendingCall(new Card(content.card));
+				break;
+			case Constants.REAL_TIME_ACTION.UPDATE_CARD_PENDING_BUDGET:
+				this.updateCardPendingBudget(new Card(content.card));
+				break;
+			case Constants.REAL_TIME_ACTION.SYNC_JPDV:
+				this.syncJpdvCards(new SyncCardsInfo(content));
+				break;
+		}
 	}
 
 	// region Cards
@@ -128,7 +117,7 @@ export class RealTimeService {
 		return group ? group : CardsService.findCardGroup(CardsService.assignedGroups, cardId);
 	}
 
-	updatePosition(cards: Card[]): void {
+	updateCardsPosition(cards: Card[]): void {
 		const processedGroups = [];
 		let originDropzone = undefined;
 		let destinyDropzone = undefined;
@@ -161,7 +150,7 @@ export class RealTimeService {
 		}
 	}
 
-	updateDuration(cards: Card[]): void {
+	updateCardsDuration(cards: Card[]): void {
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 
 		let updatedDurationCard = undefined;
@@ -178,7 +167,7 @@ export class RealTimeService {
 			if (cards.length > 1) {
 				const updatePositionIndex = cards.slice(1).findIndex((c: Card) => !c.linkedPrevious);
 				if (updatePositionIndex != -1) {
-					this.updatePosition(cards.slice(1 + updatePositionIndex));
+					this.updateCardsPosition(cards.slice(1 + updatePositionIndex));
 				}
 			}
 
@@ -196,7 +185,7 @@ export class RealTimeService {
 		}
 	}
 
-	updateLinks(cards: Card[]): void {
+	updateCardsLinks(cards: Card[]): void {
 		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
 		const leftCard = CardsService.findCardGroup(allGroups, cards[0].panelId).cards.find((c: Card) => {
@@ -214,7 +203,7 @@ export class RealTimeService {
 		}
 	}
 
-	resetLinks(cards: Card[]): void {
+	resetCardsLinks(cards: Card[]): void {
 		const linkedGroups = CardsService.initAssignedGroups(cards);
 		/* Al estar actualizando enlaces, sólo puede haber dos fichas: la de la izquierda y la de la derecha */
 		const allGroups = this.findGroups(cards[0], cards[0].day, cards[0].mechanicCode);
@@ -270,7 +259,7 @@ export class RealTimeService {
 		})
 	}
 
-	updateVehiclePosition(card: Card): void {
+	updateCardVehiclePosition(card: Card): void {
 		const allGroups = this.findGroups(card, card.day, card.mechanicCode);
 		const group = allGroups.find((group: CardsGroup) => group.id == card.panelId);
 		const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
@@ -278,7 +267,7 @@ export class RealTimeService {
 		this.cardsService.updateVehiclePosition(localCard, card.vehiclePosition, false);
 	}
 
-	updatePendingCall(card: Card): void {
+	updateCardPendingCall(card: Card): void {
 		const allGroups = this.findGroups(card, card.day, card.mechanicCode);
 		const group = allGroups.find((group: CardsGroup) => group.id == card.panelId);
 		const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
@@ -286,7 +275,7 @@ export class RealTimeService {
 		this.cardsService.updatePendingCall(localCard, card.pending.call, false);
 	}
 
-	updatePendingBudget(card: Card): void {
+	updateCardPendingBudget(card: Card): void {
 		const allGroups = this.findGroups(card, card.day, card.mechanicCode);
 		const group = allGroups.find((group: CardsGroup) => group.id == card.panelId);
 		const localCard = group.cards.find((c: Card) => c.panelId == card.panelId);
@@ -298,18 +287,18 @@ export class RealTimeService {
 
 	// region Mechanics
 
-	static updateMechanicJobLineType(mechanic: Mechanic): void {
+	updateMechanicJobLineType(mechanic: Mechanic): void {
 		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.mechanicPanelInfo.position);
 		localMechanic.jobLineType = mechanic.jobLineType;
 		NotificationService.notifyMechanicLine(localMechanic.day, localMechanic.code);
 	}
 
-	static updateLines(mechanic: Mechanic): void {
+	updateMechanicLines(mechanic: Mechanic): void {
 		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.mechanicPanelInfo.position);
 		MechanicsService.updateMechanicLines(localMechanic, mechanic.mechanicPanelInfo.lines);
 	}
 
-	updateMechanicPosition(mechanics: Mechanic[]): void {
+	updateMechanicsPosition(mechanics: Mechanic[]): void {
 		/* El último elemento de la lista es el mecánico eliminado */
 		const removedMechanic = MechanicsService.findMechanicByPosition(
 			mechanics[0].day,
@@ -320,31 +309,48 @@ export class RealTimeService {
 
 	// endregion
 
-	// region Appointment
+	// region Mechanic appointment
 
-	static createAppointment(appointment: AppointmentSchedule): void {
-		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
-		AppointmentsService.create(
-			mechanic,
-			appointment.appointmentType,
-			appointment.schedule.start,
-			appointment.schedule.end
-		)
+	createMechanicAppointment(mechanicAppointmentInfo: any): void {
+		const day = dayjs(mechanicAppointmentInfo.day);
+		const appointmentType = AppointmentsService.findAppointmentType(mechanicAppointmentInfo.appointmentTypeCode);
+		const newMechanicAppointment = new MechanicAppointment(
+			appointmentType, mechanicAppointmentInfo.mechanicAppointment, day
+		);
+
+		const mechanic = MechanicsService.findMechanic(day, mechanicAppointmentInfo.mechanicCode);
+		AppointmentsService.addMechanicAppointment(mechanic, newMechanicAppointment);
 	}
 
-	static updateAppointmentSchedule(appointment: AppointmentSchedule): void {
-		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
-		// AppointmentsService.updateSchedule(
-		// 	mechanic,
-		// 	appointment,
-		// 	appointment.schedule.start,
-		// 	appointment.schedule.end
-		// )
+	updateMechanicAppointment(mechanicAppointmentInfo: any): void {
+		const day = dayjs(mechanicAppointmentInfo.day);
+		const appointmentType = AppointmentsService.findAppointmentType(mechanicAppointmentInfo.appointmentTypeCode);
+		const lastStart = UtilsService.buildDate(day, mechanicAppointmentInfo.lastStart);
+		const lastEnd = UtilsService.buildDate(day, mechanicAppointmentInfo.lastEnd);
+		const newMechanicAppointment = new MechanicAppointment(
+			appointmentType, mechanicAppointmentInfo.mechanicAppointment, day
+		);
+
+		const mechanic = MechanicsService.findMechanic(day, mechanicAppointmentInfo.mechanicCode);
+		const mechanicAppointment = AppointmentsService.findMechanicAppointment(
+			mechanic, appointmentType.code, lastStart, lastEnd
+		);
+		AppointmentsService.updateMechanicAppointment(
+			mechanic, mechanicAppointment, newMechanicAppointment.interval.start, newMechanicAppointment.interval.end
+		);
 	}
 
-	static deleteAppointment(appointment: AppointmentSchedule): void {
-		const mechanic = MechanicsService.findMechanic(appointment.day, appointment.mechanicCode);
-		// AppointmentsService.delete(mechanic, appointment)
+	deleteMechanicAppointment(mechanicAppointmentInfo: any): void {
+		const day = dayjs(mechanicAppointmentInfo.day);
+		const appointmentType = AppointmentsService.findAppointmentType(mechanicAppointmentInfo.appointmentTypeCode);
+		const lastStart = UtilsService.buildDate(day, mechanicAppointmentInfo.lastStart);
+		const lastEnd = UtilsService.buildDate(day, mechanicAppointmentInfo.lastEnd);
+
+		const mechanic = MechanicsService.findMechanic(day, mechanicAppointmentInfo.mechanicCode);
+		const mechanicAppointment = AppointmentsService.findMechanicAppointment(
+			mechanic, appointmentType.code, lastStart, lastEnd
+		);
+		AppointmentsService.deleteMechanicAppointment(mechanic, mechanicAppointment);
 	}
 
 	// updateAppointmentType(updatedAppointment: AppointmentSchedule): void {

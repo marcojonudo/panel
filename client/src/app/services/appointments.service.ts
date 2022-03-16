@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {Constants} from "../objects/constants";
 import {HttpClient} from "@angular/common/http";
 import {Mechanic} from "../objects/mechanic";
@@ -91,7 +90,17 @@ export class AppointmentsService {
 		day: Dayjs,
 		appointmentDays: AppointmentDay[] = this.appointmentDays
 	): AppointmentDay {
+		console.log('find appointment day', day, appointmentDays);
 		return appointmentDays.find((appointmentDay: AppointmentDay) => appointmentDay.day.isSame(day));
+	}
+
+	static findMechanicAppointment(
+		mechanic: Mechanic, appointmentTypeCode: string, start: Dayjs, end: Dayjs
+	): MechanicAppointment {
+		return mechanic.appointments.find(mechanicAppointment =>
+			mechanicAppointment.appointmentTypeCode == appointmentTypeCode &&
+			mechanicAppointment.interval.start.isSame(start) && mechanicAppointment.interval.end.isSame(end)
+		)
 	}
 
 	// endregion
@@ -163,22 +172,21 @@ export class AppointmentsService {
 
 	// endregion
 
-	// region Appointment schedule
+	// region Mechanic appointment
 
-	static create(mechanic: Mechanic, type: AppointmentType, start: Dayjs, end: Dayjs): MechanicAppointment {
-		const newAppointment = Builder.buildMechanicAppointment(type.code, new ScheduleInterval(start, end), type);
-		mechanic.appointments.push(newAppointment);
-
+	static addMechanicAppointment(mechanic: Mechanic, mechanicAppointment: MechanicAppointment): void {
+		mechanic.appointments.push(mechanicAppointment);
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
-		return newAppointment;
 	}
 
-	static updateSchedule(mechanic: Mechanic, appointment: MechanicAppointment, start: Dayjs, end: Dayjs): void {
+	static updateMechanicAppointment(
+		mechanic: Mechanic, appointment: MechanicAppointment, start: Dayjs, end: Dayjs
+	): void {
 		appointment.interval = new ScheduleInterval(start, end);
 		NotificationService.notifyMechanicLine(mechanic.day, mechanic.code);
 	}
 
-	static delete(mechanic: Mechanic, appointment: MechanicAppointment): void {
+	static deleteMechanicAppointment(mechanic: Mechanic, appointment: MechanicAppointment): void {
 		const appointmentIndex = mechanic.appointments.findIndex((mechanicAppointment: MechanicAppointment) =>
 			mechanicAppointment.equals(appointment)
 		);
@@ -222,6 +230,7 @@ export class AppointmentsService {
 	}
 
 	static updateAppointmentDays(appointmentDays: AppointmentDay[]): void {
+		console.log('SETTING appointmn days', appointmentDays);
 		this.appointmentDays = appointmentDays;
 	}
 

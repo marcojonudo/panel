@@ -5,7 +5,9 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.context.env.Environment
 import io.micronaut.scheduling.annotation.Scheduled
 import panel.pogos.firstLoad.UpdateCards
-import panel.pogos.realTime.RealTimeRequestInfo
+import panel.pogos.realTime.RealTimeAction
+import panel.pogos.realTime.RealTimeInfo
+import panel.pogos.realTime.objects.RealTimeSyncJpdv
 import panel.publisher.PanelPublisher
 import panel.services.PanelService
 import panel.utils.Constants
@@ -35,11 +37,15 @@ class JpdvOrdersJob {
 		)
 		/* Se se ha actualizado alguna ficha, se actualizan los terminales con los cambios */
 		if (updateCards.updated()) {
-			RealTimeRequestInfo realTimeRequestInfo = new RealTimeRequestInfo(
-				Constants.REAL_TIME_ACTION.SYNC_JPDV,
-				updateCards.getSyncInfo()
+			RealTimeSyncJpdv realTimeSyncJpdv = new RealTimeSyncJpdv(
+				updateCards.newCards,
+				updateCards.newReplace,
+				updateCards.reset,
+				updateCards.updated,
+				updateCards.deleted,
+				updateCards.appointmentDays
 			)
-			PanelPublisher.send("", realTimeRequestInfo)
+			PanelPublisher.send("", new RealTimeInfo(RealTimeAction.SYNC_JPDV, realTimeSyncJpdv))
 		}
 	}
 

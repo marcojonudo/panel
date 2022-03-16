@@ -24,6 +24,7 @@ export class DayAppointmentDayUpdate implements DayTriggerMapUpdate {
 		type: string = this.type,
 		appointmentDay: AppointmentDay = this.value
 	): void {
+		console.log(22222);
 		daysUpdateObjects[day.valueOf()][type] = new AppointmentDayUpdate(appointmentDay);
 		/* Se actualiza el panel lateral sólo si este está abierto */
 		if (daysUpdateObjects[day.valueOf()][Constants.UPDATE_OBJECT.LATERAL_PANEL]) {

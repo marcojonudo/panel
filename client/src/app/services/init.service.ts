@@ -66,6 +66,7 @@ export class InitService {
 			if (MechanicsService.mechanics.length) {
 				CardsService.init(data.cards, MechanicsService.days);
 
+				console.log('INIT APPOINTMENT AYS', data.appointmentDays);
 				AppointmentsService.init(data.appointmentDays);
 
 				JobLineTypeService.init(data.jobLineTypes);

@@ -56,7 +56,7 @@ export class CardsService {
 	private static _assignedGroups: CardsGroup[];
 	private static _unassignedAuxiliaryCardsGroups: CardsGroup[];
 	private static _finishedGroups: CardsGroup[];
-	private static _unassignedGroups: CardsGroup[];
+	private static _unassignedGroups: CardsGroup[] = [];
 	private static _unassignedTypesGroups: GroupedTypeCards;
 
 	private static _unassignedSections: UnassignedSection[];

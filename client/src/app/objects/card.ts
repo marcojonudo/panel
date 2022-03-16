@@ -14,18 +14,13 @@ export class Card {
 
 	panelId: string;
 	day: Dayjs;
-	lastDay: Dayjs;
 	mechanicCode: string;
-	lastMechanicCode: string;
 	status: string;
 
 	start: Dayjs;
-	lastStart: Dayjs;
 	duration: number;
 	end: Dayjs;
-	lastEnd: Dayjs;
 	line: number;
-	lastLine: number;
 
 	left: number;
 	width: number;
@@ -55,7 +50,7 @@ export class Card {
 	possibleLinkedNext: boolean;
 	possibleLinkedPrevious: boolean;
 
-	constructor(card: any, initialLoad: boolean = true) {
+	constructor(card: any) {
 		this.type = card.type;
 		this.code = card.code;
 		this.day = card.day ? dayjs(card.day) : undefined;
@@ -80,19 +75,10 @@ export class Card {
 		this.vehiclePosition = card.vehiclePosition;
 
 		this.panelId = this.order ? CardsService.buildPanelId(this) : undefined;
-
-		this.lastDay = card.lastDay ? dayjs(card.lastDay) : initialLoad ? this.day : undefined;
-		this.lastMechanicCode = card.lastMechanicCode ? card.lastMechanicCode : initialLoad ? this.mechanicCode : undefined;
-		this.lastLine = card.lastLine != undefined ? card.lastLine : initialLoad ? this.line : undefined;
-		this.lastStart = card.lastStart != undefined ? card.lastStart : initialLoad ? this.start : undefined;
-		this.lastEnd = card.lastEnd != undefined ? card.lastEnd : initialLoad ? this.end : undefined;
 	}
 
 	setStart(start: Dayjs): void {
-		this.lastStart = this.start;
 		this.start = start;
-
-		this.lastEnd = this.end;
 		this.end = this.start ? this.start.add(this.duration, Constants.DAY_JS.m) : this.start;
 	}
 
@@ -103,17 +89,14 @@ export class Card {
 	}
 
 	setDay(day: Dayjs): void {
-		this.lastDay = this.day;
 		this.day = day;
 	}
 
 	setMechanicCode(mechanicCode: string): void {
-		this.lastMechanicCode = this.mechanicCode;
 		this.mechanicCode = mechanicCode;
 	}
 
 	setLine(line: number): void {
-		this.lastLine = this.line;
 		this.line = line;
 	}
 
@@ -127,10 +110,8 @@ export class Card {
 			type: this.type,
 			code: this.code,
 			line: this.line,
-			lastLine: this.lastLine,
 			status: this.status,
 			mechanicCode: this.mechanicCode,
-			lastMechanicCode: this.lastMechanicCode,
 			duration: this.duration,
 			linkedIndex: this.linkedIndex,
 			divisionIndex: this.divisionIndex,
@@ -144,9 +125,6 @@ export class Card {
 		card.order = this.order.clone();
 		card.client = this.client ? this.client.clone() : undefined;
 		card.vehicle = this.vehicle ? this.vehicle.clone() : undefined;
-		card.lastDay = this.lastDay;
-		card.lastStart = this.lastStart;
-		card.lastEnd = this.lastEnd;
 		card.panelId = CardsService.buildPanelId(card);
 		card.width = this.width;
 		return card;

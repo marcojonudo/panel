@@ -20,11 +20,14 @@ import java.time.LocalDate
 @TupleConstructor
 class CompleteInfo {
 
+	@JsonInclude
 	List<EmployeeSchedule> mechanics
 
 	@JsonInclude
 	List<IfvEmployee> employees
 	List<Skill> skills
+
+	@JsonInclude
 	List<SkillEmployee> skillEmployees
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes

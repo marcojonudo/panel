@@ -1,11 +1,8 @@
 import {DragScheduleBehaviour} from "./drag-schedule-behaviour";
-import {AppointmentSchedule} from "../appointment-schedule";
 import {DimensionsService} from "../../services/dimensions.service";
-import {UtilsService} from "../../services/utils.service";
 import {AppointmentsService} from "../../services/appointments.service";
 import {Mechanic} from "../mechanic";
 import {Dayjs} from "dayjs";
-import {Constants} from "../constants";
 import {MechanicAppointment} from "../mechanic-appointment";
 import {ScheduleInterval} from "../schedule-interval";
 
@@ -37,11 +34,11 @@ export class UpdateScheduleBehaviour implements DragScheduleBehaviour {
 	updateQuarterRef(quarterRef: Dayjs, mechanic: Mechanic, appointment: MechanicAppointment): void {
 		if (this.left) {
 			if (quarterRef.valueOf() <= appointment.interval.end.valueOf()) {
-				AppointmentsService.updateSchedule(mechanic, appointment, quarterRef, appointment.interval.end);
+				AppointmentsService.updateMechanicAppointment(mechanic, appointment, quarterRef, appointment.interval.end);
 			}
 		} else {
 			if (quarterRef.valueOf() >= appointment.interval.start.valueOf()) {
-				AppointmentsService.updateSchedule(mechanic, appointment, appointment.interval.start, quarterRef);
+				AppointmentsService.updateMechanicAppointment(mechanic, appointment, appointment.interval.start, quarterRef);
 			}
 		}
 	}

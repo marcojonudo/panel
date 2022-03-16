@@ -2,7 +2,7 @@ package panel.utils
 
 import groovy.transform.CompileStatic
 import panel.domains.fviberi.OrderHeader
-import panel.pogos.appointmentDays.AppointmentType.AppointmentTypeCode
+import panel.domains.panel.AppointmentType
 
 @CompileStatic
 class Constants {
@@ -57,31 +57,11 @@ class Constants {
 		REAL_TIME_ACTION: 'real-time-action'
 	]
 
-	static final Map<String, String> REAL_TIME_ACTION = [
-		UPDATE_CARDS_POSITION: 'updateCardsPosition',
-		UPDATE_CARDS_DURATION: 'updateCardsDuration',
-		UPDATE_CARDS_LINKS: 'updateCardsLinks',
-		RESET_CARDS_LINKS: 'resetCardsLinks',
-		DELETE_CARDS: 'deleteCards',
-		UPDATE_MECHANIC_JOB_LINE_TYPE: 'updateMechanicJobLineType',
-		UPDATE_MECHANICS_POSITION: 'updateMechanicsPosition',
-		UPDATE_MECHANIC_LINES: 'updateMechanicLines',
-		CREATE_APPOINTMENT: 'createAppointment',
-		UPDATE_APPOINTMENT_SCHEDULE: 'updateAppointmentSchedule',
-		DELETE_APPOINTMENT: 'deleteAppointment',
-		SYNC_JPDV: 'syncJpdv',
-		UPDATE_VEHICLE_POSITION: 'updateVehiclePosition',
-		UPDATE_PENDING_CALL: 'updatePendingCall',
-		UPDATE_PENDING_BUDGET: 'updatePendingBudget',
-		DIVIDE_CARDS: 'divideCards',
-		CREATE_CARDS: 'createCards',
-	]
-
 	static final List<OrderHeader.State> ORDERS_QUERY_STATES = [
 		OrderHeader.State.A, OrderHeader.State.P, OrderHeader.State.E
 	]
-	static final List<AppointmentTypeCode> ECOMMERCE_CARD_APPOINTMENT_TYPE_CODES = [
-		AppointmentTypeCode.ECO, AppointmentTypeCode.TP, AppointmentTypeCode.RAP_CRF
+	static final List<AppointmentType.Code> ECOMMERCE_CARD_APPOINTMENT_TYPE_CODES = [
+		AppointmentType.Code.ECO, AppointmentType.Code.TP, AppointmentType.Code.RAP_CRF
 	]
 	static final List<String> RESET_NEW_CARDS_PROPERTIES = ['day', 'created']
 	static final String SPAIN_TIMEZONE = "Europe/Madrid"

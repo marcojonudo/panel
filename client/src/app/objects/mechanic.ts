@@ -1,6 +1,5 @@
 import {Constants} from "./constants";
 import {EmployeeData} from "./employee-data";
-import {AppointmentSchedule} from "./appointment-schedule";
 import {DimensionsService} from "../services/dimensions.service";
 import {AppointmentsService} from "../services/appointments.service";
 import {Dayjs} from "dayjs";

@@ -2,7 +2,6 @@ import {Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {Mechanic} from "../objects/mechanic";
 import {AppointmentsService} from "../services/appointments.service";
-import {AppointmentSchedule} from "../objects/appointment-schedule";
 import {DragSchedulesService} from "../services/drag-schedules.service";
 import {DragScheduleBehaviour} from "../objects/drag-schedule-behaviour/drag-schedule-behaviour";
 import {DimensionsService} from "../services/dimensions.service";
@@ -101,7 +100,7 @@ export class DragScheduleDirective implements OnInit {
 		this.lastMovedQuarter = 0;
 		/* Si se ha movido el cursor (para evitar fallos al hacer clic sin pointermove) */
 		if (this.mechanicAppointment.interval.start.isSame(this.mechanicAppointment.interval.end)) {
-			AppointmentsService.delete(this.mechanic, this.mechanicAppointment);
+			AppointmentsService.deleteMechanicAppointment(this.mechanic, this.mechanicAppointment);
 			this.appointmentsService.deleteDb(this.mechanic, this.mechanicAppointment, this.initInterval);
 		} else {
 			this.behaviour.updateDatabase(

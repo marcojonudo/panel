@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {Constants} from "../objects/constants";
 import {Dayjs} from "dayjs";
 import * as dayjs from "dayjs";
-import {HourQuarters} from "../objects/hour-quarters";
 
 @Injectable({
 	providedIn: 'root'
@@ -10,6 +9,13 @@ import {HourQuarters} from "../objects/hour-quarters";
 export class UtilsService {
 
 	// region Date
+
+	static buildDate(day: Dayjs, time: string): Dayjs {
+		return dayjs(
+			`${day.format(Constants.DATE_FORMAT.yyyy_MM_dd)} ${time}`,
+			Constants.DATE_TIME_FORMAT.yyyy_MM_dd_HH_mm
+		);
+	}
 
 	public static parseTime(time: string, day: Dayjs = dayjs()): Dayjs {
 		const info = time.split(":");
@@ -26,7 +32,6 @@ export class UtilsService {
 
 	public static calcMinutesFromDate(day: Dayjs): number {
 		return day.hour() * Constants.HOUR_MINUTES + day.minute();
-		// return day.diff(<Dayjs> day.startOf(Constants.DAY_JS.d), Constants.DAY_JS.m);
 	}
 
 	// endregion

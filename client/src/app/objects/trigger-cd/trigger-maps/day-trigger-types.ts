@@ -19,6 +19,7 @@ export class DayTriggerTypes {
 		this.saturatedQuarters = saturatedQuarters;
 		this.mechanicSkills = new MechanicSkillsUpdate();
 		this.lateralPanel = undefined;
+		console.log('new day trigger type appointment day', appointmentDay);
 		this.appointmentDay = new AppointmentDayUpdate(appointmentDay);
 		this.mechanicLine = [new MechanicLineUpdate()];
 		this.groups = [new MechanicGroupUpdate()];

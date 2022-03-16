@@ -86,30 +86,10 @@ export class MechanicsService {
 		//TODO
 		this.futureSchedules = this.mechanics.length > 0;
 
-
-		this.firstScheduleDay = this.mechanics[0].day.clone();
-		this.lastScheduleDay = this.mechanics[this.mechanics.length - 1].day.clone();
-
-		// this.loadFixedMechanics(daysMechanics, today)
-		// if (daysMechanics) {
-			// this.daysMechanics = this.initDaysMechanics(daysMechanics);
-
-			// this.todaySchedules = this.days.find((day: Dayjs) => day.isSame(today)) != undefined;
-			// if (this.todaySchedules) {
-			// 	this.futureSchedules = this.todaySchedules;
-			// 	this.storeFixedMechanics(daysMechanics, today);
-			// } else {
-			// 	this.futureSchedules = Object.keys(this.daysMechanics).length > 0;
-			// }
-		// 	this.firstScheduleDay = dayjs(firstScheduleDay)
-		// 	this.lastScheduleDay = dayjs(lastScheduleDay);
-		// } else {
-		// 	this.days = [];
-		// 	this.daysMechanics = {};
-		// 	this.todaySchedules = false;
-		// 	this.futureSchedules = false;
-		// }
-
+		if (this.mechanics.length) {
+			this.firstScheduleDay = this.mechanics[0].day.clone();
+			this.lastScheduleDay = this.mechanics[this.mechanics.length - 1].day.clone();
+		}
 	}
 
 	static findFixedMechanics(todayMechanics: Mechanic[], today: Dayjs): Mechanic[] {
@@ -119,9 +99,14 @@ export class MechanicsService {
 			return this.buildFixedMechanics(todayMechanics);
 		} else {
 			/* Si no, se obtienen del localstorage */
-			const storedFixedMechanics = LocalStorageService.getItem(Constants.FIXED_SCHEDULES).map(m => new Mechanic(m));
-			/* Si los horarios fijos almacenados son anteriores a hoy, no se cargan */
-			return storedFixedMechanics[0].day.isBefore(today) ? [] : storedFixedMechanics;
+			const storedFixedMechanics = LocalStorageService.getItem(Constants.FIXED_SCHEDULES)
+			let mechanics = [];
+			if (storedFixedMechanics) {
+				mechanics = storedFixedMechanics.map(m => new Mechanic(m));
+				/* Si los horarios fijos almacenados son anteriores a hoy, no se cargan */
+				return mechanics[0].day.isBefore(today) ? [] : mechanics;
+			}
+			return mechanics;
 		}
 	}
 
@@ -207,7 +192,7 @@ export class MechanicsService {
 	}
 
 	updateDbMechanicLines(mechanic: Mechanic): void {
-		this.http.put(Url.mechanicLines(), [mechanic]).subscribe();
+		this.http.put(Url.mechanicLines(), mechanic).subscribe();
 	}
 
 	removeMechanic(

@@ -89,7 +89,7 @@ class PanelService {
 			skillEmployees,
 			jobLineTypes,
 			appointmentTypes,
-			mechanics[0].day,
+			mechanics ? mechanics[0].day : null,
 			lastScheduleDay,
 			updateCards.appointmentDays ?: appointmentDays,
 			cards + updateCards.avoidSync
@@ -185,7 +185,9 @@ class PanelService {
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
 				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-				List<OrderHeader> orders = orderHeaderDataService.findAll(Constants.ORDERS_QUERY_STATES, lastScheduleDay).sort { it.number }[0..0]
+				List<OrderHeader> orders = orderHeaderDataService.findAll(
+					Constants.ORDERS_QUERY_STATES, lastScheduleDay
+				).sort { it.number }
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
 				List<Card> dbCards = cardDataService.findAllFrom(from)
 				List<Card> avoidSyncCards = dbCards.findAll { checkAvoidSync(it) }
@@ -262,16 +264,18 @@ class PanelService {
 		UpdateCards ordersUpdateCards = new UpdateCards()
 		orders.each {
 			List<GroupUnits> groupsUnits = findGroupUnits(it)
-			List<GroupUnits> groupsDurations = groupDurationDataService.findAll(groupsUnits)
-			List<Card> orderCards = buildOrderCards(it, groupsDurations)
+			if (groupsUnits) {
+				List<GroupUnits> groupsDurations = groupDurationDataService.findAll(groupsUnits)
+				List<Card> orderCards = buildOrderCards(it, groupsDurations)
 
-			boolean replaceOrderCards = checkReplaceOrderCards(orderCards)
-			UpdateCards updateCards = null
-			if (replaceOrderCards) {
-				updateCards = handleCardsReplacement(dbCards, orderCards)
+				boolean replaceOrderCards = checkReplaceOrderCards(orderCards)
+				UpdateCards updateCards = null
+				if (replaceOrderCards) {
+					updateCards = handleCardsReplacement(dbCards, orderCards)
+				}
+				updateCards = updateCards ?: handleCardsUpdate(dbCards, orderCards)
+				ordersUpdateCards.add(updateCards)
 			}
-			updateCards = updateCards ?: handleCardsUpdate(dbCards, orderCards)
-			ordersUpdateCards.add(updateCards)
 		}
 		UpdateCards deleteUpdateCards = handleCardsDeletion(
 			orders, dbCards, ordersUpdateCards.getAll(), ordersUpdateCards.same

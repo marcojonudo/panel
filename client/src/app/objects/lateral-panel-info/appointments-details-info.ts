@@ -11,6 +11,7 @@ export class AppointmentsDetailsInfo implements LateralPanelInfo {
 
 	constructor(appointmentDay: AppointmentDay) {
 		this.type = Constants.LATERAL_PANEL_INFO_TYPE.APPOINTMENTS_DETAILS;
+		console.log(3333);
 		this.params = new AppointmentDayUpdate(appointmentDay);
 		this.show = appointmentDay != undefined;
 	}

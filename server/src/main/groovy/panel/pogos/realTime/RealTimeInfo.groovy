@@ -2,12 +2,13 @@ package panel.pogos.realTime
 
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
+import panel.pogos.realTime.objects.RealTimeObject
 
 @TupleConstructor
 @CompileStatic
-class RealTimeRequestInfo {
+class RealTimeInfo {
 
-	String action
-	Object content
+	RealTimeAction action
+	RealTimeObject content
 
 }
