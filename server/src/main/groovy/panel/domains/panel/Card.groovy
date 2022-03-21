@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
-import panel.domains.fviberi.OrderHeader
+import panel.domains.fviberi.Order
 import panel.domains.fviberi.OrderLine
 import panel.serializers.CardMinSerializer
 import panel.utils.Constants
@@ -142,7 +142,7 @@ class OrderInfo {
 
     Integer number
     String code
-    OrderHeader.State state
+    Order.State state
     String creatorCode
 
     @JsonFormat(pattern = Constants.TimeFormat.HH_mm, timezone = Constants.SPAIN_TIMEZONE)

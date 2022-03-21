@@ -12,7 +12,7 @@ import panel.pogos.ifv.getSchedules.GetSchedulesResponse
 import panel.pogos.ifv.getToken.GetTokenBody
 import panel.pogos.ifv.getToken.GetTokenResponse
 
-import javax.inject.Singleton
+import jakarta.inject.Singleton
 
 @Singleton
 @CompileStatic

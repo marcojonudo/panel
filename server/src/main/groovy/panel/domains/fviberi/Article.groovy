@@ -31,4 +31,8 @@ class Article implements GormEntity<Article> {
 		version false
 	}
 
+	int findUnitaryCode() {
+		return (code as String)[1..-1] as int
+	}
+
 }

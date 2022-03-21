@@ -1,7 +1,7 @@
 package panel.utils
 
 import groovy.transform.CompileStatic
-import panel.domains.fviberi.OrderHeader
+import panel.domains.fviberi.Order
 import panel.domains.panel.*
 import panel.services.PanelService
 
@@ -11,7 +11,7 @@ import java.time.LocalTime
 @CompileStatic
 class Builder {
 
-	static Card buildCard(OrderHeader order, Group group, float units, int duration) {
+	static Card buildCard(Order order, Group group, float units, int duration) {
 		return new Card(
 			code: "${group.unitsInShortName ? units as int : ''}$group.shortName",
 			group: group,

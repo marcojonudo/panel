@@ -3,6 +3,8 @@ package panel.services
 import groovy.transform.CompileStatic
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import panel.clients.IfvClient
@@ -13,8 +15,6 @@ import panel.pogos.logs.ExceptionLog
 import panel.pogos.logs.Log
 import panel.utils.Constants
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import java.time.LocalDate
 
 @Singleton

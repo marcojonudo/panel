@@ -5,6 +5,7 @@ import io.micronaut.core.convert.format.Format
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.*
+import jakarta.inject.Inject
 import panel.pogos.eCommerce.confirm.ConfirmAppointmentInfo
 import panel.pogos.eCommerce.confirm.ConfirmAppointmentResponse
 import panel.pogos.eCommerce.getSchedules.GetEcommerceSchedulesInfo
@@ -14,7 +15,6 @@ import panel.pogos.eCommerce.save.SaveEcommerceCardJson
 import panel.services.EcommerceService
 import panel.utils.Constants
 
-import javax.inject.Inject
 import java.time.LocalDate
 
 @CompileStatic

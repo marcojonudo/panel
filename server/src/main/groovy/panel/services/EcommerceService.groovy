@@ -2,6 +2,8 @@ package panel.services
 
 import groovy.transform.CompileStatic
 import io.micronaut.runtime.server.EmbeddedServer
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import panel.clients.IfvClient
@@ -26,8 +28,6 @@ import panel.services.data.schedules.ScheduleIntervalDataService
 import panel.utils.Builder
 import panel.utils.Constants
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import java.time.LocalDate
 import java.time.LocalTime
 

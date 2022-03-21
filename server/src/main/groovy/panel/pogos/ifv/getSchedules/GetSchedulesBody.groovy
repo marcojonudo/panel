@@ -7,7 +7,7 @@ import panel.pogos.ifv.IfvBody
 import panel.pogos.ifv.IfvBodyData
 import panel.utils.Constants
 
-import javax.inject.Singleton
+import jakarta.inject.Singleton
 import java.time.LocalDate
 
 @Singleton

@@ -1,0 +1,3 @@
+CREATE DATABASE panel;
+CREATE DATABASE schedules;
+CREATE DATABASE fviberi;

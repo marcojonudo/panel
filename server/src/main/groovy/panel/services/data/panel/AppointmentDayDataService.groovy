@@ -3,9 +3,9 @@ package panel.services.data.panel
 
 import grails.gorm.services.Service
 import grails.gorm.services.Where
+import jakarta.inject.Inject
 import panel.domains.panel.AppointmentDay
 
-import javax.inject.Inject
 import java.time.LocalDate
 
 @Service(AppointmentDay)

@@ -1,0 +1,48 @@
+version: "3.2"
+
+services:
+    postgres:
+        image: postgres
+        restart: always
+        volumes:
+            - ./src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+#            - "C:/postgres:/var/lib/postgresql/data"
+        container_name: db
+        environment:
+            POSTGRES_PASSWORD: root
+        ports:
+            - 5432:5432
+        networks:
+            - custom-network
+
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        restart: always
+        ports:
+            - 5050:80
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: root
+        networks:
+            - custom-network
+
+#    external-proxy:
+#        build:
+#            context: .
+#            dockerfile: Dockerfile
+#        container_name: external-proxy
+#        restart: always
+#        ports:
+#            - 8097:8097
+#        environment:
+#            - MAX_MEMORY=128m
+#            - ENV=dev
+# #        volumes:
+# #            - /u/projects/inspections/logs:/logs
+#        networks:
+#            - custom-network
+
+networks:
+    custom-network:
+        driver: bridge

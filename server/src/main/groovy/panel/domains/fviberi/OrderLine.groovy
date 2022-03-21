@@ -9,7 +9,7 @@ import panel.utils.Constants
 class OrderLine implements GormEntity<OrderLine>, Serializable {
 
 	@JsonIgnore
-	OrderHeader order
+	Order order
 	int line
 	float units
 	String boxNumber

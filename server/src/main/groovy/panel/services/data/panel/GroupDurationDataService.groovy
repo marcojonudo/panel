@@ -29,6 +29,8 @@ abstract class GroupDurationDataService {
 	""")
 	abstract GroupDuration find(long groupId, long taskId, int units)
 
+	abstract List<GroupDuration> findAll()
+
 	List<GroupUnits> findAll(List<GroupUnits> groupsUnits) {
 		groupsUnits.each {
 			Float duration
@@ -52,7 +54,6 @@ abstract class GroupDurationDataService {
 				}
 			}
 		}
-
 		return groupsUnits
 	}
 

@@ -2,9 +2,11 @@ package panel.services
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import panel.domains.fviberi.OrderHeader
+import panel.domains.fviberi.Order
 import panel.domains.fviberi.OrderLine
 import panel.domains.panel.*
 import panel.domains.panel.AppointmentType.Code
@@ -20,7 +22,7 @@ import panel.pogos.firstLoad.SyncOrdersSemaphore
 import panel.pogos.firstLoad.UpdateCards
 import panel.pogos.ifv.getEmployees.IfvEmployee
 import panel.pogos.logs.Log
-import panel.services.data.fviberi.OrderHeaderDataService
+import panel.services.data.fviberi.OrderDataService
 import panel.services.data.panel.*
 import panel.services.data.schedules.CentreDataService
 import panel.services.data.schedules.EmployeeScheduleDataService
@@ -28,8 +30,6 @@ import panel.services.data.skills.SkillDataService
 import panel.utils.Builder
 import panel.utils.Constants
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -52,7 +52,7 @@ class PanelService {
 	@Inject private GroupDurationDataService groupDurationDataService
 	@Inject private SkillDataService skillDataService
 	@Inject private EmployeeScheduleDataService employeeScheduleDataService
-	@Inject private OrderHeaderDataService orderHeaderDataService
+	@Inject private OrderDataService orderHeaderDataService
 	@Inject private MechanicPanelInfoDataService mechanicInfoDataService
 	@Inject private MechanicAppointmentDataService mechanicAppointmentDataService
 
@@ -185,7 +185,7 @@ class PanelService {
 		if (SyncOrdersSemaphore.trySyncOrders()) {
 			try {
 				/* Se obtiene una lista con las órdenes que se deben reflejar en el panel (en función del estado) */
-				List<OrderHeader> orders = orderHeaderDataService.findAll(
+				List<Order> orders = orderHeaderDataService.findAll(
 					Constants.ORDERS_QUERY_STATES, lastScheduleDay
 				).sort { it.number }
 				/* Se obtiene una lista de fichas del día para comparar con las órdenes y sincronizarlas en la BD */
@@ -238,9 +238,9 @@ class PanelService {
 	 * @param orders Lista de ordenes
 	 * @return
 	 */
-	static List<Card> fillCardsOrderLines(List<Card> cards, List<OrderHeader> orders) {
+	static List<Card> fillCardsOrderLines(List<Card> cards, List<Order> orders) {
 		cards.each { Card card ->
-			OrderHeader order = orders.find { it.number == card.order.number }
+			Order order = orders.find { it.number == card.order.number }
 			/* Las fichas auxiliares no tienen orden */
 			if (order) {
 				card.order.lines = filterOrderLines(order)
@@ -260,7 +260,7 @@ class PanelService {
 	 * @param orders Lista de ordenes
 	 * @return Lista de fichas de base de datos
 	 */
-	UpdateCards syncOrders(List<OrderHeader> orders, List<Card> dbCards) {
+	UpdateCards syncOrders(List<Order> orders, List<Card> dbCards) {
 		UpdateCards ordersUpdateCards = new UpdateCards()
 		orders.each {
 			List<GroupUnits> groupsUnits = findGroupUnits(it)
@@ -289,7 +289,7 @@ class PanelService {
 	 * @param order Orden
 	 * @return Lista de grupos y unidades asociados
 	 */
-	List<GroupUnits> findGroupUnits(OrderHeader order) {
+	List<GroupUnits> findGroupUnits(Order order) {
 		/* Se filtran las líneas para obtener sólo aquellas cuyo artículo se haya encontrado en BD */
 		List<OrderLine> orderLines = filterOrderLines(order)
 
@@ -306,7 +306,7 @@ class PanelService {
 	 * @param order Orden
 	 * @return Lista de líneas de la orden
 	 */
-	static List<OrderLine> filterOrderLines(OrderHeader order) {
+	static List<OrderLine> filterOrderLines(Order order) {
 		List<OrderLine> filteredLines = []
 		order.lines.each {
 			try {
@@ -335,7 +335,7 @@ class PanelService {
 	 * @param tasks List of all tasks
 	 * @return List of GroupUnits
 	 */
-	static List<GroupUnits> findOrderGroups(OrderHeader order, List<OrderLine> orderLines, List<Task> orderTasks) {
+	static List<GroupUnits> findOrderGroups(Order order, List<OrderLine> orderLines, List<Task> orderTasks) {
 		/* Se filtran las tareas absorbibles */
 		List<Task> filteredOrderTasks = filterAbsorbableTasks(orderTasks)
 
@@ -430,7 +430,7 @@ class PanelService {
 	 * @param groupDurations Lista de grupos y sus duraciones
 	 * @return Lista de fichas
 	 */
-	static List<Card> buildOrderCards(OrderHeader order, List<GroupUnits> groupDurations) {
+	static List<Card> buildOrderCards(Order order, List<GroupUnits> groupDurations) {
 		List<Card> orderCards = []
 		groupDurations.each {
 			if (it.duration) {
@@ -666,7 +666,7 @@ class PanelService {
 	 * @return Objeto updateCards
 	 */
 	static UpdateCards handleCardsDeletion(
-		List<OrderHeader> orders, List<Card> dbCards, List<Card> cards, List<Card> sameCards
+		List<Order> orders, List<Card> dbCards, List<Card> cards, List<Card> sameCards
 	) {
 		List<Card> deletedCards = (findDeletedOrdersCards(orders, dbCards) +
 				findUpdatedGroupDeletedCards(dbCards, cards)).collect {
@@ -693,7 +693,7 @@ class PanelService {
 	 * @param cards Lista de fichas
 	 * @return Lista de fichas para borrar
 	 */
-	static List<Card> findDeletedOrdersCards(List<OrderHeader> orders, List<Card> cards) {
+	static List<Card> findDeletedOrdersCards(List<Order> orders, List<Card> cards) {
 		List<Card> cardsToDelete = cards.findAll {
 			!(it.order.number in orders.number) && it.type != Card.CardType.AUXILIARY
 		}

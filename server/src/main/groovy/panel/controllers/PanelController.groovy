@@ -2,21 +2,18 @@ package panel.controllers
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
+import io.micronaut.core.annotation.Nullable
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
-import io.micronaut.http.sse.Event
-import io.reactivex.subjects.PublishSubject
+import jakarta.inject.Inject
 import panel.domains.panel.AppointmentDay
 import panel.domains.panel.Card
 import panel.domains.panel.MechanicAppointment
 import panel.domains.schedules.EmployeeSchedule
 import panel.jobs.JpdvOrdersJob
 import panel.pogos.firstLoad.CompleteInfo
-import panel.pogos.realTime.RealTimeAction
-import panel.pogos.realTime.RealTimeInfo
-import panel.pogos.realTime.objects.*
-import panel.publisher.PanelPublisher
+import panel.pogos.realTime.objects.RealTimeMechanicAppointment
 import panel.services.PanelService
 import panel.services.data.panel.AppointmentDayDataService
 import panel.services.data.panel.CardDataService
@@ -24,8 +21,6 @@ import panel.services.data.panel.MechanicAppointmentDataService
 import panel.services.data.panel.MechanicPanelInfoDataService
 import panel.utils.Constants
 
-import javax.annotation.Nullable
-import javax.inject.Inject
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -48,10 +43,10 @@ class PanelController {
 		return panelService.getPanelInfo(from, to)
 	}
 
-	@Get("/publisher")
-	PublishSubject<Event<RealTimeInfo>> getCardsPublisher() {
-		return PanelPublisher.get()
-	}
+//	@Get("/publisher")
+//	PublishSubject<Event<RealTimeInfo>> getCardsPublisher() {
+//		return PanelPublisher.get()
+//	}
 
 	@Post("/cards")
 	void createCards(
@@ -66,61 +61,61 @@ class PanelController {
 	@Patch("/cards/position")
 	void updatePosition(@Header String sessionId, @Body List<Card> cards) {
 		cardDataService.updatePosition(cards)
-		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARDS_POSITION, new RealTimeCards(cards)))
+//		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARDS_POSITION, new RealTimeCards(cards)))
 	}
 
 	@Put("/cards/duration")
 	void updateDuration(@Header String sessionId, @Body List<Card> cards) {
 		cardDataService.updateDuration(cards)
-		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARDS_DURATION, new RealTimeCards(cards)))
+//		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARDS_DURATION, new RealTimeCards(cards)))
 	}
 
 	@Post("/cards/division")
 	void updateDivision(@Header String sessionId, @Body List<Card> cards) {
 		cardDataService.updateDivision(cards)
-		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.DIVIDE_CARDS, new RealTimeCards(cards)))
+//		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.DIVIDE_CARDS, new RealTimeCards(cards)))
 	}
 
 	@Patch("/cards/links")
 	void updateLinks(@Header String sessionId, @Body List<Card> cards) {
 		cardDataService.updateLinks(cards)
-		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARDS_LINKS, new RealTimeCards(cards)))
+//		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARDS_LINKS, new RealTimeCards(cards)))
 	}
 
 	@Patch("/cards/resetLinks")
 	void updateAllLinks(@Header String sessionId, @Body List<Card> cards) {
 		cardDataService.updateLinks(cards)
-		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.RESET_CARDS_LINKS, new RealTimeCards(cards)))
+//		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.RESET_CARDS_LINKS, new RealTimeCards(cards)))
 	}
 
 	@Put("/cards/delete")
 	void deleteCards(@Header String sessionId, @Body List<Card> cards) {
 		cardDataService.updateDeleted(cards)
-		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.DELETE_CARDS, new RealTimeCards(cards)))
+//		PanelPublisher.send(sessionId, new RealTimeInfo(RealTimeAction.DELETE_CARDS, new RealTimeCards(cards)))
 	}
 
 	@Patch("/cards/vehiclePosition")
 	void updateVehiclePosition(@Header String sessionId, @Body Card card) {
 		cardDataService.updateVehiclePosition(card, card.vehiclePosition)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARD_VEHICLE_POSITION, new RealTimeCard(card))
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARD_VEHICLE_POSITION, new RealTimeCard(card))
+//		)
 	}
 
 	@Patch("/cards/pendingCall")
 	void updatePendingMaterial(@Header String sessionId, @Body Card card) {
 		cardDataService.updatePendingCall(card, card.pending.call)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARD_PENDING_CALL, new RealTimeCard(card))
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARD_PENDING_CALL, new RealTimeCard(card))
+//		)
 	}
 
 	@Patch("/cards/pendingBudget")
 	void updatePendingBudget(@Header String sessionId, @Body Card card) {
 		cardDataService.updatePendingBudget(card, card.pending.budget)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARD_PENDING_BUDGET, new RealTimeCard(card))
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_CARD_PENDING_BUDGET, new RealTimeCard(card))
+//		)
 	}
 
 	@Put("/mechanic/position")
@@ -130,25 +125,25 @@ class PanelController {
 				it.mechanicPanelInfo.id, it.mechanicPanelInfo.show, it.mechanicPanelInfo.position
 			)
 		}
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANICS_POSITION, new RealTimeMechanics(mechanics))
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANICS_POSITION, new RealTimeMechanics(mechanics))
+//		)
 	}
 
 	@Put("/mechanic/lines")
 	void updateMechanicLines(@Header String sessionId, @Body EmployeeSchedule mechanic) {
 		mechanicPanelInfoDataService.update(mechanic.mechanicPanelInfo.id, mechanic.mechanicPanelInfo.lines)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANIC_LINES, new RealTimeMechanic(mechanic))
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANIC_LINES, new RealTimeMechanic(mechanic))
+//		)
 	}
 
 	@Put("/mechanic/jobLineType")
 	void updateMechanicJobLineType(@Header String sessionId, @Body EmployeeSchedule mechanic) {
 		mechanicPanelInfoDataService.update(mechanic.mechanicPanelInfo.id, mechanic.mechanicPanelInfo.jobLineType)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANIC_JOB_LINE_TYPE, new RealTimeMechanic(mechanic))
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANIC_JOB_LINE_TYPE, new RealTimeMechanic(mechanic))
+//		)
 	}
 
 	@Post("/appointment")
@@ -163,9 +158,9 @@ class PanelController {
 		RealTimeMechanicAppointment realTimeMechanicAppointment = new RealTimeMechanicAppointment(
 			day, mechanicCode, mechanicAppointment, mechanicAppointment.appointmentTypeCode
 		)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.CREATE_MECHANIC_APPOINTMENT, realTimeMechanicAppointment)
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.CREATE_MECHANIC_APPOINTMENT, realTimeMechanicAppointment)
+//		)
 	}
 
 	@Patch("/appointment")
@@ -186,9 +181,9 @@ class PanelController {
 		RealTimeMechanicAppointment realTimeMechanicAppointment = new RealTimeMechanicAppointment(
 			day, mechanicCode, mechanicAppointment, mechanicAppointment.appointmentTypeCode, start, end
 		)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANIC_APPOINTMENT, realTimeMechanicAppointment)
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.UPDATE_MECHANIC_APPOINTMENT, realTimeMechanicAppointment)
+//		)
 	}
 
 	@Delete("/appointment")
@@ -207,9 +202,9 @@ class PanelController {
 		RealTimeMechanicAppointment realTimeMechanicAppointment = new RealTimeMechanicAppointment(
 			day, mechanicCode, null, appointmentTypeCode, start, end
 		)
-		PanelPublisher.send(
-			sessionId, new RealTimeInfo(RealTimeAction.DELETE_MECHANIC_APPOINTMENT, realTimeMechanicAppointment)
-		)
+//		PanelPublisher.send(
+//			sessionId, new RealTimeInfo(RealTimeAction.DELETE_MECHANIC_APPOINTMENT, realTimeMechanicAppointment)
+//		)
 	}
 
 	@Put("/appointmentDays")

@@ -4,7 +4,7 @@ cron:
 ifv:
     path: https://www.portalifv.com:8086/api
 
-database:
+db:
     credentials:
         username: root
         password: hawai50

@@ -1,14 +1,14 @@
 package panel.services
 
 import groovy.transform.CompileStatic
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import panel.domains.schedules.EmployeeSchedule
 import panel.domains.schedules.JobPositionGroup
 import panel.domains.skills.Skill
 import panel.domains.skills.SkillEmployee
 import panel.services.data.skills.SkillEmployeeDataService
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import java.time.LocalDate
 
 @Singleton

@@ -4,6 +4,8 @@ import groovy.transform.CompileStatic
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.env.Environment
 import io.micronaut.scheduling.annotation.Scheduled
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import panel.pogos.firstLoad.UpdateCards
 import panel.pogos.realTime.RealTimeAction
 import panel.pogos.realTime.RealTimeInfo
@@ -12,8 +14,6 @@ import panel.publisher.PanelPublisher
 import panel.services.PanelService
 import panel.utils.Constants
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import java.time.LocalDate
 
 @CompileStatic
@@ -45,7 +45,7 @@ class JpdvOrdersJob {
 				updateCards.deleted,
 				updateCards.appointmentDays
 			)
-			PanelPublisher.send("", new RealTimeInfo(RealTimeAction.SYNC_JPDV, realTimeSyncJpdv))
+//			PanelPublisher.send("", new RealTimeInfo(RealTimeAction.SYNC_JPDV, realTimeSyncJpdv))
 		}
 	}
 

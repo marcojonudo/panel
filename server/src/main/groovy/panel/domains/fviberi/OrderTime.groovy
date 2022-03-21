@@ -12,7 +12,7 @@ import java.time.LocalTime
 class OrderTime implements GormEntity<OrderTime>, Serializable {
 
 	@JsonIgnore
-	OrderHeader order
+	Order order
 	String shortCode
 
 	@JsonFormat(pattern = Constants.TimeFormat.HH_mm, timezone = Constants.SPAIN_TIMEZONE)

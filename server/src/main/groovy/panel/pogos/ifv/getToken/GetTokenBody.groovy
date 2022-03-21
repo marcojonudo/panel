@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 import io.micronaut.context.annotation.Property
 import panel.utils.Constants
 
-import javax.inject.Singleton
+import jakarta.inject.Singleton
 
 @Singleton
 @CompileStatic

@@ -3,12 +3,12 @@ package panel.services.data.panel
 import grails.gorm.services.Query
 import grails.gorm.services.Service
 import grails.gorm.services.Where
+import jakarta.inject.Inject
 import panel.domains.panel.Card
 import panel.domains.panel.Group
 import panel.domains.panel.OrderInfo
 import panel.domains.panel.VehicleInfo
 
-import javax.inject.Inject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -16,8 +16,7 @@ import java.time.LocalTime
 @Service(Card)
 abstract class CardDataService {
 
-	@Inject
-    GroupDataService groupDataService
+	@Inject GroupDataService groupDataService
 
 	@Where({ (day >= from || day == null) && dateDeleted == null })
 	abstract List<Card> findAllFrom(LocalDate from)

@@ -1,7 +1,6 @@
 package panel.pogos.logs
 
 
-import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
@@ -27,7 +26,8 @@ class HttpRequestLog {
 
 	@Override
 	String toString() {
-		return JsonOutput.toJson(this)
+		return ""
+//		return JsonOutput.toJson(this)
 	}
 
 }

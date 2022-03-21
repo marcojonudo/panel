@@ -3,13 +3,13 @@ package panel.services.data.panel
 
 import grails.gorm.services.Service
 import grails.gorm.services.Where
+import jakarta.inject.Inject
 import panel.domains.panel.MechanicAppointment
 import panel.domains.schedules.EmployeeSchedule
 import panel.domains.schedules.ScheduleInterval
 import panel.services.data.schedules.EmployeeScheduleDataService
 import panel.services.data.schedules.ScheduleIntervalDataService
 
-import javax.inject.Inject
 import java.time.LocalDate
 import java.time.LocalTime
 

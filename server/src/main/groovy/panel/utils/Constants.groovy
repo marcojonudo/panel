@@ -1,7 +1,7 @@
 package panel.utils
 
 import groovy.transform.CompileStatic
-import panel.domains.fviberi.OrderHeader
+import panel.domains.fviberi.Order
 import panel.domains.panel.AppointmentType
 
 @CompileStatic
@@ -57,8 +57,8 @@ class Constants {
 		REAL_TIME_ACTION: 'real-time-action'
 	]
 
-	static final List<OrderHeader.State> ORDERS_QUERY_STATES = [
-		OrderHeader.State.A, OrderHeader.State.P, OrderHeader.State.E
+	static final List<Order.State> ORDERS_QUERY_STATES = [
+		Order.State.A, Order.State.P, Order.State.E
 	]
 	static final List<AppointmentType.Code> ECOMMERCE_CARD_APPOINTMENT_TYPE_CODES = [
 		AppointmentType.Code.ECO, AppointmentType.Code.TP, AppointmentType.Code.RAP_CRF

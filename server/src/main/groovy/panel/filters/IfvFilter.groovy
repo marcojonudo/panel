@@ -8,6 +8,9 @@ import io.micronaut.http.MutableHttpRequest
 import io.micronaut.http.annotation.Filter
 import io.micronaut.http.filter.ClientFilterChain
 import io.micronaut.http.filter.HttpClientFilter
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
+import jakarta.inject.Provider
 import org.reactivestreams.Publisher
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,9 +21,6 @@ import panel.pogos.ifv.getToken.GetTokenResponse
 import panel.pogos.logs.ExceptionLog
 import panel.utils.Constants
 
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 @Singleton
 @CompileStatic

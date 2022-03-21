@@ -1,11 +1,10 @@
 package panel.domains.panel
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.ObjectIdGenerators
+
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator, property = "articleCode")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator, property = "articleCode")
 @Entity
 class Task implements GormEntity<Task> {
 
@@ -14,6 +13,8 @@ class Task implements GormEntity<Task> {
     String name
     boolean absorbable
     boolean enabled
+
+    int units
 
     static hasMany = [groups: Group]
     static belongsTo = Group
@@ -29,5 +30,7 @@ class Task implements GormEntity<Task> {
 
         groups fetch: 'join'
     }
+
+    static transients = ['units']
 
 }

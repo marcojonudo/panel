@@ -2,11 +2,10 @@ package panel.services.data.panel
 
 
 import grails.gorm.services.Service
+import jakarta.inject.Inject
 import panel.domains.panel.AppointmentDay
 import panel.domains.panel.AppointmentType
 import panel.domains.panel.AppointmentTypeValues
-
-import javax.inject.Inject
 
 @Service(AppointmentTypeValues)
 abstract class AppointmentTypeValuesDataService {

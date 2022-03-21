@@ -9,7 +9,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @Entity
-class OrderHeader implements GormEntity<OrderHeader> {
+class Order implements GormEntity<Order> {
 
 	int number
 	State state
@@ -52,6 +52,22 @@ class OrderHeader implements GormEntity<OrderHeader> {
 		V,
 		X
 
+	}
+
+	List<OrderLine> findLabourLines() {
+		List<OrderLine> labourLines = []
+		lines.findAll { OrderLine line ->
+			line.units.times {
+				try {
+					if (line.article.labour == "S") {
+						labourLines << line
+					}
+				} catch (ignored) {
+					return false
+				}
+			}
+		}
+		return labourLines
 	}
 
 }

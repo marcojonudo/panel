@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.CompileStatic
 import panel.pogos.ifv.IfvResponse
 
-import javax.inject.Singleton
+import jakarta.inject.Singleton
 
 @Singleton
 @CompileStatic

@@ -17,6 +17,8 @@ class GroupDuration implements GormEntity<GroupDuration> {
 
     static mapping = {
         version defaultValue: 0
+        group fetch: 'join'
+        task fetch: 'join'
     }
 
 }

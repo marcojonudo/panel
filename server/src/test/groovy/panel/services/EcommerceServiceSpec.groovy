@@ -1,10 +1,10 @@
 package panel.services
 
-import io.micronaut.test.annotation.MicronautTest
+import io.micronaut.test.extensions.spock.annotation.MicronautTest
+import jakarta.inject.Inject
 import spock.lang.Shared
 import spock.lang.Specification
 
-import javax.inject.Inject
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -13,8 +13,7 @@ class EcommerceServiceSpec extends Specification {
 
 	// region Collaborators
 
-	@Inject
-	EcommerceService ecommerceService
+	@Inject EcommerceService ecommerceService
 
 	// endregion
 
