@@ -11,3 +11,16 @@ out/
 .project
 .settings
 .classpath
+schedules/Thumbs.db
+schedules/.DS_Store
+schedules/.gradle
+schedules/build/
+schedules/target/
+schedules/out/
+schedules/.idea
+schedules/*.iml
+schedules/*.ipr
+schedules/*.iws
+schedules/.project
+schedules/.settings
+schedules/.classpath

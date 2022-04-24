@@ -1,0 +1,3 @@
+dataSource:
+    driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:12:///postgres
