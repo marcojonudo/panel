@@ -9,8 +9,11 @@ import {Dayjs} from "dayjs";
 import {DropzoneUpdate} from "../objects/trigger-cd/update-objects/mechanic-line/dropzone-update";
 import {LocalStorageService} from "./local-storage.service";
 import {Employee} from "../objects/employee";
-import {SkillsService} from "./skills.service";
+import {SkillService} from "./skill.service";
 import {ScheduleInterval} from "../objects/schedule-interval";
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Mechanic2 } from '../objects/mechanics/mechanic2';
 
 @Injectable({
 	providedIn: 'root'
@@ -34,6 +37,7 @@ export class MechanicsService {
 
 	static days: Dayjs[];
 	static mechanics: Mechanic[];
+	static mechanics2: Mechanic[];
 	static fixedMechanics: Mechanic[];
 	static employees: Employee[];
 	static firstScheduleDay: Dayjs;
@@ -56,7 +60,7 @@ export class MechanicsService {
 	}
 
 	public static findMechanicByPosition(day: Dayjs, position: string): Mechanic {
-		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.mechanicPanelInfo.position == position);
+		return this.findDayMechanics(day).find((mechanic: Mechanic) => mechanic.panelInfo.position == position);
 	}
 
 	// endregion
@@ -70,7 +74,7 @@ export class MechanicsService {
 		console.log('Employees', this.employees);
 
 		this.mechanics = mechanics.map(mechanic =>
-			new Mechanic(mechanic, SkillsService.highlightedSkills, SkillsService.findAllSkillEmployees(mechanic.code))
+			new Mechanic(mechanic, SkillService.highlightedSkills, SkillService.findAllSkillEmployees(mechanic.code))
 		);
 		console.log('Mechanics', this.mechanics);
 
@@ -147,7 +151,7 @@ export class MechanicsService {
 	// static storeFixedMechanics(daysMechanics: { [key: string]: any[] }, today: Dayjs): void {
 	// 	LocalStorageService.setItem(
 	// 		Constants.FIXED_SCHEDULES,
-	// 		daysMechanics[today.format(Constants.DATE_FORMAT.yyyy_MM_dd)].filter(mechanic => mechanic.mechanicPanelInfo.position >= "Y")
+	// 		daysMechanics[today.format(Constants.DATE_FORMAT.yyyy_MM_dd)].filter(mechanic => mechanic.panelInfo.position >= "Y")
 	// 	);
 	// }
 
@@ -167,9 +171,9 @@ export class MechanicsService {
 	// 	for (const [dayString, mechanics] of Object.entries(daysMechanics)) {
 	// 		const day = dayjs(dayString);
 	// 		console.log('mechanic', mechanics);
-	// 		const parsedMechanics = mechanics.map(mechanic => new Mechanic(mechanic, SkillsService.highlightedSkills));
+	// 		const parsedMechanics = mechanics.map(mechanic => new Mechanic(mechanic, SkillService.skills));
 	// 		parsedDaysMechanics[day.valueOf()] =
-	// 			UtilsService.sort(parsedMechanics, (m) => m.mechanicPanelInfo.position);
+	// 			UtilsService.sort(parsedMechanics, (m) => m.panelInfo.position);
 	// 	}
 	// 	/* Si no hay hay mecánicos para el día actual, se añade una lista vacía. Así se facilitan operaciones
 	// 	*  relacionadas con arrays, evitando tener que comprobar si la entrada del objeto es undefined */
@@ -214,13 +218,13 @@ export class MechanicsService {
 	}
 
 	private static rearrangeMechanics(mechanics: Mechanic[], removedMechanicIndex: number): void {
-		let prevPosition = mechanics[removedMechanicIndex].mechanicPanelInfo.position;
+		let prevPosition = mechanics[removedMechanicIndex].panelInfo.position;
 		mechanics.splice(removedMechanicIndex, 1);
 
 		const lastMechanicIndex = mechanics[mechanics.length - 1].fixed ? mechanics.length - 2 : mechanics.length;
 		for (let i = removedMechanicIndex; i < lastMechanicIndex; i++) {
-			const newPosition = mechanics[i].mechanicPanelInfo.position;
-			mechanics[i].mechanicPanelInfo.position = prevPosition;
+			const newPosition = mechanics[i].panelInfo.position;
+			mechanics[i].panelInfo.position = prevPosition;
 			prevPosition = newPosition;
 		}
 	}
@@ -239,6 +243,18 @@ export class MechanicsService {
 
 	static findEmployee(code: string): Employee {
 		return this.employees.find((e: Employee) => e.code == code);
+	}
+
+	findMechanics(from: Dayjs, to: Dayjs): Observable<any> {
+		const mechanics = LocalStorageService.getItem(Constants.LOCAL_STORAGE.MECHANICS);
+		const url = `${Url.mechanics()}?from=${from.format(Constants.DATE_FORMAT.yyyy_MM_dd)}&to=${to.format(Constants.DATE_FORMAT.yyyy_MM_dd)}`;
+		return (mechanics ? of(mechanics) : this.http.get(url)).pipe(
+			tap(mec => {
+				MechanicsService.mechanics2 = mec.map(m => new Mechanic2(m));
+				LocalStorageService.setItem(Constants.LOCAL_STORAGE.MECHANICS, MechanicsService.mechanics2);
+				console.log('Mechanics', MechanicsService.mechanics2);
+			})
+		);
 	}
 
 }

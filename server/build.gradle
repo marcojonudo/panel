@@ -27,16 +27,27 @@ dependencies {
     compileOnly("io.micronaut:micronaut-http-validation")
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("io.micronaut:micronaut-validation")
-    implementation("io.micronaut.security:micronaut-security-jwt")
+//    implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut:micronaut-management")
-    implementation("org.springframework.security:spring-security-crypto:5.2.1.RELEASE")
+//    implementation("org.springframework.security:spring-security-crypto:5.2.1.RELEASE")
 
     implementation("io.micronaut.beanvalidation:micronaut-hibernate-validator")
     implementation("io.micronaut.groovy:micronaut-hibernate-gorm")
 
-    implementation("io.micronaut.multitenancy:micronaut-multitenancy")
+//    implementation("io.micronaut.multitenancy:micronaut-multitenancy")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.testcontainers:postgresql:1.16.3")
+    testImplementation("org.testcontainers:spock:1.16.3")
+
+    implementation("io.micronaut.openapi:micronaut-openapi")
+    implementation("io.swagger.core.v3:swagger-annotations")
+    implementation("org.codehaus.janino:janino:3.1.7")
+
+    implementation("io.micronaut.flyway:micronaut-flyway")
+
+    implementation("io.micronaut.reactor:micronaut-reactor")
+    implementation("io.micronaut.reactor:micronaut-reactor-http-client")
+    testImplementation("io.projectreactor:reactor-test:3.4.22")
 }
 
 application {

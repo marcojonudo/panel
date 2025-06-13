@@ -4,14 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import panel.domains.panel.AppointmentDay
-import panel.domains.panel.AppointmentType
-import panel.domains.panel.Card
-import panel.domains.panel.JobLineType
-import panel.domains.schedules.EmployeeSchedule
-import panel.domains.skills.Skill
-import panel.domains.skills.SkillEmployee
-import panel.pogos.ifv.getEmployees.IfvEmployee
+import panel.domains.AppointmentDay
+import panel.domains.AppointmentType
+import panel.domains.Card
+import panel.domains.JobLineType
 import panel.utils.Constants
 
 import java.time.LocalDate
@@ -20,15 +16,15 @@ import java.time.LocalDate
 @TupleConstructor
 class CompleteInfo {
 
-	@JsonInclude
-	List<EmployeeSchedule> mechanics
-
-	@JsonInclude
-	List<IfvEmployee> employees
-	List<Skill> skills
-
-	@JsonInclude
-	List<SkillEmployee> skillEmployees
+//	@JsonInclude
+//	List<EmployeeSchedule> mechanics
+//
+//	@JsonInclude
+//	List<IfvEmployee> employees
+//	List<Skill> skills
+//
+//	@JsonInclude
+//	List<SkillEmployee> skillEmployees
 	List<JobLineType> jobLineTypes
 	List<AppointmentType> appointmentTypes
 

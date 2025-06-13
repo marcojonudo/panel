@@ -12,6 +12,10 @@ import {AppointmentTypeValues} from "../objects/appointments/appointment-type-va
 import {ScheduleInterval} from "../objects/schedule-interval";
 import {MechanicAppointment} from "../objects/mechanic-appointment";
 import {Builder} from "../objects/builder";
+import { Observable, of } from 'rxjs';
+import { LocalStorageService } from './local-storage.service';
+import { tap } from 'rxjs/operators';
+import { JobLineType } from '../objects/job-line-type';
 
 @Injectable({
 	providedIn: 'root'
@@ -21,7 +25,7 @@ export class AppointmentsService {
 	private static _dragSchedulesMode: boolean = false;
 	private static _dragSchedulesAppointmentType: AppointmentType;
 
-	private static _appointmentTypes: AppointmentType[];
+	static appointmentTypes: AppointmentType[];
 	private static appointmentDays: AppointmentDay[];
 
 	private _daysAppointmentsCounter: DaysAppointmentsCounter;
@@ -33,14 +37,6 @@ export class AppointmentsService {
 	}
 
 	// region Getters / setters
-
-	static get appointmentTypes(): AppointmentType[] {
-		return this._appointmentTypes;
-	}
-
-	static set appointmentTypes(value: AppointmentType[]) {
-		this._appointmentTypes = value;
-	}
 
 	get daysAppointmentsCounter(): DaysAppointmentsCounter {
 		return this._daysAppointmentsCounter;
@@ -77,6 +73,19 @@ export class AppointmentsService {
 	// endregion
 
 	// region Finders
+
+	findAppointmentTypes(): Observable<any> {
+		const types = LocalStorageService.getItem(Constants.LOCAL_STORAGE.APPOINTMENT_TYPES);
+		return (types ? of(types) : this.http.get(Url.appointmentTypes())).pipe(
+			tap(appointmentTypes => {
+				AppointmentsService.appointmentTypes = appointmentTypes.map(t => new AppointmentType(t));
+				LocalStorageService.setItem(
+					Constants.LOCAL_STORAGE.APPOINTMENT_TYPES, AppointmentsService.appointmentTypes
+				);
+				console.log('Appointment types', AppointmentsService.appointmentTypes);
+			})
+		);
+	}
 
 	static findAppointmentType(code: string): AppointmentType {
 		return this.appointmentTypes.find((appointmentType: AppointmentType) => appointmentType.code == code);

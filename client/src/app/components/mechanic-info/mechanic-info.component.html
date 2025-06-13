@@ -16,7 +16,7 @@
 				[class.pointer-events-none]="mechanic.fixed"
 				(click)="showSkills(mechanic.skillEmployees, mechanic.day, mechanic.code)">
 				<div
-					*ngFor="let skill of mechanic.highlightedSkills"
+					*ngFor="let skill of mechanic.skills"
 					class="skill-badge-container">
 					<div
 						class="skill-badge"

@@ -43,24 +43,32 @@ host:
     ip: ${HOST_IP:localhost}
     local-mysql-port: ${MYSQL_PORT:3306}
 
+services:
+    db-api:
+        port: ${DB_API_PORT:8082}
+        url: http://${host.ip}:${services.cubo.port}
+    schedules:
+        port: ${SCHEDULES_PORT:8084}
+        url: http://${host.ip}:${services.schedules.port}
+
 hibernate:
     hbm2ddl:
         auto: 'none'
 
+flyway:
+    datasources:
+        default:
+            enabled: true
+
 db:
     ip: ${DB_IP:localhost}
-    port: ${DB_PORT:3306}
+    port: ${DB_PORT:5433}
     credentials:
-        username: root
-        password: root
-
-#flyway:
-#    datasources:
-#        default:
-#            enabled: true
+        username: panel
+        password: F8BXVkKMnzxNhNLCTPQe!4!xs&Wi8YBf
 
 dataSource:
-    dbCreate: validate
+    dbCreate: none
     driverClassName: org.postgresql.Driver
     dialect: org.hibernate.dialect.PostgreSQL10Dialect
     url: jdbc:postgresql://${db.ip}:${db.port}/panel

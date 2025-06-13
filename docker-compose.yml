@@ -1,24 +1,24 @@
 version: "3.2"
 
 services:
-#    postgres:
-#        image: postgres
-#        restart: always
-#        volumes:
-#            - ./src/main/resources/db:/docker-entrypoint-initdb.d
-##            - "C:/postgres:/var/lib/postgresql/data"
-#        container_name: postgres
-#        environment:
-#            POSTGRES_PASSWORD: root
-#            DB_USER: panel
-#            DB_PASS: gDwXYI4a@G3^qZ#kCQ0l5xI1ukIW#W3p
-#            DB_NAME: schedules
-#        ports:
-#            - 5432:5432
-#        networks:
-#            - custom-network
+    panel-db:
+        image: postgres:14.4-alpine
+        restart: always
+        volumes:
+            - ./server/src/main/resources/db:/docker-entrypoint-initdb.d
+#            - "C:/postgres:/var/lib/postgresql/data"
+        container_name: panel-db
+        environment:
+            POSTGRES_PASSWORD: root
+            DB_USER: panel
+            DB_PASS: F8BXVkKMnzxNhNLCTPQe!4!xs&Wi8YBf
+            DB_NAME: panel
+        ports:
+            - 5433:5432
+        networks:
+            - local-net
     schedules-db:
-        image: postgres
+        image: postgres:14.4-alpine
         restart: always
         volumes:
             - ./schedules/src/main/resources/db:/docker-entrypoint-initdb.d
@@ -32,19 +32,37 @@ services:
         ports:
             - 5432:5432
         networks:
-            - custom-network
-
-#    pgadmin:
-#        image: dpage/pgadmin4
-#        container_name: pgadmin
+            - local-net
+#    schedules:
+#        depends_on:
+#          - schedules-db
+#        build:
+#            context: schedules
+#            dockerfile: Dockerfile
 #        restart: always
+#        volumes:
+#            - ./schedules/:/app
+##            - "C:/Users/Marco/.gradle:/home/gradle/.gradle"
+#        working_dir: /app
+#        container_name: schedules
 #        ports:
-#            - 5050:80
-#        environment:
-#            PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#            PGADMIN_DEFAULT_PASSWORD: root
+#            - 8084:8084
 #        networks:
-#            - custom-network
+#            - local-net
+#        environment:
+#            - DB_IP=schedules-db
+
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        restart: always
+        ports:
+            - 5050:80
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: root
+        networks:
+            - local-net
 
 #    external-proxy:
 #        build:
@@ -60,8 +78,8 @@ services:
 # #        volumes:
 # #            - /u/projects/inspections/logs:/logs
 #        networks:
-#            - custom-network
+#            - local-net
 
 networks:
-    custom-network:
+    local-net:
         driver: bridge

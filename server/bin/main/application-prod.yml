@@ -1,0 +1,18 @@
+cron:
+    sync-jpdv-orders: '0/30 * * * * ?'
+
+ifv:
+    path: https://www.portalifv.com:8086/api
+
+db:
+    credentials:
+        username: root
+        password: hawai50
+
+dataSource:
+    logSql: false
+    properties:
+        initialSize: 5
+        maxActive: 10
+        minIdle: 5
+        maxIdle: 5

@@ -3,8 +3,8 @@ package panel.pogos.realTime.objects
 
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import panel.domains.panel.AppointmentDay
-import panel.domains.panel.Card
+import panel.domains.AppointmentDay
+import panel.domains.Card
 
 @TupleConstructor
 @CompileStatic

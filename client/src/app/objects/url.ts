@@ -74,4 +74,20 @@ export class Url {
 		return `${environment.serverUrl}/panel/publisher`;
 	}
 
+	static mechanics(): string {
+		return `${environment.serverUrl}/mechanics`;
+	}
+
+	static skills(): string {
+		return `${environment.serverUrl}/skills`;
+	}
+
+	static jobLineTypes(): string {
+		return `${environment.serverUrl}/jobLineTypes`;
+	}
+
+	static appointmentTypes(): string {
+		return `${environment.serverUrl}/appointmentTypes`;
+	}
+
 }

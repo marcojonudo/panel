@@ -3,7 +3,7 @@ package panel.pogos.eCommerce.getSchedules
 import com.fasterxml.jackson.annotation.JsonFormat
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import panel.domains.panel.AppointmentType
+import panel.domains.AppointmentType
 import panel.utils.Constants
 
 import java.time.LocalDate

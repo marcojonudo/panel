@@ -218,7 +218,8 @@ export class Constants {
 	};
 	public static readonly DAY_JS: any = {
 		d: 'd',
-		m: 'm'
+		m: 'm',
+		h: 'h'
 	};
 	public static readonly REAL_TIME_ACTION: any = {
 		CREATE_MECHANIC_APPOINTMENT: 'CREATE_MECHANIC_APPOINTMENT',
@@ -256,5 +257,12 @@ export class Constants {
 	public static readonly FIXED_SCHEDULES: string = 'fixedSchedules';
 	public static readonly ECOMMERCE_USER_CODE: string = '9999997';
 	public static readonly AUXILIARY_USER_PLACEHOLDER: string = 'Código de usuario';
+
+	static readonly LOCAL_STORAGE = {
+		MECHANICS: 'mechanics',
+		SKILLS: 'skills',
+		JOB_LINE_TYPES: 'jobLineTypes',
+		APPOINTMENT_TYPES: 'appointmentTypes',
+	}
 
 }

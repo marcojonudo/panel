@@ -33,7 +33,7 @@ export class ResizableLineDirective implements OnInit {
 	onPointerDown(event: PointerEvent): void {
 		event.stopPropagation();
 		this.lastY = event.clientY;
-		this.line = this.mechanic.mechanicPanelInfo.lines;
+		this.line = this.mechanic.panelInfo.lines;
 
 		this.pointerMoveListener = this.renderer.listen('document', 'pointermove', this.onPointerMove.bind(this));
 		this.pointerUpListener = this.renderer.listen('document', 'pointerup', this.onPointerUp.bind(this));

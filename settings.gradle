@@ -1,2 +1,3 @@
+include "schedules"
 include "server"
 include "client"

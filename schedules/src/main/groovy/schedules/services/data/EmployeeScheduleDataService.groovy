@@ -11,7 +11,7 @@ import schedules.pogos.JobPositionGroupCode
 import java.time.LocalDate
 
 @Service(EmployeeSchedule)
-abstract class EmployeeScheduleDataService {
+interface EmployeeScheduleDataService {
 
 	@Query("""
 		select $employeeSchedule
@@ -22,9 +22,9 @@ abstract class EmployeeScheduleDataService {
 		where $employeeSchedule.day >= $from and $employeeSchedule.day <= $to
 		and $absenceInfo is null
 		and $employeeSchedule.jobPositionGroupCode = $jobPositionGroupCode
-		and $employeeSchedule.workingDay = 1 and $employeeSchedule.savedIfv = 1
+		and $employeeSchedule.workingDay = true and $employeeSchedule.savedIfv = true
 		and $employeeSchedule.dateDeleted is null
 	""")
-	abstract List<EmployeeSchedule> findAll(LocalDate from, LocalDate to, JobPositionGroupCode jobPositionGroupCode)
+	List<EmployeeSchedule> findAll(LocalDate from, LocalDate to, JobPositionGroupCode jobPositionGroupCode)
 
 }

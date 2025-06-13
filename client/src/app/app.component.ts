@@ -1,8 +1,8 @@
-import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {Constants} from "./objects/constants";
-import {NotificationService} from "./services/notification.service";
-import {Subscription} from "rxjs/internal/Subscription";
-import {InitService} from "./services/init.service";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Constants } from "./objects/constants";
+import { NotificationService } from "./services/notification.service";
+import { Subscription } from "rxjs/internal/Subscription";
+import { InitService } from "./services/init.service";
 
 @Component({
 	selector: 'app-root',

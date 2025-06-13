@@ -1,3 +1,8 @@
 micronaut:
     server:
         port: -1
+
+#dataSources:
+#    schedules:
+#        dbCreate: create
+#        url: jdbc:tc:postgresql:14.2:///databasename?TC_INITSCRIPT=file:src/main/resources/migration/test.sql

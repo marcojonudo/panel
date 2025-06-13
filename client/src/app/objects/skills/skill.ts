@@ -7,8 +7,8 @@ export class Skill {
     name: string;
     code: SkillCode;
     expertisePercentage: number;
-    category: SkillCategory;
-    style: SkillStyle;
+	style: SkillStyle;
+	category: SkillCategory;
     order: number;
     children: Skill[];
 

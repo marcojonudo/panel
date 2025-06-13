@@ -15,6 +15,8 @@ CREATE TABLE schedule_interval (
   "end" TIME NOT NULL,
   PRIMARY KEY (id));
 
+insert into schedule_interval (start, "end") values
+('08:30', '15:00');
 
 CREATE TABLE IF NOT EXISTS employee_schedule (
     id bigserial NOT NULL,
@@ -25,6 +27,7 @@ CREATE TABLE IF NOT EXISTS employee_schedule (
     working_day boolean not null default true,
     rest_minutes int DEFAULT NULL,
     job_position_group_code VARCHAR(10),
+    absence_info_id bigint null,
     saved_ifv boolean NOT NULL DEFAULT true,
     date_deleted timestamp,
     PRIMARY KEY (id),
@@ -35,7 +38,7 @@ insert into employee_data (code, name, surname1, surname2, job_position_group_co
 
 insert into employee_schedule (employee_data_id, day, code, rest_minutes, job_position_group_code) values
 ((select id from employee_data where code = '0000001'), CURRENT_DATE, '0000001', 10, 'GARAGE'),
-((select id from employee_data where code = '0000001'), current_date + INTERVAL '1 day', '000001', 15, 'GARAGE'),
+((select id from employee_data where code = '0000001'), current_date + INTERVAL '1 day', '0000001', 15, 'GARAGE'),
 ((select id from employee_data where code = '0000001'), current_date + INTERVAL '2 day', '0000001', 0, 'GARAGE');
 
 CREATE TABLE absence (
@@ -77,7 +80,7 @@ insert into absence (code, description) values
 CREATE TABLE absence_info (
   id bigserial NOT NULL,
   version bigint NOT NULL DEFAULT 0,
-  employee_schedule_id bigint NOT NULL,
+--   employee_schedule_id bigint NOT NULL,
   absence_id bigint NOT NULL,
   expected_end_day DATE null,
   CONSTRAINT absence_foreign
@@ -87,7 +90,7 @@ CREATE TABLE absence_info (
     ON UPDATE NO ACTION,
   PRIMARY KEY (id));
 
-CREATE INDEX absence_info_employee_schedule_idx on absence_info (employee_schedule_id);
+-- CREATE INDEX absence_info_employee_schedule_idx on absence_info (employee_schedule_id);
 
 
 CREATE TABLE employee_schedule_intervals (
@@ -107,7 +110,8 @@ CREATE TABLE employee_schedule_intervals (
 
 CREATE INDEX intervals_employee_schedule_idx on employee_schedule_intervals (employee_schedule_id);
 
-
+insert into employee_schedule_intervals (employee_schedule_id, interval_id) VALUES
+((select id from employee_schedule where id = 2), (select id from schedule_interval where id = 1));
 
 
 CREATE TABLE skill_style (
@@ -325,3 +329,16 @@ update skill set expertise_percentage = 35 where name = 'Radios / altavoces';
 update skill set expertise_percentage = 35 where name = 'Etapas';
 update skill set expertise_percentage = 35 where name = 'Manos libres';
 update skill set expertise_percentage = 35 where name = 'Módulos telemáticos';
+
+
+insert into skill_employee (skill_code, employee_code, expertise, "month") values
+('NEU', '0000001', 'HIGH', '2022-06-01'),
+('ALI', '0000001', 'HIGH', '2022-06-01'),
+('ACE', '0000001', 'MEDIUM', '2022-06-01'),
+('ELEC_BAS', '0000001', 'HIGH', '2022-06-01'),
+('TEC_LIG', '0000001', 'MEDIUM', '2022-06-01'),
+('AA', '0000001', 'HIGH', '2022-06-01'),
+('TEC_PES', '0000001', 'MEDIUM', '2022-06-01'),
+('ELEC_AV', '0000001', 'LOW', '2022-06-01'),
+('MONT', '0000001', 'LOW', '2022-06-01'),
+('EQU', '0000001', 'HIGH', '2022-06-01');

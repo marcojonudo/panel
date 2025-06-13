@@ -1,0 +1,62 @@
+micronaut:
+    application:
+        name: schedules
+    server:
+        port: 8084
+
+endpoints:
+    beans:
+        enabled: true
+        sensitive: false
+    info:
+        enabled: true
+        sensitive: false
+    health:
+        enabled: true
+        sensitive: false
+    refresh:
+        enabled: true
+        sensitive: false
+    routes:
+        enabled: true
+        sensitive: false
+    loggers:
+        enabled: true
+        sensitive: false
+    flyway:
+        enabled: true
+        sensitive: false
+
+netty:
+    default:
+        allocator:
+            max-order: 3
+
+flyway:
+    datasources:
+        default:
+            enabled: true
+
+db:
+    ip: ${DB_IP:localhost}
+    port: ${DB_PORT:5432}
+    credentials:
+        username: schedules
+        password: gDwXYI4a@G3^qZ#kCQ0l5xI1ukIW#W3p
+
+dataSource:
+    dbCreate: none
+    driverClassName: org.postgresql.Driver
+    dialect: org.hibernate.dialect.PostgreSQL10Dialect
+    url: jdbc:postgresql://${db.ip}:${db.port}/schedules
+    username: ${db.credentials.username}
+    password: ${db.credentials.password}
+    properties:
+        initialSize: 1
+        maxActive: 1
+        minIdle: 1
+        maxIdle: 1
+        testOnBorrow: true
+        validationQuery: SELECT 1
+        validationInterval: 15000
+    logSql: true

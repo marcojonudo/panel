@@ -6,7 +6,7 @@
 		class="d-flex appointment-schedule-container"
 		[ngStyle]="{
 			'width.px': calcScheduleWidth(appointment.interval.duration),
-			'height.px': calcScheduleHeight(mechanic.mechanicPanelInfo.lines),
+			'height.px': calcScheduleHeight(mechanic.panelInfo.lines),
 			'left.px': calcScheduleLeft(appointment.interval.start)
 		}">
 		<div class="w-100 appointment-schedule d-flex">
@@ -66,7 +66,7 @@
 		</div>
 		<div
 			class="w-100 position-relative d-flex"
-			[style.height.px]="calcScheduleHeight(mechanic.mechanicPanelInfo.lines)">
+			[style.height.px]="calcScheduleHeight(mechanic.panelInfo.lines)">
 			<div
 				*ngFor="let quarter of interval.quarters"
 				class="flex-grow-1 border-semi-dark"

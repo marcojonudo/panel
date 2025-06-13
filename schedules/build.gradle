@@ -27,6 +27,8 @@ dependencies {
     implementation("io.micronaut.flyway:micronaut-flyway")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:testcontainers")
+
+    implementation("org.codehaus.janino:janino:3.1.7")
 }
 
 
@@ -48,4 +50,15 @@ micronaut {
     }
 }
 
+task runApp(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
 
+    mainClass = 'schedules.Application'
+
+    // arguments to pass to the application
+    args '-t'
+}
+
+run {
+    args += '-t'
+}

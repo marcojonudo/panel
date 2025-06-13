@@ -1,7 +1,7 @@
 package panel.pogos.eCommerce.save
 
 import groovy.transform.CompileStatic
-import panel.domains.panel.AppointmentType
+import panel.domains.AppointmentType
 
 import java.time.LocalDate
 import java.time.LocalTime

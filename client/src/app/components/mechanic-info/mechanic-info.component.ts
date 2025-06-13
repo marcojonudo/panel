@@ -13,7 +13,7 @@ import {Dropzone} from "../../objects/dropzone-type/dropzone";
 import {CardsGroup} from "../../objects/cards-group";
 import {UnassignedDropzone} from "../../objects/dropzone-type/unassigned-dropzone";
 import {Skill} from "../../objects/skills/skill";
-import {SkillsService} from "../../services/skills.service";
+import {SkillService} from "../../services/skill.service";
 import {SkillEmployee} from "../../objects/skills/skill-employee";
 
 @Component({
@@ -77,7 +77,7 @@ export class MechanicInfoComponent {
 	// endregion
 
 	findSkillBadgeStyle(skill: Skill, mechanic: Mechanic): any {
-		const highExpertise = SkillsService.checkExperiencedSkill(skill, mechanic.employeeData.code);
+		const highExpertise = SkillService.checkExperiencedSkill(skill, mechanic.employeeData.code);
 		return highExpertise ? skill.code.style.toStyle() : undefined;
 	}
 

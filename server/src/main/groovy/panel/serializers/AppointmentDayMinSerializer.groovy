@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import groovy.transform.CompileStatic
-import panel.domains.panel.AppointmentDay
+import panel.domains.AppointmentDay
 
 @CompileStatic
 class AppointmentDayMinSerializer extends StdSerializer<AppointmentDay> {

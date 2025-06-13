@@ -3,7 +3,7 @@ package panel.pogos.realTime.objects
 import com.fasterxml.jackson.annotation.JsonFormat
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import panel.domains.panel.MechanicAppointment
+import panel.domains.MechanicAppointment
 import panel.utils.Constants
 
 import java.time.LocalDate

@@ -1,0 +1,41 @@
+version: "3.2"
+
+services:
+    schedules-db:
+        image: postgres
+        restart: always
+        volumes:
+            - ./src/main/resources/db:/docker-entrypoint-initdb.d
+        #            - "C:/postgres:/var/lib/postgresql/data"
+        container_name: schedules-db
+        environment:
+            POSTGRES_PASSWORD: root
+            DB_USER: schedules
+            DB_PASS: gDwXYI4a@G3^qZ#kCQ0l5xI1ukIW#W3p
+            DB_NAME: schedules
+        ports:
+            - 5432:5432
+        networks:
+            - custom-network
+    schedules:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        volumes:
+            - ./:/app
+#            - "C:/Users/Marco/.gradle:/app/.gradle"
+#            - "C:/Users/Marco/.gradle:/home/gradle/.gradle"
+            - ".gradle:/home/gradle/.gradle"
+        working_dir: /app
+        container_name: schedules
+        ports:
+            - 8084:8084
+        networks:
+            - custom-network
+        environment:
+            - DB_IP=schedules-db
+
+networks:
+    custom-network:
+        driver: bridge

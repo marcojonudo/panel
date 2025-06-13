@@ -17,8 +17,8 @@ export class Mechanic {
 	employeeData: EmployeeData;
 	day: Dayjs;
 	code: string;
-	mechanicPanelInfo: MechanicPanelInfo;
-	highlightedSkills: Skill[];
+	panelInfo: MechanicPanelInfo;
+	skills: Skill[];
 	skillEmployees: SkillEmployee[];
 	intervals: ScheduleInterval[];
 	showInPanel: boolean;
@@ -32,7 +32,7 @@ export class Mechanic {
 		this.employeeData = new EmployeeData(mechanic.employeeData);
 		this.day = dayjs(mechanic.day);
 		this.code = this.employeeData.code;
-		this.mechanicPanelInfo = new MechanicPanelInfo(mechanic.mechanicPanelInfo);
+		this.panelInfo = new MechanicPanelInfo(mechanic.mechanicPanelInfo);
 
 		const intervals = mechanic.intervals.map((interval: any, i: number) =>
 			new ScheduleInterval(
@@ -41,10 +41,10 @@ export class Mechanic {
 			)
 		)
 		this.intervals = UtilsService.sort(intervals, (interval: ScheduleInterval) => interval.start);
-		this.highlightedSkills = highlightedSkills;
+		this.skills = highlightedSkills;
 		this.skillEmployees = skillEmployees;
 		this.showInPanel = mechanic.showInPanel;
-		this.height = this.mechanicPanelInfo.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
+		this.height = this.panelInfo.lines * Constants.VALUE.LINE_HEIGHT_DEFAULT;
 		this.appointments = mechanic.appointments.map((appointment: any) =>
 			new MechanicAppointment(
 				AppointmentsService.findAppointmentType(appointment.appointmentTypeCode), appointment, this.day
@@ -55,8 +55,8 @@ export class Mechanic {
 	}
 
 	setLines(lines: number): void {
-		this.mechanicPanelInfo.lines = lines;
-		this.height = this.mechanicPanelInfo.lines * DimensionsService.lineHeight;
+		this.panelInfo.lines = lines;
+		this.height = this.panelInfo.lines * DimensionsService.lineHeight;
 	}
 
 }

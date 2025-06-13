@@ -1,7 +1,7 @@
 package panel.pogos.cards
 
 import groovy.transform.TupleConstructor
-import panel.domains.panel.Group
+import panel.domains.Group
 import groovy.transform.CompileStatic
 
 @CompileStatic

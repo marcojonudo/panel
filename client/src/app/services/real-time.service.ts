@@ -288,21 +288,21 @@ export class RealTimeService {
 	// region Mechanics
 
 	updateMechanicJobLineType(mechanic: Mechanic): void {
-		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.mechanicPanelInfo.position);
+		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelInfo.position);
 		localMechanic.jobLineType = mechanic.jobLineType;
 		NotificationService.notifyMechanicLine(localMechanic.day, localMechanic.code);
 	}
 
 	updateMechanicLines(mechanic: Mechanic): void {
-		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.mechanicPanelInfo.position);
-		MechanicsService.updateMechanicLines(localMechanic, mechanic.mechanicPanelInfo.lines);
+		const localMechanic = MechanicsService.findMechanicByPosition(mechanic.day, mechanic.panelInfo.position);
+		MechanicsService.updateMechanicLines(localMechanic, mechanic.panelInfo.lines);
 	}
 
 	updateMechanicsPosition(mechanics: Mechanic[]): void {
 		/* El último elemento de la lista es el mecánico eliminado */
 		const removedMechanic = MechanicsService.findMechanicByPosition(
 			mechanics[0].day,
-			mechanics[mechanics.length-1].mechanicPanelInfo.position
+			mechanics[mechanics.length-1].panelInfo.position
 		);
 		this.mechanicsService.removeMechanic(removedMechanic.day, removedMechanic, false);
 	}

@@ -265,7 +265,7 @@ export class CardPositionService {
 		helperGroup: CardsGroup
 	): ValidateCoordinatesInfo {
 		/* La posición se redondea a los múltiplos de 5 minutos */
-		coordinates = this.roundLastPosition(coordinates, dropzone.position, dropzone.mechanic.mechanicPanelInfo.lines);
+		coordinates = this.roundLastPosition(coordinates, dropzone.position, dropzone.mechanic.panelInfo.lines);
 		const duration = helperGroup.findDuration();
 		let newStart = DimensionsService.calcStartFromLeft(
 			this.absolutePositionToLeft(coordinates.x), dropzone.mechanic.day

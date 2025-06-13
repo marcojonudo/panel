@@ -3,21 +3,19 @@ package panel.controllers
 import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.QueryValue
 import jakarta.inject.Inject
-import panel.domains.schedules.JobPositionGroup
-import panel.domains.skills.Skill
-import panel.services.data.skills.SkillDataService
+import panel.clients.SchedulesClient
+import panel.pogos.schedules.skills.Skill
 
 @CompileStatic
 @Controller("/skills")
 class SkillController {
 
-	@Inject SkillDataService skillDataService
+	@Inject SchedulesClient schedulesClient
 
 	@Get
-	List<Skill> get(@QueryValue JobPositionGroup.Code jobPositionGroupCode) {
-		return skillDataService.findAll(jobPositionGroupCode)
+	List<Skill> get() {
+		return schedulesClient.findSkills()
 	}
 
 }

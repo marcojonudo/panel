@@ -1,0 +1,23 @@
+db:
+    ip: ${DB_IP:localhost}
+    port: ${DB_PORT:5432}
+    credentials:
+        username: schedules
+        password: gDwXYI4a@G3^qZ#kCQ0l5xI1ukIW#W3p
+
+dataSource:
+    dbCreate: none
+    driverClassName: org.postgresql.Driver
+    dialect: org.hibernate.dialect.PostgreSQL10Dialect
+    url: jdbc:postgresql://${db.ip}:${db.port}/schedules
+    username: ${db.credentials.username}
+    password: ${db.credentials.password}
+    properties:
+        initialSize: 1
+        maxActive: 1
+        minIdle: 1
+        maxIdle: 1
+        testOnBorrow: true
+        validationQuery: SELECT 1
+        validationInterval: 15000
+    logSql: true

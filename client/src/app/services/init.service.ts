@@ -1,20 +1,25 @@
-import {Injectable} from '@angular/core';
-import {NotificationService} from "./notification.service";
-import {CardPositionService} from "./card-position.service";
-import {DropzoneService} from "./dropzone.service";
-import {Url} from "../objects/url";
+import { Injectable } from '@angular/core';
+import { NotificationService } from "./notification.service";
+import { CardPositionService } from "./card-position.service";
+import { DropzoneService } from "./dropzone.service";
+import { Url } from "../objects/url";
 import * as dayjs from "dayjs";
-import {Constants} from "../objects/constants";
-import {AppointmentsService} from "./appointments.service";
-import {MechanicsService} from "./mechanics.service";
-import {SkillsService} from "./skills.service";
-import {CardsService} from "./cards.service";
-import {Card} from "../objects/card";
-import {DimensionsService} from "./dimensions.service";
-import {JobLineTypeService} from "./job-line-type.service";
-import {RealTimeService} from "./real-time.service";
-import {HttpClient} from "@angular/common/http";
-import {Dayjs} from "dayjs";
+import { Constants } from "../objects/constants";
+import { AppointmentsService } from "./appointments.service";
+import { MechanicsService } from "./mechanics.service";
+import { SkillService } from "./skill.service";
+import { CardsService } from "./cards.service";
+import { Card } from "../objects/card";
+import { DimensionsService } from "./dimensions.service";
+import { JobLineTypeService } from "./job-line-type.service";
+import { RealTimeService } from "./real-time.service";
+import { HttpClient } from "@angular/common/http";
+import { Dayjs } from "dayjs";
+import { forkJoin, Observable, of } from 'rxjs';
+import { LocalStorageService } from './local-storage.service';
+import { tap } from 'rxjs/operators';
+import { Mechanic2 } from '../objects/mechanics/mechanic2';
+import { Skill } from '../objects/skills/skill';
 
 @Injectable({
 	providedIn: 'root'
@@ -22,16 +27,20 @@ import {Dayjs} from "dayjs";
 export class InitService {
 
 	static loading: boolean;
-	static i: number;
+
+	// static i: number;
 
 	constructor(
 		private cardsService: CardsService,
 		private appointmentsService: AppointmentsService,
+		private mechanicService: MechanicsService,
+		private skillService: SkillService,
+		private jobLineTypeService: JobLineTypeService,
 		private realTimeService: RealTimeService,
 		private http: HttpClient
 	) {
 		InitService.loading = false;
-		InitService.i = 0;
+		// InitService.i = 0;
 	}
 
 	loadInitialData(): void {
@@ -47,38 +56,51 @@ export class InitService {
 	requestInitialData(day: Dayjs = dayjs(), scrollTopDaysOffset: number = 0): void {
 		InitService.loading = true;
 		NotificationService.notifyLoading(InitService.loading);
-		InitService.i += 1;
-		this.http.get(
-			Url.initialData(),
-			{params: {
-				from: day.format(Constants.DATE_FORMAT.yyyy_MM_dd),
-				to: day.add(Constants.VALUE.DAYS_LOAD - 1, Constants.DAY_JS.d).format(Constants.DATE_FORMAT.yyyy_MM_dd)
-			}}
-		).subscribe((data: any) => {
-			console.log('Received data', data);
 
-			AppointmentsService.initAppointmentTypes(data.appointmentTypes);
-			SkillsService.init(data.skills, data.skillEmployees);
-			/* Los mecánicos se cargan, independientemente de que data.daysMechanics sea null, porque podrían cargarse
-			*  las líneas fijas desde localStorage */
-			MechanicsService.init(data.mechanics, data.employees, data.firstScheduleDay, data.lastScheduleDay);
-			/* Sólo se carga la info de panel si hay horarios */
-			if (MechanicsService.mechanics.length) {
-				CardsService.init(data.cards, MechanicsService.days);
-
-				console.log('INIT APPOINTMENT AYS', data.appointmentDays);
-				AppointmentsService.init(data.appointmentDays);
-
-				JobLineTypeService.init(data.jobLineTypes);
-
-				DimensionsService.init(
-					MechanicsService.days[0], MechanicsService.days, MechanicsService.todaySchedules, scrollTopDaysOffset
-				);
-			}
-
-			InitService.loading = false;
-			NotificationService.notifyLoading(InitService.loading);
-		});
+		// InitService.i += 1;
+		forkJoin([
+			this.mechanicService.findMechanics(day, day.add(Constants.VALUE.DAYS_LOAD - 1, Constants.DAY_JS.d)),
+			this.skillService.findSkills(),
+			this.jobLineTypeService.findJobLineTypes(),
+			this.appointmentsService.findAppointmentTypes()
+		]).subscribe(data => {
+			console.log(data);
+			// console.log('Mechanics', MechanicsService.mechanics2);
+			// console.log('Skills', SkillService.skills2);
+			// console.log('Highlighted skills', SkillService.highlightedSkills);
+			// console.log('Job line types', JobLineTypeService.jobLineTypes);
+		})
+		// this.http.get(
+		// 	Url.initialData(),
+		// 	{params: {
+		// 		from: day.format(Constants.DATE_FORMAT.yyyy_MM_dd),
+		// 		to: day.add(Constants.VALUE.DAYS_LOAD - 1, Constants.DAY_JS.d).format(Constants.DATE_FORMAT.yyyy_MM_dd)
+		// 	}}
+		// ).subscribe((data: any) => {
+		// 	console.log('Received data', data);
+		//
+		// 	AppointmentsService.initAppointmentTypes(data.appointmentTypes);
+		// 	SkillService.init(data.skills, data.skillEmployees);
+		// 	/* Los mecánicos se cargan, independientemente de que data.daysMechanics sea null, porque podrían cargarse
+		// 	*  las líneas fijas desde localStorage */
+		// 	MechanicsService.init(data.mechanics, data.employees, data.firstScheduleDay, data.lastScheduleDay);
+		// 	/* Sólo se carga la info de panel si hay horarios */
+		// 	if (MechanicsService.mechanics.length) {
+		// 		CardsService.init(data.cards, MechanicsService.days);
+		//
+		// 		console.log('INIT APPOINTMENT AYS', data.appointmentDays);
+		// 		AppointmentsService.init(data.appointmentDays);
+		//
+		// 		JobLineTypeService.init(data.jobLineTypes);
+		//
+		// 		DimensionsService.init(
+		// 			MechanicsService.days[0], MechanicsService.days, MechanicsService.todaySchedules, scrollTopDaysOffset
+		// 		);
+		// 	}
+		//
+		// 	InitService.loading = false;
+		// 	NotificationService.notifyLoading(InitService.loading);
+		// });
 	}
 
 	static checkRequestPreviousDaysInitialData(): boolean {

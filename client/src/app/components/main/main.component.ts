@@ -3,33 +3,33 @@ import {
 	Component, ElementRef,
 	OnDestroy, OnInit, Renderer2,
 } from '@angular/core';
-import {Constants} from "../../objects/constants";
-import {Subscription} from "rxjs/internal/Subscription";
-import {CardsService} from "../../services/cards.service";
-import {NotificationService} from "../../services/notification.service";
-import {UtilsService} from "../../services/utils.service";
-import {DimensionsService} from "../../services/dimensions.service";
-import {MechanicsService} from "../../services/mechanics.service";
-import {DaysAssignedGroups} from "../../objects/days-assigned-groups";
-import {ContextMenuInfo} from "../../objects/context-menu/context-menu-info";
-import {Mechanic} from "../../objects/mechanic";
-import {interval} from "rxjs/internal/observable/interval";
-import {Toast} from "../../objects/toasts/toast";
-import {DomSanitizer} from "@angular/platform-browser";
-import {DragScheduleContextMenuInfo} from "../../objects/context-menu/drag-schedule-context-menu-info";
-import {Coordinates} from "../../objects/coordinates";
-import {Dayjs} from "dayjs";
+import { Constants } from "../../objects/constants";
+import { Subscription } from "rxjs/internal/Subscription";
+import { CardsService } from "../../services/cards.service";
+import { NotificationService } from "../../services/notification.service";
+import { UtilsService } from "../../services/utils.service";
+import { DimensionsService } from "../../services/dimensions.service";
+import { MechanicsService } from "../../services/mechanics.service";
+import { DaysAssignedGroups } from "../../objects/days-assigned-groups";
+import { ContextMenuInfo } from "../../objects/context-menu/context-menu-info";
+import { Mechanic } from "../../objects/mechanic";
+import { interval } from "rxjs/internal/observable/interval";
+import { Toast } from "../../objects/toasts/toast";
+import { DomSanitizer } from "@angular/platform-browser";
+import { DragScheduleContextMenuInfo } from "../../objects/context-menu/drag-schedule-context-menu-info";
+import { Coordinates } from "../../objects/coordinates";
+import { Dayjs } from "dayjs";
 import * as dayjs from "dayjs";
-import {HourQuarter} from "../../objects/hour-quarter";
-import {MechanicSkillsUpdate} from "../../objects/trigger-cd/update-objects/mechanic-skills/mechanic-skills-update";
-import {MechanicLineUpdate} from "../../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
-import {DayTriggerMapUpdate} from "../../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
+import { HourQuarter } from "../../objects/hour-quarter";
+import { MechanicSkillsUpdate } from "../../objects/trigger-cd/update-objects/mechanic-skills/mechanic-skills-update";
+import { MechanicLineUpdate } from "../../objects/trigger-cd/update-objects/mechanic-line/mechanic-line-update";
+import { DayTriggerMapUpdate } from "../../objects/trigger-cd/update-objects/trigger-map-update/day-trigger-map-update";
 import { DaysTriggerMap } from 'src/app/objects/trigger-cd/trigger-maps/days-trigger-map';
-import {LateralPanelInfo} from "../../objects/lateral-panel-info/lateral-panel-info";
-import {AppointmentDayUpdate} from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
-import {MechanicGroupUpdate} from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
-import {MaxScheduleWidthUpdate} from "../../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
-import {ContextMenuUpdate} from "../../objects/trigger-cd/update-objects/generic/context-menu-update";
+import { LateralPanelInfo } from "../../objects/lateral-panel-info/lateral-panel-info";
+import { AppointmentDayUpdate } from "../../objects/trigger-cd/update-objects/appointments-counter/appointment-day-update";
+import { MechanicGroupUpdate } from "../../objects/trigger-cd/update-objects/groups/mechanic-group-update";
+import { MaxScheduleWidthUpdate } from "../../objects/trigger-cd/update-objects/generic/max-schedule-width-update";
+import { ContextMenuUpdate } from "../../objects/trigger-cd/update-objects/generic/context-menu-update";
 
 @Component({
 	selector: 'app-main',
@@ -102,34 +102,34 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.assignedDaysCardsGroups = CardsService.assignedDaysCardsGroups;
 
 		this.updateArraySubscription = NotificationService.updateArray$
-				.subscribe((updateArray: DayTriggerMapUpdate[]) => {
-			updateArray.forEach((triggerMapUpdate: DayTriggerMapUpdate) => {
-				triggerMapUpdate.updateTriggerMap(
-					this.daysTriggerMap,
-					triggerMapUpdate.day,
-					triggerMapUpdate.type,
-					triggerMapUpdate.value
-				);
+			.subscribe((updateArray: DayTriggerMapUpdate[]) => {
+				updateArray.forEach((triggerMapUpdate: DayTriggerMapUpdate) => {
+					triggerMapUpdate.updateTriggerMap(
+						this.daysTriggerMap,
+						triggerMapUpdate.day,
+						triggerMapUpdate.type,
+						triggerMapUpdate.value
+					);
+				});
+				this.cdRef.detectChanges();
 			});
-			this.cdRef.detectChanges();
-		});
 
 		this.contextMenuSubscription = NotificationService.contextMenu$
-				.subscribe((update: ContextMenuUpdate) => {
-			this.contextMenuInfo = update.contextMenuInfo;
-			if (this.contextMenuInfo) {
-				this.pointerDownListener = this.renderer.listen(
-					this.element.nativeElement,
-					Constants.EVENT.POINTER_DOWN,
-					this.onPointerDown.bind(this)
-				);
-			} else {
-				this.pointerDownListener();
-			}
-			if (update.trigger) {
-				this.cdRef.detectChanges();
-			}
-		});
+			.subscribe((update: ContextMenuUpdate) => {
+				this.contextMenuInfo = update.contextMenuInfo;
+				if (this.contextMenuInfo) {
+					this.pointerDownListener = this.renderer.listen(
+						this.element.nativeElement,
+						Constants.EVENT.POINTER_DOWN,
+						this.onPointerDown.bind(this)
+					);
+				} else {
+					this.pointerDownListener();
+				}
+				if (update.trigger) {
+					this.cdRef.detectChanges();
+				}
+			});
 
 		this.oneDayModeSubscription = NotificationService.oneDayMode$.subscribe((oneDayMode: boolean) => {
 			this.oneDayMode = oneDayMode;
@@ -139,16 +139,16 @@ export class MainComponent implements OnInit, OnDestroy {
 		});
 
 		this.maxScheduleWidthSubscription = NotificationService.maxScheduleWidth$
-				.subscribe((update: MaxScheduleWidthUpdate) => {
-			/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
-			*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
-			*  del slider */
-			this.maxScheduleWidth = update.maxScheduleWidth;
-			this.timeIndicatorLeft = MechanicsService.todaySchedules ? this.calcTimeIndicatorLeft() : undefined;
-			if (update.trigger) {
-				this.cdRef.detectChanges();
-			}
-		});
+			.subscribe((update: MaxScheduleWidthUpdate) => {
+				/* Se debe usar un observer distinto al anterior, en lugar de obtener el maxScheduleWidth directamente
+				*  del valor retornado por calcMaxScheduleWidth, porque esa cifra también se puede calcular a partir
+				*  del slider */
+				this.maxScheduleWidth = update.maxScheduleWidth;
+				this.timeIndicatorLeft = MechanicsService.todaySchedules ? this.calcTimeIndicatorLeft() : undefined;
+				if (update.trigger) {
+					this.cdRef.detectChanges();
+				}
+			});
 
 		this.triggerCdSubscription = NotificationService.triggerCd$.subscribe(() => {
 			this.cdRef.detectChanges();
@@ -414,7 +414,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			/* Si se hace clic en el menú contextual, este no se cierra (al menos desde aquí). Puede ser necesario que
 			*  no lo haga directamente, y requerir alguna interacción del usuario, por lo que se gestiona qué hacer con
 			*  él desde el click handler de la opción correspondiente */
-			if (this.contextMenuInfo && !this.checkElementId(<HTMLElement> event.target, Constants.CONTEXT_MENU)) {
+			if (this.contextMenuInfo && !this.checkElementId(<HTMLElement>event.target, Constants.CONTEXT_MENU)) {
 				this.contextMenuInfo.handleRemoval();
 			}
 			if (CardsService.auxiliaryGroupToReplace) {
@@ -428,7 +428,7 @@ export class MainComponent implements OnInit, OnDestroy {
 			return true;
 		}
 		if (level < 3) {
-			return this.checkElementId(<HTMLElement> element.parentNode, idSubstring, ++level);
+			return this.checkElementId(<HTMLElement>element.parentNode, idSubstring, ++level);
 		}
 		return false;
 	}

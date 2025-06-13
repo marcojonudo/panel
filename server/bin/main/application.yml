@@ -1,0 +1,119 @@
+micronaut:
+    application:
+        name: panel
+    server:
+        port: 8083
+        cors:
+            enabled: true
+    router:
+        static-resources:
+            default:
+                mapping: /**
+                paths: [classpath:static]
+    http:
+        client:
+            read-timeout: 30s
+
+endpoints:
+    beans:
+        enabled: true
+        sensitive: false
+    info:
+        enabled: true
+        sensitive: false
+    health:
+        enabled: true
+        sensitive: false
+    refresh:
+        enabled: true
+        sensitive: false
+    routes:
+        enabled: true
+        sensitive: false
+    loggers:
+        enabled: true
+        sensitive: false
+
+host.ip: ${HOST_IP:localhost}
+
+cron:
+    sync-jpdv-orders: '0 0 0 1 1 ?'
+
+host:
+    ip: ${HOST_IP:localhost}
+    local-mysql-port: ${MYSQL_PORT:3306}
+
+services:
+    db-api:
+        port: ${DB_API_PORT:8082}
+        url: http://${host.ip}:${services.cubo.port}
+    schedules:
+        port: ${SCHEDULES_PORT:8084}
+        url: http://${host.ip}:${services.schedules.port}
+
+hibernate:
+    hbm2ddl:
+        auto: 'none'
+
+flyway:
+    datasources:
+        default:
+            enabled: true
+
+db:
+    ip: ${DB_IP:localhost}
+    port: ${DB_PORT:5433}
+    credentials:
+        username: panel
+        password: F8BXVkKMnzxNhNLCTPQe!4!xs&Wi8YBf
+
+dataSource:
+    dbCreate: none
+    driverClassName: org.postgresql.Driver
+    dialect: org.hibernate.dialect.PostgreSQL10Dialect
+    url: jdbc:postgresql://${db.ip}:${db.port}/panel
+    username: ${db.credentials.username}
+    password: ${db.credentials.password}
+    properties:
+        initialSize: 1
+        maxActive: 1
+        minIdle: 1
+        maxIdle: 1
+        testOnBorrow: true
+        validationQuery: SELECT 1
+        validationInterval: 15000
+    logSql: true
+
+#dataSources:
+#    schedules:
+#        dbCreate: validate
+#        driverClassName: org.postgresql.Driver
+#        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+#        url: jdbc:postgresql://${db.ip}:${db.port}/schedules
+#        username: ${db.credentials.username}
+#        password: ${db.credentials.password}
+#        properties:
+#            initialSize: 1
+#            maxActive: 1
+#            minIdle: 1
+#            maxIdle: 1
+#            testOnBorrow: true
+#            validationQuery: SELECT 1
+#            validationInterval: 15000
+#        logSql: true
+#    fviberi:
+#        dbCreate: validate
+#        driverClassName: org.postgresql.Driver
+#        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+#        url: jdbc:postgresql://${db.ip}:${db.port}/fviberi
+#        username: ${db.credentials.username}
+#        password: ${db.credentials.password}
+#        properties:
+#            initialSize: 1
+#            maxActive: 1
+#            minIdle: 1
+#            maxIdle: 1
+#            testOnBorrow: true
+#            validationQuery: SELECT 1
+#            validationInterval: 15000
+#        logSql: true

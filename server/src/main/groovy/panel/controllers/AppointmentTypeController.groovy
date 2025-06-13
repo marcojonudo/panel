@@ -4,8 +4,8 @@ import groovy.transform.CompileStatic
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import jakarta.inject.Inject
-import panel.domains.panel.AppointmentType
-import panel.services.data.panel.AppointmentTypeDataService
+import panel.domains.AppointmentType
+import panel.services.data.AppointmentTypeDataService
 
 @CompileStatic
 @Controller("/appointmentTypes")

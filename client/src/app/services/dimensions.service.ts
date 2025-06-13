@@ -298,7 +298,7 @@ export class DimensionsService {
 
 	static calcGridCompleteHeight(dayMechanics: Mechanic[]): number {
 		return UtilsService.sumValues(
-			dayMechanics.map((mechanic: Mechanic) => this.calcMechanicLineCompleteHeight(mechanic.mechanicPanelInfo.lines))
+			dayMechanics.map((mechanic: Mechanic) => this.calcMechanicLineCompleteHeight(mechanic.panelInfo.lines))
 		);
 	}
 

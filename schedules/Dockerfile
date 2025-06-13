@@ -1,9 +1,6 @@
-FROM openjdk:8u171-alpine3.7
-LABEL maintainer="marco.martinez@feuvert.es"
-VOLUME /logs/schedules
-EXPOSE 8084
-ARG LOCALHOST=localhost
-ENV HOST_IP=$LOCALHOST
-RUN apk --no-cache add curl
-COPY build/libs/*.jar schedules.jar
-CMD java -Dcom.sun.management.jmxremote -Dmicronaut.environments=$ENV -Xmx128m -jar schedules.jar
+FROM gradle:7.4.2-jdk18-alpine
+ENV HOME=/app
+RUN mkdir -p $HOME
+WORKDIR $HOME
+#RUN ./gradlew --version
+CMD ./gradlew -t runApp

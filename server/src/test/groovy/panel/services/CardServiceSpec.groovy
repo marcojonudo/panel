@@ -3,9 +3,8 @@ package panel.services
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
-import panel.domains.panel.Group
-import panel.domains.panel.Task
-import panel.services.data.fviberi.OrderDataService
+import panel.domains.Group
+import panel.domains.Task
 import panel.services.data.panel.GroupDurationDataService
 import panel.services.data.panel.TaskDataService
 import spock.lang.Specification
@@ -17,14 +16,8 @@ class CardServiceSpec extends Specification {
 
 	@Inject CardService cardService
 
-	@Inject OrderDataService orderDataService
 	@Inject TaskDataService taskDataService
 	@Inject GroupDurationDataService groupDurationDataService
-
-	@MockBean(OrderDataService)
-	OrderDataService orderDataService() {
-	    Mock(OrderDataService)
-	}
 
 	@MockBean(TaskDataService)
 	TaskDataService taskDataService() {

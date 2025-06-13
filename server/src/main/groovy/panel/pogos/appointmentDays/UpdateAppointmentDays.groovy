@@ -1,6 +1,6 @@
 package panel.pogos.appointmentDays
 
-import panel.domains.panel.AppointmentDay
+import panel.domains.AppointmentDay
 import groovy.transform.CompileStatic
 
 @CompileStatic

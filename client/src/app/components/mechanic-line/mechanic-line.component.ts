@@ -215,7 +215,7 @@ export class MechanicLineComponent implements OnInit {
 
 	check() {
 		if (Constants.CHECK) {
-			console.log('checking mechanic line', this.mechanic.mechanicPanelInfo.position, this.groups);
+			console.log('checking mechanic line', this.mechanic.panelInfo.position, this.groups);
 		}
 	}
 

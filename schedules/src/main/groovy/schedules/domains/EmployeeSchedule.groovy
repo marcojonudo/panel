@@ -22,6 +22,7 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 	boolean workingDay
 	int restMinutes
 	JobPositionGroupCode jobPositionGroupCode
+	AbsenceInfo absenceInfo
 	boolean savedIfv
 
 //	MechanicPanelInfo panelInfo
@@ -46,24 +47,23 @@ class EmployeeSchedule implements GormEntity<EmployeeSchedule> {
 	@JsonInclude
 	List<SkillEmployee> skills
 
-	AbsenceInfo absenceInfo
-
 	static hasMany = [intervals: ScheduleInterval]
 
 	static constraints = {
 		day nullable: true
 		restMinutes nullable: true
 		absenceInfo nullable: true
-		userUpdated nullable: true, maxSize: 45
+//		userUpdated nullable: true, maxSize: 45
 		dateDeleted nullable: true
 	}
 
 	static mapping = {
 		version defaultValue: 0
-		employeeData fetch: 'join'
+		employeeData lazy: false
+		absenceInfo fetch: 'join'
 		intervals fetch: 'join', joinTable: [name: 'employee_schedule_intervals']
 	}
 
-	static transients = ['skills', 'absenceInfo']
+	static transients = ['skills']
 
 }

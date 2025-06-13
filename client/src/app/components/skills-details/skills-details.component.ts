@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import {MechanicSkills} from "../../objects/mechanic-skills";
 import {Skill} from "../../objects/skills/skill";
-import {SkillsService} from "../../services/skills.service";
+import {SkillService} from "../../services/skill.service";
 
 @Component({
 	selector: 'app-skills-details',
@@ -17,7 +17,7 @@ export class SkillsDetailsComponent {
 
 	@Input() mechanicSkills: MechanicSkills;
 
-	buildAllSkillsArray(skills: Skill[] = SkillsService.skills): Skill[] {
+	buildAllSkillsArray(skills: Skill[] = SkillService.skills): Skill[] {
 		const parentSkills = skills.filter(s => s.children.length > 0);
 		const sortedSkills = [];
 		parentSkills.forEach(parentSkill => {
@@ -32,7 +32,7 @@ export class SkillsDetailsComponent {
 	findSkillBadgeStyle(skill: Skill, mechanicSkills: MechanicSkills = this.mechanicSkills): any {
 		let highExpertise = undefined;
 		if (mechanicSkills) {
-			highExpertise = SkillsService.checkExperiencedSkill(skill, mechanicSkills.mechanicCode);
+			highExpertise = SkillService.checkExperiencedSkill(skill, mechanicSkills.mechanicCode);
 		}
 		return highExpertise ? skill.code.style.toStyle() : undefined;
 	}

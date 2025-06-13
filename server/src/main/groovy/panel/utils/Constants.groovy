@@ -1,8 +1,8 @@
 package panel.utils
 
 import groovy.transform.CompileStatic
-import panel.domains.fviberi.Order
-import panel.domains.panel.AppointmentType
+import panel.pogos.fviberi.Order
+import panel.domains.AppointmentType
 
 @CompileStatic
 class Constants {
@@ -25,6 +25,7 @@ class Constants {
 	static class DateTimeFormat {
 
 		static final String yyyy_MM_dd_HH_mm_ss = "yyyy-MM-dd HH:mm:ss"
+		static final String yyyy_MM_dd_T_hh_MM_ss_Z = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
 	}
 
@@ -73,5 +74,11 @@ class Constants {
 	static final String SPV_ID = "799"
 	static final int ROUND_NUMBER = 5
 	static final String FIRST_MECHANIC_POSITION = "A"
+
+	class SellerCode {
+
+		static final String CECOTEC = "9999996"
+
+	}
 
 }
